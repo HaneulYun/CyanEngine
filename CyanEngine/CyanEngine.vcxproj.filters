@@ -36,6 +36,9 @@
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DxFW.h">
+      <Filter>00_Core_DX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CyanEngine.cpp">
@@ -43,6 +46,9 @@
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DxFW.cpp">
+      <Filter>00_Core_DX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
