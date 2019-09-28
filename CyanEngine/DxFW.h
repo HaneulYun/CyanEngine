@@ -1,4 +1,5 @@
 #pragma once
+#include "Time.h"
 
 class DxFW
 {
@@ -47,6 +48,10 @@ private:
 #endif
 	D3D12_VIEWPORT m_d3dViewport{ NULL };
 	D3D12_RECT m_d3dScissorRect{ NULL };
+
+	// Time
+	Time m_time;
+	_TCHAR m_pszFrameRate[50];
 
 public:
 	DxFW();

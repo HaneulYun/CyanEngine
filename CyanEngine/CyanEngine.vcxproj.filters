@@ -19,6 +19,9 @@
     <Filter Include="01_Core">
       <UniqueIdentifier>{048a0937-1402-47ff-b58d-12d2c204f0ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02_Util">
+      <UniqueIdentifier>{4725bfd6-7b4c-4f7d-a02f-8281c2d1d611}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -39,6 +42,12 @@
     <ClInclude Include="DxFW.h">
       <Filter>00_Core_DX</Filter>
     </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>02_Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CyanEngine.cpp">
@@ -49,6 +58,12 @@
     </ClCompile>
     <ClCompile Include="DxFW.cpp">
       <Filter>00_Core_DX</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton.cpp">
+      <Filter>02_Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

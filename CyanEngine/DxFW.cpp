@@ -3,6 +3,7 @@
 
 DxFW::DxFW()
 {
+	_tcscpy_s(m_pszFrameRate, _T("CyanEngine ("));
 }
 
 DxFW::~DxFW()
@@ -56,7 +57,7 @@ void DxFW::OnDestroy()
 	if (m_pdxgiFactory) m_pdxgiFactory->Release();
 }
 
-void DxFW::CreateSwapChain()
+inline void DxFW::CreateSwapChain()
 {
 	RECT rcClient;
 	::GetClientRect(m_hWnd, &rcClient);
@@ -172,7 +173,9 @@ void DxFW::CreateCommandQueueAndList()
 	hResult = m_pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, __uuidof(ID3D12CommandAllocator), (void**)& m_pd3dCommandAllocator);
 
 	hResult = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pd3dCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void **)& m_pd3dCommandList);
-	hResult = m_pd3dCommandList->Close();
+
+	hResult = m_pd3dCommandList->Close();
+
 }
 
 void DxFW::CreateRenderTargetView()
@@ -239,6 +242,8 @@ void DxFW::AnimateObjects()
 
 void DxFW::FrameAdvance()
 {
+	m_time.Tick();
+
 	ProcessInput();
 	AnimateObjects();
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
@@ -292,6 +297,9 @@ void DxFW::FrameAdvance()
 	m_pdxgiSwapChain->Present1(1, 0, &dxgiPresentParameters);
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+
+	m_time.GetFrameRate(m_pszFrameRate + 12, 37);
+	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
 void DxFW::WaitForGpuComplete()
