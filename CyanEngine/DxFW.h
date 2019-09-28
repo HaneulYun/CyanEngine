@@ -22,6 +22,7 @@ private:
 	UINT m_nMsaa4xQualityLevels{ 0 };
 
 	static const UINT m_nSwapChainBuffers{ 2 };
+	//m_ppd3dSwapChainBackBuffers;
 
 	UINT m_nSwapChainBufferIndex{ NULL };
 
@@ -69,6 +70,8 @@ public:
 
 	void BuildObjects();
 	void ReleaseObjects();
+
+	void ChangeSwapChainState();
 
 	void ProcessInput();
 	void AnimateObjects();

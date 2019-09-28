@@ -32,5 +32,7 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-#define FRAME_BUFFER_WIDTH 640
-#define FRAME_BUFFER_HEIGHT 480
+#define FRAME_BUFFER_WIDTH 1600
+#define FRAME_BUFFER_HEIGHT 900
+
+//#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
