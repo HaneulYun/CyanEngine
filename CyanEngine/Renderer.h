@@ -37,9 +37,9 @@ private:
 	ID3D12DescriptorHeap* m_pd3dDsvDescriptorHeap{ nullptr };
 	UINT m_nDsvDescriptorIncrementSize{ 0 };
 
+public:
 	ID3D12CommandQueue* m_pd3dCommandQueue{ nullptr };
 	ID3D12CommandAllocator* m_pd3dCommandAllocator{ nullptr };
-public:
 	ID3D12GraphicsCommandList* m_pd3dCommandList{ nullptr };
 private:
 

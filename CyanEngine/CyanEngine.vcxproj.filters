@@ -34,6 +34,12 @@
     <Filter Include="01_Util">
       <UniqueIdentifier>{048a0937-1402-47ff-b58d-12d2c204f0ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="30_GameObject\31_Mesh">
+      <UniqueIdentifier>{7ea717cd-fd26-49c8-ad31-f0a835cd3b39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="30_GameObject\32_Shader">
+      <UniqueIdentifier>{6f09b729-bad5-4b41-beec-b2fd1a4eb0c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -75,6 +81,12 @@
     <ClInclude Include="Singleton.h">
       <Filter>01_Util</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>30_GameObject\31_Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>30_GameObject\32_Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CyanEngine.cpp">
@@ -106,6 +118,15 @@
     </ClCompile>
     <ClCompile Include="Singleton.cpp">
       <Filter>01_Util</Filter>
+    </ClCompile>
+    <ClCompile Include="framework.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>30_GameObject\31_Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>30_GameObject\32_Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
