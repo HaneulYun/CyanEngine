@@ -1,17 +1,25 @@
 #pragma once
 
-template <typename T>
+template <typename Type, typename T>
 class Singleton
 {
 private:
-	static T* instance{ nullptr };
+	static T* instance;
 
-	Singleton();
+protected:
+	Singleton() {}
+	~Singleton()
+	{
+		if (instance) delete instance;
+		instance = nullptr;
+	}
 
 public:
-	inline T* Singleton<T>::Instance()
+	static T* Instance()
 	{
 		if (!instance) instance = new T();
 		return instance;
 	}
 };
+
+template <typename Type, typename T> T* Singleton<Type, T>::instance = nullptr;

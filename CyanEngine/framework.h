@@ -39,6 +39,8 @@ using Microsoft::WRL::ComPtr;
 
 #include <deque>
 
+#include "Singleton.h"
+
 #include "Object.h"
 #include "Component.h"
 #include "Renderer.h"
