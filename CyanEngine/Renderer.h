@@ -16,9 +16,11 @@ private:
 	IDXGIFactory4* m_pdxgiFactory{ nullptr };
 	IDXGISwapChain3* m_pdxgiSwapChain{ nullptr };
 
+public:
 	// DX 구성 요소
 	ID3D12Device* m_pd3dDevice{ nullptr };
 
+private:
 	bool m_bMsaa4xEnable{ false };
 	UINT m_nMsaa4xQualityLevels{ 0 };
 
@@ -37,7 +39,9 @@ private:
 
 	ID3D12CommandQueue* m_pd3dCommandQueue{ nullptr };
 	ID3D12CommandAllocator* m_pd3dCommandAllocator{ nullptr };
+public:
 	ID3D12GraphicsCommandList* m_pd3dCommandList{ nullptr };
+private:
 
 	ID3D12PipelineState* m_pd3dPipelineState{ nullptr };
 
@@ -58,7 +62,9 @@ public:
 	void OnStart();
 
 	void Update();
+	void PreRender();
 	void Render();
+	void PostRender();
 
 	void OnDestroy();
 
