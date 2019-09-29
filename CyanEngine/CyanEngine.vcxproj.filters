@@ -13,14 +13,29 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="00_Core_DX">
-      <UniqueIdentifier>{d04c8d9f-49ee-4187-8688-f2126291bd4a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="01_Core">
       <UniqueIdentifier>{048a0937-1402-47ff-b58d-12d2c204f0ec}</UniqueIdentifier>
     </Filter>
     <Filter Include="02_Util">
       <UniqueIdentifier>{4725bfd6-7b4c-4f7d-a02f-8281c2d1d611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00_Core">
+      <UniqueIdentifier>{d04c8d9f-49ee-4187-8688-f2126291bd4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10_Object">
+      <UniqueIdentifier>{3c956cf4-31e4-400b-baab-b45c94cff437}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="08_Scene">
+      <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="20_Component">
+      <UniqueIdentifier>{ece94e79-7abf-4890-8f0d-b82743bf4a28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="30_GameObject">
+      <UniqueIdentifier>{35f5e4de-8fb7-4a02-9cf3-f7feb26ce6b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="20_Component\21_Components">
+      <UniqueIdentifier>{5d8c62ee-5337-4ebf-ab71-a667cfca8b37}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -46,7 +61,22 @@
       <Filter>02_Util</Filter>
     </ClInclude>
     <ClInclude Include="CyanFW.h">
-      <Filter>00_Core_DX</Filter>
+      <Filter>00_Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>10_Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>20_Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>08_Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>20_Component\21_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>30_GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -63,7 +93,22 @@
       <Filter>02_Util</Filter>
     </ClCompile>
     <ClCompile Include="CyanFW.cpp">
-      <Filter>00_Core_DX</Filter>
+      <Filter>00_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>10_Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>20_Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>08_Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>20_Component\21_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>30_GameObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -36,3 +36,11 @@ using Microsoft::WRL::ComPtr;
 #define FRAME_BUFFER_HEIGHT 900
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
+
+#include <deque>
+
+#include "Object.h"
+#include "Component.h"
+#include "Renderer.h"
+#include "GameObject.h"
+#include "Scene.h"
