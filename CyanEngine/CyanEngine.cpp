@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "framework.h"
 #include "CyanEngine.h"
-#include "DxFW.h"
+#include "CyanFW.h"
 
 #define MAX_LOADSTRING 100
 
@@ -16,7 +16,7 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
-DxFW gDxFW;
+CyanFW gCyanFW;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -52,10 +52,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		}
 		else
 		{
-			gDxFW.FrameAdvance();
+			gCyanFW.FrameAdvance();
 		}
 	}
-	gDxFW.OnDestroy();
+	gCyanFW.OnDestroy();
 
     return (int) msg.wParam;
 }
@@ -92,7 +92,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, dwStyle,
       CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr);
     
-   gDxFW.OnCreate(hInst, hWnd);
+   gCyanFW.OnCreate(hInst, hWnd);
 
    if (!hWnd)
    {
@@ -103,7 +103,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
 
 #ifdef _WITH_SWAPCHAIN_FULLSCREEN_STATE
-   gDxFW.ChangeSwapChainState();
+   gCyanFW.ChangeSwapChainState();
 #endif
 
    return TRUE;
@@ -121,7 +121,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
-		gDxFW.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+		gCyanFW.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
 		break;
     case WM_DESTROY:
         PostQuitMessage(0);

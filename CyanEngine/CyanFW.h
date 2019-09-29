@@ -1,7 +1,7 @@
 #pragma once
 #include "Time.h"
 
-class DxFW
+class CyanFW
 {
 private:
 	// 윈도우 구성 요소, 분리할 필요 있음
@@ -55,8 +55,8 @@ private:
 	_TCHAR m_pszFrameRate[50];
 
 public:
-	DxFW();
-	~DxFW();
+	CyanFW();
+	~CyanFW();
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
 

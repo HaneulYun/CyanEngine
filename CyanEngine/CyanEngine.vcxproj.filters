@@ -39,14 +39,14 @@
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DxFW.h">
-      <Filter>00_Core_DX</Filter>
-    </ClInclude>
     <ClInclude Include="Time.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h">
       <Filter>02_Util</Filter>
+    </ClInclude>
+    <ClInclude Include="CyanFW.h">
+      <Filter>00_Core_DX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -56,14 +56,14 @@
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DxFW.cpp">
-      <Filter>00_Core_DX</Filter>
-    </ClCompile>
     <ClCompile Include="Time.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Singleton.cpp">
       <Filter>02_Util</Filter>
+    </ClCompile>
+    <ClCompile Include="CyanFW.cpp">
+      <Filter>00_Core_DX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

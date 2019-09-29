@@ -1,16 +1,16 @@
 #include "pch.h"
-#include "DxFW.h"
+#include "CyanFW.h"
 
-DxFW::DxFW()
+CyanFW::CyanFW()
 {
 	_tcscpy_s(m_pszFrameRate, _T("CyanEngine ("));
 }
 
-DxFW::~DxFW()
+CyanFW::~CyanFW()
 {
 }
 
-bool DxFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
+bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
 	m_hInstance = hInstance;
 	m_hWnd = hMainWnd;
@@ -28,7 +28,7 @@ bool DxFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	return true;
 }
 
-void DxFW::OnDestroy()
+void CyanFW::OnDestroy()
 {
 	ReleaseObjects();
 
@@ -58,7 +58,7 @@ void DxFW::OnDestroy()
 	if (m_pdxgiFactory) m_pdxgiFactory->Release();
 }
 
-inline void DxFW::CreateSwapChain()
+inline void CyanFW::CreateSwapChain()
 {
 	RECT rcClient;
 	::GetClientRect(m_hWnd, &rcClient);
@@ -102,7 +102,7 @@ inline void DxFW::CreateSwapChain()
 #endif
 }
 
-void DxFW::CreateDirect3DDevice()
+void CyanFW::CreateDirect3DDevice()
 {
 #if defined(_DEBUG)
 	D3D12GetDebugInterface(__uuidof(ID3D12Debug), (void**)& m_pd3dDebugController);
@@ -154,7 +154,7 @@ void DxFW::CreateDirect3DDevice()
 	if (pd3dAdapter) pd3dAdapter->Release();
 }
 
-void DxFW::CreateRtvAndDsvDescriptorHeaps()
+void CyanFW::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
 	::ZeroMemory(&d3dDescriptorHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
@@ -171,7 +171,7 @@ void DxFW::CreateRtvAndDsvDescriptorHeaps()
 	m_nDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
 
-void DxFW::CreateCommandQueueAndList()
+void CyanFW::CreateCommandQueueAndList()
 {
 	D3D12_COMMAND_QUEUE_DESC d3dCommandQueueDesc;
 	::ZeroMemory(&d3dCommandQueueDesc, sizeof(D3D12_COMMAND_QUEUE_DESC));
@@ -188,7 +188,7 @@ void DxFW::CreateCommandQueueAndList()
 
 }
 
-void DxFW::CreateRenderTargetView()
+void CyanFW::CreateRenderTargetView()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -201,7 +201,7 @@ void DxFW::CreateRenderTargetView()
 	}
 }
 
-void DxFW::CreateDepthStencilView()
+void CyanFW::CreateDepthStencilView()
 {
 	D3D12_RESOURCE_DESC d3dResourceDesc;
 	d3dResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -234,15 +234,15 @@ void DxFW::CreateDepthStencilView()
 	m_pd3dDevice->CreateDepthStencilView(m_pd3dDepthStencilBuffer, NULL, d3dDsvCPUDescriptorHandle);
 }
 
-void DxFW::BuildObjects()
+void CyanFW::BuildObjects()
 {
 }
 
-void DxFW::ReleaseObjects()
+void CyanFW::ReleaseObjects()
 {
 }
 
-void DxFW::ChangeSwapChainState()
+void CyanFW::ChangeSwapChainState()
 {
 	WaitForGpuComplete();
 
@@ -272,15 +272,15 @@ void DxFW::ChangeSwapChainState()
 	CreateRenderTargetView();
 }
 
-void DxFW::ProcessInput()
+void CyanFW::ProcessInput()
 {
 }
 
-void DxFW::AnimateObjects()
+void CyanFW::AnimateObjects()
 {
 }
 
-void DxFW::FrameAdvance()
+void CyanFW::FrameAdvance()
 {
 	m_time.Tick();
 
@@ -342,7 +342,7 @@ void DxFW::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
-void DxFW::WaitForGpuComplete()
+void CyanFW::WaitForGpuComplete()
 {
 	m_nFenceValue++;
 
@@ -356,7 +356,7 @@ void DxFW::WaitForGpuComplete()
 	}
 }
 
-void DxFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMessageID)
 	{
@@ -373,7 +373,7 @@ void DxFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, L
 	}
 }
 
-void DxFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMessageID)
 	{
@@ -399,7 +399,7 @@ void DxFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam
 	}
 }
 
-LRESULT DxFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	switch (nMessageID)
 	{
