@@ -39,6 +39,8 @@ using Microsoft::WRL::ComPtr;
 
 #include <deque>
 
+#include "Time.h"
+
 #include "Singleton.h"
 
 #include "Object.h"

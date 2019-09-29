@@ -1,6 +1,6 @@
 #pragma once
 
-template <typename Type, typename T>
+template <typename T>
 class Singleton
 {
 private:
@@ -22,4 +22,4 @@ public:
 	}
 };
 
-template <typename Type, typename T> T* Singleton<Type, T>::instance = nullptr;
+template <typename T> T* Singleton<T>::instance = nullptr;
