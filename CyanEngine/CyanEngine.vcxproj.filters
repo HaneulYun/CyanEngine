@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="01_Core">
-      <UniqueIdentifier>{048a0937-1402-47ff-b58d-12d2c204f0ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="02_Util">
-      <UniqueIdentifier>{4725bfd6-7b4c-4f7d-a02f-8281c2d1d611}</UniqueIdentifier>
-    </Filter>
     <Filter Include="00_Core">
       <UniqueIdentifier>{d04c8d9f-49ee-4187-8688-f2126291bd4a}</UniqueIdentifier>
     </Filter>
@@ -36,6 +30,9 @@
     </Filter>
     <Filter Include="20_Component\21_Components">
       <UniqueIdentifier>{5d8c62ee-5337-4ebf-ab71-a667cfca8b37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01_Util">
+      <UniqueIdentifier>{048a0937-1402-47ff-b58d-12d2c204f0ec}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -57,9 +54,6 @@
     <ClInclude Include="Time.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>02_Util</Filter>
-    </ClInclude>
     <ClInclude Include="CyanFW.h">
       <Filter>00_Core</Filter>
     </ClInclude>
@@ -78,6 +72,9 @@
     <ClInclude Include="GameObject.h">
       <Filter>30_GameObject</Filter>
     </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>01_Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CyanEngine.cpp">
@@ -88,9 +85,6 @@
     </ClCompile>
     <ClCompile Include="Time.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Singleton.cpp">
-      <Filter>02_Util</Filter>
     </ClCompile>
     <ClCompile Include="CyanFW.cpp">
       <Filter>00_Core</Filter>
@@ -109,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>30_GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton.cpp">
+      <Filter>01_Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@
 
 CyanFW::CyanFW()
 {
+	_tcscpy_s(m_pszFrameRate, _T("CyanEngine ("));
 }
 
 CyanFW::~CyanFW()
@@ -39,6 +40,9 @@ void CyanFW::FrameAdvance()
 
 	scene->Update();
 	scene->Render();
+
+	Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
+	::SetWindowText(Renderer::Instance()->m_hWnd, m_pszFrameRate);
 
 	ProcessInput();
 }

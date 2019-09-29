@@ -51,9 +51,6 @@ private:
 	D3D12_VIEWPORT m_d3dViewport{ NULL };
 	D3D12_RECT m_d3dScissorRect{ NULL };
 
-	// Time
-	_TCHAR m_pszFrameRate[50];
-
 public:
 	Renderer();
 	~Renderer();
@@ -66,10 +63,11 @@ public:
 	void OnDestroy();
 
 	//--------------//
-	void CreateSwapChain();
 	void CreateDirect3DDevice();
-	void CreateRtvAndDsvDescriptorHeaps();
 	void CreateCommandQueueAndList();
+	void CreateSwapChain();
+
+	void CreateRtvAndDsvDescriptorHeaps();
 	void CreateRenderTargetView();
 	void CreateDepthStencilView();
 

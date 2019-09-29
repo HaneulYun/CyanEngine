@@ -6,6 +6,9 @@ class CyanFW
 private:
 	Scene* scene{ nullptr };
 
+	// Time
+	_TCHAR m_pszFrameRate[50];
+
 public:
 	CyanFW();
 	~CyanFW();
