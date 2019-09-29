@@ -3,6 +3,8 @@
 
 Renderer::Renderer()
 {
+	for (int i = 0; i < m_nSwapChainBuffers; i++)
+		m_nFenceValues[i] = 0;
 }
 
 Renderer::~Renderer()
@@ -24,7 +26,6 @@ void Renderer::OnStart()
 
 void Renderer::Update()
 {
-	m_time.Tick();
 }
 
 void Renderer::Render()
@@ -81,7 +82,7 @@ void Renderer::Render()
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 
-	m_time.GetFrameRate(m_pszFrameRate + 12, 37);
+	Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
@@ -195,7 +196,7 @@ void Renderer::CreateDirect3DDevice()
 	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
 	m_pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)& m_pd3dFence);
 
-	m_nFenceValue = 0;
+	m_nFenceValues[0] = 0;
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	m_d3dViewport.TopLeftX = 0;
@@ -322,14 +323,24 @@ void Renderer::ChangeSwapChainState()
 
 void Renderer::WaitForGpuComplete()
 {
-	m_nFenceValue++;
-
-	const UINT64 nFence = m_nFenceValue;
-	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence, nFence);
-
-	if (m_pd3dFence->GetCompletedValue() < nFence)
+	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
+	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence, nFenceValue);
+	if (m_pd3dFence->GetCompletedValue() < nFenceValue)
 	{
-		hResult = m_pd3dFence->SetEventOnCompletion(nFence, m_hFenceEvent);
+		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
+		::WaitForSingleObject(m_hFenceEvent, INFINITE);
+	}
+}
+
+void Renderer::MoveToNextFrame()
+{
+	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+
+	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
+	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence, nFenceValue);
+	if (m_pd3dFence->GetCompletedValue() < nFenceValue)
+	{
+		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
 		::WaitForSingleObject(m_hFenceEvent, INFINITE);
 	}
 }

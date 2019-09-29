@@ -16,5 +16,10 @@ public:
 	void Render();
 
 	void OnDestroy();
+
+	//----------------//
+	void BuildObjects();
+	void ReleaseObjects();
+	void AnimateObjects();
 };
 

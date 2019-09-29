@@ -42,7 +42,7 @@ private:
 	ID3D12PipelineState* m_pd3dPipelineState{ nullptr };
 
 	ID3D12Fence* m_pd3dFence{ nullptr };
-	UINT64 m_nFenceValue{ 0 };
+	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_hFenceEvent{ nullptr };
 
 #if defined(_DEBUG)
@@ -52,7 +52,6 @@ private:
 	D3D12_RECT m_d3dScissorRect{ NULL };
 
 	// Time
-	Time m_time;
 	_TCHAR m_pszFrameRate[50];
 
 public:
@@ -77,4 +76,6 @@ public:
 	void ChangeSwapChainState();
 
 	void WaitForGpuComplete();
+
+	void MoveToNextFrame();
 };

@@ -2,7 +2,7 @@
 
 const ULONG MAX_SAMPLE_COUNT = 50;
 
-class Time
+class Time : public Singleton<Time>
 {
 private:
 	bool m_bHardwareHasPerformanceCounter;
@@ -28,5 +28,6 @@ public:
 	void Tick(float fLockFPS = 0.0f);
 	unsigned long GetFrameRate(LPTSTR lpszString = NULL, int nCharacters = 0);
 	float GetTimeElapsed();
+	void Reset() {}; /* need definition */
 };
 

@@ -4,7 +4,7 @@
 class CyanFW
 {
 private:
-	Scene* scene;
+	Scene* scene{ nullptr };
 
 public:
 	CyanFW();
@@ -14,13 +14,8 @@ public:
 
 	void OnDestroy();
 
-	void BuildObjects();
-	void ReleaseObjects();
-
 	void ProcessInput();
-	void AnimateObjects();
 	void FrameAdvance();
-	void WaitForGpuComplete();
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

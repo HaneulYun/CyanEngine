@@ -15,43 +15,32 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	Renderer::Instance()->m_hWnd = hMainWnd;
 
 	scene = new Scene();
-	scene->OnStart();
+	if (scene)
+		scene->OnStart();
 
-	BuildObjects();
+	Time::Instance()->Reset();
 
 	return true;
 }
 
 void CyanFW::OnDestroy()
 {
-	ReleaseObjects();
-
-	scene->OnDestroy();
-}
-
-void CyanFW::BuildObjects()
-{
-}
-
-void CyanFW::ReleaseObjects()
-{
+	if (scene)
+		scene->OnDestroy();
 }
 
 void CyanFW::ProcessInput()
 {
 }
 
-void CyanFW::AnimateObjects()
-{
-}
-
 void CyanFW::FrameAdvance()
 {
+	Time::Instance()->Tick();
+
 	scene->Update();
 	scene->Render();
 
 	ProcessInput();
-	AnimateObjects();
 }
 
 void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
