@@ -46,6 +46,11 @@ void Scene::Render()
 	for (GameObject* object : gameObjects)
 		object->Render(Renderer::Instance()->m_pd3dCommandList);
 
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_pShaders[i].Render(Renderer::Instance()->m_pd3dCommandList, Camera::Instance());
+	}
+
 	dynamic_cast<Renderer*>(renderer)->PostRender();
 }
 
@@ -73,7 +78,7 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 	RotatingObject* pRotatingObject2 = new RotatingObject();
 	pRotatingObject2->SetMesh(pCubeMesh);
 
-	CDiffusedShader* pShader = new CDiffusedShader();
+	PlayerShader* pShader = new PlayerShader();
 	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
 	pGameObject->SetShader(pShader);
@@ -83,6 +88,13 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 	gameObjects.push_back(pGameObject);
 	gameObjects.push_back(pRotatingObject);
 	gameObjects.push_back(pRotatingObject2);
+
+
+	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+	m_nShaders = 1;
+	m_pShaders = new ObjectsShader[m_nShaders];
+	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	m_pShaders[0].BuildObjects(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
 }
 
 void Scene::ReleaseObjects()
@@ -94,12 +106,25 @@ void Scene::ReleaseObjects()
 		// 제거를 어떻게 안전하게 진행하는지 기억나지 않는다.
 		delete object;
 	}
+
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_pShaders[i].ReleaseShaderVariables();
+		m_pShaders[i].ReleaseObjects();
+	}
+	if (m_pShaders)
+		delete[] m_pShaders;
 }
 
 void Scene::AnimateObjects(float fTimeElapsed)
 {
 	for (GameObject* object : gameObjects)
 		object->Animate(fTimeElapsed);
+
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_pShaders[i].AnimateObjects(fTimeElapsed);
+	}
 }
 
 bool Scene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -116,6 +141,9 @@ void Scene::ReleaseUploadBuffers()
 {
 	for (GameObject* object : gameObjects)
 		object->ReleaseUploadBuffers();
+
+	for (int i = 0; i < m_nShaders; i++)
+		m_pShaders[i].ReleaseUploadBuffers();
 }
 
 ID3D12RootSignature* Scene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
