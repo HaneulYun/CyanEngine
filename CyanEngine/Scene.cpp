@@ -63,28 +63,25 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	//m_nShaders = 1;
-	//m_ppShaders = new Shader * [m_nShaders];
-	//
-	//Shader* pShader = new Shader();
-	//pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	//pShader->BuildObjects(pd3dDevice, Renderer::Instance()->m_pd3dCommandList, NULL);
-	//
-	//m_ppShaders[0] = pShader;
-
-	TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
-	m_nObjects = 1;
+	m_nObjects = 2;
 	m_ppObjects = new GameObject * [m_nObjects];
 
+	TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
 	RotatingObject* pRotatingObject = new RotatingObject();
 	pRotatingObject->SetMesh(pMesh);
+
+	Quad* pQuadMesh = new Quad(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
+	GameObject* pGameObject = new GameObject();
+	pGameObject->SetMesh(pQuadMesh);
 
 	CDiffusedShader* pShader = new CDiffusedShader();
 	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
+	pGameObject->SetShader(pShader);
 	pRotatingObject->SetShader(pShader);
 
 	m_ppObjects[0] = pRotatingObject;
+	m_ppObjects[1] = pGameObject;
 }
 
 void Scene::ReleaseObjects()
