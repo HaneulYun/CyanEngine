@@ -41,7 +41,7 @@ void GameObject::OnPrepareRender()
 {
 }
 
-void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList)
+void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList) 
 {
 	OnPrepareRender();
 

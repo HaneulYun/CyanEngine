@@ -43,10 +43,8 @@ void Scene::Render()
 
 	Camera::Instance()->UpdateShaderVariables(Renderer::Instance()->m_pd3dCommandList);
 
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		if (m_ppObjects[j]) m_ppObjects[j]->Render(Renderer::Instance()->m_pd3dCommandList);
-	}
+	for (GameObject* object : gameObjects)
+		object->Render(Renderer::Instance()->m_pd3dCommandList);
 
 	dynamic_cast<Renderer*>(renderer)->PostRender();
 }
@@ -63,9 +61,6 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	m_nObjects = 2;
-	m_ppObjects = new GameObject * [m_nObjects];
-
 	TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
 	RotatingObject* pRotatingObject = new RotatingObject();
 	pRotatingObject->SetMesh(pMesh);
@@ -80,40 +75,25 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 	pGameObject->SetShader(pShader);
 	pRotatingObject->SetShader(pShader);
 
-	m_ppObjects[0] = pRotatingObject;
-	m_ppObjects[1] = pGameObject;
+	gameObjects.push_back(pRotatingObject);
+	gameObjects.push_back(pGameObject);
 }
 
 void Scene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-
-	//if (m_ppShaders)
-	//{
-	//	for (int i = 0; i < m_nShaders; i++)
-	//	{
-	//		m_ppShaders[i]->ReleaseShaderVariables();
-	//		m_ppShaders[i]->ReleaseObjects();
-	//		m_ppShaders[i]->Release();
-	//	}
-	//	delete[] m_ppShaders;
-	//}
-
-	if (m_ppObjects)
+	
+	for (GameObject* object : gameObjects)
 	{
-		for (int j = 0; j < m_nObjects; j++)
-			if (m_ppObjects[j])
-				delete m_ppObjects[j];
-		delete[] m_ppObjects;
+		// 제거를 어떻게 안전하게 진행하는지 기억나지 않는다.
+		delete object;
 	}
 }
 
 void Scene::AnimateObjects(float fTimeElapsed)
 {
-	for (int i = 0; i < m_nObjects; i++)
-	{
-		m_ppObjects[i]->Animate(fTimeElapsed);
-	}
+	for (GameObject* object : gameObjects)
+		object->Animate(fTimeElapsed);
 }
 
 bool Scene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -128,18 +108,8 @@ bool Scene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPara
 
 void Scene::ReleaseUploadBuffers()
 {
-	//if (m_ppShaders)
-	//{
-	//	for (int j = 0; j < m_nShaders; j++)
-	//		if (m_ppShaders[j])
-	//			m_ppShaders[j]->ReleaseUploadBuffers();
-	//}
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++)
-			if (m_ppObjects[j])
-				m_ppObjects[j]->ReleaseUploadBuffers();
-	}
+	for (GameObject* object : gameObjects)
+		object->ReleaseUploadBuffers();
 }
 
 ID3D12RootSignature* Scene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)

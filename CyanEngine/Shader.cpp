@@ -141,50 +141,12 @@ void Shader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dRoo
 		delete[] d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
-void Shader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void* pContext)
-{
-	TriangleMesh* pTriangleMesh = new TriangleMesh(pd3dDevice, pd3dCommandList);
-	m_nObjects = 1;
-	m_ppObjects = new GameObject * [m_nObjects];
-	m_ppObjects[0] = new GameObject();
-	m_ppObjects[0]->SetMesh(pTriangleMesh);
-}
-
-void Shader::ReleaseObjects()
-{
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++)
-			if (m_ppObjects[j])
-				delete m_ppObjects[j];
-		delete[] m_ppObjects;
-	}
-}
-
-void Shader::AnimateObjects(float fTimeElapsed)
-{
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		m_ppObjects[j]->Animate(fTimeElapsed);
-	}
-}
-
 void Shader::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
 {
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
 }
-
-void Shader::ReleaseUploadBuffers()
-{
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j])
-			m_ppObjects[j]->ReleaseUploadBuffers();
-	}
-}
-
 void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
@@ -193,10 +155,6 @@ void Shader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 void Shader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	OnPrepareRender(pd3dCommandList);
-	//for (int j = 0; j < m_nObjects; j++)
-	//{
-	//	if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList);
-	//}
 }
 
 CDiffusedShader::CDiffusedShader()

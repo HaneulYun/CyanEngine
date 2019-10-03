@@ -19,9 +19,6 @@
     <Filter Include="10_Object">
       <UniqueIdentifier>{3c956cf4-31e4-400b-baab-b45c94cff437}</UniqueIdentifier>
     </Filter>
-    <Filter Include="08_Scene">
-      <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="20_Component">
       <UniqueIdentifier>{ece94e79-7abf-4890-8f0d-b82743bf4a28}</UniqueIdentifier>
     </Filter>
@@ -45,6 +42,9 @@
     </Filter>
     <Filter Include="28_Camera">
       <UniqueIdentifier>{93d77240-dd03-45bf-812e-16572efe46df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="05_Scene">
+      <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -76,7 +76,7 @@
       <Filter>20_Component</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>08_Scene</Filter>
+      <Filter>05_Scene</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>30_GameObject</Filter>
@@ -123,7 +123,7 @@
       <Filter>20_Component</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>08_Scene</Filter>
+      <Filter>05_Scene</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>30_GameObject</Filter>

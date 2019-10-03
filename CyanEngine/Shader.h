@@ -36,20 +36,11 @@ public:
 	virtual void ReleaseShaderVariables() { }
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World);
-	
-	virtual void ReleaseUploadBuffers();
-	
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
-	virtual void AnimateObjects(float fTimeElapsed);
-	virtual void ReleaseObjects();
 
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 
 protected:
-	GameObject **m_ppObjects = NULL;
-	int m_nObjects = 0;
-
 	ID3D12PipelineState **m_ppd3dPipelineStates = NULL;
 	int m_nPipelineStates = 0;
 };
