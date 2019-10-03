@@ -29,7 +29,7 @@ void Scene::OnStart()
 
 void Scene::Update()
 {
-	AnimateObjects();
+	AnimateObjects(Time::Instance()->GetTimeElapsed());
 	renderer->Update();
 }
 
