@@ -154,12 +154,14 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="CyanEngine.h" />
     <ClInclude Include="CyanFW.h" />
+    <ClInclude Include="DxRendererManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RendererManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
@@ -171,6 +173,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CyanEngine.cpp" />
     <ClCompile Include="CyanFW.cpp" />
+    <ClCompile Include="DxRendererManager.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -182,6 +185,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RendererManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Singleton.cpp" />

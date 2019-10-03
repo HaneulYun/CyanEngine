@@ -40,6 +40,9 @@
     <Filter Include="30_GameObject\32_Shader">
       <UniqueIdentifier>{6f09b729-bad5-4b41-beec-b2fd1a4eb0c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="25_Renderer">
+      <UniqueIdentifier>{4e8bda8d-cca0-422d-bcd7-c8baf15aef87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -72,9 +75,6 @@
     <ClInclude Include="Scene.h">
       <Filter>08_Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>20_Component\21_Components</Filter>
-    </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>30_GameObject</Filter>
     </ClInclude>
@@ -86,6 +86,15 @@
     </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>30_GameObject\32_Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>25_Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererManager.h">
+      <Filter>25_Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DxRendererManager.h">
+      <Filter>25_Renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -110,9 +119,6 @@
     <ClCompile Include="Scene.cpp">
       <Filter>08_Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>20_Component\21_Components</Filter>
-    </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>30_GameObject</Filter>
     </ClCompile>
@@ -127,6 +133,15 @@
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>30_GameObject\32_Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>25_Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererManager.cpp">
+      <Filter>25_Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DxRendererManager.cpp">
+      <Filter>25_Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

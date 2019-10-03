@@ -85,7 +85,8 @@ D3D12_INPUT_LAYOUT_DESC Shader::CreateInputLayout()
 	d3dInputLayoutDesc.NumElements = nInputElementDescs;
 
 	return d3dInputLayoutDesc;
-}
+}
+
 D3D12_SHADER_BYTECODE Shader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
 	return(CompileShaderFromFile(L"Shaders.hlsl", "VSMain", "vs_5_1", ppd3dShaderBlob));

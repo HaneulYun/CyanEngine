@@ -3,6 +3,9 @@
 class Renderer : public Component,
 	public Singleton<Renderer>
 {
+private:
+	RendererManager* rendererManager;
+
 public:
 	// 윈도우 구성 요소, 분리할 필요 있음
 	HINSTANCE m_hInstance{ nullptr };

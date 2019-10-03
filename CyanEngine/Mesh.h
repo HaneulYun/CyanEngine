@@ -52,7 +52,8 @@ protected:
 	UINT m_nStride = 0;
 	UINT m_nOffset = 0;
 public:
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
+
 };
 
 class CTriangleMesh : public Mesh
