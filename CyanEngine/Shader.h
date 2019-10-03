@@ -2,6 +2,11 @@
 
 class GameObject;
 
+struct CB_GAMEOBJECT_INFO
+{
+	XMFLOAT4X4 m_xmf4x4World;
+};
+
 class Shader
 {
 public:
@@ -29,6 +34,8 @@ public:
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) { }
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList) { }
 	virtual void ReleaseShaderVariables() { }
+
+	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World);
 	
 	virtual void ReleaseUploadBuffers();
 	
@@ -37,7 +44,7 @@ public:
 	virtual void ReleaseObjects();
 
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 
 protected:
 	GameObject **m_ppObjects = NULL;
@@ -47,3 +54,14 @@ protected:
 	int m_nPipelineStates = 0;
 };
 
+class CDiffusedShader : public Shader
+{
+public:
+	CDiffusedShader();
+	virtual ~CDiffusedShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature * pd3dGraphicsRootSignature);
+};

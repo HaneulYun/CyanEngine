@@ -28,8 +28,7 @@ void Mesh::Render(ID3D12GraphicsCommandList* pd3dCommandList)
 	pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 }
 
-CTriangleMesh::CTriangleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
-	* pd3dCommandList) : Mesh(pd3dDevice, pd3dCommandList)
+TriangleMesh::TriangleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : Mesh(pd3dDevice, pd3dCommandList)
 {
 	//삼각형 메쉬를 정의한다.
 	m_nVertices = 3;

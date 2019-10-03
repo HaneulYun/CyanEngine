@@ -13,6 +13,12 @@ Renderer::~Renderer()
 
 void Renderer::OnStart()
 {
+	m_pCamera = Camera::Instance();
+	m_pCamera->SetViewport(0, 0, m_nWndClientWidth, m_nWndClientHeight, 0.0f, 1.0f);
+	m_pCamera->SetScissorRect(0, 0, m_nWndClientWidth, m_nWndClientHeight);
+	m_pCamera->GenerateProjectionMatrix(1.0f, 500.0f, float(m_nWndClientWidth) / float(m_nWndClientHeight), 90.0f);
+	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -2.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
+	
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
 	CreateRtvAndDsvDescriptorHeaps();
@@ -31,8 +37,8 @@ void Renderer::PreRender()
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
-	m_pd3dCommandList->RSSetViewports(1, &m_d3dViewport);
-	m_pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
+	// m_pd3dCommandList->RSSetViewports(1, &m_d3dViewport);
+	// m_pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
@@ -164,14 +170,14 @@ inline void Renderer::CreateDirect3DDevice()
 	m_nFenceValues[0] = 0;
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
-	m_d3dViewport.TopLeftX = 0;
-	m_d3dViewport.TopLeftY = 0;
-	m_d3dViewport.Width = static_cast<float>(m_nWndClientWidth);
-	m_d3dViewport.Height = static_cast<float>(m_nWndClientHeight);
-	m_d3dViewport.MinDepth = 0.0f;
-	m_d3dViewport.MaxDepth = 1.0f;
+	m_pCamera->m_d3dViewport.TopLeftX = 0;
+	m_pCamera->m_d3dViewport.TopLeftY = 0;
+	m_pCamera->m_d3dViewport.Width = static_cast<float>(m_nWndClientWidth);
+	m_pCamera->m_d3dViewport.Height = static_cast<float>(m_nWndClientHeight);
+	m_pCamera->m_d3dViewport.MinDepth = 0.0f;
+	m_pCamera->m_d3dViewport.MaxDepth = 1.0f;
 
-	m_d3dScissorRect = { 0, 0, m_nWndClientWidth, m_nWndClientHeight };
+	m_pCamera->m_d3dScissorRect = { 0, 0, m_nWndClientWidth, m_nWndClientHeight };
 
 	if (pd3dAdapter) pd3dAdapter->Release();
 }

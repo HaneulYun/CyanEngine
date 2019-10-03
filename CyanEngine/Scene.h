@@ -4,7 +4,7 @@ class Scene
 {
 private:
 	std::deque<GameObject*> gameObjects;
-	Component* renderer;
+	Renderer* renderer;
 
 public:
 	Scene();
@@ -32,8 +32,8 @@ public:
 	ID3D12RootSignature* GetGraphicsRootSignature();
 
 private:
-	Shader** m_ppShaders = NULL;
-	int m_nShaders = 0;
+	GameObject** m_ppObjects = NULL;
+	int m_nObjects = 0;
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature{ nullptr };
 };

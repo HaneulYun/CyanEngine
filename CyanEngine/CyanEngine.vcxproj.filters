@@ -43,6 +43,9 @@
     <Filter Include="25_Renderer">
       <UniqueIdentifier>{4e8bda8d-cca0-422d-bcd7-c8baf15aef87}</UniqueIdentifier>
     </Filter>
+    <Filter Include="28_Camera">
+      <UniqueIdentifier>{93d77240-dd03-45bf-812e-16572efe46df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -96,6 +99,9 @@
     <ClInclude Include="DxRendererManager.h">
       <Filter>25_Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>28_Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CyanEngine.cpp">
@@ -142,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="DxRendererManager.cpp">
       <Filter>25_Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>28_Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -55,8 +55,7 @@ private:
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController{ nullptr };
 #endif
-	D3D12_VIEWPORT m_d3dViewport{ NULL };
-	D3D12_RECT m_d3dScissorRect{ NULL };
+	Camera* m_pCamera{ nullptr };
 
 public:
 	Renderer();
