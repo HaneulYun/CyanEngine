@@ -389,15 +389,15 @@ void InstancingShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera
 	m_ppObjects[0]->Render(pd3dCommandList, pCamera, m_nObjects);
 }
 
-InstancingShader::InstancingShader()
+InstancingShader2::InstancingShader2()
 {
 }
 
-InstancingShader::~InstancingShader()
+InstancingShader2::~InstancingShader2()
 {
 }
 
-D3D12_INPUT_LAYOUT_DESC InstancingShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC InstancingShader2::CreateInputLayout()
 {
 	UINT nInputElementDescs = 7;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
@@ -420,18 +420,18 @@ D3D12_INPUT_LAYOUT_DESC InstancingShader::CreateInputLayout()
 	return(d3dInputLayoutDesc);
 }
 
-D3D12_SHADER_BYTECODE InstancingShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
+D3D12_SHADER_BYTECODE InstancingShader2::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSInstancing", "vs_5_1", ppd3dShaderBlob));
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSInstancing2", "vs_5_1", ppd3dShaderBlob));
 }
 
-D3D12_SHADER_BYTECODE InstancingShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
+D3D12_SHADER_BYTECODE InstancingShader2::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSInstancing", "ps_5_1", ppd3dShaderBlob));
+	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSInstancing2", "ps_5_1", ppd3dShaderBlob));
 
 }
 
-void InstancingShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature)
+void InstancingShader2::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	m_nPipelineStates = 1;
 	m_ppd3dPipelineStates = new ID3D12PipelineState * [m_nPipelineStates];
@@ -439,7 +439,7 @@ void InstancingShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignatur
 	Shader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 }
 
-void InstancingShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void InstancingShader2::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	//인스턴스 정보를 저장할 정점 버퍼를 업로드 힙 유형으로 생성한다.
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, sizeof(VS_VB_INSTANCE) * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
@@ -454,7 +454,7 @@ void InstancingShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12Gra
 
 }
 
-void InstancingShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+void InstancingShader2::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	for (int j = 0; j < m_nObjects; j++)
 	{
@@ -463,13 +463,13 @@ void InstancingShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComm
 	}
 }
 
-void InstancingShader::ReleaseShaderVariables()
+void InstancingShader2::ReleaseShaderVariables()
 {
 	if (m_pd3dcbGameObjects) m_pd3dcbGameObjects->Unmap(0, NULL);
 	if (m_pd3dcbGameObjects) m_pd3dcbGameObjects->Release();
 }
 
-void InstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void InstancingShader2::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	int xObjects = 10, yObjects = 10, zObjects = 10, i = 0;
 
@@ -508,11 +508,11 @@ void InstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-void InstancingShader::ReleaseObjects()
+void InstancingShader2::ReleaseObjects()
 {
 }
 
-void InstancingShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
+void InstancingShader2::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	Shader::Render(pd3dCommandList, pCamera);
 
