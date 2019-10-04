@@ -32,7 +32,7 @@ public:
 	ID3D12RootSignature* GetGraphicsRootSignature();
 
 private:
-	ObjectsShader* m_pShaders = NULL;
+	InstancingShader* m_pShaders = NULL;
 	int m_nShaders = 0;
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature{ nullptr };

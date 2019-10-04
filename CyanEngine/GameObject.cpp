@@ -27,6 +27,13 @@ void GameObject::Update()
 		component->Update();
 }
 
+void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances)
+{
+	OnPrepareRender();
+
+	if (m_pMesh) m_pMesh->Render(pd3dCommandList, nInstances);
+}
+
 void GameObject::SetShader(Shader* pShader)
 {
 	if (m_pShader) m_pShader->Release();

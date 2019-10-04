@@ -66,33 +66,33 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	Quad* pQuadMesh = new Quad(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
-	GameObject* pGameObject = new GameObject();
-	pGameObject->SetMesh(pQuadMesh);
-
-	TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
-	RotatingObject* pRotatingObject = new RotatingObject();
-	pRotatingObject->SetMesh(pMesh);
-
-	CubeMeshDiffused* pCubeMesh = new CubeMeshDiffused(pd3dDevice, Renderer::Instance()->m_pd3dCommandList, 1, 1, 1);
-	RotatingObject* pRotatingObject2 = new RotatingObject();
-	pRotatingObject2->SetMesh(pCubeMesh);
-
-	PlayerShader* pShader = new PlayerShader();
-	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	pShader->CreateShaderVariables(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
-	pGameObject->SetShader(pShader);
-	pRotatingObject->SetShader(pShader);
-	pRotatingObject2->SetShader(pShader);
-
-	gameObjects.push_back(pGameObject);
-	gameObjects.push_back(pRotatingObject);
-	gameObjects.push_back(pRotatingObject2);
+	//Quad* pQuadMesh = new Quad(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
+	//GameObject* pGameObject = new GameObject();
+	//pGameObject->SetMesh(pQuadMesh);
+	//
+	//TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
+	//RotatingObject* pRotatingObject = new RotatingObject();
+	//pRotatingObject->SetMesh(pMesh);
+	//
+	//CubeMeshDiffused* pCubeMesh = new CubeMeshDiffused(pd3dDevice, Renderer::Instance()->m_pd3dCommandList, 1, 1, 1);
+	//RotatingObject* pRotatingObject2 = new RotatingObject();
+	//pRotatingObject2->SetMesh(pCubeMesh);
+	//
+	//PlayerShader* pShader = new PlayerShader();
+	//pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	//pShader->CreateShaderVariables(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
+	//pGameObject->SetShader(pShader);
+	//pRotatingObject->SetShader(pShader);
+	//pRotatingObject2->SetShader(pShader);
+	//
+	//gameObjects.push_back(pGameObject);
+	//gameObjects.push_back(pRotatingObject);
+	//gameObjects.push_back(pRotatingObject2);
 
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	m_nShaders = 1;
-	m_pShaders = new ObjectsShader[m_nShaders];
+	m_pShaders = new InstancingShader[m_nShaders];
 	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	m_pShaders[0].BuildObjects(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
 }
@@ -150,7 +150,7 @@ ID3D12RootSignature* Scene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[2];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[3];
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	pd3dRootParameters[0].Constants.Num32BitValues = 16;
 	pd3dRootParameters[0].Constants.ShaderRegister = 0;
@@ -161,6 +161,11 @@ ID3D12RootSignature* Scene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice
 	pd3dRootParameters[1].Constants.ShaderRegister = 1;
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	pd3dRootParameters[2].Descriptor.ShaderRegister = 0; //t0
+	pd3dRootParameters[2].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
