@@ -27,6 +27,13 @@ void GameObject::Update()
 		component->Update();
 }
 
+void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
+{
+	OnPrepareRender();
+	if (m_pMesh)
+		m_pMesh->Render(pd3dCommandList, nInstances, d3dInstancingBufferView);
+}
+
 void GameObject::SetShader(Shader* pShader)
 {
 	if (m_pShader) m_pShader->Release();

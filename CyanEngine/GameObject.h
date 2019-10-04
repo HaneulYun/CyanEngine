@@ -11,6 +11,7 @@ public:
 
 	virtual void Start();
 	virtual void Update();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
 
 private:
 	int m_nReferences = 0;
@@ -19,8 +20,9 @@ public:
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
 
-protected:
+public:
 	XMFLOAT4X4 m_xmf4x4World;
+protected:
 	Mesh* m_pMesh = NULL;
 	Shader* m_pShader = NULL;
 
