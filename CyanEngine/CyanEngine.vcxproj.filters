@@ -46,6 +46,12 @@
     <Filter Include="05_Scene">
       <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="40_Prefab">
+      <UniqueIdentifier>{7c4ebd3c-a2f5-4e74-bab7-facbab8af2db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="50_Script">
+      <UniqueIdentifier>{25b17534-4a27-43a0-bb19-e5bc9179c77c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -108,6 +114,9 @@
     <ClInclude Include="MeshFilter.h">
       <Filter>20_Component\21_Components</Filter>
     </ClInclude>
+    <ClInclude Include="RotatingBehavior.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CyanEngine.cpp">
@@ -163,6 +172,9 @@
     </ClCompile>
     <ClCompile Include="MeshFilter.cpp">
       <Filter>20_Component\21_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="RotatingBehavior.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

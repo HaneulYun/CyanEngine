@@ -2,6 +2,9 @@
 
 class Component : public Object
 {
+protected:
+	GameObject* gameObject{ nullptr };
+
 public:
 	Component();
 	~Component();
