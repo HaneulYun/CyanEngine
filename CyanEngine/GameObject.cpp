@@ -15,6 +15,18 @@ GameObject::~GameObject()
 	}
 }
 
+void GameObject::Start()
+{
+	for (Component* component : components)
+		component->Start();
+}
+
+void GameObject::Update()
+{
+	for (Component* component : components)
+		component->Update();
+}
+
 void GameObject::SetShader(Shader* pShader)
 {
 	if (m_pShader) m_pShader->Release();

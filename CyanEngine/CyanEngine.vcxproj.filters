@@ -102,6 +102,12 @@
     <ClInclude Include="Camera.h">
       <Filter>28_Camera</Filter>
     </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>20_Component\21_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshFilter.h">
+      <Filter>20_Component\21_Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CyanEngine.cpp">
@@ -151,6 +157,12 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>28_Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>20_Component\21_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshFilter.cpp">
+      <Filter>20_Component\21_Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

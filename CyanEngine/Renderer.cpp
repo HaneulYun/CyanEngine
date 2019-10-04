@@ -11,7 +11,7 @@ Renderer::~Renderer()
 {
 }
 
-void Renderer::OnStart()
+void Renderer::Start()
 {
 	m_pCamera = Camera::Instance();
 	m_pCamera->SetViewport(0, 0, m_nWndClientWidth, m_nWndClientHeight, 0.0f, 1.0f);
@@ -99,7 +99,7 @@ void Renderer::PostRender()
 	//m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 }
 
-void Renderer::OnDestroy()
+void Renderer::Destroy()
 {
 	::CloseHandle(m_hFenceEvent);
 

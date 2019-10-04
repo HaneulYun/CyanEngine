@@ -10,9 +10,9 @@ Scene::~Scene()
 {
 }
 
-void Scene::OnStart()
+void Scene::Start()
 {
-	renderer->OnStart();
+	renderer->Start();
 
 	renderer->m_pd3dCommandList->Reset(renderer->m_pd3dCommandAllocator, NULL);
 
@@ -54,10 +54,10 @@ void Scene::Render()
 	dynamic_cast<Renderer*>(renderer)->PostRender();
 }
 
-void Scene::OnDestroy()
+void Scene::Destroy()
 {
 	ReleaseObjects();
-	renderer->OnDestroy();
+	renderer->Destroy();
 }
 
 void Scene::BuildObjects(ID3D12Device* pd3dDevice)

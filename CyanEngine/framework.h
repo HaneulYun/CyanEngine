@@ -55,6 +55,7 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 #include "Mesh.h"
 
 #include "Component.h"
+#include "Transform.h"
 #include "Renderer.h"
 #include "GameObject.h"
 #include "Scene.h"

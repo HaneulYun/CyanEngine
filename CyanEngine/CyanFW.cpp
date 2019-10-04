@@ -17,7 +17,7 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	scene = new Scene();
 	if (scene)
-		scene->OnStart();
+		scene->Start();
 
 	Time::Instance()->Reset();
 
@@ -27,7 +27,7 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 void CyanFW::OnDestroy()
 {
 	if (scene)
-		scene->OnDestroy();
+		scene->Destroy();
 }
 
 void CyanFW::ProcessInput()

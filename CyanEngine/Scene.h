@@ -10,12 +10,12 @@ public:
 	Scene();
 	~Scene();
 
-	void OnStart();
+	void Start();
 
 	void Update();
 	void Render();
 
-	void OnDestroy();
+	void Destroy();
 
 	//----------------//
 	void BuildObjects(ID3D12Device* pd3dDevice = nullptr);

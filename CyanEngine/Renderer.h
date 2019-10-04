@@ -61,14 +61,14 @@ public:
 	Renderer();
 	~Renderer();
 
-	void OnStart();
+	void Start();
 
 	void Update();
 	void PreRender();
 	void Render();
 	void PostRender();
 
-	void OnDestroy();
+	void Destroy();
 
 	//--------------//
 	void CreateDirect3DDevice();
