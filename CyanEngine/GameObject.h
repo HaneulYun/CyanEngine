@@ -15,6 +15,9 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
 
+	template <typename T>
+	void AddComponent();
+
 private:
 	int m_nReferences = 0;
 
@@ -23,8 +26,8 @@ public:
 	void Release() { if (--m_nReferences <= 0) delete this; }
 
 public:
-	void SetPosition(float x, float y, float z);
-	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
+	//void SetPosition(float x, float y, float z);
+	//void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
 
 protected:
 	Mesh* m_pMesh = NULL;
@@ -44,17 +47,10 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
 };
 
-class RotatingObject : public GameObject
+template<typename T>
+inline void GameObject::AddComponent()
 {
-private:
-	XMFLOAT3 m_xmf3RotationAxis;
-	float m_fRotationSpeed;
-
-public:
-	RotatingObject();
-	virtual ~RotatingObject();
-
-	void SetRotationSpeed(float fRotationSpeed) { m_fRotationSpeed = fRotationSpeed; }
-	void SetRotationAxis(XMFLOAT3 xmf3RotationAxis) { m_xmf3RotationAxis = xmf3RotationAxis; }
-	virtual void Animate(float fTimeElapsed);
-};
+	Component* component = new T();
+	component->gameObject = this;
+	components.push_back(component);
+}

@@ -111,11 +111,11 @@
     <ClInclude Include="MeshFilter.h">
       <Filter>20_Component\21_Components</Filter>
     </ClInclude>
-    <ClInclude Include="RotatingBehavior.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CyanEngine.h">
       <Filter>00_Core</Filter>
+    </ClInclude>
+    <ClInclude Include="RotatingBehavior.h">
+      <Filter>50_Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -170,11 +170,11 @@
     <ClCompile Include="MeshFilter.cpp">
       <Filter>20_Component\21_Components</Filter>
     </ClCompile>
-    <ClCompile Include="RotatingBehavior.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CyanEngine.cpp">
       <Filter>00_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="RotatingBehavior.cpp">
+      <Filter>50_Script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

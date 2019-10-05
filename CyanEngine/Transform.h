@@ -24,10 +24,10 @@ public:
 	~Transform();
 
 	void Start() override {};
-
 	void Update() override {};
 	void Render() override {};
-
 	void Destroy() override {};
+
+	void Rotate(const XMFLOAT3& axis, float angle);
 };
 

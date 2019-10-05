@@ -87,27 +87,6 @@ void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList)
 	if (m_pMesh) m_pMesh->Render(pd3dCommandList);
 }
 
-void GameObject::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
-{
-	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(pxmf3Axis), XMConvertToRadians(fAngle));
-	transform->localToWorldMatrix = Matrix4x4::Multiply(mtxRotate, transform->localToWorldMatrix);
-}
-
-RotatingObject::RotatingObject()
-{
-	m_xmf3RotationAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	m_fRotationSpeed = 90.0f;
-}
-
-RotatingObject::~RotatingObject()
-{
-}
-
-void RotatingObject::Animate(float fTimeElapsed)
-{
-	GameObject::Rotate(&m_xmf3RotationAxis, m_fRotationSpeed * fTimeElapsed);
-}
-
 void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
@@ -121,11 +100,4 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 
 void GameObject::ReleaseShaderVariables()
 {
-}
-
-void GameObject::SetPosition(float x, float y, float z)
-{
-	transform->localToWorldMatrix._41 = x;
-	transform->localToWorldMatrix._42 = y;
-	transform->localToWorldMatrix._43 = z;
 }

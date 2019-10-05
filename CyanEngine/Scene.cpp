@@ -29,6 +29,9 @@ void Scene::Start()
 
 void Scene::Update()
 {
+	//for (GameObject* gameObject : gameObjects)
+	//	gameObject->Update();
+
 	AnimateObjects(Time::Instance()->GetTimeElapsed());
 	renderer->Update();
 }
@@ -71,11 +74,11 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 	pGameObject->SetMesh(pQuadMesh);
 	
 	TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, Renderer::Instance()->m_pd3dCommandList);
-	RotatingObject* pRotatingObject = new RotatingObject();
+	GameObject* pRotatingObject = new GameObject();
 	pRotatingObject->SetMesh(pMesh);
 	
 	CubeMeshDiffused* pCubeMesh = new CubeMeshDiffused(pd3dDevice, Renderer::Instance()->m_pd3dCommandList, 1, 1, 1);
-	RotatingObject* pRotatingObject2 = new RotatingObject();
+	GameObject* pRotatingObject2 = new GameObject();
 	pRotatingObject2->SetMesh(pCubeMesh);
 	
 	PlayerShader* pShader = new PlayerShader();

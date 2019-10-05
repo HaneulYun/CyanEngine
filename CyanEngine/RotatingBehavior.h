@@ -2,24 +2,22 @@
 
 class RotatingBehavior : public Component
 {
+private:
+	XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
+
 public:
-	RotatingBehavior() {}
-	~RotatingBehavior() {}
+	float speedRotating{ 90.f };
 
-	virtual void Start()
-	{
-	}
+public:
+	RotatingBehavior();
+	~RotatingBehavior();
 
-	virtual void Update()
-	{
-	}
+	virtual void Start();
 
-	virtual void Render()
-	{
-	}
+	virtual void Update();
 
-	virtual void Destroy()
-	{
-	}
+	virtual void Render();
+
+	virtual void Destroy();
 };
 

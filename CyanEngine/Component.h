@@ -2,7 +2,7 @@
 
 class Component : public Object
 {
-protected:
+public:
 	GameObject* gameObject{ nullptr };
 
 public:

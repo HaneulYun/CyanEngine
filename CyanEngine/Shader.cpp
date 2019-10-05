@@ -212,6 +212,7 @@ void ObjectsShader::AnimateObjects(float fTimeElapsed)
 {
 	for (int j = 0; j < m_nObjects; j++)
 	{
+		m_ppObjects[j]->Update();
 		m_ppObjects[j]->Animate(fTimeElapsed);
 	}
 }
@@ -270,13 +271,13 @@ void ObjectsShader::ReleaseUploadBuffers()
 void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	Shader::Render(pd3dCommandList, pCamera);
-	//for (int j = 0; j < m_nObjects; j++)
-	//{
-	//	if (m_ppObjects[j])
-	//	{
-	//		m_ppObjects[j]->Render(pd3dCommandList);
-	//	}
-	//}
+	for (int j = 0; j < m_nObjects; j++)
+	{
+		if (m_ppObjects[j])
+		{
+			m_ppObjects[j]->Render(pd3dCommandList);
+		}
+	}
 }
 
 InstancingShader::InstancingShader()
@@ -353,7 +354,7 @@ void InstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	float fyPitch = 12.0f * 2.5f;
 	float fzPitch = 12.0f * 2.5f;
 
-	RotatingObject* pRotatingObject = NULL;
+	GameObject* pRotatingObject = NULL;
 	for (int x = -xObjects; x <= xObjects; x++)
 	{
 		for (int y = -yObjects; y <= yObjects; y++)
@@ -362,10 +363,9 @@ void InstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 			{
 				if (!x && !y && !z)
 					continue;
-				pRotatingObject = new RotatingObject();
-				pRotatingObject->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
-				pRotatingObject->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				pRotatingObject->SetRotationSpeed(10.0f * (i % 10));
+				pRotatingObject = new GameObject();
+				pRotatingObject->AddComponent<RotatingBehavior>();
+				pRotatingObject->Start();
 				m_ppObjects[i++] = pRotatingObject;
 			}
 		}
@@ -481,7 +481,7 @@ void InstancingShader2::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 	float fyPitch = 12.0f * 2.5f;
 	float fzPitch = 12.0f * 2.5f;
 
-	RotatingObject* pRotatingObject = NULL;
+	GameObject* pRotatingObject = NULL;
 	for (int x = -xObjects; x <= xObjects; x++)
 	{
 		for (int y = -yObjects; y <= yObjects; y++)
@@ -491,11 +491,11 @@ void InstancingShader2::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 
 				if (!x && !y && !z)
 					continue;
-				pRotatingObject = new RotatingObject();
+				pRotatingObject = new GameObject();
 				pRotatingObject->Start();
-				pRotatingObject->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
-				pRotatingObject->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				pRotatingObject->SetRotationSpeed(10.0f * (i % 10));
+				pRotatingObject->transform->position = XMFLOAT3{ fxPitch * x, fyPitch * y, fzPitch * z };
+				pRotatingObject->AddComponent<RotatingBehavior>();
+				dynamic_cast<RotatingBehavior*>(pRotatingObject->components[0])->speedRotating = 10.0f * (i % 10);
 				m_ppObjects[i++] = pRotatingObject;
 			}
 		}
