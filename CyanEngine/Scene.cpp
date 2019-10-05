@@ -118,8 +118,8 @@ void Scene::ReleaseObjects()
 
 void Scene::AnimateObjects(float fTimeElapsed)
 {
-	for (GameObject* object : gameObjects)
-		object->Animate(fTimeElapsed);
+	//for (GameObject* object : gameObjects)
+	//	object->Animate(fTimeElapsed);
 
 	for (int i = 0; i < m_nShaders; i++)
 	{

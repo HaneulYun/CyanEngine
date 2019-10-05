@@ -63,9 +63,6 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CyanEngine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -117,11 +114,11 @@
     <ClInclude Include="RotatingBehavior.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CyanEngine.h">
+      <Filter>00_Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CyanEngine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -175,6 +172,9 @@
     </ClCompile>
     <ClCompile Include="RotatingBehavior.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CyanEngine.cpp">
+      <Filter>00_Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

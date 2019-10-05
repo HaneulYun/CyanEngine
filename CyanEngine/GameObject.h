@@ -2,8 +2,9 @@
 
 class GameObject : public Object
 {
-private:
+public:
 	std::deque<Component*> components;
+	Transform* transform;
 
 public:
 	GameObject();
@@ -22,7 +23,9 @@ public:
 	void Release() { if (--m_nReferences <= 0) delete this; }
 
 public:
-	XMFLOAT4X4 m_xmf4x4World;
+	void SetPosition(float x, float y, float z);
+	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
+
 protected:
 	Mesh* m_pMesh = NULL;
 	Shader* m_pShader = NULL;
@@ -32,20 +35,6 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
-	XMFLOAT3 GetPosition();
-	XMFLOAT3 GetLook();
-	XMFLOAT3 GetUp();
-	XMFLOAT3 GetRight();
-
-	void SetPosition(float x, float y, float z);
-	void SetPosition(XMFLOAT3 xmf3Position);
-
-	void MoveStrafe(float fDistance = 1.0f);
-	void MoveUp(float fDistance = 1.0f);
-	void MoveForward(float fDistance = 1.0f);
-
-	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
-
 public:
 	void ReleaseUploadBuffers();
 	virtual void SetMesh(Mesh* pMesh);
@@ -53,8 +42,6 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
-
-	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
 };
 
 class RotatingObject : public GameObject

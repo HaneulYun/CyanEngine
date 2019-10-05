@@ -333,7 +333,7 @@ void InstancingShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dComm
 	for (int j = 0; j < m_nObjects; j++)
 	{
 		m_pcbMappedGameObjects[j].m_xmcColor = (j % 2) ? XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f) : XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
-		XMStoreFloat4x4(&m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->m_xmf4x4World)));
+		XMStoreFloat4x4(&m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->transform->localToWorldMatrix)));
 	}
 }
 
@@ -459,7 +459,7 @@ void InstancingShader2::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCom
 	for (int j = 0; j < m_nObjects; j++)
 	{
 		m_pcbMappedGameObjects[j].m_xmcColor = (j % 2) ? XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f) : XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
-		XMStoreFloat4x4(&m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->m_xmf4x4World)));
+		XMStoreFloat4x4(&m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->transform->localToWorldMatrix)));
 	}
 }
 
@@ -492,6 +492,7 @@ void InstancingShader2::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 				if (!x && !y && !z)
 					continue;
 				pRotatingObject = new RotatingObject();
+				pRotatingObject->Start();
 				pRotatingObject->SetPosition(fxPitch * x, fyPitch * y, fzPitch * z);
 				pRotatingObject->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
 				pRotatingObject->SetRotationSpeed(10.0f * (i % 10));
