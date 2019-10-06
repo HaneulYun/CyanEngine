@@ -12,6 +12,7 @@ public:
 
 	virtual void Start();
 	virtual void Update();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
 
@@ -42,9 +43,6 @@ public:
 	void ReleaseUploadBuffers();
 	virtual void SetMesh(Mesh* pMesh);
 	virtual void SetShader(Shader* pShader);
-	virtual void Animate(float fTimeElapsed);
-	virtual void OnPrepareRender();
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
 };
 
 template<typename T>

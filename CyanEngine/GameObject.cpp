@@ -32,16 +32,12 @@ void GameObject::Update()
 
 void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances)
 {
-	OnPrepareRender();
-
 	if (m_pMesh)
 		m_pMesh->Render(pd3dCommandList, nInstances);
 }
 
 void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
 {
-	OnPrepareRender();
-	
 	if (m_pMesh)
 		m_pMesh->Render(pd3dCommandList, nInstances, d3dInstancingBufferView);
 }
@@ -64,18 +60,8 @@ void GameObject::ReleaseUploadBuffers()
 	if (m_pMesh) m_pMesh->ReleaseUploadBuffers();
 }
 
-void GameObject::Animate(float fTimeElapsed)
-{
-}
-
-void GameObject::OnPrepareRender()
-{
-}
-
 void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList) 
 {
-	OnPrepareRender();
-
 	UpdateShaderVariables(pd3dCommandList);
 
 	if (m_pShader)

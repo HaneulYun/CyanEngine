@@ -213,7 +213,7 @@ void ObjectsShader::AnimateObjects(float fTimeElapsed)
 	for (int j = 0; j < m_nObjects; j++)
 	{
 		m_ppObjects[j]->Update();
-		m_ppObjects[j]->Animate(fTimeElapsed);
+		//m_ppObjects[j]->Animate(fTimeElapsed);
 	}
 }
 

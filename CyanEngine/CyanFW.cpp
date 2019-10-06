@@ -12,8 +12,8 @@ CyanFW::~CyanFW()
 
 bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
-	Renderer::Instance()->m_hInstance = hInstance;
-	Renderer::Instance()->m_hWnd = hMainWnd;
+	RendererManager::Instance()->m_hInstance = hInstance;
+	RendererManager::Instance()->m_hWnd = hMainWnd;
 
 	scene = new Scene();
 	if (scene)
@@ -42,7 +42,7 @@ void CyanFW::FrameAdvance()
 	scene->Render();
 
 	Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
-	::SetWindowText(Renderer::Instance()->m_hWnd, m_pszFrameRate);
+	::SetWindowText(RendererManager::Instance()->m_hWnd, m_pszFrameRate);
 
 	ProcessInput();
 }
@@ -79,7 +79,7 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		case VK_F8:
 			break;
 		case VK_F9:
-			Renderer::Instance()->ChangeSwapChainState();
+			RendererManager::Instance()->ChangeSwapChainState();
 			break;
 		default:
 			break;
@@ -96,8 +96,8 @@ LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wPa
 	{
 	case WM_SIZE:
 	{
-		Renderer::Instance()->m_nWndClientWidth = LOWORD(lParam);
-		Renderer::Instance()->m_nWndClientHeight = HIWORD(lParam);
+		RendererManager::Instance()->m_nWndClientWidth = LOWORD(lParam);
+		RendererManager::Instance()->m_nWndClientHeight = HIWORD(lParam);
 		break;
 	}
 	case WM_LBUTTONDOWN:

@@ -7,7 +7,7 @@ public:
 
 public:
 	Component();
-	~Component();
+	virtual ~Component();
 
 	virtual void Start() = 0;
 

@@ -4,7 +4,7 @@ class Scene
 {
 private:
 	std::deque<GameObject*> gameObjects;
-	Renderer* renderer;
+	RendererManager* renderer;
 
 public:
 	Scene();
