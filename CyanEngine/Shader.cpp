@@ -428,12 +428,12 @@ D3D12_INPUT_LAYOUT_DESC InstancingShader2::CreateInputLayout()
 
 D3D12_SHADER_BYTECODE InstancingShader2::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "VSInstancing", "vs_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "VSInstancing2", "vs_5_1", ppd3dShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE InstancingShader2::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "PSInstancing", "ps_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "PSInstancing2", "ps_5_1", ppd3dShaderBlob));
 }
 
 void InstancingShader2::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature)

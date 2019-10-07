@@ -67,36 +67,36 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 {
 	pd3dDevice = RendererManager::Instance()->m_pd3dDevice;
 
-	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-
-	Quad* pQuadMesh = new Quad(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
-	GameObject* pGameObject = new GameObject();
-	pGameObject->SetMesh(pQuadMesh);
-	
-	TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
-	GameObject* pRotatingObject = new GameObject();
-	pRotatingObject->SetMesh(pMesh);
-	
-	CubeMeshDiffused* pCubeMesh = new CubeMeshDiffused(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList, 1, 1, 1);
-	GameObject* pRotatingObject2 = new GameObject();
-	pRotatingObject2->SetMesh(pCubeMesh);
-	pRotatingObject2->AddComponent<RotatingBehavior>();
-	
-	PlayerShader* pShader = new PlayerShader();
-	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	pShader->CreateShaderVariables(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
-	pGameObject->SetShader(pShader);
-	pRotatingObject->SetShader(pShader);
-	pRotatingObject2->SetShader(pShader);
-	
-	gameObjects.push_back(pGameObject);
-	gameObjects.push_back(pRotatingObject);
-	gameObjects.push_back(pRotatingObject2);
+	//m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+	//
+	//Quad* pQuadMesh = new Quad(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
+	//GameObject* pGameObject = new GameObject();
+	//pGameObject->SetMesh(pQuadMesh);
+	//
+	//TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
+	//GameObject* pRotatingObject = new GameObject();
+	//pRotatingObject->SetMesh(pMesh);
+	//
+	//CubeMeshDiffused* pCubeMesh = new CubeMeshDiffused(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList, 1, 1, 1);
+	//GameObject* pRotatingObject2 = new GameObject();
+	//pRotatingObject2->SetMesh(pCubeMesh);
+	//pRotatingObject2->AddComponent<RotatingBehavior>();
+	//
+	//PlayerShader* pShader = new PlayerShader();
+	//pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	//pShader->CreateShaderVariables(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
+	//pGameObject->SetShader(pShader);
+	//pRotatingObject->SetShader(pShader);
+	//pRotatingObject2->SetShader(pShader);
+	//
+	//gameObjects.push_back(pGameObject);
+	//gameObjects.push_back(pRotatingObject);
+	//gameObjects.push_back(pRotatingObject2);
 
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	m_nShaders = 1;
-	m_pShaders = new InstancingShader[m_nShaders];
+	m_pShaders = new InstancingShader2[m_nShaders];
 	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	m_pShaders[0].BuildObjects(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
 }
