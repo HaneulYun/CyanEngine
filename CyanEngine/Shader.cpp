@@ -258,13 +258,13 @@ void ObjectsShader::ReleaseUploadBuffers()
 void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
 {
 	Shader::Render(pd3dCommandList, pCamera);
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		if (m_ppObjects[j])
-		{
-			m_ppObjects[j]->Render(pd3dCommandList);
-		}
-	}
+	//for (int j = 0; j < m_nObjects; j++)
+	//{
+	//	if (m_ppObjects[j])
+	//	{
+	//		m_ppObjects[j]->Render(pd3dCommandList);
+	//	}
+	//}
 }
 
 
@@ -367,7 +367,6 @@ void InstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		{
 			for (int z = -zObjects; z <= zObjects; z++)
 			{
-
 				if (!x && !y && !z)
 					continue;
 				pRotatingObject = new GameObject();
@@ -487,8 +486,10 @@ void InstancingShader2::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 				if (!x && !y && !z)
 					continue;
 				pRotatingObject = new GameObject();
-				pRotatingObject->AddComponent<RotatingBehavior>();
 				pRotatingObject->Start();
+				pRotatingObject->transform->position = XMFLOAT3{ fxPitch * x, fyPitch * y, fzPitch * z };
+				pRotatingObject->AddComponent<RotatingBehavior>();
+				dynamic_cast<RotatingBehavior*>(pRotatingObject->components[0])->speedRotating = 10.0f * (i % 10);
 				m_ppObjects[i++] = pRotatingObject;
 			}
 		}
