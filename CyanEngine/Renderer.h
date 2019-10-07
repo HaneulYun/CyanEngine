@@ -4,6 +4,7 @@ class Renderer : public Component
 {
 private:
 	RendererManager* rendererManager;
+	std::deque<Material*> materials;
 
 public:
 	Renderer();
@@ -15,6 +16,4 @@ public:
 	void Render() override;
 
 	void Destroy() override;
-
-	//--------------//
 };

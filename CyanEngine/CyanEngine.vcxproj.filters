@@ -117,6 +117,12 @@
     <ClInclude Include="RotatingBehavior.h">
       <Filter>50_Script</Filter>
     </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>30_GameObject\32_Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderManager.h">
+      <Filter>30_GameObject\32_Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -175,6 +181,12 @@
     </ClCompile>
     <ClCompile Include="RotatingBehavior.cpp">
       <Filter>50_Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>30_GameObject\32_Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderManager.cpp">
+      <Filter>30_GameObject\32_Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

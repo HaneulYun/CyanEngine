@@ -98,19 +98,6 @@ D3D12_SHADER_BYTECODE Shader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 	return(d3dShaderByteCode);
 }
 
-D3D12_SHADER_BYTECODE Shader::CompileShaderFromFile(const WCHAR* pszFileName, LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob** ppd3dShaderBlob)
-{
-	UINT nCompileFlags = 0;
-#if defined(_DEBUG)
-	nCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-	::D3DCompileFromFile(pszFileName, NULL, NULL, pszShaderName, pszShaderProfile, nCompileFlags, 0, ppd3dShaderBlob, NULL);
-	D3D12_SHADER_BYTECODE d3dShaderByteCode;
-	d3dShaderByteCode.BytecodeLength = (*ppd3dShaderBlob)->GetBufferSize();
-	d3dShaderByteCode.pShaderBytecode = (*ppd3dShaderBlob)->GetBufferPointer();
-	return(d3dShaderByteCode);
-}
-
 void Shader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dRootSignature)
 {
 	ID3DBlob* pd3dVertexShaderBlob = NULL, * pd3dPixelShaderBlob = NULL;
@@ -180,12 +167,12 @@ D3D12_INPUT_LAYOUT_DESC PlayerShader::CreateInputLayout()
 
 D3D12_SHADER_BYTECODE PlayerShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSDiffused", "vs_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "VSDiffused", "vs_5_1", ppd3dShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE PlayerShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1", ppd3dShaderBlob));
 }
 
 void PlayerShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -245,12 +232,12 @@ D3D12_INPUT_LAYOUT_DESC ObjectsShader::CreateInputLayout()
 
 D3D12_SHADER_BYTECODE ObjectsShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSDiffused", "vs_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "VSDiffused", "vs_5_1", ppd3dShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE ObjectsShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1", ppd3dShaderBlob));
 }
 
 void ObjectsShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -305,12 +292,12 @@ D3D12_INPUT_LAYOUT_DESC InstancingShader::CreateInputLayout()
 
 D3D12_SHADER_BYTECODE InstancingShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSInstancing", "vs_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "VSInstancing", "vs_5_1", ppd3dShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE InstancingShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSInstancing", "ps_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "PSInstancing", "ps_5_1", ppd3dShaderBlob));
 }
 
 void InstancingShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature)
@@ -422,12 +409,12 @@ D3D12_INPUT_LAYOUT_DESC InstancingShader2::CreateInputLayout()
 
 D3D12_SHADER_BYTECODE InstancingShader2::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "VSInstancing2", "vs_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "VSInstancing2", "vs_5_1", ppd3dShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE InstancingShader2::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(Shader::CompileShaderFromFile(L"Shaders.hlsl", "PSInstancing2", "ps_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Shaders.hlsl", "PSInstancing2", "ps_5_1", ppd3dShaderBlob));
 
 }
 

@@ -8,7 +8,7 @@ private:
 
 protected:
 	Singleton() {}
-	~Singleton()
+	virtual ~Singleton()
 	{
 		if (instance) delete instance;
 		instance = nullptr;

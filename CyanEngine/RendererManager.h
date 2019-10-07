@@ -53,6 +53,7 @@ private:
 #endif
 	Camera* m_pCamera{ nullptr };
 
+
 public:
 	RendererManager();
 	virtual ~RendererManager();
