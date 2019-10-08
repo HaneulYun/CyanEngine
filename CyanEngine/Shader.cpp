@@ -249,10 +249,10 @@ void ObjectsShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* 
 
 void ObjectsShader::ReleaseUploadBuffers()
 {
-	if (m_ppObjects)
-	{
-		for (int j = 0; j < m_nObjects; j++) m_ppObjects[j]->ReleaseUploadBuffers();
-	}
+	//if (m_ppObjects)
+	//{
+	//	for (int j = 0; j < m_nObjects; j++) m_ppObjects[j]->ReleaseUploadBuffers();
+	//}
 }
 
 void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera)
@@ -344,7 +344,7 @@ void InstancingShader::ReleaseShaderVariables()
 
 void InstancingShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	int xObjects = 10, yObjects = 10, zObjects = 10, i = 0;
+	int xObjects = 10, yObjects = 0, zObjects = 10, i = 0;
 
 	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1) - 1;
 
@@ -458,7 +458,7 @@ void InstancingShader2::ReleaseShaderVariables()
 
 void InstancingShader2::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	int xObjects = 10, yObjects = 10, zObjects = 10, i = 0;
+	int xObjects = 10, yObjects = 0, zObjects = 10, i = 0;
 	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1) - 1;
 	m_ppObjects = new GameObject * [m_nObjects];
 

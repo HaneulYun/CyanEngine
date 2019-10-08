@@ -14,6 +14,8 @@ private:
 	// DXGI 备己 夸家
 	IDXGIFactory4* m_pdxgiFactory{ nullptr };
 	IDXGISwapChain3* m_pdxgiSwapChain{ nullptr };
+
+	std::map<std::pair<Shader*, Mesh*>, std::deque<GameObject*>> instance;
 	 
 public:
 	// DX 备己 夸家
@@ -62,7 +64,7 @@ public:
 
 	void Update();
 	void PreRender();
-	//void Render();
+	void Render();
 	void PostRender();
 
 	void Destroy();

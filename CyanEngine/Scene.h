@@ -26,13 +26,13 @@ public:
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
 	//----------------//
-	void ReleaseUploadBuffers();
+	//void ReleaseUploadBuffers();
 
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
 	ID3D12RootSignature* GetGraphicsRootSignature();
 
 private:
-	InstancingShader2* m_pShaders = NULL;
+	InstancingShader* m_pShaders = NULL;
 	int m_nShaders = 0;
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature{ nullptr };

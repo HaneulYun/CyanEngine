@@ -24,7 +24,7 @@ void Scene::Start()
 
 	RendererManager::Instance()->WaitForGpuComplete();
 
-	ReleaseUploadBuffers();
+	//ReleaseUploadBuffers();
 }
 
 void Scene::Update()
@@ -53,6 +53,7 @@ void Scene::Render()
 	{
 		m_pShaders[i].Render(RendererManager::Instance()->m_pd3dCommandList, Camera::Instance());
 	}
+	renderer->Render();
 
 	renderer->PostRender();
 }
@@ -98,7 +99,7 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 	m_nShaders = 1;
-	m_pShaders = new InstancingShader2[m_nShaders];
+	m_pShaders = new InstancingShader[m_nShaders];
 	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	m_pShaders[0].BuildObjects(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
 }
@@ -143,14 +144,14 @@ bool Scene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPara
 	return false;
 }
 
-void Scene::ReleaseUploadBuffers()
-{
-	for (GameObject* object : gameObjects)
-		object->ReleaseUploadBuffers();
-
-	for (int i = 0; i < m_nShaders; i++)
-		m_pShaders[i].ReleaseUploadBuffers();
-}
+//void Scene::ReleaseUploadBuffers()
+//{
+//	//for (GameObject* object : gameObjects)
+//	//	object->ReleaseUploadBuffers();
+//	//
+//	//for (int i = 0; i < m_nShaders; i++)
+//	//	m_pShaders[i].ReleaseUploadBuffers();
+//}
 
 ID3D12RootSignature* Scene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {

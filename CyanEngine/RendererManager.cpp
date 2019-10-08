@@ -63,6 +63,10 @@ void RendererManager::PreRender()
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 }
 
+void RendererManager::Render()
+{
+}
+
 void RendererManager::PostRender()
 {
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;

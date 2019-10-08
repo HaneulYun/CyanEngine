@@ -1,5 +1,7 @@
 #pragma once
 
+class RendererManager;
+
 class Renderer : public Component
 {
 private:

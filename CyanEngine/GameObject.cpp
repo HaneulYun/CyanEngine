@@ -31,16 +31,32 @@ void GameObject::Update()
 		component->Update();
 }
 
-void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances)
+void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList) 
 {
-	if (m_pMesh)
-		m_pMesh->Render(pd3dCommandList, nInstances);
+	UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pShader)
+	{
+		m_pShader->UpdateShaderVariable(pd3dCommandList, &transform->localToWorldMatrix);
+		m_pShader->Render(pd3dCommandList, Camera::Instance());
+	}
+
+	if (m_pMesh) m_pMesh->Render(pd3dCommandList);
 }
 
 void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
 {
 	if (m_pMesh)
-		m_pMesh->Render(pd3dCommandList, nInstances, d3dInstancingBufferView);
+	{
+		if(memcmp(&d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
+			m_pMesh->Render(pd3dCommandList, nInstances, d3dInstancingBufferView);
+		else
+			m_pMesh->Render(pd3dCommandList, nInstances);
+	}
+}
+
+void GameObject::Destroy()
+{
 }
 
 void GameObject::SetShader(Shader* pShader)
@@ -56,27 +72,9 @@ void GameObject::SetMesh(Mesh* pMesh)
 	if (m_pMesh) m_pMesh->AddRef();
 }
 
-void GameObject::ReleaseUploadBuffers()
-{
-	if (m_pMesh) m_pMesh->ReleaseUploadBuffers();
-}
-
-void GameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList) 
-{
-	UpdateShaderVariables(pd3dCommandList);
-
-	if (m_pShader)
-	{
-		m_pShader->UpdateShaderVariable(pd3dCommandList, &transform->localToWorldMatrix);
-		m_pShader->Render(pd3dCommandList, Camera::Instance());
-	}
-
-	if (m_pMesh) m_pMesh->Render(pd3dCommandList);
-}
-
-void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-}
+//void GameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+//{
+//}
 
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -85,6 +83,11 @@ void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLis
 	pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
 }
 
-void GameObject::ReleaseShaderVariables()
-{
-}
+//void GameObject::ReleaseShaderVariables()
+//{
+//}
+
+//void GameObject::ReleaseUploadBuffers()
+//{
+//	if (m_pMesh) m_pMesh->ReleaseUploadBuffers();
+//}
