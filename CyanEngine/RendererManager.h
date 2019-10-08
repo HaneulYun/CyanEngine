@@ -14,7 +14,7 @@ private:
 	// DXGI 备己 夸家
 	IDXGIFactory4* m_pdxgiFactory{ nullptr };
 	IDXGISwapChain3* m_pdxgiSwapChain{ nullptr };
-
+	 
 public:
 	// DX 备己 夸家
 	ID3D12Device* m_pd3dDevice{ nullptr };

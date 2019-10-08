@@ -19,6 +19,7 @@ GameObject::~GameObject()
 void GameObject::Start()
 {
 	transform = new Transform();
+	renderer = new Renderer();
 
 	for (Component* component : components)
 		component->Start();

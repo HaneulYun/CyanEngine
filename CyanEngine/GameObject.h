@@ -5,6 +5,7 @@ class GameObject : public Object
 public:
 	std::deque<Component*> components;
 	Transform* transform;
+	Component* renderer;
 
 public:
 	GameObject();

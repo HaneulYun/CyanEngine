@@ -52,6 +52,15 @@
     <Filter Include="50_Script">
       <UniqueIdentifier>{25b17534-4a27-43a0-bb19-e5bc9179c77c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="30_GameObject\33_Material">
+      <UniqueIdentifier>{78ea6121-7abf-47be-9007-1067e2735a8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="30_GameObject\33_Material\34_Materials">
+      <UniqueIdentifier>{8932887e-d6c5-4ae7-968d-59a1d2de4207}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="30_GameObject\32_Shader\33_Shaders">
+      <UniqueIdentifier>{f0769eb7-d326-4e38-925d-16bb898498f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -117,11 +126,14 @@
     <ClInclude Include="RotatingBehavior.h">
       <Filter>50_Script</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>30_GameObject\32_Shader</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderManager.h">
       <Filter>30_GameObject\32_Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>30_GameObject\33_Material</Filter>
+    </ClInclude>
+    <ClInclude Include="DefaultMaterial.h">
+      <Filter>30_GameObject\33_Material\34_Materials</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -182,11 +194,14 @@
     <ClCompile Include="RotatingBehavior.cpp">
       <Filter>50_Script</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>30_GameObject\32_Shader</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
       <Filter>30_GameObject\32_Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>30_GameObject\33_Material</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultMaterial.cpp">
+      <Filter>30_GameObject\33_Material\34_Materials</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
