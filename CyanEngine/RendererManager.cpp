@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "RendererManager.h"
 
+ID3D12GraphicsCommandList* RendererManager::m_pd3dCommandList = nullptr;
+
 RendererManager::RendererManager()
 {
 	for (int i = 0; i < m_nSwapChainBuffers; i++)

@@ -20,6 +20,8 @@ public:
 
 	template <typename T>
 	void AddComponent();
+	template <typename T>
+	T* GetComponent();
 
 private:
 	//int m_nReferences = 0;
@@ -45,4 +47,10 @@ inline void GameObject::AddComponent()
 	Component* component = new T();
 	component->gameObject = this;
 	components.push_back(component);
+}
+
+template<typename T>
+inline T* GameObject::GetComponent()
+{
+	return NULL;
 }

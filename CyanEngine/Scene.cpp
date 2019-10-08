@@ -49,10 +49,10 @@ void Scene::Render()
 	for (GameObject* object : gameObjects)
 		object->Render(RendererManager::Instance()->m_pd3dCommandList);
 
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_pShaders[i].Render(RendererManager::Instance()->m_pd3dCommandList, Camera::Instance());
-	}
+	//for (int i = 0; i < m_nShaders; i++)
+	//{
+	//	m_pShaders[i].Render(RendererManager::Instance()->m_pd3dCommandList, Camera::Instance());
+	//}
 	renderer->Render();
 
 	renderer->PostRender();
@@ -67,41 +67,54 @@ void Scene::Destroy()
 void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 {
 	pd3dDevice = RendererManager::Instance()->m_pd3dDevice;
-
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
+
 	
-	Quad* pQuadMesh = new Quad(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
-	GameObject* pGameObject = new GameObject();
-	pGameObject->SetMesh(pQuadMesh);
-	
-	TriangleMesh* pMesh = new TriangleMesh(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
-	GameObject* pRotatingObject = new GameObject();
-	pRotatingObject->SetMesh(pMesh);
+	Quad* pQuad = new Quad(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
+	TriangleMesh* pTriangleMesh = new TriangleMesh(pd3dDevice, RendererManager::m_pd3dCommandList);
+	CubeMeshDiffused* pSmallCubeMesh = new CubeMeshDiffused(pd3dDevice, RendererManager::m_pd3dCommandList, 1, 1, 1);
+	CubeMeshDiffused* pBigCubeMesh = new CubeMeshDiffused(pd3dDevice, RendererManager::m_pd3dCommandList, 12.0f, 12.0f, 12.0f);
 	
 	PlayerShader* pShader = new PlayerShader();
 	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	pShader->CreateShaderVariables(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
-	pGameObject->SetShader(pShader);
+
+	GameObject* pQuadObject = new GameObject();
+	pQuadObject->SetMesh(pQuad);
+	pQuadObject->SetShader(pShader);
+	GameObject* pTriangleObject = new GameObject();
+	pTriangleObject->SetMesh(pTriangleMesh);
+	pTriangleObject->SetShader(pShader);
+	GameObject* pRotatingObject = new GameObject();
+	pRotatingObject->SetMesh(pSmallCubeMesh);
 	pRotatingObject->SetShader(pShader);
+	pRotatingObject->AddComponent<RotatingBehavior>();
 	
-	gameObjects.push_back(pGameObject);
+	gameObjects.push_back(pQuadObject);
+	gameObjects.push_back(pTriangleObject);
 	gameObjects.push_back(pRotatingObject);
-	
-	CubeMeshDiffused* pCubeMesh = new CubeMeshDiffused(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList, 1, 1, 1);
-	GameObject* pRotatingObject2 = new GameObject();
-	pRotatingObject2->SetMesh(pCubeMesh);
-	pRotatingObject2->AddComponent<RotatingBehavior>();
-	
-	pRotatingObject2->SetShader(pShader);
-	
-	gameObjects.push_back(pRotatingObject2);
 
+	int xObjects = 10, yObjects = 0, zObjects = 10, i = 0;
+	for (int x = -xObjects; x <= xObjects; x++)
+		for (int y = -yObjects; y <= yObjects; y++)
+			for (int z = -zObjects; z <= zObjects; z++)
+			{
+				if (!x && !y && !z)
+					continue;
 
-	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-	m_nShaders = 1;
-	m_pShaders = new InstancingShader[m_nShaders];
-	m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
-	m_pShaders[0].BuildObjects(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
+				GameObject* pRotatingObject = new GameObject();
+				pRotatingObject->SetMesh(pBigCubeMesh);
+				pRotatingObject->SetShader(pShader);
+				pRotatingObject->Start();
+				pRotatingObject->transform->position = XMFLOAT3{ 30.0f * x, 30.0f * y, 30.0f * z };
+				pRotatingObject->AddComponent<RotatingBehavior>();
+				dynamic_cast<RotatingBehavior*>(pRotatingObject->components[0])->speedRotating = 10.0f * (i++ % 10);
+				gameObjects.push_back(pRotatingObject);
+			}
+
+	//m_nShaders = 1;
+	//m_pShaders = new InstancingShader[m_nShaders];
+	//m_pShaders[0].CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+	//m_pShaders[0].BuildObjects(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
 }
 
 void Scene::ReleaseObjects()
@@ -114,13 +127,13 @@ void Scene::ReleaseObjects()
 		delete object;
 	}
 
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_pShaders[i].ReleaseShaderVariables();
-		m_pShaders[i].ReleaseObjects();
-	}
-	if (m_pShaders)
-		delete[] m_pShaders;
+	//for (int i = 0; i < m_nShaders; i++)
+	//{
+	//	m_pShaders[i].ReleaseShaderVariables();
+	//	m_pShaders[i].ReleaseObjects();
+	//}
+	//if (m_pShaders)
+	//	delete[] m_pShaders;
 }
 
 void Scene::AnimateObjects(float fTimeElapsed)
@@ -128,10 +141,10 @@ void Scene::AnimateObjects(float fTimeElapsed)
 	//for (GameObject* object : gameObjects)
 	//	object->Animate(fTimeElapsed);
 
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_pShaders[i].AnimateObjects(fTimeElapsed);
-	}
+	//for (int i = 0; i < m_nShaders; i++)
+	//{
+	//	m_pShaders[i].AnimateObjects(fTimeElapsed);
+	//}
 }
 
 bool Scene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)

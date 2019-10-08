@@ -41,7 +41,7 @@ private:
 public:
 	ID3D12CommandQueue* m_pd3dCommandQueue{ nullptr };
 	ID3D12CommandAllocator* m_pd3dCommandAllocator{ nullptr };
-	ID3D12GraphicsCommandList* m_pd3dCommandList{ nullptr };
+	static ID3D12GraphicsCommandList* m_pd3dCommandList;
 private:
 
 	ID3D12PipelineState* m_pd3dPipelineState{ nullptr };
