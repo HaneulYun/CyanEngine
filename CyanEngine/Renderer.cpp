@@ -12,6 +12,9 @@ Renderer::~Renderer()
 
 void Renderer::Start()
 {
+	//Renderer* renderer = gameObject->GetComponent<Renderer>();
+	
+	rendererManager->instances;;
 }
 
 void Renderer::Update()

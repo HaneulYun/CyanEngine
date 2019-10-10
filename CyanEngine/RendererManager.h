@@ -8,7 +8,8 @@ private:
 	IDXGIFactory4* m_pdxgiFactory{ nullptr };
 	IDXGISwapChain3* m_pdxgiSwapChain{ nullptr };
 
-	std::map<std::pair<Shader*, Mesh*>, std::deque<GameObject*>> instance;
+public:
+	std::map<std::pair<Shader*, Mesh*>, std::deque<GameObject*>> instances;
 	 
 public:
 	// DX 구성 요소

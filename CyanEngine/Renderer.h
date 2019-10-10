@@ -5,11 +5,11 @@ class RendererManager;
 class Renderer : public Component
 {
 private:
-	RendererManager* rendererManager;
+	RendererManager* rendererManager{ nullptr };
 
 public:
 	//std::deque<Material*> materials;
-	Material* material;
+	Material* material{ nullptr };
 
 private:
 	friend class GameObject;

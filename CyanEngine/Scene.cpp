@@ -4,7 +4,6 @@
 Scene::Scene()
 {
 	rendererManager = RendererManager::Instance();
-	rendererManager->m_pd3dCommandList->Reset(rendererManager->m_pd3dCommandAllocator, NULL);
 }
 
 Scene::~Scene()
@@ -13,12 +12,13 @@ Scene::~Scene()
 
 void Scene::Start()
 {
+	rendererManager->Start();
+
+	rendererManager->m_pd3dCommandList->Reset(rendererManager->m_pd3dCommandAllocator, NULL);
+
 	BuildObjects();
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Start();
-
-	rendererManager->Start();
-
 
 	RendererManager::Instance()->m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->m_pd3dCommandList };
