@@ -19,12 +19,14 @@ void Scene::Start()
 	BuildObjects();
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Start();
+	RendererManager::Instance()->Start();
 
 	RendererManager::Instance()->m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->m_pd3dCommandList };
 	RendererManager::Instance()->m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
 	RendererManager::Instance()->WaitForGpuComplete();
+
 
 	//ReleaseUploadBuffers();
 }
@@ -82,6 +84,8 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 
 	Material* defaultMaterial = new DefaultMaterial();
+	defaultMaterial->shader = new StandardShader();
+	defaultMaterial->rootSignature = m_pd3dGraphicsRootSignature;
 
 	GameObject* pQuadObject = new GameObject();
 	pQuadObject->SetMesh(pQuad);

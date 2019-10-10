@@ -32,6 +32,9 @@ void RendererManager::Start()
 	for (auto& d : instances)
 	{
 		Shader* shader = d.first.first;
+		Material* material = dynamic_cast<Renderer*>(d.second[0]->renderer)->material;
+		shader->m_ppd3dPipelineStates = new ID3D12PipelineState*[1];
+		shader->CreateShader(m_pd3dDevice, material->rootSignature);
 		shader->m_pd3dcbGameObjects = ::CreateBufferResource(m_pd3dDevice, m_pd3dCommandList, NULL, sizeof(VS_VB_INSTANCE) * d.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 		
 		shader->m_pd3dcbGameObjects->Map(0, NULL, (void**)& shader->m_pcbMappedGameObjects);

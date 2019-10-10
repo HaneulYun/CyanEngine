@@ -12,13 +12,24 @@ Renderer::~Renderer()
 
 void Renderer::Start()
 {
-	//Renderer* renderer = gameObject->GetComponent<Renderer>();
+	Renderer* renderer = static_cast<Renderer*>(gameObject->renderer); // GetComponent<Renderer>();
+	MeshFilter* meshFilter = static_cast<MeshFilter*>(gameObject->meshFilter); // GetComponent<MeshFilter>();
+
+	if (!renderer)
+		return;
+	if (!meshFilter)
+		return;
 	
-	rendererManager->instances;;
+	auto pair = std::pair<Shader*, Mesh*>(renderer->material->shader, meshFilter->mesh);
+
+	const type_info* t = &typeid(pair);
+
+	rendererManager->instances[pair].push_back(gameObject);
 }
 
 void Renderer::Update()
 {
+	
 }
 
 void Renderer::Render()

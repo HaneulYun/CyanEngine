@@ -49,15 +49,10 @@ inline T* GameObject::AddComponent()
 	component->gameObject = this;
 	components.push_back(component);
 
-	//switch (typeid(T).name())
-	//{
-	//case typeid(MeshFilter).name() :
-	//	meshFilter = component;
-	//	break;
-	//case typeid(Renderer).name() :
-	//	renderer = component;
-	//	break;
-	//}
+	if (std::is_same<T, MeshFilter>())
+		meshFilter = component;
+	if (std::is_same<T, Renderer>())
+		renderer = component;
 
 	return dynamic_cast<T*>(component);
 }

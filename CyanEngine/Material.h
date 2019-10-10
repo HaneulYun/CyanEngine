@@ -3,11 +3,8 @@
 class Material : public Object
 {
 private:
-	Shader* shader;
 	XMFLOAT4 albedo{ 0, 0, 0, 1 };
 
-	ID3D12PipelineState* pipelineState;
-	ID3D12RootSignature* rootSignature;
 	D3D12_SHADER_BYTECODE ps{ NULL };
 	D3D12_SHADER_BYTECODE vs{ NULL };
 	D3D12_SHADER_BYTECODE ds{ NULL };
@@ -20,4 +17,9 @@ private:
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc;
 
 public:
+	ID3D12RootSignature* rootSignature;
+	ID3D12PipelineState* pipelineState;
+
+public:
+	Shader* shader;
 };
