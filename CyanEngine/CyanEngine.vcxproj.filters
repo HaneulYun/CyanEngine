@@ -135,6 +135,9 @@
     <ClInclude Include="DefaultMaterial.h">
       <Filter>30_GameObject\33_Material\34_Materials</Filter>
     </ClInclude>
+    <ClInclude Include="CyanWindow.h">
+      <Filter>00_Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -202,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="DefaultMaterial.cpp">
       <Filter>30_GameObject\33_Material\34_Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="CyanWindow.cpp">
+      <Filter>00_Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

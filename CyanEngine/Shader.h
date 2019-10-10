@@ -44,9 +44,16 @@ public:
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera);
 
-protected:
+public:
 	ID3D12PipelineState **m_ppd3dPipelineStates = NULL;
+
 	int m_nPipelineStates = 0;
+public:
+
+	ID3D12Resource* m_pd3dcbGameObjects = NULL;
+	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
+
+	D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
 };
 
 class PlayerShader : public Shader
@@ -109,10 +116,10 @@ public:
 
 protected:
 	//인스턴스 정점 버퍼와 정점 버퍼 뷰이다.
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
-
-	D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
+	//ID3D12Resource* m_pd3dcbGameObjects = NULL;
+	//VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
+	//
+	//D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
 };
 
 class InstancingShader2 : public ObjectsShader
@@ -136,8 +143,8 @@ public:
 
 protected:
 	//인스턴스 정점 버퍼와 정점 버퍼 뷰이다.
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
-
-	D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
+	//ID3D12Resource* m_pd3dcbGameObjects = NULL;
+	//VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
+	//
+	//D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
 };

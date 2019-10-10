@@ -7,18 +7,11 @@ RendererManager::RendererManager()
 {
 	for (int i = 0; i < m_nSwapChainBuffers; i++)
 		m_nFenceValues[i] = 0;
-}
 
-RendererManager::~RendererManager()
-{
-}
-
-void RendererManager::Start()
-{
 	m_pCamera = Camera::Instance();
-	m_pCamera->SetViewport(0, 0, m_nWndClientWidth, m_nWndClientHeight, 0.0f, 1.0f);
-	m_pCamera->SetScissorRect(0, 0, m_nWndClientWidth, m_nWndClientHeight);
-	m_pCamera->GenerateProjectionMatrix(1.0f, 500.0f, float(m_nWndClientWidth) / float(m_nWndClientHeight), 90.0f);
+	m_pCamera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
+	m_pCamera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
+	m_pCamera->GenerateProjectionMatrix(1.0f, 500.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
 	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	CreateDirect3DDevice();
@@ -30,8 +23,32 @@ void RendererManager::Start()
 	CreateDepthStencilView();
 }
 
+RendererManager::~RendererManager()
+{
+}
+
+void RendererManager::Start()
+{
+	for (auto& d : instance)
+	{
+		Shader* shader = d.first.first;
+		shader->m_pd3dcbGameObjects = ::CreateBufferResource(m_pd3dDevice, m_pd3dCommandList, NULL, sizeof(VS_VB_INSTANCE) * d.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		
+		shader->m_pd3dcbGameObjects->Map(0, NULL, (void**)& shader->m_pcbMappedGameObjects);
+		
+		shader->m_d3dInstancingBufferView.BufferLocation = shader->m_pd3dcbGameObjects->GetGPUVirtualAddress();
+		shader->m_d3dInstancingBufferView.StrideInBytes = sizeof(VS_VB_INSTANCE);
+		shader->m_d3dInstancingBufferView.SizeInBytes = sizeof(VS_VB_INSTANCE) * d.second.size();
+	}
+}
+
 void RendererManager::Update()
 {
+	for (auto& d : instance)
+	{
+		for (auto& GameObject : d.second)
+			;// d.first.first->
+	}
 }
 
 void RendererManager::PreRender()
@@ -67,6 +84,12 @@ void RendererManager::PreRender()
 
 void RendererManager::Render()
 {
+	for (auto& d : instance)
+	{
+		m_pd3dCommandList->SetPipelineState(d.first.first->m_ppd3dPipelineStates[0]);
+		for (auto& GameObject : d.second)
+			;// d.first.first->
+	}
 }
 
 void RendererManager::PostRender()
@@ -174,12 +197,12 @@ inline void RendererManager::CreateDirect3DDevice()
 
 	m_pCamera->m_d3dViewport.TopLeftX = 0;
 	m_pCamera->m_d3dViewport.TopLeftY = 0;
-	m_pCamera->m_d3dViewport.Width = static_cast<float>(m_nWndClientWidth);
-	m_pCamera->m_d3dViewport.Height = static_cast<float>(m_nWndClientHeight);
+	m_pCamera->m_d3dViewport.Width = static_cast<float>(CyanWindow::m_nWndClientWidth);
+	m_pCamera->m_d3dViewport.Height = static_cast<float>(CyanWindow::m_nWndClientHeight);
 	m_pCamera->m_d3dViewport.MinDepth = 0.0f;
 	m_pCamera->m_d3dViewport.MaxDepth = 1.0f;
 
-	m_pCamera->m_d3dScissorRect = { 0, 0, m_nWndClientWidth, m_nWndClientHeight };
+	m_pCamera->m_d3dScissorRect = { 0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight };
 
 	if (pd3dAdapter) pd3dAdapter->Release();
 }
@@ -204,21 +227,21 @@ inline void RendererManager::CreateCommandQueueAndList()
 inline void RendererManager::CreateSwapChain()
 {
 	RECT rcClient;
-	::GetClientRect(m_hWnd, &rcClient);
-	m_nWndClientWidth = rcClient.right - rcClient.left;
-	m_nWndClientHeight = rcClient.bottom - rcClient.top;
+	::GetClientRect(CyanWindow::m_hWnd, &rcClient);
+	CyanWindow::m_nWndClientWidth = rcClient.right - rcClient.left;
+	CyanWindow::m_nWndClientHeight = rcClient.bottom - rcClient.top;
 
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(dxgiSwapChainDesc));
 	dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
-	dxgiSwapChainDesc.BufferDesc.Width = m_nWndClientWidth;
-	dxgiSwapChainDesc.BufferDesc.Height = m_nWndClientHeight;
+	dxgiSwapChainDesc.BufferDesc.Width = CyanWindow::m_nWndClientWidth;
+	dxgiSwapChainDesc.BufferDesc.Height = CyanWindow::m_nWndClientHeight;
 	dxgiSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	dxgiSwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	dxgiSwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	dxgiSwapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	dxgiSwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	dxgiSwapChainDesc.OutputWindow = m_hWnd;
+	dxgiSwapChainDesc.OutputWindow = CyanWindow::m_hWnd;
 	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	dxgiSwapChainDesc.Windowed = TRUE;
@@ -235,11 +258,11 @@ inline void RendererManager::CreateSwapChain()
 
 	m_pdxgiFactory->CreateSwapChain(m_pd3dCommandQueue, &dxgiSwapChainDesc, (IDXGISwapChain * *)& m_pdxgiSwapChain);
 	//m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 * *)& m_pdxgiSwapChain);
-	m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
+	m_pdxgiFactory->MakeWindowAssociation(CyanWindow::m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 
-	HRESULT hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
+	HRESULT hResult = m_pdxgiFactory->MakeWindowAssociation(CyanWindow::m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetView();
 #endif
@@ -280,8 +303,8 @@ inline void RendererManager::CreateDepthStencilView()
 	D3D12_RESOURCE_DESC d3dResourceDesc;
 	d3dResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	d3dResourceDesc.Alignment = 0;
-	d3dResourceDesc.Width = m_nWndClientWidth;
-	d3dResourceDesc.Height = m_nWndClientHeight;
+	d3dResourceDesc.Width = CyanWindow::m_nWndClientWidth;
+	d3dResourceDesc.Height = CyanWindow::m_nWndClientHeight;
 	d3dResourceDesc.DepthOrArraySize = 1;
 	d3dResourceDesc.MipLevels = 1;
 	d3dResourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -318,8 +341,8 @@ void RendererManager::ChangeSwapChainState()
 
 	DXGI_MODE_DESC dxgiTargetParameters;
 	dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	dxgiTargetParameters.Width = m_nWndClientWidth;
-	dxgiTargetParameters.Height = m_nWndClientHeight;
+	dxgiTargetParameters.Width = CyanWindow::m_nWndClientWidth;
+	dxgiTargetParameters.Height = CyanWindow::m_nWndClientHeight;
 	dxgiTargetParameters.RefreshRate.Numerator = 60;
 	dxgiTargetParameters.RefreshRate.Denominator = 1;
 	dxgiTargetParameters.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -331,7 +354,7 @@ void RendererManager::ChangeSwapChainState()
 	//		m_ppd3dSwapChainBackBuffers[i]->Release();
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	m_pdxgiSwapChain->GetDesc(&dxgiSwapChainDesc);
-	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, m_nWndClientWidth, m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+	m_pdxgiSwapChain->ResizeBuffers(m_nSwapChainBuffers, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 

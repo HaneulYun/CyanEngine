@@ -4,7 +4,9 @@
 GameObject::GameObject()
 {
 	//XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
-	Start();
+	//Start();
+	transform = new Transform();
+	components.push_back(transform);
 }
 GameObject::~GameObject()
 {
@@ -18,9 +20,6 @@ GameObject::~GameObject()
 
 void GameObject::Start()
 {
-	transform = new Transform();
-	renderer = new Renderer();
-
 	for (Component* component : components)
 		component->Start();
 }

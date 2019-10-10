@@ -48,11 +48,26 @@ inline T* GameObject::AddComponent()
 	Component* component = new T();
 	component->gameObject = this;
 	components.push_back(component);
+
+	//switch (typeid(T).name())
+	//{
+	//case typeid(MeshFilter).name() :
+	//	meshFilter = component;
+	//	break;
+	//case typeid(Renderer).name() :
+	//	renderer = component;
+	//	break;
+	//}
+
 	return dynamic_cast<T*>(component);
 }
 
 template<typename T>
 inline T* GameObject::GetComponent()
 {
-	return NULL;
+	for (Component* component : components)
+		//if (typeid(component) == typeid(T))
+		if (std::is_same<component, T>::value)
+			return component;
+	return nullptr;
 }

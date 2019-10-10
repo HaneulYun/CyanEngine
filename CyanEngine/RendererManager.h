@@ -2,13 +2,6 @@
 
 class RendererManager : public Singleton<RendererManager>
 {
-public:
-	// 윈도우 구성 요소, 분리할 필요 있음
-	HINSTANCE m_hInstance{ nullptr };
-	HWND m_hWnd{ nullptr };
-
-	int m_nWndClientWidth{ FRAME_BUFFER_WIDTH };
-	int m_nWndClientHeight{ FRAME_BUFFER_HEIGHT };
 
 private:
 	// DXGI 구성 요소
