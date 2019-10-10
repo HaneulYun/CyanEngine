@@ -49,8 +49,13 @@ void RendererManager::Update()
 {
 	for (auto& d : instances)
 	{
-		for (auto& GameObject : d.second)
-			;// d.first.first->
+		int j = 0;
+		for (auto& gameObject : d.second)
+		{
+			d.first.first->m_pcbMappedGameObjects[j].m_xmcColor = (j % 2) ? XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f) : XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
+			XMStoreFloat4x4(&d.first.first->m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
+			++j;
+		}
 	}
 }
 
@@ -89,9 +94,17 @@ void RendererManager::Render()
 {
 	for (auto& d : instances)
 	{
+		Shader* shader = d.first.first;
+		Mesh* mesh = d.first.second;
+
 		m_pd3dCommandList->SetPipelineState(d.first.first->m_ppd3dPipelineStates[0]);
-		for (auto& GameObject : d.second)
-			;// d.first.first->
+		//d.first.second->Render(m_pd3dCommandList, Camera::Instance(), m_nObjects, m_d3dInstancingBufferView)
+		//for (auto& gameObject : d.second)
+		//
+		if (memcmp(&shader->m_d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
+			mesh->Render(m_pd3dCommandList, d.second.size(), shader->m_d3dInstancingBufferView);
+		else
+			mesh->Render(m_pd3dCommandList, d.second.size());
 	}
 }
 

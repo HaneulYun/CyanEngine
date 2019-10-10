@@ -51,7 +51,8 @@ void Scene::Render()
 	Camera::Instance()->UpdateShaderVariables(RendererManager::Instance()->m_pd3dCommandList);
 
 	for (GameObject* object : gameObjects)
-		object->Render(RendererManager::Instance()->m_pd3dCommandList);
+		if(!object->renderer)
+			object->Render(RendererManager::Instance()->m_pd3dCommandList);
 	
 
 	//for (int i = 0; i < m_nShaders; i++)
