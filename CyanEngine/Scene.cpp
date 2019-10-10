@@ -3,7 +3,7 @@
 
 Scene::Scene()
 {
-	renderer = RendererManager::Instance();
+	rendererManager = RendererManager::Instance();
 }
 
 Scene::~Scene()
@@ -12,11 +12,13 @@ Scene::~Scene()
 
 void Scene::Start()
 {
-	renderer->Start();
+	rendererManager->Start();
 
-	renderer->m_pd3dCommandList->Reset(renderer->m_pd3dCommandAllocator, NULL);
+	rendererManager->m_pd3dCommandList->Reset(rendererManager->m_pd3dCommandAllocator, NULL);
 
 	BuildObjects();
+	for (GameObject* gameObject : gameObjects)
+		gameObject->Start();
 
 	RendererManager::Instance()->m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->m_pd3dCommandList };
@@ -32,13 +34,13 @@ void Scene::Update()
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Update();
 
-	AnimateObjects(Time::Instance()->GetTimeElapsed());
-	renderer->Update();
+	//AnimateObjects(Time::Instance()->GetTimeElapsed());
+	rendererManager->Update();
 }
 
 void Scene::Render()
 {
-	renderer->PreRender();
+	rendererManager->PreRender();
 	//renderer->Render();
 
 	Camera::Instance()->SetViewportsAndScissorRects(RendererManager::Instance()->m_pd3dCommandList);
@@ -48,20 +50,21 @@ void Scene::Render()
 
 	for (GameObject* object : gameObjects)
 		object->Render(RendererManager::Instance()->m_pd3dCommandList);
+	
 
 	//for (int i = 0; i < m_nShaders; i++)
 	//{
 	//	m_pShaders[i].Render(RendererManager::Instance()->m_pd3dCommandList, Camera::Instance());
 	//}
-	renderer->Render();
+	rendererManager->Render();
 
-	renderer->PostRender();
+	rendererManager->PostRender();
 }
 
 void Scene::Destroy()
 {
 	ReleaseObjects();
-	renderer->Destroy();
+	rendererManager->Destroy();
 }
 
 void Scene::BuildObjects(ID3D12Device* pd3dDevice)
@@ -77,6 +80,8 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 	
 	PlayerShader* pShader = new PlayerShader();
 	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+
+	Material* defaultMaterial = new DefaultMaterial();
 
 	GameObject* pQuadObject = new GameObject();
 	pQuadObject->SetMesh(pQuad);
@@ -102,12 +107,20 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 					continue;
 
 				GameObject* pRotatingObject = new GameObject();
+
+				MeshFilter* meshFilter = pRotatingObject->AddComponent<MeshFilter>();
+				meshFilter->mesh = pBigCubeMesh;
 				pRotatingObject->SetMesh(pBigCubeMesh);
+
+				Renderer* renderer = pRotatingObject->AddComponent<Renderer>();
+				//renderer->materials.push_back(defaultMaterial);
+				renderer->material = defaultMaterial;
 				pRotatingObject->SetShader(pShader);
-				pRotatingObject->Start();
-				pRotatingObject->transform->position = XMFLOAT3{ 30.0f * x, 30.0f * y, 30.0f * z };
-				pRotatingObject->AddComponent<RotatingBehavior>();
-				dynamic_cast<RotatingBehavior*>(pRotatingObject->components[0])->speedRotating = 10.0f * (i++ % 10);
+
+				RotatingBehavior* rotatingBehavior = pRotatingObject->AddComponent<RotatingBehavior>();
+				rotatingBehavior->pos = XMFLOAT3{ 30.0f * x, 30.0f * y, 30.0f * z };
+				rotatingBehavior->speedRotating = 10.0f * (i++ % 10);
+
 				gameObjects.push_back(pRotatingObject);
 			}
 
@@ -119,13 +132,12 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 
 void Scene::ReleaseObjects()
 {
-	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
-	
 	for (GameObject* object : gameObjects)
 	{
 		// 제거를 어떻게 안전하게 진행하는지 기억나지 않는다.
 		delete object;
 	}
+	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 
 	//for (int i = 0; i < m_nShaders; i++)
 	//{
@@ -136,16 +148,16 @@ void Scene::ReleaseObjects()
 	//	delete[] m_pShaders;
 }
 
-void Scene::AnimateObjects(float fTimeElapsed)
-{
-	//for (GameObject* object : gameObjects)
-	//	object->Animate(fTimeElapsed);
-
-	//for (int i = 0; i < m_nShaders; i++)
-	//{
-	//	m_pShaders[i].AnimateObjects(fTimeElapsed);
-	//}
-}
+//void Scene::AnimateObjects(float fTimeElapsed)
+//{
+//	//for (GameObject* object : gameObjects)
+//	//	object->Animate(fTimeElapsed);
+//
+//	//for (int i = 0; i < m_nShaders; i++)
+//	//{
+//	//	m_pShaders[i].AnimateObjects(fTimeElapsed);
+//	//}
+//}
 
 bool Scene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {

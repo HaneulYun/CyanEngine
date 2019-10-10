@@ -2,11 +2,13 @@
 
 class Component : public Object
 {
+protected:
+	Component();
+
 public:
 	GameObject* gameObject{ nullptr };
 
 public:
-	Component();
 	virtual ~Component();
 
 	virtual void Start() = 0;

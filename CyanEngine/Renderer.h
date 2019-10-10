@@ -6,10 +6,16 @@ class Renderer : public Component
 {
 private:
 	RendererManager* rendererManager;
-	std::deque<Material*> materials;
 
 public:
+	//std::deque<Material*> materials;
+	Material* material;
+
+private:
+	friend class GameObject;
 	Renderer();
+
+public:
 	~Renderer();
 
 	void Start() override;

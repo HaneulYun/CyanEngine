@@ -5,6 +5,7 @@ class GameObject : public Object
 public:
 	std::deque<Component*> components;
 	Transform* transform;
+	Component* meshFilter;
 	Component* renderer;
 
 public:
@@ -19,7 +20,7 @@ public:
 	void Destroy();
 
 	template <typename T>
-	void AddComponent();
+	T* AddComponent();
 	template <typename T>
 	T* GetComponent();
 
@@ -42,11 +43,12 @@ public:
 };
 
 template<typename T>
-inline void GameObject::AddComponent()
+inline T* GameObject::AddComponent()
 {
 	Component* component = new T();
 	component->gameObject = this;
 	components.push_back(component);
+	return dynamic_cast<T*>(component);
 }
 
 template<typename T>

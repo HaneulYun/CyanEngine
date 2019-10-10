@@ -36,7 +36,7 @@ void RendererManager::Update()
 
 void RendererManager::PreRender()
 {
-	HRESULT hResult = m_pd3dCommandAllocator->Reset();
+	HRESULT hResult = m_pd3dCommandAllocator->Reset(); 
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	// m_pd3dCommandList->RSSetViewports(1, &m_d3dViewport);

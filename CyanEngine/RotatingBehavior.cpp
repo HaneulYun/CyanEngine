@@ -7,6 +7,7 @@ RotatingBehavior::~RotatingBehavior() {}
 
 void RotatingBehavior::Start()
 {
+	gameObject->transform->position = pos;
 }
 
 void RotatingBehavior::Update()

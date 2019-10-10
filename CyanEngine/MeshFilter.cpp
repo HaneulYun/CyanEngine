@@ -7,4 +7,6 @@ MeshFilter::MeshFilter()
 
 MeshFilter::~MeshFilter()
 {
+	if (mesh)
+		delete mesh;
 }

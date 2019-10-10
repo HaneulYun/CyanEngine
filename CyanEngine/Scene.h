@@ -4,7 +4,7 @@ class Scene
 {
 private:
 	std::deque<GameObject*> gameObjects;
-	RendererManager* renderer;
+	RendererManager* rendererManager;
 
 public:
 	Scene();
@@ -20,7 +20,7 @@ public:
 	//----------------//
 	void BuildObjects(ID3D12Device* pd3dDevice = nullptr);
 	void ReleaseObjects();
-	void AnimateObjects(float fTimeElapsed = 0);
+	//void AnimateObjects(float fTimeElapsed = 0);
 
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

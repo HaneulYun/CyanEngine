@@ -1,11 +1,16 @@
 #pragma once
 
-class MeshFilter : Component
+class MeshFilter : public Component
 {
-private:
+public:
+	Mesh* mesh{ nullptr };
 
 public:
 	MeshFilter();
 	~MeshFilter();
-};
 
+	void Start() override {}
+	void Update() override {}
+	void Render() override {}
+	void Destroy() override {}
+};

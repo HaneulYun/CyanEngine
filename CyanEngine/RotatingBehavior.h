@@ -6,18 +6,19 @@ private:
 	XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
 
 public:
+	XMFLOAT3 pos{ 0.0f, 0.0f, 0.0f };
 	float speedRotating{ 90.f };
 
-public:
+private:
+	friend class GameObject;
 	RotatingBehavior();
+
+public:
 	~RotatingBehavior();
 
-	virtual void Start();
-
-	virtual void Update();
-
-	virtual void Render();
-
-	virtual void Destroy();
+	void Start() override;
+	void Update() override;
+	void Render() override;
+	void Destroy() override;
 };
 
