@@ -13,53 +13,35 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="00_Core">
+    <Filter Include="0_00_CyanEngine">
       <UniqueIdentifier>{d04c8d9f-49ee-4187-8688-f2126291bd4a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10_Object">
-      <UniqueIdentifier>{3c956cf4-31e4-400b-baab-b45c94cff437}</UniqueIdentifier>
+    <Filter Include="0_00_CyanEngine\00_CyanFW">
+      <UniqueIdentifier>{b57abeb9-d8b9-4cb0-8d31-57462a1ad71b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="20_Component">
-      <UniqueIdentifier>{ece94e79-7abf-4890-8f0d-b82743bf4a28}</UniqueIdentifier>
+    <Filter Include="0_00_CyanEngine\10_CORE">
+      <UniqueIdentifier>{41597c93-ee10-4479-9512-8b498090fa31}</UniqueIdentifier>
     </Filter>
-    <Filter Include="30_GameObject">
-      <UniqueIdentifier>{35f5e4de-8fb7-4a02-9cf3-f7feb26ce6b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="20_Component\21_Components">
-      <UniqueIdentifier>{5d8c62ee-5337-4ebf-ab71-a667cfca8b37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="01_Util">
-      <UniqueIdentifier>{048a0937-1402-47ff-b58d-12d2c204f0ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="30_GameObject\31_Mesh">
-      <UniqueIdentifier>{7ea717cd-fd26-49c8-ad31-f0a835cd3b39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="30_GameObject\32_Shader">
-      <UniqueIdentifier>{6f09b729-bad5-4b41-beec-b2fd1a4eb0c2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="25_Renderer">
-      <UniqueIdentifier>{4e8bda8d-cca0-422d-bcd7-c8baf15aef87}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="28_Camera">
-      <UniqueIdentifier>{93d77240-dd03-45bf-812e-16572efe46df}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="05_Scene">
+    <Filter Include="0_00_CyanEngine\20_Scene">
       <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="40_Prefab">
-      <UniqueIdentifier>{7c4ebd3c-a2f5-4e74-bab7-facbab8af2db}</UniqueIdentifier>
+    <Filter Include="0_00_CyanEngine\30_MANAGER">
+      <UniqueIdentifier>{49fd7a77-e251-4134-81a5-4118fe56c241}</UniqueIdentifier>
     </Filter>
-    <Filter Include="50_Script">
-      <UniqueIdentifier>{25b17534-4a27-43a0-bb19-e5bc9179c77c}</UniqueIdentifier>
+    <Filter Include="0_00_CyanEngine\90_PATTERN">
+      <UniqueIdentifier>{554ca85f-d882-4f3c-a855-931b01dcb805}</UniqueIdentifier>
     </Filter>
-    <Filter Include="30_GameObject\33_Material">
-      <UniqueIdentifier>{78ea6121-7abf-47be-9007-1067e2735a8f}</UniqueIdentifier>
+    <Filter Include="0_00_CyanEngine\41_Components">
+      <UniqueIdentifier>{1b9adc8f-b973-44a8-87ab-9e9e73313bec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="30_GameObject\33_Material\34_Materials">
-      <UniqueIdentifier>{8932887e-d6c5-4ae7-968d-59a1d2de4207}</UniqueIdentifier>
+    <Filter Include="0_00_CyanEngine\43_Meshes">
+      <UniqueIdentifier>{c6a5e6c6-5702-463a-af85-cc74b835a3b8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="30_GameObject\32_Shader\33_Shaders">
-      <UniqueIdentifier>{f0769eb7-d326-4e38-925d-16bb898498f2}</UniqueIdentifier>
+    <Filter Include="0_00_CyanEngine\42_Shaders">
+      <UniqueIdentifier>{7313cc05-a652-4fa9-b69f-282b1453c34f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\44_Materials">
+      <UniqueIdentifier>{4a8d17c5-8389-46f3-ae1d-c3f8c7abc368}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,62 +60,62 @@
     <ClInclude Include="Time.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CyanFW.h">
-      <Filter>00_Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>10_Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>20_Component</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>05_Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>30_GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>01_Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>30_GameObject\31_Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>30_GameObject\32_Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>25_Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="RendererManager.h">
-      <Filter>25_Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>28_Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>20_Component\21_Components</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshFilter.h">
-      <Filter>20_Component\21_Components</Filter>
+      <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClInclude>
     <ClInclude Include="CyanEngine.h">
-      <Filter>00_Core</Filter>
+      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClInclude>
-    <ClInclude Include="RotatingBehavior.h">
-      <Filter>50_Script</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderManager.h">
-      <Filter>30_GameObject\32_Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>30_GameObject\33_Material</Filter>
-    </ClInclude>
-    <ClInclude Include="DefaultMaterial.h">
-      <Filter>30_GameObject\33_Material\34_Materials</Filter>
+    <ClInclude Include="CyanFW.h">
+      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClInclude>
     <ClInclude Include="CyanWindow.h">
-      <Filter>00_Core</Filter>
+      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererManager.h">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderManager.h">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>0_00_CyanEngine\90_PATTERN</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshFilter.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="RotatingBehavior.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DefaultMaterial.h">
+      <Filter>0_00_CyanEngine\44_Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -143,65 +125,65 @@
     <ClCompile Include="Time.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="CyanFW.cpp">
-      <Filter>00_Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>10_Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>20_Component</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>05_Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>30_GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="Singleton.cpp">
-      <Filter>01_Util</Filter>
+      <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClCompile>
     <ClCompile Include="framework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>30_GameObject\31_Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>30_GameObject\32_Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>25_Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="RendererManager.cpp">
-      <Filter>25_Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>28_Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="Transform.cpp">
-      <Filter>20_Component\21_Components</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshFilter.cpp">
-      <Filter>20_Component\21_Components</Filter>
-    </ClCompile>
     <ClCompile Include="CyanEngine.cpp">
-      <Filter>00_Core</Filter>
+      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
-    <ClCompile Include="RotatingBehavior.cpp">
-      <Filter>50_Script</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderManager.cpp">
-      <Filter>30_GameObject\32_Shader</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>30_GameObject\33_Material</Filter>
-    </ClCompile>
-    <ClCompile Include="DefaultMaterial.cpp">
-      <Filter>30_GameObject\33_Material\34_Materials</Filter>
+    <ClCompile Include="CyanFW.cpp">
+      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
     <ClCompile Include="CyanWindow.cpp">
-      <Filter>00_Core</Filter>
+      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererManager.cpp">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderManager.cpp">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton.cpp">
+      <Filter>0_00_CyanEngine\90_PATTERN</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshFilter.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="RotatingBehavior.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="DefaultMaterial.cpp">
+      <Filter>0_00_CyanEngine\44_Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
