@@ -49,11 +49,6 @@ public:
 
 	int m_nPipelineStates = 0;
 public:
-
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
-
-	D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
 };
 
 class PlayerShader : public Shader

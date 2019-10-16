@@ -108,9 +108,6 @@
     <ClInclude Include="RendererManager.h">
       <Filter>25_Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="DxRendererManager.h">
-      <Filter>25_Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>28_Camera</Filter>
     </ClInclude>
@@ -177,9 +174,6 @@
       <Filter>25_Renderer</Filter>
     </ClCompile>
     <ClCompile Include="RendererManager.cpp">
-      <Filter>25_Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="DxRendererManager.cpp">
       <Filter>25_Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">

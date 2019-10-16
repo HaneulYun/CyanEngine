@@ -67,7 +67,6 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 
 #include "ShaderManager.h"
 #include "RendererManager.h"
-#include "DxRendererManager.h"
 
 #include "RotatingBehavior.h"
 #include "GameObject.h"

@@ -32,16 +32,19 @@ void RendererManager::Start()
 	for (auto& d : instances)
 	{
 		Shader* shader = d.first.first;
-		Material* material = dynamic_cast<Renderer*>(d.second[0]->renderer)->material;
+		Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
 		shader->m_ppd3dPipelineStates = new ID3D12PipelineState*[1];
 		shader->CreateShader(m_pd3dDevice, material->rootSignature);
-		shader->m_pd3dcbGameObjects = ::CreateBufferResource(m_pd3dDevice, m_pd3dCommandList, NULL, sizeof(VS_VB_INSTANCE) * d.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+		d.second.first = new INSTANCING();
+
+		d.second.first->m_pd3dcbGameObjects = ::CreateBufferResource(m_pd3dDevice, m_pd3dCommandList, NULL, sizeof(VS_VB_INSTANCE) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 		
-		shader->m_pd3dcbGameObjects->Map(0, NULL, (void**)& shader->m_pcbMappedGameObjects);
+		d.second.first->m_pd3dcbGameObjects->Map(0, NULL, (void**)& d.second.first->m_pcbMappedGameObjects);
 		
-		shader->m_d3dInstancingBufferView.BufferLocation = shader->m_pd3dcbGameObjects->GetGPUVirtualAddress();
-		shader->m_d3dInstancingBufferView.StrideInBytes = sizeof(VS_VB_INSTANCE);
-		shader->m_d3dInstancingBufferView.SizeInBytes = sizeof(VS_VB_INSTANCE) * d.second.size();
+		d.second.first->m_d3dInstancingBufferView.BufferLocation = d.second.first->m_pd3dcbGameObjects->GetGPUVirtualAddress();
+		d.second.first->m_d3dInstancingBufferView.StrideInBytes = sizeof(VS_VB_INSTANCE);
+		d.second.first->m_d3dInstancingBufferView.SizeInBytes = sizeof(VS_VB_INSTANCE) * d.second.second.size();
 	}
 }
 
@@ -50,10 +53,10 @@ void RendererManager::Update()
 	for (auto& d : instances)
 	{
 		int j = 0;
-		for (auto& gameObject : d.second)
+		for (auto& gameObject : d.second.second)
 		{
-			d.first.first->m_pcbMappedGameObjects[j].m_xmcColor = (j % 2) ? XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f) : XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
-			XMStoreFloat4x4(&d.first.first->m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
+			d.second.first->m_pcbMappedGameObjects[j].m_xmcColor = (j % 2) ? XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f) : XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
+			XMStoreFloat4x4(&d.second.first->m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
 			++j;
 		}
 	}
@@ -94,17 +97,15 @@ void RendererManager::Render()
 {
 	for (auto& d : instances)
 	{
-		Shader* shader = d.first.first;
+		//Shader* shader = d.first.first;
 		Mesh* mesh = d.first.second;
 
 		m_pd3dCommandList->SetPipelineState(d.first.first->m_ppd3dPipelineStates[0]);
-		//d.first.second->Render(m_pd3dCommandList, Camera::Instance(), m_nObjects, m_d3dInstancingBufferView)
-		//for (auto& gameObject : d.second)
-		//
-		if (memcmp(&shader->m_d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
-			mesh->Render(m_pd3dCommandList, d.second.size(), shader->m_d3dInstancingBufferView);
+
+		if (memcmp(&d.second.first->m_d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
+			mesh->Render(m_pd3dCommandList, d.second.second.size(), d.second.first->m_d3dInstancingBufferView);
 		else
-			mesh->Render(m_pd3dCommandList, d.second.size());
+			mesh->Render(m_pd3dCommandList, d.second.second.size());
 	}
 }
 

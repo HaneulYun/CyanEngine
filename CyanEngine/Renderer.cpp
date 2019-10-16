@@ -24,7 +24,7 @@ void Renderer::Start()
 
 	const type_info* t = &typeid(pair);
 
-	rendererManager->instances[pair].push_back(gameObject);
+	rendererManager->instances[pair].second.push_back(gameObject);
 }
 
 void Renderer::Update()

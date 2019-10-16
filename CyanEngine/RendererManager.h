@@ -1,5 +1,13 @@
 #pragma once
 
+struct INSTANCING
+{
+	ID3D12Resource* m_pd3dcbGameObjects = NULL;
+	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
+
+	D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
+};
+
 class RendererManager : public Singleton<RendererManager>
 {
 
@@ -9,7 +17,7 @@ private:
 	IDXGISwapChain3* m_pdxgiSwapChain{ nullptr };
 
 public:
-	std::map<std::pair<Shader*, Mesh*>, std::deque<GameObject*>> instances;
+	std::map<std::pair<Shader*, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> instances;
 	 
 public:
 	// DX 구성 요소

@@ -157,7 +157,6 @@
     <ClInclude Include="CyanFW.h" />
     <ClInclude Include="CyanWindow.h" />
     <ClInclude Include="DefaultMaterial.h" />
-    <ClInclude Include="DxRendererManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Material.h" />
@@ -184,7 +183,6 @@
     <ClCompile Include="CyanFW.cpp" />
     <ClCompile Include="CyanWindow.cpp" />
     <ClCompile Include="DefaultMaterial.cpp" />
-    <ClCompile Include="DxRendererManager.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Material.cpp" />
