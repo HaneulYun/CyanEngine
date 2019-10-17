@@ -94,14 +94,18 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 	GameObject* pTriangleObject = new GameObject();
 	pTriangleObject->SetMesh(pTriangleMesh);
 	pTriangleObject->SetShader(pShader);
-	GameObject* pRotatingObject = new GameObject();
-	pRotatingObject->SetMesh(pSmallCubeMesh);
-	pRotatingObject->SetShader(pShader);
-	pRotatingObject->AddComponent<RotatingBehavior>();
-	
+
+	{
+		GameObject* pRotatingObject = new GameObject();
+		pRotatingObject->SetMesh(pSmallCubeMesh);
+		pRotatingObject->SetShader(pShader);
+		pRotatingObject->AddComponent<RotatingBehavior>();
+
+		gameObjects.push_back(pRotatingObject);
+	}
+
 	gameObjects.push_back(pQuadObject);
 	gameObjects.push_back(pTriangleObject);
-	gameObjects.push_back(pRotatingObject);
 
 	int xObjects = 10, yObjects = 0, zObjects = 10, i = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
