@@ -55,7 +55,7 @@ void RendererManager::Update()
 		int j = 0;
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->m_pcbMappedGameObjects[j].m_xmcColor = (j % 2) ? XMFLOAT4(0.5f, 0.0f, 0.0f, 0.0f) : XMFLOAT4(0.0f, 0.0f, 0.5f, 0.0f);
+			d.second.first->m_pcbMappedGameObjects[j].m_xmcColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 			XMStoreFloat4x4(&d.second.first->m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
 			++j;
 		}
@@ -87,7 +87,8 @@ void RendererManager::PreRender()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
 
-	float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
+	//float pfClearColor[4] = { 49.0f / 256.0f, 77.0f / 256.0f, 121.0f / 256.0f, 1.0f };
+	float pfClearColor[4] = { 0.1921569f, 0.3019608, 0.4745098, 1.0f };
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
 
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
