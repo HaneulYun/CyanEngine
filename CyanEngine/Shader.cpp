@@ -498,8 +498,6 @@ void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 //	m_ppObjects[0]->Render(pd3dCommandList, pCamera, m_nObjects);
 //}
 
-//
-
 D3D12_INPUT_LAYOUT_DESC StandardShader::CreateInputLayout()
 {
 	UINT nInputElementDescs = 7;

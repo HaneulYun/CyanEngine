@@ -55,7 +55,7 @@ void RendererManager::Update()
 		int j = 0;
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->m_pcbMappedGameObjects[j].m_xmcColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+			d.second.first->m_pcbMappedGameObjects[j].m_xmcColor = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 			XMStoreFloat4x4(&d.second.first->m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
 			++j;
 		}
@@ -188,15 +188,12 @@ inline void RendererManager::CreateDirect3DDevice()
 		DXGI_ADAPTER_DESC1 dxgiAdapterDesc;
 		pd3dAdapter->GetDesc1(&dxgiAdapterDesc);
 		if (dxgiAdapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
-		if (SUCCEEDED(D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0,
-			_uuidof(ID3D12Device), (void**)& m_pd3dDevice))) break;
+		if (SUCCEEDED(D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), (void**)& m_pd3dDevice))) break;
 	}
-
 	if (!pd3dAdapter)
 	{
 		m_pdxgiFactory->EnumWarpAdapter(_uuidof(IDXGIFactory4), (void**)& pd3dAdapter);
-		D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void
-			**)& m_pd3dDevice);
+		D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void**)& m_pd3dDevice);
 	}
 
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
@@ -238,8 +235,7 @@ inline void RendererManager::CreateCommandQueueAndList()
 
 	hResult = m_pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_pd3dCommandAllocator, NULL, __uuidof(ID3D12GraphicsCommandList), (void**)& m_pd3dCommandList);
 
-	hResult = m_pd3dCommandList->Close();
-
+	hResult = m_pd3dCommandList->Close(); 
 }
 
 inline void RendererManager::CreateSwapChain()
@@ -306,7 +302,7 @@ inline void RendererManager::CreateRtvAndDsvDescriptorHeaps()
 inline void RendererManager::CreateRenderTargetView()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-
+	
 	HRESULT hResult;
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
 	{

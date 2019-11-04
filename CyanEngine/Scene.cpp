@@ -27,7 +27,6 @@ void Scene::Start()
 
 	RendererManager::Instance()->WaitForGpuComplete();
 
-
 	//ReleaseUploadBuffers();
 }
 
@@ -91,7 +90,9 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 	GameObject* pQuadObject = new GameObject();
 	pQuadObject->SetMesh(pQuad);
 	pQuadObject->SetShader(pShader);
+
 	GameObject* pTriangleObject = new GameObject();
+	//pTriangleObject->Set
 	pTriangleObject->SetMesh(pTriangleMesh);
 	pTriangleObject->SetShader(pShader);
 
