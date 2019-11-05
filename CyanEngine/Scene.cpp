@@ -14,18 +14,18 @@ void Scene::Start()
 {
 	rendererManager->Start();
 
-	rendererManager->m_pd3dCommandList->Reset(rendererManager->m_pd3dCommandAllocator, NULL);
+	rendererManager->commandList->Reset(rendererManager->commandAllocator.Get(), NULL);
 
 	BuildObjects();
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Start();
-	RendererManager::Instance()->Start();
+	rendererManager->Start();
 
-	RendererManager::Instance()->m_pd3dCommandList->Close();
-	ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->m_pd3dCommandList };
-	RendererManager::Instance()->m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	rendererManager->commandList->Close();
+	ID3D12CommandList* ppd3dCommandLists[] = { rendererManager->commandList.Get() };
+	rendererManager->commandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
-	RendererManager::Instance()->WaitForGpuComplete();
+	rendererManager->WaitForGpuComplete();
 
 	//ReleaseUploadBuffers();
 }
@@ -44,14 +44,14 @@ void Scene::Render()
 	rendererManager->PreRender();
 	//renderer->Render();
 
-	Camera::Instance()->SetViewportsAndScissorRects(RendererManager::Instance()->m_pd3dCommandList);
-	RendererManager::Instance()->m_pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+	Camera::Instance()->SetViewportsAndScissorRects(RendererManager::Instance()->commandList.Get());
+	RendererManager::Instance()->commandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
-	Camera::Instance()->UpdateShaderVariables(RendererManager::Instance()->m_pd3dCommandList);
+	Camera::Instance()->UpdateShaderVariables(RendererManager::Instance()->commandList.Get());
 
 	for (GameObject* object : gameObjects)
 		if(!object->renderer)
-			object->Render(RendererManager::Instance()->m_pd3dCommandList);
+			object->Render(RendererManager::Instance()->commandList.Get());
 	
 
 	//for (int i = 0; i < m_nShaders; i++)
@@ -71,14 +71,14 @@ void Scene::Destroy()
 
 void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 {
-	pd3dDevice = RendererManager::Instance()->m_pd3dDevice;
+	pd3dDevice = RendererManager::Instance()->device.Get();
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	
-	Quad* pQuad = new Quad(pd3dDevice, RendererManager::Instance()->m_pd3dCommandList);
-	TriangleMesh* pTriangleMesh = new TriangleMesh(pd3dDevice, RendererManager::m_pd3dCommandList);
-	CubeMeshDiffused* pSmallCubeMesh = new CubeMeshDiffused(pd3dDevice, RendererManager::m_pd3dCommandList, 1, 1, 1);
-	CubeMeshDiffused* pBigCubeMesh = new CubeMeshDiffused(pd3dDevice, RendererManager::m_pd3dCommandList, 12.0f, 12.0f, 12.0f);
+	Quad* pQuad = new Quad(pd3dDevice, RendererManager::Instance()->commandList.Get());
+	TriangleMesh* pTriangleMesh = new TriangleMesh(pd3dDevice, rendererManager->commandList.Get());
+	CubeMeshDiffused* pSmallCubeMesh = new CubeMeshDiffused(pd3dDevice, rendererManager->commandList.Get(), 1, 1, 1);
+	CubeMeshDiffused* pBigCubeMesh = new CubeMeshDiffused(pd3dDevice, rendererManager->commandList.Get(), 12.0f, 12.0f, 12.0f);
 	
 	PlayerShader* pShader = new PlayerShader();
 	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
