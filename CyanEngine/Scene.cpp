@@ -55,29 +55,46 @@ void Scene::BuildObjects(ID3D12Device* pd3dDevice)
 	pd3dDevice = rendererManager->device.Get();
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	GameObject* Cube = new GameObject;
 
 	CubeMeshDiffused* pBigCubeMesh = new CubeMeshDiffused(pd3dDevice, rendererManager->commandList.Get(), 12.0f, 12.0f, 12.0f);
 	
-	PlayerShader* pShader = new PlayerShader();
-	pShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
+
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 	defaultMaterial->rootSignature = m_pd3dGraphicsRootSignature;
-
-	MeshFilter* meshFilter = Cube->AddComponent<MeshFilter>();
-	meshFilter->mesh = pBigCubeMesh;
-	Cube->SetMesh(pBigCubeMesh);
 	
-	Renderer* renderer = Cube->AddComponent<Renderer>();
-	renderer->material = defaultMaterial;
-	Cube->SetShader(pShader);
-	
-	RotatingBehavior* rotatingBehavior = Cube->AddComponent<RotatingBehavior>();
-	rotatingBehavior->pos = XMFLOAT3{ 0, 0, 0 };
-	rotatingBehavior->speedRotating = 45;
 
-	gameObjects.push_back(Cube);
+	{
+		GameObject* Cube = new GameObject;
+
+		MeshFilter* meshFilter = Cube->AddComponent<MeshFilter>();
+		meshFilter->mesh = pBigCubeMesh;
+
+		Renderer* renderer = Cube->AddComponent<Renderer>();
+		renderer->material = defaultMaterial;
+
+		RotatingBehavior* rotatingBehavior = Cube->AddComponent<RotatingBehavior>();
+		rotatingBehavior->pos = XMFLOAT3{ 0, 0, 0 };
+		rotatingBehavior->speedRotating = 45;
+
+		gameObjects.push_back(Cube);
+	}
+
+	{
+		GameObject* Cube = new GameObject;
+
+		MeshFilter* meshFilter = Cube->AddComponent<MeshFilter>();
+		meshFilter->mesh = pBigCubeMesh;
+
+		Renderer* renderer = Cube->AddComponent<Renderer>();
+		renderer->material = defaultMaterial;
+
+		RotatingBehavior* rotatingBehavior = Cube->AddComponent<RotatingBehavior>();
+		rotatingBehavior->pos = XMFLOAT3{ 0, 0, 0 };
+		rotatingBehavior->speedRotating = 45;
+
+		gameObjects.push_back(Cube);
+	}
 
 	//Quad* pQuad = new Quad(pd3dDevice, RendererManager::Instance()->commandList.Get());
 	//TriangleMesh* pTriangleMesh = new TriangleMesh(pd3dDevice, rendererManager->commandList.Get());

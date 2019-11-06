@@ -10,6 +10,7 @@ public:
 
 public:
 	GameObject();
+	GameObject(GameObject* original);
 	~GameObject();
 
 	void Start();
@@ -23,6 +24,8 @@ public:
 	T* AddComponent();
 	template <typename T>
 	T* GetComponent();
+
+
 
 private:
 	//int m_nReferences = 0;

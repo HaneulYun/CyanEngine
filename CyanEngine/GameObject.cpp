@@ -8,6 +8,7 @@ GameObject::GameObject()
 	transform = new Transform();
 	components.push_back(transform);
 }
+
 GameObject::~GameObject()
 {
 	if (m_pMesh) m_pMesh->Release();
