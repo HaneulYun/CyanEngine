@@ -30,10 +30,6 @@ void CyanFW::OnDestroy()
 		scene->Destroy();
 }
 
-void CyanFW::ProcessInput()
-{
-}
-
 void CyanFW::FrameAdvance()
 {
 	Time::Instance()->Tick();
@@ -42,9 +38,7 @@ void CyanFW::FrameAdvance()
 	scene->Render();
 
 	Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
-	::SetWindowText(CyanWindow::m_hWnd, m_pszFrameRate);
-
-	ProcessInput();
+	SetWindowText(CyanWindow::m_hWnd, m_pszFrameRate);
 }
 
 void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -53,12 +47,9 @@ void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
-		break;
 	case WM_MOUSEMOVE:
-		break;
 	default:
 		break;
 	}
@@ -72,10 +63,9 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		switch (wParam)
 		{
 		case VK_ESCAPE:
-			::PostQuitMessage(0);
+			PostQuitMessage(0);
 			break;
 		case VK_RETURN:
-			break;
 		case VK_F8:
 			break;
 		case VK_F9:

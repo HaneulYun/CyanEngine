@@ -29,8 +29,9 @@ void RendererManager::Start()
 {
 	for (auto& d : instances)
 	{
-		Shader* shader = d.first.first;
+		Shader* shader = d.first.first->shader;
 		Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
+		material->rootSignature = material->CreateGraphicsRootSignature(device.Get());
 		shader->m_ppd3dPipelineStates = new ID3D12PipelineState*[1];
 		shader->CreateShader(device.Get(), material->rootSignature);
 
@@ -105,7 +106,9 @@ void RendererManager::Render()
 		//Shader* shader = d.first.first;
 		Mesh* mesh = d.first.second;
 
-		commandList->SetPipelineState(d.first.first->m_ppd3dPipelineStates[0]);
+		commandList->SetGraphicsRootSignature(d.first.first->rootSignature);
+		commandList->SetPipelineState(d.first.first->shader->m_ppd3dPipelineStates[0]);
+		Camera::Instance()->UpdateShaderVariables(commandList.Get());
 
 		if (memcmp(&d.second.first->m_d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
 			mesh->Render(commandList.Get(), d.second.second.size(), d.second.first->m_d3dInstancingBufferView);

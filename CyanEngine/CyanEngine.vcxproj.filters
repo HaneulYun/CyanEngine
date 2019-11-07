@@ -93,9 +93,6 @@
     <ClInclude Include="Material.h">
       <Filter>0_00_CyanEngine\10_CORE</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>0_00_CyanEngine\10_CORE</Filter>
-    </ClInclude>
     <ClInclude Include="Singleton.h">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
     </ClInclude>
@@ -116,6 +113,9 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -161,9 +161,6 @@
     <ClCompile Include="Material.cpp">
       <Filter>0_00_CyanEngine\10_CORE</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>0_00_CyanEngine\10_CORE</Filter>
-    </ClCompile>
     <ClCompile Include="Singleton.cpp">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
     </ClCompile>
@@ -184,6 +181,9 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
