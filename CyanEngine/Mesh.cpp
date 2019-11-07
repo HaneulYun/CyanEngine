@@ -272,7 +272,8 @@ CubeMeshIlluminated::CubeMeshIlluminated(ID3D12Device* pd3dDevice, ID3D12Graphic
 	pxmf3Positions[7] = XMFLOAT3(-fx, -fy, +fz);
 
 	XMFLOAT3 pxmf3Normals[8];
-	for (int i = 0; i < 8; i++) pxmf3Normals[i] = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	for (int i = 0; i < 8; i++)
+		pxmf3Normals[i] = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	CalculateVertexNormals(pxmf3Normals, pxmf3Positions, m_nVertices, pnIndices, m_nIndices);
 
 	IlluminatedVertex pVertices[8];

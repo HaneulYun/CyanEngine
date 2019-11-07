@@ -56,21 +56,31 @@ void Scene::BuildObjects(ID3D12Device* _device)
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 	
-	{
-		GameObject* Cube = new GameObject;
+	int xObjects = 10, yObjects = 3, zObjects = 10, i = 0;
+	for (int x = -xObjects; x <= xObjects; x++)
+		for (int y = -yObjects; y <= yObjects; y++)
+			for (int z = -zObjects; z <= zObjects; z++)
+			{
+				if (!x && !y && !z)
+					continue;
+				{
+					GameObject* Cube = new GameObject;
 
-		MeshFilter* meshFilter = Cube->AddComponent<MeshFilter>();
-		meshFilter->mesh = pCubeMesh;
+					MeshFilter* meshFilter = Cube->AddComponent<MeshFilter>();
+					meshFilter->mesh = pCubeMesh;
 
-		Renderer* renderer = Cube->AddComponent<Renderer>();
-		renderer->material = defaultMaterial;
+					Renderer* renderer = Cube->AddComponent<Renderer>();
+					renderer->material = defaultMaterial;
 
-		RotatingBehavior* rotatingBehavior = Cube->AddComponent<RotatingBehavior>();
-		rotatingBehavior->pos = XMFLOAT3{ 0, 0, 0 };
-		rotatingBehavior->speedRotating = 45;
+					RotatingBehavior* rotatingBehavior = Cube->AddComponent<RotatingBehavior>();
+					//rotatingBehavior->pos = XMFLOAT3{ 0, 0, 0 };
+					//rotatingBehavior->speedRotating = 45;
+					rotatingBehavior->pos = XMFLOAT3{ 30.0f * x, 30.0f * y, 30.0f * z };
+					rotatingBehavior->speedRotating = 10.0f * (i++ % 10);
 
-		gameObjects.push_back(Cube);
-	}
+					gameObjects.push_back(Cube);
+				}
+			}
 
 	//Quad* pQuad = new Quad(pd3dDevice, RendererManager::Instance()->commandList.Get());
 	//TriangleMesh* pTriangleMesh = new TriangleMesh(pd3dDevice, rendererManager->commandList.Get());
