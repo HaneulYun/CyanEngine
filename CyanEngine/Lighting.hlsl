@@ -4,7 +4,7 @@ cbuffer cbCameraInfo : register(b1)
 	matrix gmtxProjection : packoffset(c4);
 };
 
-#define _WITH_VERTEX_LIGHTING
+//#define _WITH_VERTEX_LIGHTING
 
 struct VS_LIGHTING_INPUT
 {
