@@ -234,7 +234,7 @@ void MeshIlluminated::CalculateVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* p
 CubeMeshIlluminated::CubeMeshIlluminated(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight, float fDepth)
 	: MeshIlluminated(pd3dDevice, pd3dCommandList)
 {
-	m_nVertices = 24;
+	m_nVertices = 25;
 	m_nStride = sizeof(IlluminatedVertex);
 	m_nOffset = 0;
 	m_nSlot = 0;
@@ -257,8 +257,8 @@ CubeMeshIlluminated::CubeMeshIlluminated(ID3D12Device* pd3dDevice, ID3D12Graphic
 	pnIndices[24] = 16; pnIndices[25] = 17; pnIndices[26] = 19;
 	pnIndices[27] = 16; pnIndices[28] = 19; pnIndices[29] = 18;
 
-	pnIndices[30] = 20; pnIndices[31] = 21; pnIndices[32] = 23;
-	pnIndices[33] = 20; pnIndices[34] = 23; pnIndices[35] = 22;
+	pnIndices[30] = 20; pnIndices[31] = 21; pnIndices[32] = 22;
+	pnIndices[33] = 21; pnIndices[34] = 23; pnIndices[35] = 22;
 
 	m_pd3dIndexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
 	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
@@ -284,7 +284,7 @@ CubeMeshIlluminated::CubeMeshIlluminated(ID3D12Device* pd3dDevice, ID3D12Graphic
 	pxmf3Normals[4] = XMFLOAT3(0.0f, 0.0f,  1.0f);
 	pxmf3Normals[5] = XMFLOAT3(0.0f, 0.0f, -1.0f);
 
-	IlluminatedVertex pVertices[24];
+	IlluminatedVertex pVertices[25];
 	pVertices[0] = IlluminatedVertex(pxmf3Positions[1], pxmf3Normals[0]);	pVertices[1] = IlluminatedVertex(pxmf3Positions[2], pxmf3Normals[0]);	pVertices[2] = IlluminatedVertex(pxmf3Positions[5], pxmf3Normals[0]);	pVertices[3] = IlluminatedVertex(pxmf3Positions[6], pxmf3Normals[0]);	pVertices[4] = IlluminatedVertex(pxmf3Positions[0], pxmf3Normals[1]);	pVertices[5] = IlluminatedVertex(pxmf3Positions[3], pxmf3Normals[1]);	pVertices[6] = IlluminatedVertex(pxmf3Positions[4], pxmf3Normals[1]);	pVertices[7] = IlluminatedVertex(pxmf3Positions[7], pxmf3Normals[1]);	pVertices[8] = IlluminatedVertex(pxmf3Positions[0], pxmf3Normals[2]);	pVertices[9] = IlluminatedVertex(pxmf3Positions[1], pxmf3Normals[2]);	pVertices[10] = IlluminatedVertex(pxmf3Positions[2], pxmf3Normals[2]);	pVertices[11] = IlluminatedVertex(pxmf3Positions[3], pxmf3Normals[2]);	pVertices[12] = IlluminatedVertex(pxmf3Positions[4], pxmf3Normals[3]);	pVertices[13] = IlluminatedVertex(pxmf3Positions[5], pxmf3Normals[3]);	pVertices[14] = IlluminatedVertex(pxmf3Positions[6], pxmf3Normals[3]);	pVertices[15] = IlluminatedVertex(pxmf3Positions[7], pxmf3Normals[3]);	pVertices[16] = IlluminatedVertex(pxmf3Positions[2], pxmf3Normals[4]);	pVertices[17] = IlluminatedVertex(pxmf3Positions[3], pxmf3Normals[4]);	pVertices[18] = IlluminatedVertex(pxmf3Positions[6], pxmf3Normals[4]);	pVertices[19] = IlluminatedVertex(pxmf3Positions[7], pxmf3Normals[4]);	pVertices[20] = IlluminatedVertex(pxmf3Positions[0], pxmf3Normals[5]);	pVertices[21] = IlluminatedVertex(pxmf3Positions[1], pxmf3Normals[5]);	pVertices[22] = IlluminatedVertex(pxmf3Positions[4], pxmf3Normals[5]);	pVertices[23] = IlluminatedVertex(pxmf3Positions[5], pxmf3Normals[5]);
 	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
