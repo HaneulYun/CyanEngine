@@ -19,4 +19,3 @@ public:
 	void BuildObjects(ID3D12Device* _device = nullptr);
 	void ReleaseObjects();
 };
-

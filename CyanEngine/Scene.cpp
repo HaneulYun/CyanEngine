@@ -50,8 +50,8 @@ void Scene::BuildObjects(ID3D12Device* _device)
 	_device = rendererManager->device.Get();
 
 
-	CubeMeshDiffused* pBigCubeMesh = new CubeMeshDiffused(_device, rendererManager->commandList.Get(), 12.0f, 12.0f, 12.0f);
-	
+	//CubeMeshDiffused* pBigCubeMesh = new CubeMeshDiffused(_device, rendererManager->commandList.Get(), 12.0f, 12.0f, 12.0f);
+	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(_device, rendererManager->commandList.Get(), 12.0f, 12.0f, 12.0f);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
@@ -60,7 +60,7 @@ void Scene::BuildObjects(ID3D12Device* _device)
 		GameObject* Cube = new GameObject;
 
 		MeshFilter* meshFilter = Cube->AddComponent<MeshFilter>();
-		meshFilter->mesh = pBigCubeMesh;
+		meshFilter->mesh = pCubeMesh;
 
 		Renderer* renderer = Cube->AddComponent<Renderer>();
 		renderer->material = defaultMaterial;

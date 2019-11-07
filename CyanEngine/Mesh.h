@@ -41,6 +41,30 @@ public:
 	~DiffusedVertex() { }
 };
 
+class IlluminatedVertex : public Vertex
+{
+protected:
+	XMFLOAT3 m_xmf3Normal;
+
+public:
+	IlluminatedVertex()
+	{
+		m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		m_xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	}
+	IlluminatedVertex(float x, float y, float z, XMFLOAT3 xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f))
+	{
+		m_xmf3Position = XMFLOAT3(x, y, z);
+		m_xmf3Normal = xmf3Normal;
+	}
+	IlluminatedVertex(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f))
+	{
+		m_xmf3Position = xmf3Position;
+		m_xmf3Normal = xmf3Normal;
+	}
+	~IlluminatedVertex() { }
+};
+
 class Mesh
 {
 public:
@@ -97,4 +121,24 @@ class CubeMeshDiffused : public Mesh
 public:
 	CubeMeshDiffused(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
 	virtual ~CubeMeshDiffused() { }
+};
+
+class MeshIlluminated : public Mesh
+{
+public:
+	MeshIlluminated(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual ~MeshIlluminated() { }
+
+public:
+	void CalculateTriangleListVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* pxmf3Positions, int nVertices);
+	void CalculateTriangleListVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* pxmf3Positions, UINT nVertices, UINT* pnIndices, UINT nIndices);
+	void CalculateTriangleStripVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* pxmf3Positions, UINT nVertices, UINT* pnIndices, UINT nIndices);
+	void CalculateVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* pxmf3Positions, int nVertices, UINT* pnIndices, int nIndices);
+};
+
+class CubeMeshIlluminated : public MeshIlluminated
+{
+public:
+	CubeMeshIlluminated(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
+	virtual ~CubeMeshIlluminated() { }
 };
