@@ -202,5 +202,7 @@
   <ItemGroup>
     <FxCompile Include="Shaders.hlsl" />
     <FxCompile Include="Standard.hlsl" />
+    <FxCompile Include="Lighting.hlsl" />
+    <FxCompile Include="Light.hlsl" />
   </ItemGroup>
 </Project>
