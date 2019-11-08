@@ -47,10 +47,10 @@ cbuffer cbLights : register(b4)
 
 float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera)
 {
-	float4 m_cAmbient = float4(0.3f, 0.3f, 0.3f, 1.0f);
+	float4 m_cAmbient = float4(0.55f, 0.55f, 0.55f, 1.0f);
 	float4 m_cDiffuse = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	float4 m_cSpecular = float4(1.0f, 1.0f, 1.0f, 1.0f);
-	float3 m_vDirection = normalize(float3(-1, -1, 1));
+	float3 m_vDirection = normalize(float3(-1, -1.5, 1));
 	MATERIAL gMaterial = {
 		float4(1, 1, 1, 1),
 		float4(1, 1, 1, 1),
@@ -64,7 +64,7 @@ float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera)
 	float3 vToLight = -m_vDirection;
 	float fDiffuseFactor = dot(vToLight, vNormal);
 	float fSpecularFactor = 0.0f;
-
+	 
 	if (fDiffuseFactor > 0.0f)
 	{
 		if (m_cSpecular.a != 0.0f)
@@ -82,9 +82,13 @@ float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera)
 #endif
 		}
 	}
+	else
+	{
+		fDiffuseFactor = 0.0f;
+	}
 	return(
-		(m_cAmbient * gMaterial.m_cAmbient) +
-		(m_cDiffuse * fDiffuseFactor * gMaterial.m_cDiffuse)// +
+		(m_cAmbient * gMaterial.m_cAmbient) * 0.3 +
+		(m_cDiffuse * fDiffuseFactor * gMaterial.m_cDiffuse) * 0.7// +
 		//(m_cSpecular * fSpecularFactor * gMaterial.m_cSpecular)
 	);
 }

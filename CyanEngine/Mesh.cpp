@@ -285,7 +285,36 @@ CubeMeshIlluminated::CubeMeshIlluminated(ID3D12Device* pd3dDevice, ID3D12Graphic
 	pxmf3Normals[5] = XMFLOAT3(0.0f, 0.0f, -1.0f);
 
 	IlluminatedVertex pVertices[25];
-	pVertices[0] = IlluminatedVertex(pxmf3Positions[1], pxmf3Normals[0]);	pVertices[1] = IlluminatedVertex(pxmf3Positions[2], pxmf3Normals[0]);	pVertices[2] = IlluminatedVertex(pxmf3Positions[5], pxmf3Normals[0]);	pVertices[3] = IlluminatedVertex(pxmf3Positions[6], pxmf3Normals[0]);	pVertices[4] = IlluminatedVertex(pxmf3Positions[0], pxmf3Normals[1]);	pVertices[5] = IlluminatedVertex(pxmf3Positions[3], pxmf3Normals[1]);	pVertices[6] = IlluminatedVertex(pxmf3Positions[4], pxmf3Normals[1]);	pVertices[7] = IlluminatedVertex(pxmf3Positions[7], pxmf3Normals[1]);	pVertices[8] = IlluminatedVertex(pxmf3Positions[0], pxmf3Normals[2]);	pVertices[9] = IlluminatedVertex(pxmf3Positions[1], pxmf3Normals[2]);	pVertices[10] = IlluminatedVertex(pxmf3Positions[2], pxmf3Normals[2]);	pVertices[11] = IlluminatedVertex(pxmf3Positions[3], pxmf3Normals[2]);	pVertices[12] = IlluminatedVertex(pxmf3Positions[4], pxmf3Normals[3]);	pVertices[13] = IlluminatedVertex(pxmf3Positions[5], pxmf3Normals[3]);	pVertices[14] = IlluminatedVertex(pxmf3Positions[6], pxmf3Normals[3]);	pVertices[15] = IlluminatedVertex(pxmf3Positions[7], pxmf3Normals[3]);	pVertices[16] = IlluminatedVertex(pxmf3Positions[2], pxmf3Normals[4]);	pVertices[17] = IlluminatedVertex(pxmf3Positions[3], pxmf3Normals[4]);	pVertices[18] = IlluminatedVertex(pxmf3Positions[6], pxmf3Normals[4]);	pVertices[19] = IlluminatedVertex(pxmf3Positions[7], pxmf3Normals[4]);	pVertices[20] = IlluminatedVertex(pxmf3Positions[0], pxmf3Normals[5]);	pVertices[21] = IlluminatedVertex(pxmf3Positions[1], pxmf3Normals[5]);	pVertices[22] = IlluminatedVertex(pxmf3Positions[4], pxmf3Normals[5]);	pVertices[23] = IlluminatedVertex(pxmf3Positions[5], pxmf3Normals[5]);
+	pVertices[0] = IlluminatedVertex(pxmf3Positions[1], pxmf3Normals[0]);
+	pVertices[1] = IlluminatedVertex(pxmf3Positions[2], pxmf3Normals[0]);
+	pVertices[2] = IlluminatedVertex(pxmf3Positions[5], pxmf3Normals[0]);
+	pVertices[3] = IlluminatedVertex(pxmf3Positions[6], pxmf3Normals[0]);
+
+	pVertices[4] = IlluminatedVertex(pxmf3Positions[0], pxmf3Normals[1]);
+	pVertices[5] = IlluminatedVertex(pxmf3Positions[3], pxmf3Normals[1]);
+	pVertices[6] = IlluminatedVertex(pxmf3Positions[4], pxmf3Normals[1]);
+	pVertices[7] = IlluminatedVertex(pxmf3Positions[7], pxmf3Normals[1]);
+
+	pVertices[8] = IlluminatedVertex(pxmf3Positions[0], pxmf3Normals[2]);
+	pVertices[9] = IlluminatedVertex(pxmf3Positions[1], pxmf3Normals[2]);
+	pVertices[10] = IlluminatedVertex(pxmf3Positions[2], pxmf3Normals[2]);
+	pVertices[11] = IlluminatedVertex(pxmf3Positions[3], pxmf3Normals[2]);
+
+	pVertices[12] = IlluminatedVertex(pxmf3Positions[4], pxmf3Normals[3]);
+	pVertices[13] = IlluminatedVertex(pxmf3Positions[5], pxmf3Normals[3]);
+	pVertices[14] = IlluminatedVertex(pxmf3Positions[6], pxmf3Normals[3]);
+	pVertices[15] = IlluminatedVertex(pxmf3Positions[7], pxmf3Normals[3]);
+
+	pVertices[16] = IlluminatedVertex(pxmf3Positions[2], pxmf3Normals[4]);
+	pVertices[17] = IlluminatedVertex(pxmf3Positions[3], pxmf3Normals[4]);
+	pVertices[18] = IlluminatedVertex(pxmf3Positions[6], pxmf3Normals[4]);
+	pVertices[19] = IlluminatedVertex(pxmf3Positions[7], pxmf3Normals[4]);
+
+	pVertices[20] = IlluminatedVertex(pxmf3Positions[0], pxmf3Normals[5]);
+	pVertices[21] = IlluminatedVertex(pxmf3Positions[1], pxmf3Normals[5]);
+	pVertices[22] = IlluminatedVertex(pxmf3Positions[4], pxmf3Normals[5]);
+	pVertices[23] = IlluminatedVertex(pxmf3Positions[5], pxmf3Normals[5]);
+
 	m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
 	m_d3dVertexBufferView.StrideInBytes = m_nStride;

@@ -51,18 +51,18 @@ void Scene::BuildObjects(ID3D12Device* _device)
 
 
 	//CubeMeshDiffused* pBigCubeMesh = new CubeMeshDiffused(_device, rendererManager->commandList.Get(), 12.0f, 12.0f, 12.0f);
-	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(_device, rendererManager->commandList.Get(), 12.0f, 12.0f, 12.0f);
+	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(_device, rendererManager->commandList.Get(), 1.0f, 1.0f, 1.0f);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 	
-	int xObjects = 10, yObjects = 3, zObjects = 10, i = 0;
+	int xObjects = 15, yObjects = 15, zObjects = 15, i = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
 			for (int z = -zObjects; z <= zObjects; z++)
 			{
-				if (!x && !y && !z)
-					continue;
+				//if (!x && !y && !z)
+				//	continue;
 				{
 					GameObject* Cube = new GameObject;
 
@@ -75,7 +75,7 @@ void Scene::BuildObjects(ID3D12Device* _device)
 					RotatingBehavior* rotatingBehavior = Cube->AddComponent<RotatingBehavior>();
 					//rotatingBehavior->pos = XMFLOAT3{ 0, 0, 0 };
 					//rotatingBehavior->speedRotating = 45;
-					rotatingBehavior->pos = XMFLOAT3{ 30.0f * x, 30.0f * y, 30.0f * z };
+					rotatingBehavior->pos = XMFLOAT3{ 1.0f * x, 1.0f * y, 1.0f * z };
 					rotatingBehavior->speedRotating = 10.0f * (i++ % 10);
 
 					gameObjects.push_back(Cube);
