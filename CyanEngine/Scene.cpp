@@ -56,7 +56,7 @@ void Scene::BuildObjects(ID3D12Device* _device)
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 	
-	int xObjects = 15, yObjects = 15, zObjects = 15, i = 0;
+	int xObjects = 30, yObjects = 15, zObjects = 30, i = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
 			for (int z = -zObjects; z <= zObjects; z++)
@@ -75,7 +75,7 @@ void Scene::BuildObjects(ID3D12Device* _device)
 					RotatingBehavior* rotatingBehavior = Cube->AddComponent<RotatingBehavior>();
 					//rotatingBehavior->pos = XMFLOAT3{ 0, 0, 0 };
 					//rotatingBehavior->speedRotating = 45;
-					rotatingBehavior->pos = XMFLOAT3{ 1.0f * x, 1.0f * y, 1.0f * z };
+					rotatingBehavior->pos = XMFLOAT3{ 50.0f * x, 50.0f * y, 50.0f * z };
 					rotatingBehavior->speedRotating = 10.0f * (i++ % 10);
 
 					gameObjects.push_back(Cube);
