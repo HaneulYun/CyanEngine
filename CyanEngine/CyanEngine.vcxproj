@@ -169,6 +169,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RotatingBehavior.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="scripts.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Singleton.h" />
@@ -197,7 +198,6 @@
     </ClCompile>
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RendererManager.cpp" />
-    <ClCompile Include="RotatingBehavior.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />

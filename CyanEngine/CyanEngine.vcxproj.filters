@@ -43,6 +43,9 @@
     <Filter Include="0_00_CyanEngine\44_Materials">
       <UniqueIdentifier>{4a8d17c5-8389-46f3-ae1d-c3f8c7abc368}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\41_Components\45_Scripts">
+      <UniqueIdentifier>{636bdf8d-2193-4a3c-b872-ff01e55dd385}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -99,9 +102,6 @@
     <ClInclude Include="MeshFilter.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
-    <ClInclude Include="RotatingBehavior.h">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClInclude>
     <ClInclude Include="DefaultMaterial.h">
       <Filter>0_00_CyanEngine\44_Materials</Filter>
     </ClInclude>
@@ -116,6 +116,12 @@
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="RotatingBehavior.h">
+      <Filter>0_00_CyanEngine\41_Components\45_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -165,9 +171,6 @@
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
     </ClCompile>
     <ClCompile Include="MeshFilter.cpp">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClCompile>
-    <ClCompile Include="RotatingBehavior.cpp">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClCompile>
     <ClCompile Include="DefaultMaterial.cpp">

@@ -1,4 +1,5 @@
 #pragma once
+#include "framework.h"
 
 class RotatingBehavior : public Component
 {
@@ -11,14 +12,19 @@ public:
 
 private:
 	friend class GameObject;
-	RotatingBehavior();
+	RotatingBehavior() {}
 
 public:
-	~RotatingBehavior();
+	~RotatingBehavior() {}
 
-	void Start() override;
-	void Update() override;
-	void Render() override;
-	void Destroy() override;
+	void Start() 
+	{
+		gameObject->transform->position = pos;
+	}
+
+	void Update() 
+	{
+		gameObject->transform->Rotate(axis, speedRotating * Time::Instance()->GetTimeElapsed());
+	}
 };
 

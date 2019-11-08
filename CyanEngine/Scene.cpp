@@ -49,7 +49,6 @@ void Scene::BuildObjects(ID3D12Device* _device)
 {
 	_device = rendererManager->device.Get();
 
-
 	//CubeMeshDiffused* pBigCubeMesh = new CubeMeshDiffused(_device, rendererManager->commandList.Get(), 12.0f, 12.0f, 12.0f);
 	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(_device, rendererManager->commandList.Get(), 1.0f, 1.0f, 1.0f);
 
