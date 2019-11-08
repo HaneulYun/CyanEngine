@@ -47,10 +47,10 @@ cbuffer cbLights : register(b4)
 
 float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera)
 {
-	float4 m_cAmbient = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	float4 m_cAmbient = float4(0.3f, 0.3f, 0.3f, 1.0f);
 	float4 m_cDiffuse = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	float4 m_cSpecular = float4(1.0f, 1.0f, 1.0f, 1.0f);
-	float3 m_vDirection = normalize(float3(-1, -1, -1));
+	float3 m_vDirection = normalize(float3(-1, -1, 1));
 	MATERIAL gMaterial = {
 		float4(1, 1, 1, 1),
 		float4(1, 1, 1, 1),
@@ -70,22 +70,22 @@ float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera)
 		if (m_cSpecular.a != 0.0f)
 		{
 #ifdef _WITH_REFLECT
-			float3 vReflect = reflect(-vToLight, vNormal);
-			fSpecularFactor = pow(max(dot(vReflect, vToCamera), 0.0f), m_cSpecular.a);
+			//float3 vReflect = reflect(-vToLight, vNormal);
+			//fSpecularFactor = pow(max(dot(vReflect, vToCamera), 0.0f), m_cSpecular.a);
 #else
 #ifdef _WITH_LOCAL_VIEWER_HIGHLIGHTING
-			float3 vHalf = normalize(vToCamera + vToLight);
+			//float3 vHalf = normalize(vToCamera + vToLight);
 #else
-			float3 vHalf = float3(0.0f, 1.0f, 0.0f);
+			//float3 vHalf = float3(0.0f, 1.0f, 0.0f);
 #endif
-			fSpecularFactor = pow(max(dot(vHalf, vNormal), 0.0f), m_cSpecular.a);
+			//fSpecularFactor = pow(max(dot(vHalf, vNormal), 0.0f), m_cSpecular.a);
 #endif
 		}
 	}
 	return(
 		(m_cAmbient * gMaterial.m_cAmbient) +
-		(m_cDiffuse * fDiffuseFactor * gMaterial.m_cDiffuse) +
-		(m_cSpecular * fSpecularFactor * gMaterial.m_cSpecular)
+		(m_cDiffuse * fDiffuseFactor * gMaterial.m_cDiffuse)// +
+		//(m_cSpecular * fSpecularFactor * gMaterial.m_cSpecular)
 	);
 }
 
