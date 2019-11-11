@@ -43,8 +43,14 @@
     <Filter Include="0_00_CyanEngine\44_Materials">
       <UniqueIdentifier>{4a8d17c5-8389-46f3-ae1d-c3f8c7abc368}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\41_Components\45_Scripts">
-      <UniqueIdentifier>{636bdf8d-2193-4a3c-b872-ff01e55dd385}</UniqueIdentifier>
+    <Filter Include="1_00_Project">
+      <UniqueIdentifier>{6278fbf3-a6b9-4bd0-90e5-e0469395c962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_Project\00_Scene">
+      <UniqueIdentifier>{9e10db84-6f52-4402-a5d4-909d396d3ce8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_Project\10_Scripts">
+      <UniqueIdentifier>{8a066a5c-fd82-4600-881a-762e61d9436a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -117,11 +123,14 @@
     <ClInclude Include="Mesh.h">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="RotatingBehavior.h">
-      <Filter>0_00_CyanEngine\41_Components\45_Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RotatingBehavior.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScene.h">
+      <Filter>1_00_Project\00_Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +196,9 @@
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>1_00_Project\00_Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

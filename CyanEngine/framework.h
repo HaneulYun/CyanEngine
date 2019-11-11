@@ -72,6 +72,7 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 #include "GameObject.h"
 
 #include "Scene.h"
+#include "GameScene.h"
 
 #include "CyanWindow.h"
 #include "CyanFW.h"

@@ -2,20 +2,20 @@
 
 class Scene
 {
-private:
+protected:
 	std::deque<GameObject*> gameObjects;
 	RendererManager* rendererManager;
 
 public:
 	Scene();
-	~Scene();
+	virtual ~Scene();
 
-	void Start();
-	void Update();
-	void Render();
-	void Destroy();
+	virtual void Start();
+	virtual void Update();
+	virtual void Render();
+	virtual void Destroy();
 
 	//----------------//
-	void BuildObjects(ID3D12Device* _device = nullptr);
-	void ReleaseObjects();
+	virtual void BuildObjects();
+	virtual void ReleaseObjects();
 };

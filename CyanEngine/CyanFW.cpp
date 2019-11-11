@@ -15,7 +15,7 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CyanWindow::m_hInstance = hInstance;
 	CyanWindow::m_hWnd = hMainWnd;
 
-	scene = new Scene();
+	scene = new GameScene();
 	if (scene)
 		scene->Start();
 
