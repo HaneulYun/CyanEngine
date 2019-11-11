@@ -2,30 +2,20 @@
 
 class Scene
 {
-private:
+protected:
 	std::deque<GameObject*> gameObjects;
 	RendererManager* rendererManager;
 
 public:
 	Scene();
-	~Scene();
+	virtual ~Scene();
 
-	void Start();
-	void Update();
-	void Render();
-	void Destroy();
+	virtual void Start();
+	virtual void Update();
+	virtual void Render();
+	virtual void Destroy();
 
 	//----------------//
-	void BuildObjects(ID3D12Device* pd3dDevice = nullptr);
-	void ReleaseObjects();
-
-	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-
-	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
-	ID3D12RootSignature* GetGraphicsRootSignature();
-
-private:
-	ID3D12RootSignature* m_pd3dGraphicsRootSignature{ nullptr };
+	virtual void BuildObjects();
+	virtual void ReleaseObjects();
 };
-

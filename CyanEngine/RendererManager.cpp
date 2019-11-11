@@ -9,7 +9,7 @@ RendererManager::RendererManager()
 	m_pCamera = Camera::Instance();
 	m_pCamera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
 	m_pCamera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
-	m_pCamera->GenerateProjectionMatrix(1.0f, 500.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
+	m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
 	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	CreateDirect3DDevice();
@@ -29,8 +29,9 @@ void RendererManager::Start()
 {
 	for (auto& d : instances)
 	{
-		Shader* shader = d.first.first;
+		Shader* shader = d.first.first->shader;
 		Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
+		material->rootSignature = material->CreateGraphicsRootSignature(device.Get());
 		shader->m_ppd3dPipelineStates = new ID3D12PipelineState*[1];
 		shader->CreateShader(device.Get(), material->rootSignature);
 
@@ -54,6 +55,14 @@ void RendererManager::Start()
 
 void RendererManager::Update()
 {
+	//static float t = 179.f;
+	//m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), t);
+	//
+	//t -= 30.f * Time::Instance()->GetTimeElapsed();
+	//
+	//if (t < 1)
+	//	t = 179.f;
+
 	for (auto& d : instances)
 	{
 		int j = 0;
@@ -96,22 +105,30 @@ void RendererManager::PreRender()
 	commandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
 
 	commandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+
+	m_pCamera->SetViewportsAndScissorRects(commandList.Get());
 }
 
 void RendererManager::Render()
 {
+	PreRender();
+
 	for (auto& d : instances)
 	{
 		//Shader* shader = d.first.first;
 		Mesh* mesh = d.first.second;
 
-		commandList->SetPipelineState(d.first.first->m_ppd3dPipelineStates[0]);
+		commandList->SetGraphicsRootSignature(d.first.first->rootSignature);
+		commandList->SetPipelineState(d.first.first->shader->m_ppd3dPipelineStates[0]);
+		Camera::Instance()->UpdateShaderVariables(commandList.Get());
 
 		if (memcmp(&d.second.first->m_d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
 			mesh->Render(commandList.Get(), d.second.second.size(), d.second.first->m_d3dInstancingBufferView);
 		else
 			mesh->Render(commandList.Get(), d.second.second.size());
 	}
+
+	PostRender();
 }
 
 void RendererManager::PostRender()

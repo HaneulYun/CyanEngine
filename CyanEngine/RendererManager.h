@@ -26,7 +26,7 @@ private:
 	ComPtr<ID3D12DescriptorHeap> dsvHeap{ nullptr };
 
 public:
-	std::map<std::pair<Shader*, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> instances;
+	std::map<std::pair<Material*, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> instances;
 	 
 
 private:

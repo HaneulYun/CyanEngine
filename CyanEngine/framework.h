@@ -68,15 +68,23 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 #include "ShaderManager.h"
 #include "RendererManager.h"
 
-#include "RotatingBehavior.h"
+
 #include "GameObject.h"
 
 #include "Scene.h"
+#include "GameScene.h"
 
 #include "CyanWindow.h"
 #include "CyanFW.h"
 
+
 #define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+
+#define MAX_LIGHTS			8
+#define MAX_MATERIALS		8
+#define POINT_LIGHT			1
+#define SPOT_LIGHT			2
+#define DIRECTIONAL_LIGHT	3
 
 namespace Vector3
 {

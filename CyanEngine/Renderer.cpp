@@ -20,7 +20,7 @@ void Renderer::Start()
 	if (!meshFilter)
 		return;
 	
-	auto pair = std::pair<Shader*, Mesh*>(renderer->material->shader, meshFilter->mesh);
+	auto pair = std::pair<Material*, Mesh*>(renderer->material, meshFilter->mesh);
 
 	const type_info* t = &typeid(pair);
 
