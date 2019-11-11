@@ -70,7 +70,7 @@ TriangleMesh::TriangleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 }
 
-Quad::Quad(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+Quad::Quad(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight)
 	: Mesh(pd3dDevice, pd3dCommandList)
 {
 	m_nVertices = 4;
@@ -78,10 +78,10 @@ Quad::Quad(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 
 	DiffusedVertex pVertices[8];
-	pVertices[0] = DiffusedVertex(XMFLOAT3(-5.0f, -1.0f, -5.0f), XMFLOAT4(Colors::White));
-	pVertices[1] = DiffusedVertex(XMFLOAT3(-5.0f, -1.0f, +5.0f), XMFLOAT4(Colors::White));
-	pVertices[2] = DiffusedVertex(XMFLOAT3(+5.0f, -1.0f, -5.0f), XMFLOAT4(Colors::White));
-	pVertices[3] = DiffusedVertex(XMFLOAT3(+5.0f, -1.0f, +5.0f), XMFLOAT4(Colors::White));
+	pVertices[0] = DiffusedVertex(XMFLOAT3(-fWidth, -fHeight, 0.f), XMFLOAT4(Colors::White));
+	pVertices[1] = DiffusedVertex(XMFLOAT3(-fWidth, +fHeight, 0.f), XMFLOAT4(Colors::White));
+	pVertices[2] = DiffusedVertex(XMFLOAT3(+fWidth, -fHeight, 0.f), XMFLOAT4(Colors::White));
+	pVertices[3] = DiffusedVertex(XMFLOAT3(+fWidth, +fHeight, 0.f), XMFLOAT4(Colors::White));
 
 	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 

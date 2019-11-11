@@ -8,24 +8,24 @@ void GameScene::BuildObjects()
 {
 	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
 
-	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(_device.Get(), rendererManager->commandList.Get(), 20.0f, 20.0f, 20.0f);
+	Quad* pQuadMesh = new Quad(_device.Get(), rendererManager->commandList.Get(), 20.0f, 20.0f);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
 	{
-		GameObject* Cube = new GameObject;
+		GameObject* Quad = new GameObject;
 
-		MeshFilter* meshFilter = Cube->AddComponent<MeshFilter>();
-		meshFilter->mesh = pCubeMesh;
+		MeshFilter* meshFilter = Quad->AddComponent<MeshFilter>();
+		meshFilter->mesh = pQuadMesh;
 
-		Renderer* renderer = Cube->AddComponent<Renderer>();
+		Renderer* renderer = Quad->AddComponent<Renderer>();
 		renderer->material = defaultMaterial;
 
-		RotatingBehavior* rotatingBehavior = Cube->AddComponent<RotatingBehavior>();
+		RotatingBehavior* rotatingBehavior = Quad->AddComponent<RotatingBehavior>();
 		rotatingBehavior->pos = XMFLOAT3{ 0.0f, 0.0f, 0.0f };
 		rotatingBehavior->speedRotating = 45.0f;
 
-		gameObjects.push_back(Cube);
+		gameObjects.push_back(Quad);
 	}
 }
