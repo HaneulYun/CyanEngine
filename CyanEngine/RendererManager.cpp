@@ -105,10 +105,14 @@ void RendererManager::PreRender()
 	commandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
 
 	commandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+
+	m_pCamera->SetViewportsAndScissorRects(commandList.Get());
 }
 
 void RendererManager::Render()
 {
+	PreRender();
+
 	for (auto& d : instances)
 	{
 		//Shader* shader = d.first.first;
@@ -123,6 +127,8 @@ void RendererManager::Render()
 		else
 			mesh->Render(commandList.Get(), d.second.second.size());
 	}
+
+	PostRender();
 }
 
 void RendererManager::PostRender()

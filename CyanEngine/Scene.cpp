@@ -28,15 +28,7 @@ void Scene::Update()
 
 void Scene::Render()
 {
-	rendererManager->PreRender();
-	Camera::Instance()->SetViewportsAndScissorRects(rendererManager->commandList.Get());
-
-	//for (GameObject* object : gameObjects)
-	//	if(!object->renderer)
-	//		object->Render(rendererManager->commandList.Get());
-
 	rendererManager->Render();
-	rendererManager->PostRender();
 }
 
 void Scene::Destroy()
