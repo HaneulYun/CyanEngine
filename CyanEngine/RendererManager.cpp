@@ -10,7 +10,7 @@ RendererManager::RendererManager()
 	m_pCamera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
 	m_pCamera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
 	m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
-	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
+	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -10.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
@@ -55,13 +55,6 @@ void RendererManager::Start()
 
 void RendererManager::Update()
 {
-	//static float t = 179.f;
-	//m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), t);
-	//
-	//t -= 30.f * Time::Instance()->GetTimeElapsed();
-	//
-	//if (t < 1)
-	//	t = 179.f;
 
 	for (auto& d : instances)
 	{

@@ -4,7 +4,7 @@
 class RotatingBehavior : public Component
 {
 private:
-	XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
+	XMFLOAT3 axis{ 0.0f, 0.0f, 1.0f };
 
 public:
 	XMFLOAT3 pos{ 0.0f, 0.0f, 0.0f };
