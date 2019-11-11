@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Time.h"
 
+float Time::deltaTime = 0;
+
 Time::Time()
 {
 	if (::QueryPerformanceFrequency((LARGE_INTEGER*)& m_nPerformanceFrequency))
@@ -71,6 +73,8 @@ void Time::Tick(float fLockFPS)
 		m_fTimeElapsed += m_fFrameTime[i];
 	if (m_nSampleCount > 0)
 		m_fTimeElapsed /= m_nSampleCount;
+
+	deltaTime = m_fTimeElapsed;
 }
 
 unsigned long Time::GetFrameRate(LPTSTR lpszString, int nCharacters)

@@ -7,7 +7,9 @@ class Time : public Singleton<Time>
 private:
 	bool m_bHardwareHasPerformanceCounter;
 	float m_fTimeScale;
-	float m_fTimeElapsed{ 0 };
+	union {
+		float m_fTimeElapsed{ 0 };
+	};
 	__int64 m_nCurrentTime{ 0 };
 	__int64 m_nLastTime;
 	__int64 m_nPerformanceFrequency;
@@ -20,6 +22,7 @@ private:
 	float m_fFPSTimeElapsed{ 0.0f };
 
 public:
+	static float deltaTime;
 
 public:
 	Time();

@@ -13,25 +13,25 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
-	int xObjects = 30, yObjects = 15, zObjects = 30, i = 0;
+	int xObjects = 15, yObjects = 15, zObjects = 15, i = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
 			for (int z = -zObjects; z <= zObjects; z++)
 			{
 				{
-					GameObject* Cube = new GameObject;
+					GameObject* instance = new GameObject;
+					instance->transform->position = XMFLOAT3{ 50.0f * x, 50.0f * y, 50.0f * z };
 
-					MeshFilter* meshFilter = Cube->AddComponent<MeshFilter>();
+					MeshFilter* meshFilter = instance->AddComponent<MeshFilter>();
 					meshFilter->mesh = pCubeMesh;
 
-					Renderer* renderer = Cube->AddComponent<Renderer>();
+					Renderer* renderer = instance->AddComponent<Renderer>();
 					renderer->material = defaultMaterial;
 
-					RotatingBehavior* rotatingBehavior = Cube->AddComponent<RotatingBehavior>();
-					rotatingBehavior->pos = XMFLOAT3{ 50.0f * x, 50.0f * y, 50.0f * z };
+					RotatingBehavior* rotatingBehavior = instance->AddComponent<RotatingBehavior>();
 					rotatingBehavior->speedRotating = 10.0f * (i++ % 10);
 
-					gameObjects.push_back(Cube);
+					gameObjects.push_back(instance);
 				}
 			}
 }
