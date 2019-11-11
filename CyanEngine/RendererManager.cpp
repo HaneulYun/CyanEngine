@@ -100,8 +100,8 @@ void RendererManager::PreRender()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	commandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
 
-	//float pfClearColor[4] = { 49.0f / 256.0f, 77.0f / 256.0f, 121.0f / 256.0f, 1.0f };
-	float pfClearColor[4] = { 0.1921569f, 0.3019608, 0.4745098, 1.0f };
+	float pfClearColor[4] = { 0.0 / 256.0, 0.0 / 256.0, 50.0 / 256.0, 1.0f };
+	//float pfClearColor[4] = { 0.1921569f, 0.3019608, 0.4745098, 1.0f };
 	commandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
 
 	commandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
