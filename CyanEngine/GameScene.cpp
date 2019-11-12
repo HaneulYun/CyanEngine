@@ -13,25 +13,35 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
+
+
+	GameObject* gameObject = new GameObject;
+	{
+		gameObject->transform->position = XMFLOAT3{ 0.0f, 0.0f, 0.0f };
+
+		MeshFilter* meshFilter = gameObject->AddComponent<MeshFilter>();
+		meshFilter->mesh = pCubeMesh;
+
+		Renderer* renderer = gameObject->AddComponent<Renderer>();
+		renderer->material = defaultMaterial;
+
+		RotatingBehavior* rotatingBehavior = gameObject->AddComponent<RotatingBehavior>();
+		rotatingBehavior->speedRotating = 0.0f;
+	}
+
+
 	int xObjects = 15, yObjects = 15, zObjects = 15, i = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
 			for (int z = -zObjects; z <= zObjects; z++)
 			{
-				{
-					GameObject* instance = new GameObject;
-					instance->transform->position = XMFLOAT3{ 50.0f * x, 50.0f * y, 50.0f * z };
+				GameObject* instance = Object::Instantiate(gameObject);
 
-					MeshFilter* meshFilter = instance->AddComponent<MeshFilter>();
-					meshFilter->mesh = pCubeMesh;
+				instance->transform->position = XMFLOAT3{ 10.0f * x, 10.0f * y, 10.0f * z };
 
-					Renderer* renderer = instance->AddComponent<Renderer>();
-					renderer->material = defaultMaterial;
+				RotatingBehavior* rotatingBehavior = instance->AddComponent<RotatingBehavior>();
+				rotatingBehavior->speedRotating = 10.0f * (i++ % 10);
 
-					RotatingBehavior* rotatingBehavior = instance->AddComponent<RotatingBehavior>();
-					rotatingBehavior->speedRotating = 10.0f * (i++ % 10);
-
-					gameObjects.push_back(instance);
-				}
+				gameObjects.push_back(instance);
 			}
 }

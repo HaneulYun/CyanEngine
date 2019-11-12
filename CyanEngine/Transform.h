@@ -3,7 +3,6 @@
 class Transform : public Component
 {
 public:
-
 	XMFLOAT3 localPosition;
 	XMFLOAT3 eulerAngles;
 

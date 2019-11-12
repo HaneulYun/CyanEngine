@@ -55,14 +55,6 @@ void RendererManager::Start()
 
 void RendererManager::Update()
 {
-	//static float t = 179.f;
-	//m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), t);
-	//
-	//t -= 30.f * Time::Instance()->GetTimeElapsed();
-	//
-	//if (t < 1)
-	//	t = 179.f;
-
 	for (auto& d : instances)
 	{
 		int j = 0;
