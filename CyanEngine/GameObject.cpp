@@ -9,6 +9,8 @@ GameObject::GameObject()
 
 GameObject::GameObject(GameObject* original)
 {
+	scene = original->scene;
+
 	for (Component* component : original->components)
 		;
 

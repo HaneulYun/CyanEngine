@@ -6,6 +6,7 @@ class SceneManager : public Component
 private:
 
 public:
+	GameObject* gameObject;
 
 private:
 	friend class GameObject;
@@ -14,9 +15,7 @@ private:
 public:
 	~SceneManager() {}
 
-	void Start()
-	{
-	}
+	void Start();
 
 	void Update()
 	{

@@ -1,8 +1,12 @@
 #pragma once
 
+class Scene;
+
 class GameObject : public Object
 {
 public:
+	Scene* scene{ nullptr };
+
 	std::deque<Component*> components;
 	Transform* transform{ nullptr };
 	Component* meshFilter{ nullptr };

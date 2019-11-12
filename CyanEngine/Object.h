@@ -1,5 +1,7 @@
 #pragma once
 
+class GameObject;
+
 class Object
 {
 public:
@@ -7,10 +9,13 @@ public:
 	~Object() {}
 
 	template <typename T>
-	static T* Instantiate(T* original)
+	T* Instantiate(T* original)
 	{
 		T* instance = new T(original);
 		return instance;
 	}
+
+	template <>
+	GameObject* Instantiate(GameObject* original);
 };
 
