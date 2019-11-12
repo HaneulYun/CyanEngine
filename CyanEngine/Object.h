@@ -15,7 +15,6 @@ public:
 		return instance;
 	}
 
-	template <>
 	GameObject* Instantiate(GameObject* original);
 };
 

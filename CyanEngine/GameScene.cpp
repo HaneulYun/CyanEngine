@@ -17,16 +17,11 @@ void GameScene::BuildObjects()
 
 	GameObject* gameObject = CreateGameObject();
 	{
-		gameObject->transform->position = XMFLOAT3{ 0.0f, 0.0f, 0.0f };
-
 		MeshFilter* meshFilter = gameObject->AddComponent<MeshFilter>();
 		meshFilter->mesh = pCubeMesh;
 
 		Renderer* renderer = gameObject->AddComponent<Renderer>();
 		renderer->material = defaultMaterial;
-
-		RotatingBehavior* rotatingBehavior = gameObject->AddComponent<RotatingBehavior>();
-		rotatingBehavior->speedRotating = 0.0f;
 	}
 
 	GameObject* _sceneManager = AddGameObject();
