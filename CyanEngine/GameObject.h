@@ -12,9 +12,14 @@ public:
 	Component* meshFilter{ nullptr };
 	Component* renderer{ nullptr };
 
-public:
+private:
+	friend class Scene;
+	friend class Object;
+
 	GameObject();
 	GameObject(GameObject* original);
+
+public:
 	~GameObject();
 
 	void Start();
