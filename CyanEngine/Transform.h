@@ -27,6 +27,8 @@ public:
 	void Render() override {}
 	void Destroy() override {}
 
+	virtual Component* Duplicate() { return new Transform; };
+
 	void Rotate(const XMFLOAT3& axis, float angle);
 };
 

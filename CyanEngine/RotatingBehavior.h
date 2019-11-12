@@ -20,7 +20,9 @@ public:
 
 	void Update() 
 	{
-		gameObject->transform->Rotate(axis, speedRotating * Time::deltaTime);
+		gameObject->transform ->Rotate(axis, speedRotating * Time::deltaTime);
 	}
+
+	virtual Component* Duplicate() { return new RotatingBehavior; };
 };
 

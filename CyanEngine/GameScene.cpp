@@ -14,7 +14,6 @@ void GameScene::BuildObjects()
 	defaultMaterial->shader = new StandardShader();
 
 
-
 	GameObject* gameObject = CreateGameObject();
 	{
 		MeshFilter* meshFilter = gameObject->AddComponent<MeshFilter>();
@@ -22,13 +21,13 @@ void GameScene::BuildObjects()
 
 		Renderer* renderer = gameObject->AddComponent<Renderer>();
 		renderer->material = defaultMaterial;
+
+		RotatingBehavior* rotatingBehavior = gameObject->AddComponent<RotatingBehavior>();
 	}
 
 	GameObject* _sceneManager = AddGameObject();
 	{
 		SceneManager* sceneManager = _sceneManager->AddComponent<SceneManager>();
 		sceneManager->gameObject = gameObject;
-	} 
-
-	AddGameObject();
+	}
 }

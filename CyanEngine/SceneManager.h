@@ -24,7 +24,7 @@ public:
 				{
 					GameObject* instance = Instantiate(gameObject);
 
-					instance->transform->position = XMFLOAT3{ 10.0f * x, 10.0f * y, 10.0f * z };
+					instance->GetComponent<Transform>()->position = XMFLOAT3{ 10.0f * x, 10.0f * y, 10.0f * z };
 
 					RotatingBehavior* rotatingBehavior = instance->AddComponent<RotatingBehavior>();
 					rotatingBehavior->speedRotating = 10.0f * (i++ % 10);
@@ -34,5 +34,7 @@ public:
 	void Update()
 	{
 	}
+
+	virtual Component* Duplicate() { return new SceneManager; };
 };
 

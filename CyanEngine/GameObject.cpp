@@ -12,25 +12,8 @@ GameObject::GameObject(GameObject* original)
 	scene = original->scene;
 
 	for (Component* component : original->components)
-		;
-
-	if (original->transform)
 	{
-		transform = AddComponent<Transform>();
-		*(Transform*)transform = *(Transform*)original->transform;
-		transform->gameObject = this;
-	}
-	if (original->meshFilter)
-	{
-		AddComponent<MeshFilter>();
-		*(MeshFilter*)meshFilter = *(MeshFilter*)original->meshFilter;
-		meshFilter->gameObject = this;
-	}
-	if (original->renderer)
-	{
-		AddComponent<Renderer>();
-		*(Renderer*)renderer = *(Renderer*)original->renderer;
-		renderer->gameObject = this;
+		AddComponent(component);
 	}
 }
 
