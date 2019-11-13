@@ -33,6 +33,8 @@ public:
 
 	void Update()
 	{
+		static float time = 0;
+		time += Time::deltaTime;
 	}
 
 	virtual Component* Duplicate() { return new SceneManager; };

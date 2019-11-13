@@ -141,6 +141,9 @@
     <ClInclude Include="ScriptForm.h">
       <Filter>1_00_Project\10_Scripts\11_Form</Filter>
     </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -208,6 +211,9 @@
     </ClCompile>
     <ClCompile Include="GameScene.cpp">
       <Filter>1_00_Project\00_Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
