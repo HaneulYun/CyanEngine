@@ -4,7 +4,7 @@
 class RotatingBehavior : public Component
 {
 private:
-	XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
+	XMFLOAT3 axis{ 0.0f, 0.0f, 1.0f };
 
 public:
 	XMFLOAT3 pos{ 0.0f, 0.0f, 0.0f };
@@ -19,12 +19,13 @@ public:
 
 	void Start() 
 	{
-		gameObject->transform->position = pos;
 	}
 
 	void Update() 
 	{
-		gameObject->transform->Rotate(axis, speedRotating * Time::Instance()->GetTimeElapsed());
+		gameObject->transform ->Rotate(axis, speedRotating * Time::deltaTime);
 	}
+
+	virtual Component* Duplicate() { return new RotatingBehavior; };
 };
 

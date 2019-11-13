@@ -170,6 +170,8 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RotatingBehavior.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="ScriptForm.h" />
     <ClInclude Include="scripts.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />

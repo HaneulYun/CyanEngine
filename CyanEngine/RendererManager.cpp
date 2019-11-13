@@ -6,11 +6,11 @@ RendererManager::RendererManager()
 	for (int i = 0; i < m_nSwapChainBuffers; i++)
 		m_nFenceValues[i] = 0;
 
-	m_pCamera = Camera::Instance();
+	m_pCamera = new Camera;
 	m_pCamera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
 	m_pCamera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
 	m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
-	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
+	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -10.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
@@ -37,39 +37,31 @@ void RendererManager::Start()
 
 		d.second.first = new INSTANCING();
 
-		d.second.first->m_pd3dcbGameObjects = ::CreateBufferResource(device.Get(), commandList.Get(), NULL, sizeof(VS_VB_INSTANCE) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		d.second.first->resource = CreateBufferResource(device.Get(), commandList.Get(), NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 		
-		d.second.first->m_pd3dcbGameObjects->Map(0, NULL, (void**)& d.second.first->m_pcbMappedGameObjects);
+		d.second.first->resource->Map(0, NULL, (void**)& d.second.first->memory);
 		
-		d.second.first->m_d3dInstancingBufferView.BufferLocation = d.second.first->m_pd3dcbGameObjects->GetGPUVirtualAddress();
-		d.second.first->m_d3dInstancingBufferView.StrideInBytes = sizeof(VS_VB_INSTANCE);
-		d.second.first->m_d3dInstancingBufferView.SizeInBytes = sizeof(VS_VB_INSTANCE) * d.second.second.size();
+		d.second.first->view.BufferLocation = d.second.first->resource->GetGPUVirtualAddress();
+		d.second.first->view.StrideInBytes = sizeof(MEMORY);
+		d.second.first->view.SizeInBytes = sizeof(MEMORY) * d.second.second.size();
 	}
 
-	commandList->Close();
-	ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
-	commandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	//commandList->Close();
+	//ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
+	//commandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
-	WaitForGpuComplete();
+	//WaitForGpuComplete();
 }
 
 void RendererManager::Update()
 {
-	//static float t = 179.f;
-	//m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), t);
-	//
-	//t -= 30.f * Time::Instance()->GetTimeElapsed();
-	//
-	//if (t < 1)
-	//	t = 179.f;
-
 	for (auto& d : instances)
 	{
 		int j = 0;
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->m_pcbMappedGameObjects[j].m_xmcColor = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-			XMStoreFloat4x4(&d.second.first->m_pcbMappedGameObjects[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
 			++j;
 		}
 	}
@@ -100,8 +92,8 @@ void RendererManager::PreRender()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	commandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
 
-	//float pfClearColor[4] = { 49.0f / 256.0f, 77.0f / 256.0f, 121.0f / 256.0f, 1.0f };
-	float pfClearColor[4] = { 0.1921569f, 0.3019608, 0.4745098, 1.0f };
+	float pfClearColor[4] = { 0.0 / 256.0, 0.0 / 256.0, 50.0 / 256.0, 1.0f };
+	//float pfClearColor[4] = { 0.1921569f, 0.3019608, 0.4745098, 1.0f };
 	commandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
 
 	commandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
@@ -120,10 +112,10 @@ void RendererManager::Render()
 
 		commandList->SetGraphicsRootSignature(d.first.first->rootSignature);
 		commandList->SetPipelineState(d.first.first->shader->m_ppd3dPipelineStates[0]);
-		Camera::Instance()->UpdateShaderVariables(commandList.Get());
+		m_pCamera->UpdateShaderVariables(commandList.Get());
 
-		if (memcmp(&d.second.first->m_d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
-			mesh->Render(commandList.Get(), d.second.second.size(), d.second.first->m_d3dInstancingBufferView);
+		if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
+			mesh->Render(commandList.Get(), d.second.second.size(), d.second.first->view);
 		else
 			mesh->Render(commandList.Get(), d.second.second.size());
 	}
@@ -209,9 +201,6 @@ inline void RendererManager::CreateDirect3DDevice()
 
 	m_nFenceValues[0] = 0;
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-
-	m_pCamera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
-	m_pCamera->m_d3dScissorRect = { 0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight };
 }
 
 inline void RendererManager::CreateCommandQueueAndList()

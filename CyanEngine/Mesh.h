@@ -112,8 +112,15 @@ public:
 class Quad : public Mesh
 {
 public:
-	Quad(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	Quad(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight);
 	virtual ~Quad() { }
+};
+
+class Circle : public Mesh
+{
+public:
+	Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius);
+	virtual ~Circle() { }
 };
 
 class CubeMeshDiffused : public Mesh

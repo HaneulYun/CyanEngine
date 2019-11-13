@@ -52,6 +52,9 @@
     <Filter Include="1_00_Project\10_Scripts">
       <UniqueIdentifier>{8a066a5c-fd82-4600-881a-762e61d9436a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="1_00_Project\10_Scripts\11_Form">
+      <UniqueIdentifier>{1acdfba3-2a73-4300-801d-621662c8d63e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -131,6 +134,12 @@
     </ClInclude>
     <ClInclude Include="GameScene.h">
       <Filter>1_00_Project\00_Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptForm.h">
+      <Filter>1_00_Project\10_Scripts\11_Form</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

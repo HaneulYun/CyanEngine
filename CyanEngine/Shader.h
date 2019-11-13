@@ -2,16 +2,7 @@
 
 class GameObject;
 
-//struct CB_GAMEOBJECT_INFO
-//{
-//	XMFLOAT4X4 m_xmf4x4World;
-//};
-
-struct VS_VB_INSTANCE
-{
-	XMFLOAT4X4 m_xmf4x4Transform;
-	XMFLOAT4 m_xmcColor;
-};
+class Camera;
 
 class Shader
 {

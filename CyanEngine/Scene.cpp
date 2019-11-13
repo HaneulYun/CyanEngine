@@ -14,8 +14,10 @@ void Scene::Start()
 {
 	BuildObjects();
 
-	for (GameObject* gameObject : gameObjects)
-		gameObject->Start();
+	//for (GameObject* gameObject : gameObjects)
+	//	gameObject->Start();
+	for (int i = 0; i < gameObjects.size(); ++i)
+		gameObjects[i]->Start();
 	rendererManager->Start();;
 }
 
@@ -46,4 +48,29 @@ void Scene::ReleaseObjects()
 	for (GameObject* object : gameObjects)
 		delete object;
 	gameObjects.clear();
+}
+
+GameObject* Scene::CreateGameObject()
+{
+	GameObject* gameObject = new GameObject();
+	gameObject->scene = this;
+
+	return gameObject;
+}
+
+GameObject* Scene::AddGameObject()
+{
+	GameObject* gameObject = new GameObject();
+	gameObject->scene = this;
+	gameObjects.push_back(gameObject);
+
+	return gameObject;
+}
+
+GameObject* Scene::AddGameObject(GameObject* gameObject)
+{
+	gameObject->scene = this;
+	gameObjects.push_back(gameObject);
+
+	return gameObject;
 }

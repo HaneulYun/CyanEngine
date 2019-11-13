@@ -1,71 +1,92 @@
 #pragma once
 
+class Scene;
+
 class GameObject : public Object
 {
 public:
-	std::deque<Component*> components;
-	Transform* transform;
-	Component* meshFilter;
-	Component* renderer;
+	Scene* scene{ nullptr };
 
-public:
+	std::deque<Component*> components;
+	Transform* transform{ nullptr };
+	Component* meshFilter{ nullptr };
+	Component* renderer{ nullptr };
+
+private:
+	friend class Scene;
+	friend class Object;
+
 	GameObject();
 	GameObject(GameObject* original);
+
+public:
 	~GameObject();
 
 	void Start();
 	void Update();
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList);
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* pCamera, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView = {});
-
 	void Destroy();
 
+	template <typename T>
+	T* AddComponent(T* component);
 	template <typename T>
 	T* AddComponent();
 	template <typename T>
 	T* GetComponent();
-
-
-
-private:
-	//int m_nReferences = 0;
-
-protected:
-	Mesh* m_pMesh = NULL;
-	Shader* m_pShader = NULL;
-
-public:
-	void SetMesh(Mesh* pMesh);
-	void SetShader(Shader* pShader);
-	//void AddRef() { m_nReferences++; }
-	//void Release() { if (--m_nReferences <= 0) delete this; }
-	//void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
-	//void ReleaseShaderVariables();
-	//void ReleaseUploadBuffers();
 };
 
 template<typename T>
-inline T* GameObject::AddComponent()
+T* GameObject::AddComponent(T* _component)
+{
+	std::string str = typeid(T).name();
+
+	Component* component = _component->Duplicate();
+
+	components.push_back(component);
+
+	if (typeid(Transform).name() == typeid(*_component).name())
+	{
+		transform = dynamic_cast<Transform*>(component);
+		*(Transform*)component = *(Transform*)_component;
+	}
+	if (typeid(MeshFilter).name() == typeid(*_component).name())
+	{
+		meshFilter = component;
+		*(MeshFilter*)component = *(MeshFilter*)_component;
+	}
+	if (typeid(Renderer).name() == typeid(*_component).name())
+	{
+		renderer = component;
+		*(Renderer*)component = *(Renderer*)_component;
+	}
+
+	component->gameObject = this;
+
+	return dynamic_cast<T*>(component);
+}
+
+template<typename T>
+T* GameObject::AddComponent()
 {
 	Component* component = new T();
 	component->gameObject = this;
 	components.push_back(component);
 
-	if (std::is_same<T, MeshFilter>())
+	if (typeid(Transform).name() == typeid(T).name())
+		transform = dynamic_cast<Transform*>(component);
+	if (typeid(MeshFilter).name() == typeid(T).name())
 		meshFilter = component;
-	if (std::is_same<T, Renderer>())
+	if (typeid(Renderer).name() == typeid(T).name())
 		renderer = component;
 
 	return dynamic_cast<T*>(component);
 }
 
 template<typename T>
-inline T* GameObject::GetComponent()
+T* GameObject::GetComponent()
 {
 	for (Component* component : components)
-		//if (typeid(component) == typeid(T))
-		if (std::is_same<component, T>::value)
-			return component;
+		if (typeid(*component).name() == typeid(T).name())
+			return dynamic_cast<T*>(component);
+	
 	return nullptr;
 }

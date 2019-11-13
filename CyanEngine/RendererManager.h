@@ -1,11 +1,17 @@
 #pragma once
 
+struct MEMORY
+{
+	XMFLOAT4X4 transform;
+	XMFLOAT4 color;
+};
+
 struct INSTANCING
 {
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
+	ID3D12Resource* resource{ nullptr };
+	MEMORY* memory{ nullptr };
 
-	D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
+	D3D12_VERTEX_BUFFER_VIEW view;
 };
 
 class RendererManager : public Singleton<RendererManager>
