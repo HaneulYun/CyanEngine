@@ -8,26 +8,26 @@ void GameScene::BuildObjects()
 {
 	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
 
-	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(_device.Get(), rendererManager->commandList.Get(), 1.0f, 1.0f, 1.0f);
+	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(_device.Get(), rendererManager->commandList.Get(), 4.0f, 4.0f, 4.0f);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
 
-	GameObject* gameObject = CreateGameObject();
+	GameObject* cube = CreateGameObject();
 	{
-		MeshFilter* meshFilter = gameObject->AddComponent<MeshFilter>();
+		MeshFilter* meshFilter = cube->AddComponent<MeshFilter>();
 		meshFilter->mesh = pCubeMesh;
 
-		Renderer* renderer = gameObject->AddComponent<Renderer>();
+		Renderer* renderer = cube->AddComponent<Renderer>();
 		renderer->material = defaultMaterial;
 
-		RotatingBehavior* rotatingBehavior = gameObject->AddComponent<RotatingBehavior>();
+		RotatingBehavior* rotatingBehavior = cube->AddComponent<RotatingBehavior>();
 	}
 
 	GameObject* _sceneManager = AddGameObject();
 	{
 		SceneManager* sceneManager = _sceneManager->AddComponent<SceneManager>();
-		sceneManager->gameObject = gameObject;
+		sceneManager->gameObject = cube;
 	}
 }

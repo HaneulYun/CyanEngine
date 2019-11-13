@@ -12,9 +12,7 @@ GameObject::GameObject(GameObject* original)
 	scene = original->scene;
 
 	for (Component* component : original->components)
-	{
 		AddComponent(component);
-	}
 }
 
 GameObject::~GameObject()

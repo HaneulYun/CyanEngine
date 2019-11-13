@@ -15,6 +15,7 @@ private:
 
 public:
 	~ScriptForm() {}
+	virtual Component* Duplicate() { return new ScriptForm; };
 
 	void Start()
 	{
