@@ -15,5 +15,7 @@ public:
 	virtual void Update() {}
 	virtual void Render() {}
 	virtual void Destroy() {}
+
+	virtual Component* Duplicate() { return new Component; };
 };
 

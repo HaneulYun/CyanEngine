@@ -24,4 +24,6 @@ public:
 	void Render() override;
 
 	void Destroy() override;
+
+	virtual Component* Duplicate() { return new Renderer; };
 };

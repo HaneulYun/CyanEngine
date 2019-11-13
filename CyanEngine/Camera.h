@@ -2,13 +2,7 @@
 
 #define ASPECT_RATIO (float(FRAME_BUFFER_WIDTH) / float(FRAME_BUFFER_HEIGHT))
 
-struct VS_CB_CAMERA_INFO
-{
-	XMFLOAT4X4 m_xmf4x4View;
-	XMFLOAT4X4 m_xmf4x4Projection;
-};
-
-class Camera : public Singleton<Camera>
+class Camera : public Component
 {
 protected:
 	XMFLOAT4X4 m_xmf4x4View;
@@ -21,8 +15,6 @@ public:
 public:
 	Camera();
 	virtual ~Camera();
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
-	virtual void ReleaseShaderVariables();
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	void GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3 xmf3Up);
 	void GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneDistance, float fAspectRatio, float fFOVAngle);

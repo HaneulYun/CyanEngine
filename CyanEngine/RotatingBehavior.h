@@ -19,12 +19,13 @@ public:
 
 	void Start() 
 	{
-		gameObject->transform->position = pos;
 	}
 
 	void Update() 
 	{
-		gameObject->transform->Rotate(axis, speedRotating * Time::Instance()->GetTimeElapsed());
+		gameObject->transform ->Rotate(axis, speedRotating * Time::deltaTime);
 	}
+
+	virtual Component* Duplicate() { return new RotatingBehavior; };
 };
 
