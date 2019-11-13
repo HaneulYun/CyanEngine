@@ -2,6 +2,8 @@
 
 class GameObject;
 
+class Camera;
+
 class Shader
 {
 public:

@@ -48,7 +48,6 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 
 #include "Singleton.h"
 
-#include "Camera.h"
 
 
 #include "Time.h"
@@ -64,6 +63,7 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 #include "Transform.h"
 #include "MeshFilter.h"
 #include "Renderer.h"
+#include "Camera.h"
 
 #include "ShaderManager.h"
 #include "RendererManager.h"

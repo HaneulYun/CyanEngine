@@ -6,7 +6,7 @@ RendererManager::RendererManager()
 	for (int i = 0; i < m_nSwapChainBuffers; i++)
 		m_nFenceValues[i] = 0;
 
-	m_pCamera = Camera::Instance();
+	m_pCamera = new Camera;
 	m_pCamera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
 	m_pCamera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
 	m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
@@ -112,7 +112,7 @@ void RendererManager::Render()
 
 		commandList->SetGraphicsRootSignature(d.first.first->rootSignature);
 		commandList->SetPipelineState(d.first.first->shader->m_ppd3dPipelineStates[0]);
-		Camera::Instance()->UpdateShaderVariables(commandList.Get());
+		m_pCamera->UpdateShaderVariables(commandList.Get());
 
 		if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
 			mesh->Render(commandList.Get(), d.second.second.size(), d.second.first->view);
@@ -201,9 +201,6 @@ inline void RendererManager::CreateDirect3DDevice()
 
 	m_nFenceValues[0] = 0;
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-
-	m_pCamera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
-	m_pCamera->m_d3dScissorRect = { 0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight };
 }
 
 inline void RendererManager::CreateCommandQueueAndList()

@@ -13,14 +13,6 @@ Camera::~Camera()
 {
 }
 
-void Camera::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-}
-
-void Camera::ReleaseShaderVariables()
-{
-}
-
 void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	XMFLOAT4X4 xmf4x4View;
