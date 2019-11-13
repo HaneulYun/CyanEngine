@@ -90,6 +90,25 @@ Quad::Quad(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 }
 
+CircleLine::CircleLine(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius)
+	: Mesh(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = 31;
+	m_nStride = sizeof(DiffusedVertex);
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+
+	DiffusedVertex pVertices[31];
+
+	for (int angle = 0.0f, i = 0; i < 31; angle += 12, ++i) {
+
+		pVertices[i] = DiffusedVertex(XMFLOAT3(fRadius * cos(angle * 3.141592 / 180), fRadius * sin(angle * 3.141592 / 180), 0.f), XMFLOAT4(Colors::White));
+	}
+	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+}
+
 Circle::Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius, int slice)
 	: Mesh(pd3dDevice, pd3dCommandList)
 {
@@ -114,11 +133,6 @@ Circle::Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	}
 	if (slice % 2)
 		pVertices[slice-1] = DiffusedVertex(XMFLOAT3(cos(((float)(slice / 2)) / slice * 2 * PI) * fRadius / 2, sin(((float)(slice / 2)) / slice * 2 * PI) * fRadius / 2, 0.f), XMFLOAT4(Colors::White));
-
-	//pVertices[0] = DiffusedVertex(XMFLOAT3(-5, -5, 0.f), XMFLOAT4(Colors::White));
-	//pVertices[1] = DiffusedVertex(XMFLOAT3(-5, +5, 0.f), XMFLOAT4(Colors::White));
-	//pVertices[2] = DiffusedVertex(XMFLOAT3(+5, -5, 0.f), XMFLOAT4(Colors::White));
-	//pVertices[3] = DiffusedVertex(XMFLOAT3(+5, +5, 0.f), XMFLOAT4(Colors::White));
 
 	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 

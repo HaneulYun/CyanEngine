@@ -169,6 +169,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RendererManager.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RevolvingBehavior.h" />
     <ClInclude Include="RotatingBehavior.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
