@@ -9,6 +9,7 @@ void GameScene::BuildObjects()
 	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
 
 	Quad* pQuadMesh = new Quad(_device.Get(), rendererManager->commandList.Get(), 5.0f, 5.0f);
+	Circle* pCircleMesh = new Circle(_device.Get(), rendererManager->commandList.Get(), 15.0f, 5);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
@@ -17,7 +18,7 @@ void GameScene::BuildObjects()
 		GameObject* Quad = AddGameObject();
 
 		MeshFilter* meshFilter = Quad->AddComponent<MeshFilter>();
-		meshFilter->mesh = pQuadMesh;
+		meshFilter->mesh = pCircleMesh;
 
 		Renderer* renderer = Quad->AddComponent<Renderer>();
 		renderer->material = defaultMaterial;
