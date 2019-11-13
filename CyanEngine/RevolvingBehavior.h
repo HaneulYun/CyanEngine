@@ -26,7 +26,7 @@ public:
 	void Update()
 	{
 		angle += speedRotating * Time::deltaTime;
-		radius = NS_Vector3::Length(NS_Vector3::Subtract(target->transform->position, gameObject->transform->position));
+		//radius = NS_Vector3::Length(NS_Vector3::Subtract(target->transform->position, gameObject->transform->position));
 		gameObject->transform->position = NS_Vector3::Add(target->transform->position,
 			XMFLOAT3(radius * cos(angle * PI / 180.0f), radius * sin(angle * PI / 180.0f), 0.0f));
 
