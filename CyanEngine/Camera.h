@@ -12,6 +12,8 @@ public:
 	D3D12_VIEWPORT m_d3dViewport;
 	D3D12_RECT m_d3dScissorRect;
 
+	static Camera* main;
+
 public:
 	Camera();
 	virtual ~Camera();
@@ -21,4 +23,6 @@ public:
 	void SetViewport(int xTopLeft, int yTopLeft, int nWidth, int nHeight, float fMinZ = 0.0f, float fMaxZ = 1.0f);
 	void SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom);
 	virtual void SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	Vector3 ScreenToWorldPoint(Vector3 position);
 };

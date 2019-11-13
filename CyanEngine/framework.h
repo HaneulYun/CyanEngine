@@ -37,6 +37,8 @@ using Microsoft::WRL::ComPtr;
 #define FRAME_BUFFER_WIDTH 1600
 #define FRAME_BUFFER_HEIGHT 900
 
+typedef XMFLOAT3 Vector3;
+
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
 //#define SAFE_DELETE(p) { if(p) { delete p; p = nullptr; } }
@@ -48,8 +50,7 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 
 #include "Singleton.h"
 
-
-
+#include "Input.h"
 #include "Time.h"
 
 #include "Object.h"
@@ -86,7 +87,7 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 #define SPOT_LIGHT			2
 #define DIRECTIONAL_LIGHT	3
 
-namespace Vector3
+namespace NS_Vector3
 {
 	inline XMFLOAT3 XMVectorToFloat3(XMVECTOR& xmvVector)
 	{
@@ -175,7 +176,7 @@ namespace Vector3
 	}
 }
 
-namespace Vector4
+namespace NS_Vector4
 {
 	inline XMFLOAT4 Add(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
 	{
@@ -185,7 +186,7 @@ namespace Vector4
 	}
 }
 
-namespace Matrix4x4
+namespace NS_Matrix4x4
 {
 	inline XMFLOAT4X4 Identity()
 	{

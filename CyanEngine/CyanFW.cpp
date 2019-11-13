@@ -50,6 +50,8 @@ void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	case WM_MOUSEMOVE:
+		Input::Instance()->mousePosition = Vector3(LOWORD(lParam), HIWORD(lParam), 0);
+		break;
 	default:
 		break;
 	}

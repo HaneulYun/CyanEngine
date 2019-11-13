@@ -191,9 +191,9 @@ void MeshIlluminated::CalculateTriangleListVertexNormals(XMFLOAT3* pxmf3Normals,
 		nIndex0 = i * 3 + 0;
 		nIndex1 = i * 3 + 1;
 		nIndex2 = i * 3 + 2;
-		XMFLOAT3 xmf3Edge01 = Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
-		XMFLOAT3 xmf3Edge02 = Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
-		pxmf3Normals[nIndex0] = pxmf3Normals[nIndex1] = pxmf3Normals[nIndex2] = Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
+		XMFLOAT3 xmf3Edge01 = NS_Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
+		XMFLOAT3 xmf3Edge02 = NS_Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
+		pxmf3Normals[nIndex0] = pxmf3Normals[nIndex1] = pxmf3Normals[nIndex2] = NS_Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
 	}
 }
 
@@ -212,13 +212,13 @@ void MeshIlluminated::CalculateTriangleListVertexNormals(XMFLOAT3* pxmf3Normals,
 			nIndex2 = pnIndices[i * 3 + 2];
 			if (pnIndices && ((nIndex0 == j) || (nIndex1 == j) || (nIndex2 == j)))
 			{
-				xmf3Edge01 = Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
-				xmf3Edge02 = Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
-				xmf3Normal = Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, false);
-				xmf3SumOfNormal = Vector3::Add(xmf3SumOfNormal, xmf3Normal);
+				xmf3Edge01 = NS_Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
+				xmf3Edge02 = NS_Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
+				xmf3Normal = NS_Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, false);
+				xmf3SumOfNormal = NS_Vector3::Add(xmf3SumOfNormal, xmf3Normal);
 			}
 		}
-		pxmf3Normals[j] = Vector3::Normalize(xmf3SumOfNormal);
+		pxmf3Normals[j] = NS_Vector3::Normalize(xmf3SumOfNormal);
 	}
 }
 
@@ -242,13 +242,13 @@ void MeshIlluminated::CalculateTriangleStripVertexNormals(XMFLOAT3* pxmf3Normals
 
 			if ((nIndex0 == j) || (nIndex1 == j) || (nIndex2 == j))
 			{
-				XMFLOAT3 xmf3Edge01 = Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
-				XMFLOAT3 xmf3Edge02 = Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
-				XMFLOAT3 xmf3Normal = Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
-				xmf3SumOfNormal = Vector3::Add(xmf3SumOfNormal, xmf3Normal);
+				XMFLOAT3 xmf3Edge01 = NS_Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
+				XMFLOAT3 xmf3Edge02 = NS_Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
+				XMFLOAT3 xmf3Normal = NS_Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
+				xmf3SumOfNormal = NS_Vector3::Add(xmf3SumOfNormal, xmf3Normal);
 			}
 		}
-		pxmf3Normals[j] = Vector3::Normalize(xmf3SumOfNormal);
+		pxmf3Normals[j] = NS_Vector3::Normalize(xmf3SumOfNormal);
 	}
 }
 
