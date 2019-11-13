@@ -20,7 +20,10 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 		scene->Start();
 
 	Time::Instance()->Reset();
-	
+	Input::Instance();
+	Random::Instance();
+	Random::Start();
+
 	return true;
 }
 
@@ -34,8 +37,11 @@ void CyanFW::FrameAdvance()
 {
 	Time::Instance()->Tick();
 
+
 	scene->Update();
 	scene->Render();
+
+	Input::Update();
 
 	Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
 	SetWindowText(CyanWindow::m_hWnd, m_pszFrameRate);
@@ -46,10 +52,14 @@ void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
+		Input::mouseDown[0] = true;
+		break;
 	case WM_RBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	case WM_MOUSEMOVE:
+		Input::mousePosition = Vector3(LOWORD(lParam), HIWORD(lParam), 0);
+		break;
 	default:
 		break;
 	}

@@ -53,8 +53,9 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 
 #include "Singleton.h"
 
-#include "Input.h"
 #include "Time.h"
+#include "Input.h"
+#include "Random.h"
 
 #include "Object.h"
 #include "Shader.h"
