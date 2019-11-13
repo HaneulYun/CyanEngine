@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "Camera.h"
 
+Camera* Camera::main{ nullptr };
+
 Camera::Camera()
 {
-	m_xmf4x4View = Matrix4x4::Identity();
-	m_xmf4x4Projection = Matrix4x4::Identity();
+	m_xmf4x4View = NS_Matrix4x4::Identity();
+	m_xmf4x4Projection = NS_Matrix4x4::Identity();
 	m_d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
 	m_d3dScissorRect = { 0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
 }
@@ -26,13 +28,15 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 
 void Camera::GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3 xmf3Up)
 {
-	m_xmf4x4View = Matrix4x4::LookAtLH(xmf3Position, xmf3LookAt, xmf3Up);
+	m_xmf4x4View = NS_Matrix4x4::LookAtLH(xmf3Position, xmf3LookAt, xmf3Up);
 }
 
 void Camera::GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneDistance, float fAspectRatio, float fFOVAngle)
 {
 	//m_xmf4x4Projection = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
-	XMStoreFloat4x4(&m_xmf4x4Projection, XMMatrixOrthographicLH(160 / 9.0 * 16, 160, -0.3, 1000));
+	float Size = 80;
+	Size *= 2;
+	XMStoreFloat4x4(&m_xmf4x4Projection, XMMatrixOrthographicLH(Size / 9.0 * 16, Size, 0.3, 1000));
 	//1600 : 900 = x : 160
 }
 
@@ -58,4 +62,18 @@ void Camera::SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommandL
 {
 	pd3dCommandList->RSSetViewports(1, &m_d3dViewport);
 	pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
+}
+
+Vector3 Camera::ScreenToWorldPoint(Vector3 position)
+{
+	position.x = position.x / m_d3dViewport.Width * 2 - 1;
+	position.y = position.y / m_d3dViewport.Height * 2 - 1;
+	position.y = -position.y;
+	position.x = position.x * 80 * 16 / 9;
+	position.y = position.y * 80;
+
+	//Vector3 vector;
+	//XMStoreFloat3(&vector, XMVector3Transform(XMLoadFloat3(&position), XMLoadFloat4x4(&m_xmf4x4Projection)));
+
+	return position;
 }

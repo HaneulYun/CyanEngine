@@ -90,54 +90,55 @@ Quad::Quad(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 }
 
-Circle::Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius)
+CircleLine::CircleLine(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius)
 	: Mesh(pd3dDevice, pd3dCommandList)
 {
-	m_nVertices = 61;
+	m_nVertices = 31;
 	m_nStride = sizeof(DiffusedVertex);
-	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
 
-	DiffusedVertex pVertices[61];
-	pVertices[0] = DiffusedVertex(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT4(Colors::White));
+	DiffusedVertex pVertices[31];
 
-	for (int i = 1; i < 61; ++i) {
-		pVertices[i] = DiffusedVertex(XMFLOAT3(cos(6.0 * i * 3.141592 / 180), sin(6.0 * i * 3.141592 / 180), 0.f), XMFLOAT4(Colors::White));
+	for (int angle = 0.0f, i = 0; i < 31; angle += 12, ++i) {
+
+		pVertices[i] = DiffusedVertex(XMFLOAT3(fRadius * cos(angle * 3.141592 / 180), fRadius * sin(angle * 3.141592 / 180), 0.f), XMFLOAT4(Colors::White));
 	}
-
 	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
 	m_d3dVertexBufferView.StrideInBytes = m_nStride;
 	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+}
 
-	//index
+Circle::Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius, int slice)
+	: Mesh(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = slice;
+	m_nStride = sizeof(DiffusedVertex);
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 
-	m_nIndices = 36;
-	UINT pnIndices[36];
+	DiffusedVertex* pVertices = new DiffusedVertex[slice];
+	for (int i = 0; i < slice / 2; ++i)
+	{
+		float a = ((float)i) / slice;
+		float b = ((float)(slice - i - 1)) / slice;
 
-	pnIndices[0] = 0; pnIndices[1] = 1; pnIndices[2] = 3;
-	pnIndices[3] = 0; pnIndices[4] = 3; pnIndices[5] = 2; 
-	
-	pnIndices[6] = 4; pnIndices[7] = 6; pnIndices[8] = 5;
-	pnIndices[9] = 5; pnIndices[10] = 6; pnIndices[11] = 7;
+		float x = cos(a * 2 * PI) * fRadius / 2;
+		float y = sin(a * 2 * PI) * fRadius / 2;
+		float z = cos(b * 2 * PI) * fRadius / 2;
+		float w = sin(b * 2 * PI) * fRadius / 2;
+		pVertices[i * 2 + 0] = DiffusedVertex(XMFLOAT3(x, y, 0.f), XMFLOAT4(Colors::White));
+		pVertices[i * 2 + 1] = DiffusedVertex(XMFLOAT3(z, w, 0.f), XMFLOAT4(Colors::White));
+	}
+	if (slice % 2)
+		pVertices[slice-1] = DiffusedVertex(XMFLOAT3(cos(((float)(slice / 2)) / slice * 2 * PI) * fRadius / 2, sin(((float)(slice / 2)) / slice * 2 * PI) * fRadius / 2, 0.f), XMFLOAT4(Colors::White));
 
-	pnIndices[12] = 8; pnIndices[13] = 11; pnIndices[14] = 9;
-	pnIndices[15] = 9; pnIndices[16] = 11; pnIndices[17] = 10;
+	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 
-	pnIndices[18] = 12; pnIndices[19] = 13; pnIndices[20] = 14;
-	pnIndices[21] = 12; pnIndices[22] = 14; pnIndices[23] = 15;
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 
-	pnIndices[24] = 16; pnIndices[25] = 17; pnIndices[26] = 19;
-	pnIndices[27] = 16; pnIndices[28] = 19; pnIndices[29] = 18;
-
-	pnIndices[30] = 20; pnIndices[31] = 21; pnIndices[32] = 22;
-	pnIndices[33] = 21; pnIndices[34] = 23; pnIndices[35] = 22;
-
-	m_pd3dIndexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
-	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
-	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
-	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
-
-
+	delete[] pVertices;
 }
 
 CubeMeshDiffused::CubeMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight, float fDepth)
@@ -202,9 +203,9 @@ void MeshIlluminated::CalculateTriangleListVertexNormals(XMFLOAT3* pxmf3Normals,
 		nIndex0 = i * 3 + 0;
 		nIndex1 = i * 3 + 1;
 		nIndex2 = i * 3 + 2;
-		XMFLOAT3 xmf3Edge01 = Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
-		XMFLOAT3 xmf3Edge02 = Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
-		pxmf3Normals[nIndex0] = pxmf3Normals[nIndex1] = pxmf3Normals[nIndex2] = Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
+		XMFLOAT3 xmf3Edge01 = NS_Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
+		XMFLOAT3 xmf3Edge02 = NS_Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
+		pxmf3Normals[nIndex0] = pxmf3Normals[nIndex1] = pxmf3Normals[nIndex2] = NS_Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
 	}
 }
 
@@ -223,13 +224,13 @@ void MeshIlluminated::CalculateTriangleListVertexNormals(XMFLOAT3* pxmf3Normals,
 			nIndex2 = pnIndices[i * 3 + 2];
 			if (pnIndices && ((nIndex0 == j) || (nIndex1 == j) || (nIndex2 == j)))
 			{
-				xmf3Edge01 = Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
-				xmf3Edge02 = Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
-				xmf3Normal = Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, false);
-				xmf3SumOfNormal = Vector3::Add(xmf3SumOfNormal, xmf3Normal);
+				xmf3Edge01 = NS_Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
+				xmf3Edge02 = NS_Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
+				xmf3Normal = NS_Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, false);
+				xmf3SumOfNormal = NS_Vector3::Add(xmf3SumOfNormal, xmf3Normal);
 			}
 		}
-		pxmf3Normals[j] = Vector3::Normalize(xmf3SumOfNormal);
+		pxmf3Normals[j] = NS_Vector3::Normalize(xmf3SumOfNormal);
 	}
 }
 
@@ -253,13 +254,13 @@ void MeshIlluminated::CalculateTriangleStripVertexNormals(XMFLOAT3* pxmf3Normals
 
 			if ((nIndex0 == j) || (nIndex1 == j) || (nIndex2 == j))
 			{
-				XMFLOAT3 xmf3Edge01 = Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
-				XMFLOAT3 xmf3Edge02 = Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
-				XMFLOAT3 xmf3Normal = Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
-				xmf3SumOfNormal = Vector3::Add(xmf3SumOfNormal, xmf3Normal);
+				XMFLOAT3 xmf3Edge01 = NS_Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
+				XMFLOAT3 xmf3Edge02 = NS_Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
+				XMFLOAT3 xmf3Normal = NS_Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
+				xmf3SumOfNormal = NS_Vector3::Add(xmf3SumOfNormal, xmf3Normal);
 			}
 		}
-		pxmf3Normals[j] = Vector3::Normalize(xmf3SumOfNormal);
+		pxmf3Normals[j] = NS_Vector3::Normalize(xmf3SumOfNormal);
 	}
 }
 

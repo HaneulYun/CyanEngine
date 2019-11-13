@@ -13,5 +13,5 @@ Transform::~Transform()
 void Transform::Rotate(const XMFLOAT3& axis, float angle)
 {
 	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&axis), XMConvertToRadians(angle));
-	localToWorldMatrix = Matrix4x4::Multiply(mtxRotate, localToWorldMatrix);
+	localToWorldMatrix = NS_Matrix4x4::Multiply(mtxRotate, localToWorldMatrix);
 }

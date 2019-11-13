@@ -116,10 +116,17 @@ public:
 	virtual ~Quad() { }
 };
 
+class CircleLine : public Mesh
+{
+public:
+	CircleLine(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius);
+	virtual ~CircleLine() { }
+};
+
 class Circle : public Mesh
 {
 public:
-	Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius);
+	Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius, int slice);
 	virtual ~Circle() { }
 };
 
