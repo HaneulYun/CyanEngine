@@ -6,6 +6,7 @@ void GameScene::BuildObjects()
 	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
 
 	Quad* pQuadMesh = new Quad(_device.Get(), rendererManager->commandList.Get(), 5.0f, 5.0f);
+	CircleLine* pCircleLineMesh = new CircleLine(_device.Get(), rendererManager->commandList.Get(), 10.f);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
@@ -18,21 +19,32 @@ void GameScene::BuildObjects()
 		Renderer* renderer = Star->AddComponent<Renderer>();
 		renderer->material = defaultMaterial;
 	}
-
-	GameObject* Quad = AddGameObject();
+	GameObject* Orbit = AddGameObject();
 	{
-		MeshFilter* meshFilter = Quad->AddComponent<MeshFilter>();
-		meshFilter->mesh = pQuadMesh;
+		MeshFilter* meshFilter = Orbit->AddComponent<MeshFilter>();
+		meshFilter->mesh = pCircleLineMesh;
 
-		Renderer* renderer = Quad->AddComponent<Renderer>();
+		Renderer* renderer = Orbit->AddComponent<Renderer>();
 		renderer->material = defaultMaterial;
+	}
+	for (int i = 0; i < 3; ++i) {
+		GameObject* Guardian = AddGameObject();
+		{
+			MeshFilter* meshFilter = Guardian->AddComponent<MeshFilter>();
+			meshFilter->mesh = pQuadMesh;
 
-		RotatingBehavior* rotatingBehavior = Quad->AddComponent<RotatingBehavior>();
-		rotatingBehavior->pos = XMFLOAT3{ 0.0f, 0.0f, 0.0f };
-		rotatingBehavior->speedRotating = 45.0f;
+			Renderer* renderer = Guardian->AddComponent<Renderer>();
+			renderer->material = defaultMaterial;
 
-		RevolvingBehavior* revolvingBehavior = Quad->AddComponent<RevolvingBehavior>();
-		revolvingBehavior->target = Star;
-		revolvingBehavior->speedRotating = 60.0f;
+			/*RotatingBehavior* rotatingBehavior = Guardian->AddComponent<RotatingBehavior>();
+			rotatingBehavior->pos = XMFLOAT3{ 0.0f, 0.0f, 0.0f };
+			rotatingBehavior->speedRotating = 45.0f;*/
+
+			RevolvingBehavior* revolvingBehavior = Guardian->AddComponent<RevolvingBehavior>();
+			revolvingBehavior->target = Star;
+			revolvingBehavior->radius = 10.f;
+			revolvingBehavior->speedRotating = 60.0f;
+			revolvingBehavior->angle = 120.0f * i;
+		}
 	}
 }
