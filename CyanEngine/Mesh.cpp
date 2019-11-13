@@ -116,8 +116,6 @@ Circle::Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 	m_nStride = sizeof(DiffusedVertex);
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 
-	const float PI = 3.141592f;
-
 	DiffusedVertex* pVertices = new DiffusedVertex[slice];
 	for (int i = 0; i < slice / 2; ++i)
 	{

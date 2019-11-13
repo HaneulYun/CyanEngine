@@ -121,7 +121,7 @@ class CircleLine : public Mesh
 public:
 	CircleLine(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius);
 	virtual ~CircleLine() { }
-}
+};
 
 class Circle : public Mesh
 {
