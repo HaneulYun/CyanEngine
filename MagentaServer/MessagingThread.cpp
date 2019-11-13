@@ -20,28 +20,35 @@ DWORD WINAPI Messenger(LPVOID arg)
 	int retval;
 	SOCKADDR_IN clientaddr;
 	int addrlen;
-	char buf[BUFSIZE + 1];
-	
+	char buf[5];
+
 	// 클라이언트 정보 얻기
 	addrlen = sizeof(clientaddr);
 	getpeername(client_sock, (SOCKADDR*)&clientaddr, &addrlen);
-	
+
 	while (1) {
 		// 데이터 받기
-		retval = recv(client_sock, buf, BUFSIZE, 0);
+		retval = recv(client_sock, buf, 4, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display((char*)"recv()");
 			break;
 		}
 		else if (retval == 0)
 			break;
-	
+
 		// 받은 데이터 출력
 		buf[retval] = '\0';
 		printf("[TCP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr),
 			ntohs(clientaddr.sin_port), buf);
+
+		//// 데이터 보내기
+		//retval = send(client_sock, buf, retval, 0);
+		//if (retval == SOCKET_ERROR) {
+		//	err_display((char*)"send()");
+		//	break;
+		//}
 	}
-	
+
 	// closesocket()
 	closesocket(client_sock);
 	printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n",

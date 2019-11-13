@@ -56,4 +56,5 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 
 int ThreadPool::getEmptyThread()
 {
+	return 0;
 }
