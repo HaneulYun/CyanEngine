@@ -143,13 +143,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ConnectingThread.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainThread.cpp" />
     <ClCompile Include="MessagingThread.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="PrintErrors.cpp" />
+    <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="Thread.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
+    <ClCompile Include="ThreadPool.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConnectingThread.h" />
+    <ClInclude Include="Globals.h" />
     <ClInclude Include="MainThread.h" />
     <ClInclude Include="MessagingThread.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="PrintErrors.h" />
+    <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Thread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
