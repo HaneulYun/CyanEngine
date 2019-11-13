@@ -78,16 +78,66 @@ Quad::Quad(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 
 	DiffusedVertex pVertices[8];
-	pVertices[0] = DiffusedVertex(XMFLOAT3(-fWidth, -fHeight, 0.f), XMFLOAT4(Colors::White));
-	pVertices[1] = DiffusedVertex(XMFLOAT3(-fWidth, +fHeight, 0.f), XMFLOAT4(Colors::White));
-	pVertices[2] = DiffusedVertex(XMFLOAT3(+fWidth, -fHeight, 0.f), XMFLOAT4(Colors::White));
-	pVertices[3] = DiffusedVertex(XMFLOAT3(+fWidth, +fHeight, 0.f), XMFLOAT4(Colors::White));
+	pVertices[0] = DiffusedVertex(XMFLOAT3(-fWidth / 2, -fHeight / 2, 0.f), XMFLOAT4(Colors::White));
+	pVertices[1] = DiffusedVertex(XMFLOAT3(-fWidth / 2, +fHeight / 2, 0.f), XMFLOAT4(Colors::White));
+	pVertices[2] = DiffusedVertex(XMFLOAT3(+fWidth / 2, -fHeight / 2, 0.f), XMFLOAT4(Colors::White));
+	pVertices[3] = DiffusedVertex(XMFLOAT3(+fWidth / 2, +fHeight / 2, 0.f), XMFLOAT4(Colors::White));
 
 	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
 	m_d3dVertexBufferView.StrideInBytes = m_nStride;
 	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+}
+
+Circle::Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius)
+	: Mesh(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = 61;
+	m_nStride = sizeof(DiffusedVertex);
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	DiffusedVertex pVertices[61];
+	pVertices[0] = DiffusedVertex(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT4(Colors::White));
+
+	for (int i = 1; i < 61; ++i) {
+		pVertices[i] = DiffusedVertex(XMFLOAT3(cos(6.0 * i * 3.141592 / 180), sin(6.0 * i * 3.141592 / 180), 0.f), XMFLOAT4(Colors::White));
+	}
+
+	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+
+	//index
+
+	m_nIndices = 36;
+	UINT pnIndices[36];
+
+	pnIndices[0] = 0; pnIndices[1] = 1; pnIndices[2] = 3;
+	pnIndices[3] = 0; pnIndices[4] = 3; pnIndices[5] = 2; 
+	
+	pnIndices[6] = 4; pnIndices[7] = 6; pnIndices[8] = 5;
+	pnIndices[9] = 5; pnIndices[10] = 6; pnIndices[11] = 7;
+
+	pnIndices[12] = 8; pnIndices[13] = 11; pnIndices[14] = 9;
+	pnIndices[15] = 9; pnIndices[16] = 11; pnIndices[17] = 10;
+
+	pnIndices[18] = 12; pnIndices[19] = 13; pnIndices[20] = 14;
+	pnIndices[21] = 12; pnIndices[22] = 14; pnIndices[23] = 15;
+
+	pnIndices[24] = 16; pnIndices[25] = 17; pnIndices[26] = 19;
+	pnIndices[27] = 16; pnIndices[28] = 19; pnIndices[29] = 18;
+
+	pnIndices[30] = 20; pnIndices[31] = 21; pnIndices[32] = 22;
+	pnIndices[33] = 21; pnIndices[34] = 23; pnIndices[35] = 22;
+
+	m_pd3dIndexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
+	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
+	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
+
+
 }
 
 CubeMeshDiffused::CubeMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight, float fDepth)

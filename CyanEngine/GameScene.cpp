@@ -8,7 +8,7 @@ void GameScene::BuildObjects()
 {
 	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
 
-	Quad* pQuadMesh = new Quad(_device.Get(), rendererManager->commandList.Get(), 20.0f, 20.0f);
+	Quad* pQuadMesh = new Quad(_device.Get(), rendererManager->commandList.Get(), 5.0f, 5.0f);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
