@@ -14,7 +14,7 @@ void GameScene::BuildObjects()
 	defaultMaterial->shader = new StandardShader();
 
 	{
-		GameObject* Quad = new GameObject;
+		GameObject* Quad = AddGameObject();
 
 		MeshFilter* meshFilter = Quad->AddComponent<MeshFilter>();
 		meshFilter->mesh = pQuadMesh;
