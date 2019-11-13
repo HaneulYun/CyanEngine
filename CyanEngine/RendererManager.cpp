@@ -37,20 +37,20 @@ void RendererManager::Start()
 
 		d.second.first = new INSTANCING();
 
-		d.second.first->resource = ::CreateBufferResource(device.Get(), commandList.Get(), NULL, sizeof(VS_VB_INSTANCE) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		d.second.first->resource = CreateBufferResource(device.Get(), commandList.Get(), NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 		
 		d.second.first->resource->Map(0, NULL, (void**)& d.second.first->memory);
 		
 		d.second.first->view.BufferLocation = d.second.first->resource->GetGPUVirtualAddress();
-		d.second.first->view.StrideInBytes = sizeof(VS_VB_INSTANCE);
-		d.second.first->view.SizeInBytes = sizeof(VS_VB_INSTANCE) * d.second.second.size();
+		d.second.first->view.StrideInBytes = sizeof(MEMORY);
+		d.second.first->view.SizeInBytes = sizeof(MEMORY) * d.second.second.size();
 	}
 
-	commandList->Close();
-	ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
-	commandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	//commandList->Close();
+	//ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
+	//commandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 
-	WaitForGpuComplete();
+	//WaitForGpuComplete();
 }
 
 void RendererManager::Update()
@@ -60,8 +60,8 @@ void RendererManager::Update()
 		int j = 0;
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->memory[j].m_xmcColor = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-			XMStoreFloat4x4(&d.second.first->memory[j].m_xmf4x4Transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
 			++j;
 		}
 	}

@@ -1,9 +1,15 @@
 #pragma once
 
+struct MEMORY
+{
+	XMFLOAT4X4 transform;
+	XMFLOAT4 color;
+};
+
 struct INSTANCING
 {
 	ID3D12Resource* resource{ nullptr };
-	VS_VB_INSTANCE* memory{ nullptr };
+	MEMORY* memory{ nullptr };
 
 	D3D12_VERTEX_BUFFER_VIEW view;
 };
