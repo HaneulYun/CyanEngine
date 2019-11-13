@@ -141,6 +141,9 @@
     <ClInclude Include="ScriptForm.h">
       <Filter>1_00_Project\10_Scripts\11_Form</Filter>
     </ClInclude>
+    <ClInclude Include="RevolvingBehavior.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

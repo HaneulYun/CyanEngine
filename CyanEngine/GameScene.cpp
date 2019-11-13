@@ -1,9 +1,6 @@
 #include "pch.h"
 #include "GameScene.h"
 
-#include "pch.h"
-#include "Scene.h"
-
 void GameScene::BuildObjects()
 {
 	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
@@ -13,9 +10,17 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
+	GameObject* Star = AddGameObject();
 	{
-		GameObject* Quad = AddGameObject();
+		MeshFilter* meshFilter = Star->AddComponent<MeshFilter>();
+		meshFilter->mesh = pQuadMesh;
 
+		Renderer* renderer = Star->AddComponent<Renderer>();
+		renderer->material = defaultMaterial;
+	}
+
+	GameObject* Quad = AddGameObject();
+	{
 		MeshFilter* meshFilter = Quad->AddComponent<MeshFilter>();
 		meshFilter->mesh = pQuadMesh;
 
@@ -26,6 +31,8 @@ void GameScene::BuildObjects()
 		rotatingBehavior->pos = XMFLOAT3{ 0.0f, 0.0f, 0.0f };
 		rotatingBehavior->speedRotating = 45.0f;
 
-		gameObjects.push_back(Quad);
+		RevolvingBehavior* revolvingBehavior = Quad->AddComponent<RevolvingBehavior>();
+		revolvingBehavior->target = Star;
+		revolvingBehavior->speedRotating = 60.0f;
 	}
 }
