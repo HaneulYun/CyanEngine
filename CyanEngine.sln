@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CyanEngine", "CyanEngine\CyanEngine.vcxproj", "{B9408B74-0812-49C8-968A-CED06E975BF8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MagentaServer", "MagentaServer\MagentaServer.vcxproj", "{736B1444-A9E8-49F0-B922-F507CAB8D90D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{B9408B74-0812-49C8-968A-CED06E975BF8}.Release|x64.Build.0 = Release|x64
 		{B9408B74-0812-49C8-968A-CED06E975BF8}.Release|x86.ActiveCfg = Release|Win32
 		{B9408B74-0812-49C8-968A-CED06E975BF8}.Release|x86.Build.0 = Release|Win32
+		{736B1444-A9E8-49F0-B922-F507CAB8D90D}.Debug|x64.ActiveCfg = Debug|x64
+		{736B1444-A9E8-49F0-B922-F507CAB8D90D}.Debug|x64.Build.0 = Debug|x64
+		{736B1444-A9E8-49F0-B922-F507CAB8D90D}.Debug|x86.ActiveCfg = Debug|Win32
+		{736B1444-A9E8-49F0-B922-F507CAB8D90D}.Debug|x86.Build.0 = Debug|Win32
+		{736B1444-A9E8-49F0-B922-F507CAB8D90D}.Release|x64.ActiveCfg = Release|x64
+		{736B1444-A9E8-49F0-B922-F507CAB8D90D}.Release|x64.Build.0 = Release|x64
+		{736B1444-A9E8-49F0-B922-F507CAB8D90D}.Release|x86.ActiveCfg = Release|Win32
+		{736B1444-A9E8-49F0-B922-F507CAB8D90D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
