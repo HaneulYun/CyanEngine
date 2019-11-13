@@ -85,14 +85,8 @@ template<typename T>
 T* GameObject::GetComponent()
 {
 	for (Component* component : components)
-	{
-
-		std::string str1 = typeid(*component).name();
-		std::string str2 = typeid(T).name();
 		if (typeid(*component).name() == typeid(T).name())
-		{
 			return dynamic_cast<T*>(component);
-		}
-	}
+	
 	return nullptr;
 }
