@@ -7,6 +7,8 @@
 #include "PrintErrors.h"
 #include "Globals.h"
 
+HANDLE EndEvent;
+
 int main(int argc, char* argv[])
 {
 	int retval;
@@ -37,11 +39,17 @@ int main(int argc, char* argv[])
 	
 	ThreadPool* threadPool = new ThreadPool(4, listenSocket);
 
-	while (true)
-	{
+	EndEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	if (EndEvent == NULL) return 1;
 
-	}
+	DWORD eventVal;
+	
+	eventVal = WaitForSingleObject(EndEvent, INFINITE);
+	if (eventVal != WAIT_OBJECT_0) ;	// 임시로 비워둠
+	printf("done!\n");	// 임시 출력부
+	SetEvent(EndEvent);
 
+	CloseHandle(EndEvent);
 
 	delete threadPool;
 	// 윈속 종료

@@ -4,7 +4,7 @@
 
 vector<Thread*> ThreadPool::threads;
 int ThreadPool::nThreads = 0;
-int ThreadPool::maxThreads = 2;
+int ThreadPool::maxThreads = 5;
 
 ThreadPool::ThreadPool(int num, SOCKET* listen_sock)
 {
@@ -45,7 +45,7 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 		{
 			threads.push_back(new MessagingThread(nThreads++, (LPVOID)client_sock));
 			if (threads.back()->handle == NULL) { closesocket(client_sock); }
-			else { CloseHandle(threads.back()->handle); }
+			//else { CloseHandle(threads.back()->handle); }
 		}
 	}
 	
