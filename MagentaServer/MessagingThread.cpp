@@ -20,7 +20,7 @@ DWORD WINAPI Messenger(LPVOID arg)
 	int retval;
 	SOCKADDR_IN clientaddr;
 	int addrlen;
-	char buf[5];
+	char buf[5];	// 임시 버퍼
 
 	// 클라이언트 정보 얻기
 	addrlen = sizeof(clientaddr);
@@ -41,12 +41,14 @@ DWORD WINAPI Messenger(LPVOID arg)
 		printf("[TCP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr),
 			ntohs(clientaddr.sin_port), buf);
 
-		//// 데이터 보내기
-		//retval = send(client_sock, buf, retval, 0);
-		//if (retval == SOCKET_ERROR) {
-		//	err_display((char*)"send()");
-		//	break;
-		//}
+		// 데이터 보내기
+		retval = send(client_sock, buf, 4, 0);	
+		if (retval == SOCKET_ERROR) {
+			err_display((char*)"send()");
+			break;
+		}
+
+		printf("루프 돌았다!\n");	// 임시 출력부
 	}
 
 	// closesocket()
