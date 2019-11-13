@@ -10,6 +10,8 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <math.h>
+
 #include <string>
 #include <wrl.h>
 #include <shellapi.h>
@@ -144,7 +146,7 @@ namespace NS_Vector3
 		XMStoreFloat3(&m_xmf3Normal, XMVector3Normalize(XMLoadFloat3(&xmf3Vector)));
 		return(m_xmf3Normal);
 	}
-	inline float Length(XMFLOAT3& xmf3Vector)
+	inline float Length(const XMFLOAT3& xmf3Vector)
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
