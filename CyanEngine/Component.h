@@ -2,6 +2,9 @@
 
 class Component : public Object
 {
+private:
+	bool isStarted{ false };
+
 protected:
 	Component();
 
@@ -10,6 +13,8 @@ public:
 
 public:
 	virtual ~Component();
+
+	void UpdateComponent();
 
 	virtual void Start() {}
 	virtual void Update() {}
