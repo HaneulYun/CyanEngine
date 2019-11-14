@@ -25,6 +25,16 @@ RendererManager::~RendererManager()
 {
 }
 
+void RendererManager::UpdateManager()
+{
+	if (!isRenewed)
+	{
+		isRenewed = true;
+		Start();
+	}
+	Update();
+}
+
 void RendererManager::Start()
 {
 	for (auto& d : instances)

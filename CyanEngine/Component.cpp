@@ -11,8 +11,10 @@ Component::~Component()
 
 void Component::UpdateComponent()
 {
-	if (isStarted)
-		return this->Update();
-	isStarted = true;
-	return this->Start();
+	if (!isStarted)
+	{
+		isStarted = true;
+		this->Start();
+	}
+	this->Update();
 }
