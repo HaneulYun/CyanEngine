@@ -18,14 +18,14 @@ void Scene::Start()
 	//	gameObject->Start();
 	for (int i = 0; i < gameObjects.size(); ++i)
 		gameObjects[i]->Start();
-	rendererManager->Start();;
+	rendererManager->UpdateManager();;
 }
 
 void Scene::Update()
 {
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Update();
-	rendererManager->Update();
+	rendererManager->UpdateManager();
 }
 
 void Scene::Render()
