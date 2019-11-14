@@ -11,34 +11,24 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
-	GameObject* Star = AddGameObject();
-	{
-		MeshFilter* meshFilter = Star->AddComponent<MeshFilter>();
-		meshFilter->mesh = pQuadMesh;
+	GameObject* object = CreateGameObject();
+	object->AddComponent<MeshFilter>();
+	object->AddComponent<Renderer>()->material = defaultMaterial;
 
-		Renderer* renderer = Star->AddComponent<Renderer>();
-		renderer->material = defaultMaterial;
-	}
-	GameObject* Orbit = AddGameObject();
+	GameObject* Star = Instantiate(object);
 	{
-		MeshFilter* meshFilter = Orbit->AddComponent<MeshFilter>();
-		meshFilter->mesh = pCircleLineMesh;
-
-		Renderer* renderer = Orbit->AddComponent<Renderer>();
-		renderer->material = defaultMaterial;
+		Star->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 	}
+
+	GameObject* Orbit = Instantiate(object);
+	{
+		Orbit->GetComponent<MeshFilter>()->mesh = pCircleLineMesh;
+	}
+
 	for (int i = 0; i < 3; ++i) {
-		GameObject* Guardian = AddGameObject();
+		GameObject* Guardian = Instantiate(object);
 		{
-			MeshFilter* meshFilter = Guardian->AddComponent<MeshFilter>();
-			meshFilter->mesh = pQuadMesh;
-
-			Renderer* renderer = Guardian->AddComponent<Renderer>();
-			renderer->material = defaultMaterial;
-
-			/*RotatingBehavior* rotatingBehavior = Guardian->AddComponent<RotatingBehavior>();
-			rotatingBehavior->pos = XMFLOAT3{ 0.0f, 0.0f, 0.0f };
-			rotatingBehavior->speedRotating = 45.0f;*/
+			Guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 
 			RevolvingBehavior* revolvingBehavior = Guardian->AddComponent<RevolvingBehavior>();
 			revolvingBehavior->target = Star;
@@ -46,5 +36,10 @@ void GameScene::BuildObjects()
 			revolvingBehavior->speedRotating = 60.0f;
 			revolvingBehavior->angle = 120.0f * i;
 		}
+	}
+
+	GameObject* Spawner = AddGameObject();
+	{
+
 	}
 }

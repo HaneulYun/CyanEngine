@@ -1,6 +1,6 @@
 #pragma once
 
-class Scene
+class Scene : public Object
 {
 protected:
 	std::deque<GameObject*> gameObjects;
