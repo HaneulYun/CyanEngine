@@ -3,8 +3,9 @@
 #include "Globals.h"
 
 vector<Thread*> ThreadPool::threads;
-int ThreadPool::nThreads = 0;
 int ThreadPool::maxThreads = 5;
+int ThreadPool::nThreads;
+vector<SOCKET> ThreadPool::clientSock;
 
 ThreadPool::ThreadPool(int num, SOCKET* listen_sock)
 {
@@ -33,25 +34,30 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 
 	while (1)
 	{
-		// accept()
-		addrlen = sizeof(clientaddr);
-		client_sock = accept(*(SOCKET*)listen_sock, (SOCKADDR*)&clientaddr, &addrlen);
-		if (client_sock == INVALID_SOCKET) {
-			err_display((char*)"accept()");
-			break;
-		}
-		
-		// 접속한 클라이언트 정보 출력
-		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
-			inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
-
 		if (nThreads < maxThreads)
 		{
+			// accept()
+			addrlen = sizeof(clientaddr);
+			client_sock = accept(*(SOCKET*)listen_sock, (SOCKADDR*)&clientaddr, &addrlen);
+			if (client_sock == INVALID_SOCKET) {
+				err_display((char*)"accept()");
+				break;
+			}
+
+			// 접속한 클라이언트 정보 출력
+			printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
+				inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+
+
 			threads.push_back(new MessagingThread(nThreads++, (LPVOID)client_sock));
+			clientSock.push_back(client_sock);
 			if (threads.back()->handle == NULL) { closesocket(client_sock); }
 			//else { CloseHandle(threads.back()->handle); }
 		}
-		// 빈 아이디 찾아서 스레드 만들기
+		// 빈 아이디 찾아서 스레드 재사용하기
+		{
+			//Messenger 함수의 arg값을 바꾸어 스레드를 재사용할 수 있게 해보자
+		}
 	}
 	
 	closesocket(*(SOCKET*)listen_sock);
@@ -62,4 +68,9 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 int ThreadPool::getEmptyThread()
 {
 	return 0;
+}
+
+int ThreadPool::getNThreads()
+{
+	return nThreads;
 }

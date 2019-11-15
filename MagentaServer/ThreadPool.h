@@ -18,16 +18,15 @@ private:
 
 public:
 	static CRITICAL_SECTION rqcs;
-	//static vector<CRITICAL_SECTION> sqcss;
 	static queue<Message> recvQueue;
-	static vector<queue<Message>*> sendQueues;
+	static vector<SOCKET> clientSock;
 
 public:
 	ThreadPool(int num, SOCKET* listen_sock);
 	~ThreadPool();
 
 	static DWORD WINAPI Connection(LPVOID listen_sock);
-
+	static int getNThreads();
 	int getEmptyThread();
 }; 
 

@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 
 	SOCKET* listenSocket = &listen_sock;
 	
-	ThreadPool* threadPool = new ThreadPool(4, listenSocket);
+	ThreadPool* threadPool = new ThreadPool(5, listenSocket);
 
 	EndEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if (EndEvent == NULL) return 1;
