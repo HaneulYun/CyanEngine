@@ -1,3 +1,9 @@
 #pragma once
 
-struct Message;
+struct Message
+{
+	char msgId;
+	int lParam;
+	int mParam;
+	int rParam;
+};

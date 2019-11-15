@@ -16,6 +16,7 @@ private:
 	static int nThreads;
 	static int maxThreads;
 
+public:
 	static queue<Message> recvQueue;
 	static vector<queue<Message>*> sendQueues;
 

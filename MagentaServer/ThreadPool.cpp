@@ -47,6 +47,7 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 			if (threads.back()->handle == NULL) { closesocket(client_sock); }
 			//else { CloseHandle(threads.back()->handle); }
 		}
+		// 빈 아이디 찾아서 스레드 만들기
 	}
 	
 	closesocket(*(SOCKET*)listen_sock);
