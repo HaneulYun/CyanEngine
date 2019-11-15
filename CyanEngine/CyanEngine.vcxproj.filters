@@ -151,7 +151,10 @@
       <Filter>0_00_CyanEngine\30_MANAGER</Filter>
     </ClInclude>
     <ClInclude Include="Spawner.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingBehavior.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

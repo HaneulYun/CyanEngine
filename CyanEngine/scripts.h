@@ -4,3 +4,4 @@
 #include "RotatingBehavior.h"
 #include "SceneManager.h"
 #include "Spawner.h"
+#include "MovingBehavior.h"

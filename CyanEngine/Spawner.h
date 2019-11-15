@@ -8,7 +8,7 @@ private:
 	float spawnTime{ 0.3 };
 	float elapsedTime{ 0 };
 
-	float spawnRadius{ 40 };
+	float spawnRadius{ 120 };
 
 public:
 	// 이 영역에 public 변수를 선언하세요.

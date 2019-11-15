@@ -6,7 +6,8 @@ private:
 	bool isStarted{ false };
 
 protected:
-	Component();
+	Component() = default;
+	Component(const Component&) = default;
 
 public:
 	GameObject* gameObject{ nullptr };

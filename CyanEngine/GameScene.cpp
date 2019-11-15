@@ -41,6 +41,7 @@ void GameScene::BuildObjects()
 	GameObject* enemy = CreateGameObject(object);
 	{
 		enemy->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+		enemy->AddComponent<MovingBehavior>()->target = Star->GetComponent<Transform>();
 	}
 	
 	GameObject* spawner = AddGameObject();
