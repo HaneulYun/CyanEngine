@@ -32,6 +32,10 @@ private:
 	ComPtr<ID3D12DescriptorHeap> dsvHeap{ nullptr };
 
 public:
+	bool isRenewed{ false };
+	void UpdateManager();
+
+public:
 	std::map<std::pair<Material*, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> instances;
 	 
 

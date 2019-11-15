@@ -2,8 +2,12 @@
 
 class Component : public Object
 {
+private:
+	bool isStarted{ false };
+
 protected:
-	Component();
+	Component() = default;
+	Component(Component&) = default;
 
 public:
 	GameObject* gameObject{ nullptr };
@@ -11,11 +15,13 @@ public:
 public:
 	virtual ~Component();
 
+	void UpdateComponent();
+
 	virtual void Start() {}
 	virtual void Update() {}
 	virtual void Render() {}
 	virtual void Destroy() {}
 
-	virtual Component* Duplicate() { return new Component; };
+	virtual Component* Duplicate(Component* component) { return new Component(*component); }
 };
 

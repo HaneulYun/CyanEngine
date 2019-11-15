@@ -18,14 +18,14 @@ void Scene::Start()
 	//	gameObject->Start();
 	for (int i = 0; i < gameObjects.size(); ++i)
 		gameObjects[i]->Start();
-	rendererManager->Start();;
+	rendererManager->UpdateManager();;
 }
 
 void Scene::Update()
 {
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Update();
-	rendererManager->Update();
+	rendererManager->UpdateManager();
 }
 
 void Scene::Render()
@@ -53,6 +53,14 @@ void Scene::ReleaseObjects()
 GameObject* Scene::CreateGameObject()
 {
 	GameObject* gameObject = new GameObject();
+	gameObject->scene = this;
+
+	return gameObject;
+}
+
+GameObject* Scene::CreateGameObject(GameObject* _gameObject)
+{
+	GameObject* gameObject = new GameObject(_gameObject);
 	gameObject->scene = this;
 
 	return gameObject;

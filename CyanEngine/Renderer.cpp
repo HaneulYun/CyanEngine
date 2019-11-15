@@ -21,6 +21,7 @@ void Renderer::Start()
 	
 	auto pair = std::pair<Material*, Mesh*>(renderer->material, meshFilter->mesh);
 
+	rendererManager->isRenewed = false;
 	rendererManager->instances[pair].second.push_back(gameObject);
 }
 

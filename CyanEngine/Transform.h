@@ -10,16 +10,17 @@ public:
 	{
 		struct
 		{
-			XMFLOAT3 right;		float _00;
-			XMFLOAT3 up;		float _01;
-			XMFLOAT3 forward;	float _02;
-			XMFLOAT3 position;	float _03;
+			Vector3 right;		float _00;
+			Vector3 up;			float _01;
+			Vector3 forward;	float _02;
+			Vector3 position;	float _03;
 		};
 		XMFLOAT4X4 localToWorldMatrix ;
 	};
 
 public:
 	Transform();
+	Transform(Transform&) = default;
 	~Transform();
 
 	void Start() override {}
@@ -28,6 +29,7 @@ public:
 	void Destroy() override {}
 
 	virtual Component* Duplicate() { return new Transform; };
+	virtual Component* Duplicate(Component* component) { return new Transform(*(Transform*)component); }
 
 	void Rotate(const XMFLOAT3& axis, float angle);
 };

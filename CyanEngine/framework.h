@@ -10,6 +10,8 @@
 #include <memory.h>
 #include <tchar.h>
 
+#include <math.h>
+
 #include <string>
 #include <wrl.h>
 #include <shellapi.h>
@@ -38,7 +40,7 @@ using Microsoft::WRL::ComPtr;
 #define FRAME_BUFFER_HEIGHT 900
 #define PI (3.141592f)
 
-typedef XMFLOAT3 Vector3;
+//typedef XMFLOAT3 Vector3;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
@@ -51,8 +53,11 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 
 #include "Singleton.h"
 
-#include "Input.h"
+#include "Vector3.h"
+
 #include "Time.h"
+#include "Input.h"
+#include "Random.h"
 
 #include "Object.h"
 #include "Shader.h"
@@ -87,95 +92,6 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 #define POINT_LIGHT			1
 #define SPOT_LIGHT			2
 #define DIRECTIONAL_LIGHT	3
-
-namespace NS_Vector3
-{
-	inline XMFLOAT3 XMVectorToFloat3(XMVECTOR& xmvVector)
-	{
-		XMFLOAT3 xmf3Result;
-		XMStoreFloat3(&xmf3Result, xmvVector);
-		return(xmf3Result);
-	}
-	inline XMFLOAT3 ScalarProduct(XMFLOAT3& xmf3Vector, float fScalar, bool bNormalize = true)
-	{
-		XMFLOAT3 xmf3Result;
-		if (bNormalize)
-			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMLoadFloat3(&xmf3Vector)) * fScalar);
-		else
-			XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector) * fScalar);
-		return(xmf3Result);
-	}
-	inline XMFLOAT3 Add(const XMFLOAT3& xmf3Vector1, const XMFLOAT3& xmf3Vector2)
-	{
-		XMFLOAT3 xmf3Result;
-		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) + XMLoadFloat3(&xmf3Vector2));
-		return(xmf3Result);
-	}
-	inline XMFLOAT3 Add(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, float fScalar)
-	{
-		XMFLOAT3 xmf3Result;
-		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) + (XMLoadFloat3(&xmf3Vector2) * fScalar));
-		return(xmf3Result);
-	}
-	inline XMFLOAT3 Subtract(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
-	{
-		XMFLOAT3 xmf3Result;
-		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2));
-		return(xmf3Result);
-	}
-	inline float DotProduct(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
-	{
-		XMFLOAT3 xmf3Result;
-		XMStoreFloat3(&xmf3Result, XMVector3Dot(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
-		return(xmf3Result.x);
-	}
-	inline XMFLOAT3 CrossProduct(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, bool bNormalize = true)
-	{
-		XMFLOAT3 xmf3Result;
-		if (bNormalize)
-			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2))));
-		else
-			XMStoreFloat3(&xmf3Result, XMVector3Cross(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
-		return(xmf3Result);
-	}
-	inline XMFLOAT3 Normalize(const XMFLOAT3& xmf3Vector)
-	{
-		XMFLOAT3 m_xmf3Normal;
-		XMStoreFloat3(&m_xmf3Normal, XMVector3Normalize(XMLoadFloat3(&xmf3Vector)));
-		return(m_xmf3Normal);
-	}
-	inline float Length(XMFLOAT3& xmf3Vector)
-	{
-		XMFLOAT3 xmf3Result;
-		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
-		return(xmf3Result.x);
-	}
-	inline float Angle(const XMVECTOR& xmvVector1, const XMVECTOR& xmvVector2)
-	{
-		XMVECTOR xmvAngle = XMVector3AngleBetweenNormals(xmvVector1, xmvVector2);
-		return(XMConvertToDegrees(acosf(XMVectorGetX(xmvAngle))));
-	}
-	inline float Angle(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
-	{
-		return(Angle(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
-	}
-	inline XMFLOAT3 TransformNormal(XMFLOAT3& xmf3Vector, XMMATRIX& xmmtxTransform)
-	{
-		XMFLOAT3 xmf3Result;
-		XMStoreFloat3(&xmf3Result, XMVector3TransformNormal(XMLoadFloat3(&xmf3Vector), xmmtxTransform));
-		return(xmf3Result);
-	}
-	inline XMFLOAT3 TransformCoord(const XMFLOAT3& xmf3Vector, const XMMATRIX& xmmtxTransform)
-	{
-		XMFLOAT3 xmf3Result;
-		XMStoreFloat3(&xmf3Result, XMVector3TransformCoord(XMLoadFloat3(&xmf3Vector), xmmtxTransform));
-		return(xmf3Result);
-	}
-	inline XMFLOAT3 TransformCoord(XMFLOAT3& xmf3Vector, XMFLOAT4X4& xmmtx4x4Matrix)
-	{
-		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
-	}
-}
 
 namespace NS_Vector4
 {

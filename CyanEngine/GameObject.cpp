@@ -22,13 +22,13 @@ GameObject::~GameObject()
 void GameObject::Start()
 {
 	for (Component* component : components)
-		component->Start();
+		component->UpdateComponent();
 }
 
 void GameObject::Update()
 {
 	for (Component* component : components)
-		component->Update();
+		component->UpdateComponent();
 }
 
 void GameObject::Destroy()

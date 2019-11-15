@@ -1,23 +1,23 @@
 #pragma once
 #include "framework.h"
+#include "Bullet.h"
 
-class ScriptForm : public Component
+class Star : public Component
 {
 private:
 	// 이 영역에 private 변수를 선언하세요.
+	int health;
 
 public:
 	// 이 영역에 public 변수를 선언하세요.
 
 private:
 	friend class GameObject;
-	ScriptForm() {}
-	ScriptForm(ScriptForm&) = default;
+	Star() {}
 
 public:
-	~ScriptForm() {}
-	virtual Component* Duplicate() { return new ScriptForm; }
-	virtual Component* Duplicate(Component* component) { return new ScriptForm(*(ScriptForm*)component); }
+	~Star() {}
+	virtual Component* Duplicate() { return new Star; };
 
 	void Start()
 	{

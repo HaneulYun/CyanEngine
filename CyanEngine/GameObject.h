@@ -39,24 +39,21 @@ T* GameObject::AddComponent(T* _component)
 {
 	std::string str = typeid(T).name();
 
-	Component* component = _component->Duplicate();
+	Component* component = _component->Duplicate(_component);
 
 	components.push_back(component);
 
 	if (typeid(Transform).name() == typeid(*_component).name())
 	{
 		transform = dynamic_cast<Transform*>(component);
-		*(Transform*)component = *(Transform*)_component;
 	}
 	if (typeid(MeshFilter).name() == typeid(*_component).name())
 	{
 		meshFilter = component;
-		*(MeshFilter*)component = *(MeshFilter*)_component;
 	}
 	if (typeid(Renderer).name() == typeid(*_component).name())
 	{
 		renderer = component;
-		*(Renderer*)component = *(Renderer*)_component;
 	}
 
 	component->gameObject = this;

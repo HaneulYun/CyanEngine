@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="0_00_CyanEngine">
       <UniqueIdentifier>{d04c8d9f-49ee-4187-8688-f2126291bd4a}</UniqueIdentifier>
     </Filter>
@@ -54,6 +50,13 @@
     </Filter>
     <Filter Include="1_00_Project\10_Scripts\11_Form">
       <UniqueIdentifier>{1acdfba3-2a73-4300-801d-621662c8d63e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\15_Math">
+      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_Project\리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +150,27 @@
     <ClInclude Include="Input.h">
       <Filter>0_00_CyanEngine\30_MANAGER</Filter>
     </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>0_00_CyanEngine\15_Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Spawner.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingBehavior.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="Star.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="StarGuardian.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -218,18 +242,21 @@
     <ClCompile Include="Input.cpp">
       <Filter>0_00_CyanEngine\30_MANAGER</Filter>
     </ClCompile>
+    <ClCompile Include="Random.cpp">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CyanEngine.rc">
-      <Filter>리소스 파일</Filter>
+      <Filter>1_00_Project\리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
-      <Filter>리소스 파일</Filter>
+      <Filter>1_00_Project\리소스 파일</Filter>
     </Image>
     <Image Include="CyanEngine.ico">
-      <Filter>리소스 파일</Filter>
+      <Filter>1_00_Project\리소스 파일</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
