@@ -16,15 +16,10 @@ void GameScene::BuildObjects()
 	object->AddComponent<MeshFilter>();
 	object->AddComponent<Renderer>()->material = defaultMaterial;
 
-	GameObject* bullet = CreateGameObject(object);
-	bullet->GetComponent<MeshFilter>()->mesh = pTriangleMesh;
-	bullet->AddComponent<Bullet>();
-
 	GameObject* star = Instantiate(object);
 	{
 		star->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		star->AddComponent<Star>();
-		star->GetComponent<Star>()->bullet = bullet;
 	}
 
 	GameObject* orbit = Instantiate(object);
@@ -32,7 +27,11 @@ void GameScene::BuildObjects()
 		orbit->GetComponent<MeshFilter>()->mesh = pCircleLineMesh;
 	}
 
-	for (int i = 0; i < 3; ++i) {
+	GameObject* bullet = CreateGameObject(object);
+	bullet->GetComponent<MeshFilter>()->mesh = pTriangleMesh;
+	bullet->AddComponent<Bullet>();
+
+	for (int i = 0; i < 1; ++i) {
 		GameObject* guardian = Instantiate(object);
 		{
 			guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
@@ -42,6 +41,9 @@ void GameScene::BuildObjects()
 			revolvingBehavior->radius = 10.f;
 			revolvingBehavior->speedRotating = 60.0f;
 			revolvingBehavior->angle = 120.0f * i;
+
+			guardian->AddComponent<StarGuadian>();
+			guardian->GetComponent<StarGuadian>()->bullet = bullet;
 		}
 	}
 
@@ -53,7 +55,7 @@ void GameScene::BuildObjects()
 	
 	GameObject* spawner = AddGameObject();
 	{
-		spawner->AddComponent<Spawner>()->enemy = enemy;
+		//spawner->AddComponent<Spawner>()->enemy = enemy;
 	}
 
 

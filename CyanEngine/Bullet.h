@@ -5,7 +5,7 @@ class Bullet : public Component
 {
 private:
 	// 이 영역에 private 변수를 선언하세요.
-	float speed{ 30.f };
+	float speed{ 50.f };
 
 public:
 	// 이 영역에 public 변수를 선언하세요.

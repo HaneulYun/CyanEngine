@@ -162,6 +162,9 @@
     <ClInclude Include="Bullet.h">
       <Filter>1_00_Project\10_Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="StarGuardian.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

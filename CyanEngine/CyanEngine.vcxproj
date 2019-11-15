@@ -183,6 +183,7 @@
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Spawner.h" />
     <ClInclude Include="Star.h" />
+    <ClInclude Include="StarGuardian.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Transform.h" />
