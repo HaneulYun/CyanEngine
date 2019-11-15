@@ -14,10 +14,12 @@ public:
 private:
 	friend class GameObject;
 	StarGuadian() {}
+	StarGuadian(StarGuadian&) = default;
 
 public:
 	~StarGuadian() {}
 	virtual Component* Duplicate() { return new StarGuadian; };
+	virtual Component* Duplicate(Component* component) { return new StarGuadian(*(StarGuadian*)component); }
 
 	void Starguadiant()
 	{
@@ -32,7 +34,7 @@ public:
 			Vector3 mousepostion = Camera::main->ScreenToWorldPoint(Input::mousePosition);
 
 			object->transform->position = gameObject->transform->position;
-			object->GetComponent<Bullet>()->direction = NS_Vector3::Subtract(mousepostion, object->transform->position);
+			object->GetComponent<Bullet>()->direction.xmf3 = NS_Vector3::Subtract(mousepostion.xmf3, object->transform->position.xmf3);
 		}
 	}
 
