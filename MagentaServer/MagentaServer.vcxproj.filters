@@ -19,6 +19,9 @@
     <Filter Include="Pool">
       <UniqueIdentifier>{c6c1867d-4fe7-4fcc-8fa5-d04ed65e37ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Message">
+      <UniqueIdentifier>{be4e7688-b419-49ff-96d3-dd6cf177a3c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -51,6 +54,9 @@
     <ClCompile Include="ThreadPool.h">
       <Filter>Pool</Filter>
     </ClCompile>
+    <ClCompile Include="Message.cpp">
+      <Filter>Message</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PrintErrors.h">
@@ -76,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="ConnectingThread.h">
       <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Message.h">
+      <Filter>Message</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
