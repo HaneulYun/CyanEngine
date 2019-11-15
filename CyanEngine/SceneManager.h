@@ -11,6 +11,7 @@ public:
 private:
 	friend class GameObject;
 	SceneManager() {}
+	SceneManager(SceneManager&) = default;
 
 public:
 	~SceneManager() {}
@@ -59,5 +60,6 @@ public:
 	}
 
 	virtual Component* Duplicate() { return new SceneManager; };
+	virtual Component* Duplicate(Component* component) { return new SceneManager(*(SceneManager*)component); }
 };
 

@@ -20,6 +20,7 @@ public:
 
 public:
 	Transform();
+	Transform(Transform&) = default;
 	~Transform();
 
 	void Start() override {}
@@ -28,6 +29,7 @@ public:
 	void Destroy() override {}
 
 	virtual Component* Duplicate() { return new Transform; };
+	virtual Component* Duplicate(Component* component) { return new Transform(*(Transform*)component); }
 
 	void Rotate(const XMFLOAT3& axis, float angle);
 };

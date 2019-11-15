@@ -12,10 +12,12 @@ public:
 private:
 	friend class GameObject;
 	ScriptForm() {}
+	ScriptForm(ScriptForm&) = default;
 
 public:
 	~ScriptForm() {}
 	virtual Component* Duplicate() { return new ScriptForm; };
+	virtual Component* Duplicate(Component* component) { return new ScriptForm(*(ScriptForm*)component); }
 
 	void Start()
 	{

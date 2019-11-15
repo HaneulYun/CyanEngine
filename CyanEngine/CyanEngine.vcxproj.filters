@@ -247,4 +247,8 @@
     <FxCompile Include="Lighting.hlsl" />
     <FxCompile Include="Light.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
 </Project>

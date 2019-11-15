@@ -7,6 +7,7 @@ private:
 
 protected:
 	Component();
+	Component(Component& component) = default;
 
 public:
 	GameObject* gameObject{ nullptr };
@@ -21,6 +22,6 @@ public:
 	virtual void Render() {}
 	virtual void Destroy() {}
 
-	virtual Component* Duplicate() { return new Component; };
+	virtual Component* Duplicate(Component* component) { return new Component(*component); }
 };
 

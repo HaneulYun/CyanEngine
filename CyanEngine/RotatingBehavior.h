@@ -10,6 +10,7 @@ public:
 private:
 	friend class GameObject;
 	RotatingBehavior() {}
+	RotatingBehavior(RotatingBehavior&) = default;
 
 public:
 	~RotatingBehavior() {}
@@ -24,5 +25,6 @@ public:
 	}
 
 	virtual Component* Duplicate() { return new RotatingBehavior; };
+	virtual Component* Duplicate(Component* component) { return new RotatingBehavior(*(RotatingBehavior*)component); }
 };
 
