@@ -17,6 +17,8 @@ private:
 	static int maxThreads;
 
 public:
+	static CRITICAL_SECTION rqcs;
+	//static vector<CRITICAL_SECTION> sqcss;
 	static queue<Message> recvQueue;
 	static vector<queue<Message>*> sendQueues;
 

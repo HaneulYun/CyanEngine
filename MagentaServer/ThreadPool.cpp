@@ -8,6 +8,8 @@ int ThreadPool::maxThreads = 5;
 
 ThreadPool::ThreadPool(int num, SOCKET* listen_sock)
 {
+	InitializeCriticalSection(&rqcs);
+
 	if (maxThreads > 2)
 		maxThreads = num;
 
@@ -19,6 +21,8 @@ ThreadPool::~ThreadPool()
 {
 	for (Thread* ths : threads)
 		delete ths;
+
+	DeleteCriticalSection(&rqcs);
 }
 
 DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)

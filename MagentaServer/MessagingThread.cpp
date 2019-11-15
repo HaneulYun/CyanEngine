@@ -5,6 +5,8 @@
 #include "Globals.h"
 #include "PrintErrors.h"
 
+queue<Message> ThreadPool::recvQueue;
+CRITICAL_SECTION ThreadPool::rqcs;
 vector<queue<Message>*> ThreadPool::sendQueues;
 
 MessagingThread::MessagingThread(int tId, LPVOID fParam)
@@ -39,9 +41,12 @@ DWORD WINAPI Messenger(LPVOID arg)
 		}
 		else if (retval == 0)
 			break;
+		// 메시지 큐에 삽입
+		EnterCriticalSection(&ThreadPool::rqcs);
+		ThreadPool::recvQueue.push(buf);
+		LeaveCriticalSection(&ThreadPool::rqcs);
 
 		// 받은 데이터 출력
-		//((char*)buf)[retval] = '\0';
 		printf("[TCP/%s:%d] %c, %d, %d, %d\n", inet_ntoa(clientaddr.sin_addr),
 			ntohs(clientaddr.sin_port), buf.msgId, buf.lParam, buf.mParam, buf.rParam);
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#define ADD 'A'
+#define SUB 'B'
+
 struct Message
 {
 	char msgId;
