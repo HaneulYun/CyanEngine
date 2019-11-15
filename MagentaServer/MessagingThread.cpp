@@ -8,21 +8,13 @@
 queue<Message> ThreadPool::recvQueue;
 CRITICAL_SECTION ThreadPool::rqcs;
 
-vector<queue<Message>*> ThreadPool::sendQueues;
-
 MessagingThread::MessagingThread(int tId, LPVOID fParam)
 	: Thread(tId, Messenger, fParam)
 {
-	ThreadPool::sendQueues.push_back(&sendQueue);
-	ThreadPool::sqcss.push_back(CRITICAL_SECTION());
-	ThreadPool::sqevents.push_back(HANDLE(CreateEvent(NULL, FALSE, FALSE, NULL)));
-	if (ThreadPool::sqevents[id - 2] == NULL);
-	InitializeCriticalSection(&ThreadPool::sqcss[id - 2]);
 }
 
 MessagingThread::~MessagingThread()
 {
-	DeleteCriticalSection(&ThreadPool::sqcss[id - 2]);
 }
 
 DWORD WINAPI Messenger(LPVOID arg)
