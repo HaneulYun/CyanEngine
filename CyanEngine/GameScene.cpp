@@ -7,6 +7,7 @@ void GameScene::BuildObjects()
 
 	Quad* pQuadMesh = new Quad(_device.Get(), rendererManager->commandList.Get(), 5.0f, 5.0f);
 	CircleLine* pCircleLineMesh = new CircleLine(_device.Get(), rendererManager->commandList.Get(), 10.f);
+	TriangleMesh* pTriangleMesh = new TriangleMesh(_device.Get(), rendererManager->commandList.Get());
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
@@ -15,23 +16,29 @@ void GameScene::BuildObjects()
 	object->AddComponent<MeshFilter>();
 	object->AddComponent<Renderer>()->material = defaultMaterial;
 
-	GameObject* Star = Instantiate(object);
+	GameObject* bullet = CreateGameObject(object);
+	bullet->GetComponent<MeshFilter>()->mesh = pTriangleMesh;
+	bullet->AddComponent<Bullet>();
+
+	GameObject* star = Instantiate(object);
 	{
-		Star->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+		star->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+		star->AddComponent<Star>();
+		star->GetComponent<Star>()->bullet = bullet;
 	}
 
-	GameObject* Orbit = Instantiate(object);
+	GameObject* orbit = Instantiate(object);
 	{
-		Orbit->GetComponent<MeshFilter>()->mesh = pCircleLineMesh;
+		orbit->GetComponent<MeshFilter>()->mesh = pCircleLineMesh;
 	}
 
 	for (int i = 0; i < 3; ++i) {
-		GameObject* Guardian = Instantiate(object);
+		GameObject* guardian = Instantiate(object);
 		{
-			Guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+			guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 
-			RevolvingBehavior* revolvingBehavior = Guardian->AddComponent<RevolvingBehavior>();
-			revolvingBehavior->target = Star;
+			RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
+			revolvingBehavior->target = star;
 			revolvingBehavior->radius = 10.f;
 			revolvingBehavior->speedRotating = 60.0f;
 			revolvingBehavior->angle = 120.0f * i;
@@ -41,11 +48,14 @@ void GameScene::BuildObjects()
 	GameObject* enemy = CreateGameObject(object);
 	{
 		enemy->GetComponent<MeshFilter>()->mesh = pQuadMesh;
-		enemy->AddComponent<MovingBehavior>()->target = Star->GetComponent<Transform>();
+		enemy->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>();
 	}
 	
 	GameObject* spawner = AddGameObject();
 	{
 		spawner->AddComponent<Spawner>()->enemy = enemy;
 	}
+
+
+	
 }

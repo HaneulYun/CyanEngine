@@ -156,6 +156,12 @@
     <ClInclude Include="MovingBehavior.h">
       <Filter>1_00_Project\10_Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="Star.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>1_00_Project\10_Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
