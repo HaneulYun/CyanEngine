@@ -13,9 +13,12 @@ public:
 private:
 	friend class GameObject;
 	RotatingBehavior() {}
+	RotatingBehavior(RotatingBehavior&) = default;
 
 public:
 	~RotatingBehavior() {}
+	virtual Component* Duplicate() { return new RotatingBehavior; }
+	virtual Component* Duplicate(Component* component) { return new RotatingBehavior(*(RotatingBehavior*)component); }
 
 	void Start() 
 	{
@@ -28,6 +31,5 @@ public:
 		gameObject->transform->position = Camera::main->ScreenToWorldPoint(Input::mousePosition);
 	}
 
-	virtual Component* Duplicate() { return new RotatingBehavior; };
 };
 

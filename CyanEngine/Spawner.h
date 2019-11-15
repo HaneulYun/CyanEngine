@@ -17,10 +17,12 @@ public:
 private:
 	friend class GameObject;
 	Spawner() {}
+	Spawner(Spawner&) = default;
 
 public:
 	~Spawner() {}
-	virtual Component* Duplicate() { return new Spawner; };
+	virtual Component* Duplicate() { return new Spawner; }
+	virtual Component* Duplicate(Component* component) { return new Spawner(*(Spawner*)component); }
 
 	void Start()
 	{
