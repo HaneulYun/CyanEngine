@@ -19,6 +19,7 @@ public:
 	virtual void ReleaseObjects();
 
 	GameObject* CreateGameObject();
+	GameObject* CreateGameObject(GameObject* gameObject);
 	GameObject* AddGameObject();
 	GameObject* AddGameObject(GameObject* gameObject);
 };

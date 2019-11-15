@@ -38,8 +38,13 @@ void GameScene::BuildObjects()
 		}
 	}
 
-	GameObject* Spawner = AddGameObject();
+	GameObject* enemy = CreateGameObject(object);
 	{
-
+		enemy->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+	}
+	
+	GameObject* spawner = AddGameObject();
+	{
+		spawner->AddComponent<Spawner>()->enemy = enemy;
 	}
 }

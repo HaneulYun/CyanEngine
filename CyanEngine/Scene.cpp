@@ -58,6 +58,14 @@ GameObject* Scene::CreateGameObject()
 	return gameObject;
 }
 
+GameObject* Scene::CreateGameObject(GameObject* _gameObject)
+{
+	GameObject* gameObject = new GameObject(_gameObject);
+	gameObject->scene = this;
+
+	return gameObject;
+}
+
 GameObject* Scene::AddGameObject()
 {
 	GameObject* gameObject = new GameObject();
