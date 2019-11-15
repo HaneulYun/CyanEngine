@@ -14,6 +14,7 @@ public:
 private:
 	friend class GameObject;
 	Renderer();
+	Renderer(Renderer&) = default;
 
 public:
 	~Renderer();
@@ -26,4 +27,5 @@ public:
 	void Destroy() override;
 
 	virtual Component* Duplicate() { return new Renderer; };
+	virtual Component* Duplicate(Component* component) { return new Renderer(*(Renderer*)component); }
 };

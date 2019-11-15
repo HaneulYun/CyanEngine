@@ -15,9 +15,13 @@ public:
 private:
 	friend class GameObject;
 	RevolvingBehavior() {}
+	RevolvingBehavior(RevolvingBehavior&) = default;
 
 public:
 	~RevolvingBehavior() {}
+	virtual Component* Duplicate() { return new RevolvingBehavior; }
+	virtual Component* Duplicate(Component* component) { return new RevolvingBehavior(*(RevolvingBehavior*)component); }
+
 
 	void Start()
 	{
@@ -26,9 +30,7 @@ public:
 	void Update()
 	{
 		angle += speedRotating * Time::deltaTime;
-		gameObject->transform->position = NS_Vector3::Add(target->transform->position,
+		gameObject->transform->position.xmf3 = NS_Vector3::Add(target->transform->position.xmf3,
 			XMFLOAT3(radius * cos(angle * PI / 180.0f), radius * sin(angle * PI / 180.0f), 0.0f));
 	}
-
-	virtual Component* Duplicate() { return new RevolvingBehavior; };
 };

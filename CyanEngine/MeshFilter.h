@@ -7,6 +7,7 @@ public:
 
 public:
 	MeshFilter();
+	MeshFilter(MeshFilter&) = default;
 	~MeshFilter();
 
 	void Start() override {}
@@ -15,4 +16,6 @@ public:
 	void Destroy() override {}
 
 	virtual Component* Duplicate() { return new MeshFilter; };
+	virtual Component* Duplicate(Component* component) { return new MeshFilter(*(MeshFilter*)component); }
+
 };

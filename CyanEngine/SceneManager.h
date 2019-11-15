@@ -11,9 +11,12 @@ public:
 private:
 	friend class GameObject;
 	SceneManager() {}
+	SceneManager(SceneManager&) = default;
 
 public:
 	~SceneManager() {}
+	virtual Component* Duplicate() { return new SceneManager; }
+	virtual Component* Duplicate(Component* component) { return new SceneManager(*(SceneManager*)component); }
 
 	void Start()
 	{
@@ -37,6 +40,5 @@ public:
 		time += Time::deltaTime;
 	}
 
-	virtual Component* Duplicate() { return new SceneManager; };
 };
 
