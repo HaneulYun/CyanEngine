@@ -185,6 +185,7 @@
     <ClInclude Include="Star.h" />
     <ClInclude Include="StarGuardian.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Thread.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vector3.h" />
