@@ -8,3 +8,4 @@
 #include "Star.h"
 #include "StarGuardian.h"
 #include "Bullet.h"
+#include "Thread.h"

@@ -59,6 +59,7 @@ void GameScene::BuildObjects()
 		spawner->AddComponent<Spawner>()->enemy = enemy;
 	}
 
-
-	
+	GameObject* Recvthread = AddGameObject(); {
+		Recvthread->AddComponent<Thread>()->severip = "192.168.20.58";
+	}	
 }

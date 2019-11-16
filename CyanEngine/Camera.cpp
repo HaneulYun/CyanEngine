@@ -34,7 +34,7 @@ void Camera::GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFL
 void Camera::GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneDistance, float fAspectRatio, float fFOVAngle)
 {
 	//m_xmf4x4Projection = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
-	float Size = 80;
+	float Size = 160;
 	Size *= 2;
 	XMStoreFloat4x4(&m_xmf4x4Projection, XMMatrixOrthographicLH(Size / 9.0 * 16, Size, 0.3, 1000));
 	//1600 : 900 = x : 160
@@ -69,11 +69,13 @@ Vector3 Camera::ScreenToWorldPoint(Vector3 position)
 	position.x = position.x / m_d3dViewport.Width * 2 - 1;
 	position.y = position.y / m_d3dViewport.Height * 2 - 1;
 	position.y = -position.y;
-	position.x = position.x * 80 * 16 / 9;
-	position.y = position.y * 80;
 
-	//Vector3 vector;
-	//XMStoreFloat3(&vector, XMVector3Transform(XMLoadFloat3(&position), XMLoadFloat4x4(&m_xmf4x4Projection)));
+	//position.x = position.x * 80 * 16 / 9;
+	//position.y = position.y * 80;
 
-	return position;
+	Vector3 vector;
+	XMStoreFloat3(&vector.xmf3, XMVector3Transform(XMLoadFloat3(&position.xmf3), XMMatrixInverse(NULL, XMLoadFloat4x4(&m_xmf4x4Projection))));
+	XMStoreFloat3(&vector.xmf3, XMVector3Transform(XMLoadFloat3(&vector.xmf3), XMMatrixInverse(NULL, XMLoadFloat4x4(&m_xmf4x4View))));
+
+	return vector;
 }

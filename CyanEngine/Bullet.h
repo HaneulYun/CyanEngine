@@ -24,13 +24,13 @@ public:
 	void Start()
 	{
 		// 초기화 코드를 작성하세요.
-		direction.xmf3 = NS_Vector3::Normalize(direction.xmf3);
+		direction = direction.Normalize();
 	}
 
 	void Update()
 	{
-		Vector3 movevector( NS_Vector3::ScalarProduct(direction.xmf3, speed * Time::deltaTime) );
-		gameObject->transform->position.xmf3 = NS_Vector3::Add(gameObject->transform->position.xmf3, movevector.xmf3);
+		Vector3 movevector = direction * speed * Time::deltaTime;
+		gameObject->transform->position = gameObject->transform->position + movevector;
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
