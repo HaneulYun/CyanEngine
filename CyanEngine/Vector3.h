@@ -23,10 +23,56 @@ struct Vector3
 	Vector3(XMFLOAT3&& _xmf3) : xmf3(_xmf3) {}
 	Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
 
-	Vector3 operator-(const Vector3& rhs)
+	bool operator==(const Vector3& rhs) const
+	{
+		return ((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
+	}
+	bool operator!=(const Vector3& rhs) const
+	{
+		return !((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
+	}
+
+	float Lengh() const
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3)));
+		return(xmf3Result.x);
+	}
+
+	Vector3& Normalize()
+	{
+		XMStoreFloat3(&xmf3, XMVector3Normalize(XMLoadFloat3(&xmf3)));
+		return *this;
+	}
+
+	Vector3 operator-(const Vector3& rhs) const
 	{
 		Vector3 result;
 		XMStoreFloat3(&result.xmf3, XMLoadFloat3(&xmf3) - XMLoadFloat3(&rhs.xmf3));
+		return result;
+	}
+	Vector3 operator+(const Vector3& rhs) const
+	{
+		Vector3 result;
+		XMStoreFloat3(&result.xmf3, XMLoadFloat3(&xmf3) + XMLoadFloat3(&rhs.xmf3));
+		return result;
+	}
+	Vector3 operator*(const Vector3& rhs) const
+	{
+		Vector3 result;
+		XMStoreFloat3(&result.xmf3, XMLoadFloat3(&xmf3) * XMLoadFloat3(&rhs.xmf3));
+		return result;
+	}
+	Vector3 operator/(const Vector3& rhs) const
+	{
+		Vector3 result;
+		XMStoreFloat3(&result.xmf3, XMLoadFloat3(&xmf3) / XMLoadFloat3(&rhs.xmf3));
+		return result;
+	}
+	Vector3 operator*(const float rhs) const
+	{
+		Vector3 result;
+		XMStoreFloat3(&result.xmf3, XMLoadFloat3(&xmf3) * rhs);
 		return result;
 	}
 };
@@ -96,7 +142,7 @@ namespace NS_Vector3
 	inline float Angle(const XMVECTOR& xmvVector1, const XMVECTOR& xmvVector2)
 	{
 		XMVECTOR xmvAngle = XMVector3AngleBetweenNormals(xmvVector1, xmvVector2);
-		return(XMConvertToDegrees(acosf(XMVectorGetX(xmvAngle))));
+		return(XMConvertToDegrees(XMVectorGetX(xmvAngle)));
 	}
 	inline float Angle(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
 	{

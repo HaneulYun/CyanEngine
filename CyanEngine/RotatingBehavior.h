@@ -12,7 +12,7 @@ public:
 
 private:
 	friend class GameObject;
-	RotatingBehavior() {}
+	RotatingBehavior() = default;
 	RotatingBehavior(RotatingBehavior&) = default;
 
 public:
