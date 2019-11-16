@@ -1,17 +1,18 @@
 #include "pch.h"
 #include "framework.h"
 
-ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType, D3D12_RESOURCE_STATES d3dResourceStates, ID3D12Resource** ppd3dUploadBuffer)
+ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType,
+	D3D12_RESOURCE_STATES d3dResourceStates, ID3D12Resource** ppd3dUploadBuffer)
 {
 	ID3D12Resource* pd3dBuffer = NULL;
 
-	D3D12_HEAP_PROPERTIES d3dHeapPropertiesDesc;
-	::ZeroMemory(&d3dHeapPropertiesDesc, sizeof(D3D12_HEAP_PROPERTIES));
-	d3dHeapPropertiesDesc.Type = d3dHeapType;
-	d3dHeapPropertiesDesc.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	d3dHeapPropertiesDesc.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	d3dHeapPropertiesDesc.CreationNodeMask = 1;
-	d3dHeapPropertiesDesc.VisibleNodeMask = 1;
+	D3D12_HEAP_PROPERTIES heapProperties;
+	::ZeroMemory(&heapProperties, sizeof(D3D12_HEAP_PROPERTIES));
+	heapProperties.Type = d3dHeapType;
+	heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	heapProperties.CreationNodeMask = 1;
+	heapProperties.VisibleNodeMask = 1;
 
 	D3D12_RESOURCE_DESC d3dResourceDesc;
 	::ZeroMemory(&d3dResourceDesc, sizeof(D3D12_RESOURCE_DESC));
@@ -33,7 +34,9 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 	else if (d3dHeapType == D3D12_HEAP_TYPE_READBACK)
 		d3dResourceInitialStates = D3D12_RESOURCE_STATE_COPY_DEST;
 
-	HRESULT hResult = RendererManager::Instance()->device->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, d3dResourceInitialStates, NULL, __uuidof(ID3D12Resource), (void**)& pd3dBuffer);
+	HRESULT hResult;
+	
+	RendererManager::Instance()->device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, d3dResourceInitialStates, NULL, __uuidof(ID3D12Resource), (void**)&pd3dBuffer);
 	
 	if (pData)
 	{
@@ -43,9 +46,8 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 		{
 			if (ppd3dUploadBuffer)
 			{
-				//업로드 버퍼를 생성한다.
-				d3dHeapPropertiesDesc.Type = D3D12_HEAP_TYPE_UPLOAD;
-				RendererManager::Instance()->device->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
+				heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+				RendererManager::Instance()->device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
 				
 				//업로드 버퍼를 매핑하여 초기화 데이터를 업로드 버퍼에 복사한다.
 				D3D12_RANGE d3dReadRange = { 0, 0 };
