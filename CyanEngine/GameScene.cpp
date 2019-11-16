@@ -63,6 +63,6 @@ void GameScene::BuildObjects()
 
 	GameObject* Recvthread = AddGameObject(); {
 		Recvthread->AddComponent<Thread>()->player = guardian;
-		Recvthread->AddComponent<Thread>()->severip = "192.168.20.58";
+		Recvthread->GetComponent<Thread>()->severip = "192.168.20.58";
 	}
 }
