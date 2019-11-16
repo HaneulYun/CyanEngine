@@ -11,22 +11,24 @@ using namespace std;
 
 class ThreadPool : public Singleton<ThreadPool>
 {
-private:
-	static vector<Thread*> threads;
-	static int nThreads;
-	static int maxThreads;
-
 public:
+	static MainThread *mainThread;	// 0 
+	static ConnectingThread *connThread;	// 1
+	static vector<MessagingThread*> clients;	// 2 ~ maxClients
+
+	static int nClients;
+	static int maxClients;
+	static SOCKET *listenSock;
+
 	static CRITICAL_SECTION rqcs;
 	static queue<Message> recvQueue;
-	static vector<SOCKET> clientSock;
 
 public:
-	ThreadPool(int num, SOCKET* listen_sock);
+	ThreadPool();
 	~ThreadPool();
 
+	static void setConnectingThread(SOCKET *s);
 	static DWORD WINAPI Connection(LPVOID listen_sock);
-	static int getNThreads();
 	int getEmptyThread();
 }; 
 

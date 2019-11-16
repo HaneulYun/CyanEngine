@@ -9,8 +9,9 @@ queue<Message> ThreadPool::recvQueue;
 CRITICAL_SECTION ThreadPool::rqcs;
 
 MessagingThread::MessagingThread(int tId, LPVOID fParam)
-	: Thread(tId, Messenger, fParam)
+	: Thread(tId, Messenger, (LPVOID)tId)
 {
+	clientSock = (SOCKET)fParam;
 }
 
 MessagingThread::~MessagingThread()
@@ -19,15 +20,14 @@ MessagingThread::~MessagingThread()
 
 DWORD WINAPI Messenger(LPVOID arg)
 {
-	int id = ThreadPool::getNThreads() - 1;
-	SOCKET client_sock = (SOCKET)arg;
+	// id를 arg로 받는다면..?
+	MessagingThread* msgt = ThreadPool::clients[(int)arg - 2];
+
+	SOCKET client_sock = msgt->clientSock;
 	int retval;
 	SOCKADDR_IN clientaddr;
 	int addrlen;
 	Message buf;	// 임시 버퍼
-
-	// 이벤트를 위한 변수
-	DWORD rEvent;
 
 	// 클라이언트 정보 얻기
 	addrlen = sizeof(clientaddr);
@@ -53,22 +53,6 @@ DWORD WINAPI Messenger(LPVOID arg)
 			ntohs(clientaddr.sin_port), buf.msgId, buf.lParam, buf.mParam, buf.rParam);
 
 		ZeroMemory((int*)&buf, sizeof(buf));
-
-		//WaitForSingleObject(ThreadPool::sqevents[id - 2], INFINITE);
-		//if (!ThreadPool::sendQueues[id - 2]->empty())
-		//{
-		//	EnterCriticalSection(&ThreadPool::sqcss[id - 2]);
-		//	buf = ThreadPool::sendQueues[id - 2]->front();
-		//	ThreadPool::sendQueues[id - 2]->pop();
-		//	LeaveCriticalSection(&ThreadPool::sqcss[id - 2]);
-		//
-		//	// 데이터 보내기
-		//	retval = send(client_sock, (char*)&buf, sizeof(Message), 0);
-		//	if (retval == SOCKET_ERROR) {
-		//		err_display((char*)"send()");
-		//		break;
-		//	}
-		//}
 	}
 
 	// closesocket()

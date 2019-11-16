@@ -2,28 +2,35 @@
 #include "PrintErrors.h"
 #include "Globals.h"
 
-vector<Thread*> ThreadPool::threads;
-int ThreadPool::maxThreads = 5;
-int ThreadPool::nThreads;
-vector<SOCKET> ThreadPool::clientSock;
+MainThread* ThreadPool::mainThread;
+ConnectingThread* ThreadPool::connThread;
+vector<MessagingThread*> ThreadPool::clients;
 
-ThreadPool::ThreadPool(int num, SOCKET* listen_sock)
+int ThreadPool::maxClients = 3;
+int ThreadPool::nClients = 0;
+SOCKET* ThreadPool::listenSock;
+
+ThreadPool::ThreadPool()
 {
 	InitializeCriticalSection(&rqcs);
 
-	if (maxThreads > 2)
-		maxThreads = num;
-
-	threads.push_back(new MainThread(nThreads++, 0));
-	threads.push_back(new ConnectingThread(nThreads++, listen_sock));
+	mainThread = new MainThread(0, 0);
 }
 
 ThreadPool::~ThreadPool()
 {
-	for (Thread* ths : threads)
-		delete ths;
+	for (MessagingThread* c : clients)
+		delete c;
+	delete connThread;
+	delete mainThread;
 
 	DeleteCriticalSection(&rqcs);
+}
+
+void ThreadPool::setConnectingThread(SOCKET* s)
+{
+	listenSock = s;
+	connThread = new ConnectingThread(1, s);
 }
 
 DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
@@ -34,7 +41,7 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 
 	while (1)
 	{
-		if (nThreads < maxThreads)
+		if (nClients < maxClients)
 		{
 			// accept()
 			addrlen = sizeof(clientaddr);
@@ -48,10 +55,8 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 			printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
 				inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
-
-			threads.push_back(new MessagingThread(nThreads++, (LPVOID)client_sock));
-			clientSock.push_back(client_sock);
-			if (threads.back()->handle == NULL) { closesocket(client_sock); }
+			clients.push_back(new MessagingThread(2 + nClients++, (LPVOID)client_sock));
+			if (clients.back()->handle == NULL) { closesocket(client_sock); }
 			//else { CloseHandle(threads.back()->handle); }
 		}
 		// 빈 아이디 찾아서 스레드 재사용하기
@@ -68,9 +73,4 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 int ThreadPool::getEmptyThread()
 {
 	return 0;
-}
-
-int ThreadPool::getNThreads()
-{
-	return nThreads;
 }

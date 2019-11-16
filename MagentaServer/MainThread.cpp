@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "MainThread.h"
 #include "ThreadPool.h"
+#include "PrintErrors.h"
 
 MainThread::MainThread(int tId, LPVOID fParam)
 	: Thread(tId, Calculate, fParam)
@@ -42,35 +43,12 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 			}
 			LeaveCriticalSection(&ThreadPool::rqcs);
 
-			//for (int i = 0; i < ThreadPool::getNThreads() - 2; ++i)
-			//{
-			//	EnterCriticalSection(&ThreadPool::sqcss[i]);
-			//	ThreadPool::sendQueues[i]->push(result);
-			//	LeaveCriticalSection(&ThreadPool::sqcss[i]);
-			//	SetEvent(ThreadPool::sqevents[i]);
-			//}
-			//
-			//if (!ThreadPool::sendQueues[id - 2]->empty())
-			//{
-			//	EnterCriticalSection(&ThreadPool::sqcss[id - 2]);
-			//	buf = ThreadPool::sendQueues[id - 2]->front();
-			//	ThreadPool::sendQueues[id - 2]->pop();
-			//	LeaveCriticalSection(&ThreadPool::sqcss[id - 2]);
-			//
-			//	// 데이터 보내기
-			//	retval = send(client_sock, (char*)&buf, sizeof(Message), 0);
-			//	if (retval == SOCKET_ERROR) {
-			//		err_display((char*)"send()");
-			//		break;
-			//	}
-			//}
-
 			int retval;
-			for (int i = 0; i < ThreadPool::getNThreads() - 2; ++i)
+			for (int i = 0; i < ThreadPool::clients.size(); ++i)
 			{
-				retval = send(ThreadPool::clientSock[i], (char*)&result, sizeof(Message), 0);
+				retval = send(ThreadPool::clients[i]->clientSock, (char*)&result, sizeof(Message), 0);
 				if (retval == SOCKET_ERROR) {
-					//err_display((char*)"send()");
+					err_display((char*)"send()");
 					break;
 				}
 			}

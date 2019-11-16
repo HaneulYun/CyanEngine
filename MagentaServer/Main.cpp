@@ -34,10 +34,10 @@ int main(int argc, char* argv[])
 	// listen()
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit((char*)"listen()");
-
-	SOCKET* listenSocket = &listen_sock;
 	
-	ThreadPool* threadPool = new ThreadPool(5, listenSocket);
+	//ThreadPool* threadPool = new ThreadPool(5, listenSocket);
+	ThreadPool::Instance();
+	ThreadPool::setConnectingThread(&listen_sock);
 
 	EndEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if (EndEvent == NULL) return 1;
@@ -51,7 +51,6 @@ int main(int argc, char* argv[])
 
 	CloseHandle(EndEvent);
 
-	delete threadPool;
 	// 윈속 종료
 	WSACleanup();
 	return 0;

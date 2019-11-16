@@ -6,8 +6,8 @@
 
 class MessagingThread : public Thread
 {
-private:
-	std::queue<Message> sendQueue;
+public:
+	SOCKET clientSock;
 
 public:
 	MessagingThread(int tId, LPVOID fParam);
