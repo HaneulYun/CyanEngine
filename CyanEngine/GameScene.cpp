@@ -5,9 +5,7 @@ Material* SceneManager::materials[16];
 
 void GameScene::BuildObjects()
 {
-	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
-
-	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(_device.Get(), rendererManager->commandList.Get(), 4.0f, 4.0f, 4.0f);
+	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated(4.0f, 4.0f, 4.0f);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();

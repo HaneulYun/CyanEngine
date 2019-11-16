@@ -50,7 +50,7 @@ void RendererManager::Start()
 
 		d.second.first = new INSTANCING();
 
-		d.second.first->resource = CreateBufferResource(device.Get(), commandList.Get(), NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		d.second.first->resource = CreateBufferResource(NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 		
 		d.second.first->resource->Map(0, NULL, (void**)& d.second.first->memory);
 		
@@ -128,9 +128,9 @@ void RendererManager::Render()
 		m_pCamera->UpdateShaderVariables(commandList.Get());
 
 		if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
-			mesh->Render(commandList.Get(), d.second.second.size(), d.second.first->view);
+			mesh->Render(d.second.second.size(), d.second.first->view);
 		else
-			mesh->Render(commandList.Get(), d.second.second.size());
+			mesh->Render(d.second.second.size());
 	}
 
 	PostRender();
