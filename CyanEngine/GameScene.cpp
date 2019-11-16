@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "GameScene.h"
 
+GameObject* Thread::player;
+
 void GameScene::BuildObjects()
 {
 	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
@@ -32,7 +34,7 @@ void GameScene::BuildObjects()
 	bullet->GetComponent<MeshFilter>()->mesh = pTriangleMesh;
 	bullet->AddComponent<Bullet>();
 
-	for (int i = 0; i < 1; ++i) {
+	//for (int i = 0; i < 1; ++i) {
 		GameObject* guardian = Instantiate(object);
 		{
 			guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
@@ -41,12 +43,12 @@ void GameScene::BuildObjects()
 			revolvingBehavior->target = star;
 			revolvingBehavior->radius = 25.f;
 			revolvingBehavior->speedRotating = 60.0f;
-			revolvingBehavior->angle = 120.0f * i;
+			revolvingBehavior->angle = 120.0f;// *i;
 
 			guardian->AddComponent<StarGuadian>();
 			guardian->GetComponent<StarGuadian>()->bullet = bullet;
 		}
-	}
+	//}
 
 	GameObject* enemy = CreateGameObject(object);
 	{
@@ -60,6 +62,7 @@ void GameScene::BuildObjects()
 	}
 
 	GameObject* Recvthread = AddGameObject(); {
+		Recvthread->AddComponent<Thread>()->player = guardian;
 		Recvthread->AddComponent<Thread>()->severip = "192.168.20.58";
-	}	
+	}
 }

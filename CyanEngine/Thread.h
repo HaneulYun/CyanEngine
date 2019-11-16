@@ -25,6 +25,8 @@ public:
 	const char* severip{ "127.0.0.1" };
 	const short severport{ 9000 };
 
+	static GameObject* player;
+
 private:
 	friend class GameObject;
 	Thread() = default;
@@ -65,6 +67,14 @@ private:
 				;//err_display("recv()");
 			}
 			printf("recvbuf: %c, %d, %d, %d\n", buf.msgId, buf.lParam, buf.mParam, buf.rParam);
+
+			switch (buf.msgId)
+			{
+			case 0:
+				XMFLOAT4 color[3] = { XMFLOAT4(1, 0, 0, 1), XMFLOAT4(0, 1, 0, 1), XMFLOAT4(0, 0, 1, 1) };
+				player->GetComponent<Renderer>()->material->albedo = color[buf.lParam];
+				break;
+			}
 		}
 		return 0;
 	}
