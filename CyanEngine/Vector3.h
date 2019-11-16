@@ -74,6 +74,12 @@ struct Vector3
 		XMStoreFloat3(&result.xmf3, XMLoadFloat3(&xmf3) * rhs);
 		return result;
 	}
+	Vector3 operator/(const float rhs) const
+	{
+		Vector3 result;
+		XMStoreFloat3(&result.xmf3, XMLoadFloat3(&xmf3) / rhs);
+		return result;
+	}
 };
 
 namespace NS_Vector3
