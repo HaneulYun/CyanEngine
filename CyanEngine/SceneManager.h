@@ -6,11 +6,11 @@ class SceneManager : public Component
 private:
 
 public:
-	GameObject* gameObject;
+	GameObject* gameObject{ nullptr };
 
 private:
 	friend class GameObject;
-	SceneManager() {}
+	SceneManager() = default;
 	SceneManager(SceneManager&) = default;
 
 public:

@@ -11,7 +11,7 @@ public:
 
 private:
 	friend class GameObject;
-	ScriptForm() {}
+	ScriptForm() = default;
 	ScriptForm(ScriptForm&) = default;
 
 public:

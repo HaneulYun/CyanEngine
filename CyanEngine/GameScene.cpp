@@ -16,13 +16,10 @@ void GameScene::BuildObjects()
 
 	GameObject* cube = CreateGameObject();
 	{
-		MeshFilter* meshFilter = cube->AddComponent<MeshFilter>();
-		meshFilter->mesh = pCubeMesh;
-
-		Renderer* renderer = cube->AddComponent<Renderer>();
-		renderer->material = defaultMaterial;
-
-		RotatingBehavior* rotatingBehavior = cube->AddComponent<RotatingBehavior>();
+		cube->AddComponent<MeshFilter>()->mesh = pCubeMesh;
+		cube->AddComponent<Renderer>()->material = defaultMaterial;
+		cube->AddComponent<RotatingBehavior>();
+		cube->AddComponent<MovingBehavior>();
 	}
 
 	GameObject* _sceneManager = AddGameObject();
