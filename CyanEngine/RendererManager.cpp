@@ -40,11 +40,14 @@ void RendererManager::Start()
 {
 	for (auto& d : instances)
 	{
-		Shader* shader = d.first.first->shader;
-		Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
-		material->rootSignature = material->CreateGraphicsRootSignature(device.Get());
-		shader->m_ppd3dPipelineStates = new ID3D12PipelineState*[1];
-		shader->CreateShader(device.Get(), material->rootSignature);
+		if (!d.second.first)
+		{
+			Shader* shader = d.first.first->shader;
+			Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
+			material->rootSignature = material->CreateGraphicsRootSignature(device.Get());
+			shader->m_ppd3dPipelineStates = new ID3D12PipelineState * [1];
+			shader->CreateShader(device.Get(), material->rootSignature);
+		}
 
 		d.second.first = new INSTANCING();
 

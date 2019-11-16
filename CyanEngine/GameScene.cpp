@@ -5,8 +5,9 @@ void GameScene::BuildObjects()
 {
 	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
 
-	Quad* pQuadMesh = new Quad(_device.Get(), rendererManager->commandList.Get(), 5.0f, 5.0f);
-	CircleLine* pCircleLineMesh = new CircleLine(_device.Get(), rendererManager->commandList.Get(), 10.f);
+	Quad* pQuadMesh = new Quad(_device.Get(), rendererManager->commandList.Get(), 10.0f, 10.0f);
+	Circle* pCircleMesh = new Circle(_device.Get(), rendererManager->commandList.Get(), 10, 48);
+	CircleLine* pCircleLineMesh = new CircleLine(_device.Get(), rendererManager->commandList.Get(), 25.f);
 	TriangleMesh* pTriangleMesh = new TriangleMesh(_device.Get(), rendererManager->commandList.Get());
 
 	Material* defaultMaterial = new DefaultMaterial();
@@ -18,7 +19,7 @@ void GameScene::BuildObjects()
 
 	GameObject* star = Instantiate(object);
 	{
-		star->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+		star->GetComponent<MeshFilter>()->mesh = pCircleMesh;
 		star->AddComponent<Star>();
 	}
 
@@ -38,7 +39,7 @@ void GameScene::BuildObjects()
 
 			RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
 			revolvingBehavior->target = star;
-			revolvingBehavior->radius = 10.f;
+			revolvingBehavior->radius = 25.f;
 			revolvingBehavior->speedRotating = 60.0f;
 			revolvingBehavior->angle = 120.0f * i;
 
@@ -55,7 +56,7 @@ void GameScene::BuildObjects()
 	
 	GameObject* spawner = AddGameObject();
 	{
-		//spawner->AddComponent<Spawner>()->enemy = enemy;
+		spawner->AddComponent<Spawner>()->enemy = enemy;
 	}
 
 

@@ -122,10 +122,10 @@ Circle::Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandL
 		float a = ((float)i) / slice;
 		float b = ((float)(slice - i - 1)) / slice;
 
-		float x = cos(a * 2 * PI) * fRadius / 2;
-		float y = sin(a * 2 * PI) * fRadius / 2;
-		float z = cos(b * 2 * PI) * fRadius / 2;
-		float w = sin(b * 2 * PI) * fRadius / 2;
+		float x = cos(a * 2 * PI) * fRadius;
+		float y = sin(a * 2 * PI) * fRadius;
+		float z = cos(b * 2 * PI) * fRadius;
+		float w = sin(b * 2 * PI) * fRadius;
 		pVertices[i * 2 + 0] = DiffusedVertex(XMFLOAT3(x, y, 0.f), XMFLOAT4(Colors::White));
 		pVertices[i * 2 + 1] = DiffusedVertex(XMFLOAT3(z, w, 0.f), XMFLOAT4(Colors::White));
 	}
