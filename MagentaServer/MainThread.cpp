@@ -46,10 +46,12 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 			int retval;
 			for (int i = 0; i < ThreadPool::clients.size(); ++i)
 			{
-				retval = send(ThreadPool::clients[i]->clientSock, (char*)&result, sizeof(Message), 0);
-				if (retval == SOCKET_ERROR) {
-					err_display((char*)"send()");
-					break;
+				if (ThreadPool::clients[i]->isWorking) {
+					retval = send(ThreadPool::clients[i]->clientSock, (char*)&result, sizeof(Message), 0);
+					if (retval == SOCKET_ERROR) {
+						err_display((char*)"send()");
+						break;
+					}
 				}
 			}
 		}

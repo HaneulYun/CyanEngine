@@ -93,6 +93,9 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 
 int ThreadPool::getRestedThread()
 {
+	//if (clients.size() == 0)
+	//	return 0;
+
 	for (int i = 0; i < clients.size(); ++i)
 	{
 		if (!clients[i]->isWorking)
