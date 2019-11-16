@@ -48,15 +48,19 @@ public:
 		{
 			if (time > boundary)
 			{
-				auto instance = Instantiate(gameObject);
-				float x = Random::Range(-500, 500);
-				float y = Random::Range(-500, 500);
-				float z = Random::Range(10, 500);
-				instance->transform->position = Vector3{ x, y, z };
+				for (int i = 0; i < 10; ++i)
+				{
 
-				instance->GetComponent<Renderer>()->material = materials[Random::Range(0, 15)];
-				instance->GetComponent<RotatingBehavior>()->speedRotating = 90;
+					auto instance = Instantiate(gameObject);
+					float x = Random::Range(-500, 500);
+					float y = Random::Range(-500, 500);
+					float z = Random::Range(10, 500);
+					instance->transform->position = Vector3{ x, y, z };
 
+					instance->GetComponent<Renderer>()->material = materials[Random::Range(0, 15)];
+					instance->GetComponent<RotatingBehavior>()->speedRotating = 90;
+
+				}
 				time -= boundary;
 			}
 		}
