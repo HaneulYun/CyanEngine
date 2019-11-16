@@ -156,6 +156,9 @@
     <ClInclude Include="MovingBehavior.h">
       <Filter>1_00_Project\10_Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

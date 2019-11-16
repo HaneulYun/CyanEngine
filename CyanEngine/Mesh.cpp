@@ -21,14 +21,6 @@ Mesh::~Mesh()
 		m_pd3dIndexUploadBuffer->Release();
 }
 
-void Mesh::ReleaseUploadBuffers()
-{
-	if (m_pd3dVertexUploadBuffer)
-		m_pd3dVertexUploadBuffer->Release();
-	m_pd3dVertexUploadBuffer = NULL;
-
-};
-
 void Mesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
 {
 	if (memcmp(&d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
