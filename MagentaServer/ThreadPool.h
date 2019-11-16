@@ -29,7 +29,7 @@ public:
 
 	static void setConnectingThread(SOCKET *s);
 	static DWORD WINAPI Connection(LPVOID listen_sock);
-	int getEmptyThread();
+	static int getRestedThread();
 }; 
 
 

@@ -60,8 +60,29 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 			//else { CloseHandle(threads.back()->handle); }
 		}
 		// 빈 아이디 찾아서 스레드 재사용하기
+		else if(nClients == maxClients)
 		{
 			//Messenger 함수의 arg값을 바꾸어 스레드를 재사용할 수 있게 해보자
+			int index = getRestedThread();
+
+			if (index >= 0)
+			{
+				// accept()
+				addrlen = sizeof(clientaddr);
+				client_sock = accept(*(SOCKET*)listen_sock, (SOCKADDR*)&clientaddr, &addrlen);
+				if (client_sock == INVALID_SOCKET) {
+					err_display((char*)"accept()");
+					break;
+				}
+
+				// 접속한 클라이언트 정보 출력
+				printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
+					inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+
+				clients[index]->clientSock = client_sock;
+				clients[index]->isWorking = true;
+				if (clients[index]->handle == NULL) { closesocket(client_sock); }
+			}
 		}
 	}
 	
@@ -70,7 +91,14 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 	return 0;
 }
 
-int ThreadPool::getEmptyThread()
+int ThreadPool::getRestedThread()
 {
-	return 0;
+	for (int i = 0; i < clients.size(); ++i)
+	{
+		if (!clients[i]->isWorking)
+		{
+			return i;
+		}
+	}
+	return -1;
 }
