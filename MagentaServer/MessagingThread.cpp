@@ -63,8 +63,6 @@ DWORD WINAPI Messenger(LPVOID arg)
 			printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n",
 				inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 			msgt->isWorking = false;
-
-			// 종료된 클라이언트의 메시지 큐와 스레드 제거하는 메시지 넣자...
 		}
 	}
 	return 0;
