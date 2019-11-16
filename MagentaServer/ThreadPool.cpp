@@ -38,6 +38,7 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 	SOCKET client_sock;
 	SOCKADDR_IN clientaddr;
 	int addrlen;
+	int retval;
 
 	while (1)
 	{
@@ -58,6 +59,18 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 			clients.push_back(new MessagingThread(2 + nClients++, (LPVOID)client_sock));
 			if (clients.back()->handle == NULL) { closesocket(client_sock); }
 			//else { CloseHandle(threads.back()->handle); }
+
+			// 너의 아이디를 반환~!
+			Message clientsInform;
+			clientsInform.msgId = MESSAGE_YOUR_ID;
+			clientsInform.lParam = ThreadPool::clients.back()->id - 2;
+			clientsInform.mParam = ThreadPool::clients.back()->id - 2;
+			clientsInform.rParam = ThreadPool::clients.back()->id - 2;
+			retval = send(ThreadPool::clients.back()->clientSock, (char*)&clientsInform, sizeof(Message), 0);
+			if (retval == SOCKET_ERROR) {
+				err_display((char*)"send()");
+				break;
+			}
 		}
 		// 빈 아이디 찾아서 스레드 재사용하기
 		else if(nClients == maxClients)
@@ -82,6 +95,19 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 				clients[index]->clientSock = client_sock;
 				clients[index]->isWorking = true;
 				if (clients[index]->handle == NULL) { closesocket(client_sock); }
+				//else { CloseHandle(threads.back()->handle); }
+
+				// 너의 아이디를 반환~!
+				Message clientsInform;
+				clientsInform.msgId = MESSAGE_YOUR_ID;
+				clientsInform.lParam = ThreadPool::clients[index]->id - 2;
+				clientsInform.mParam = ThreadPool::clients[index]->id - 2;
+				clientsInform.rParam = ThreadPool::clients[index]->id - 2;
+				retval = send(ThreadPool::clients[index]->clientSock, (char*)&clientsInform, sizeof(Message), 0);
+				if (retval == SOCKET_ERROR) {
+					err_display((char*)"send()");
+					break;
+				}
 			}
 		}
 	}

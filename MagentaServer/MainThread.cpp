@@ -33,7 +33,7 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 				result.rParam = curMessage.lParam + curMessage.mParam + curMessage.rParam;
 				printf("%d\n", result.lParam);
 			}
-			else if(curMessage.msgId == SUB)
+			else if (curMessage.msgId == SUB)
 			{
 				result.msgId = 'E';
 				result.lParam = curMessage.lParam - curMessage.mParam - curMessage.rParam;
