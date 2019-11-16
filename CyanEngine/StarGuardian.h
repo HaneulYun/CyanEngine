@@ -36,6 +36,13 @@ public:
 			object->transform->position = gameObject->transform->position;
 			object->GetComponent<Bullet>()->direction.xmf3 = NS_Vector3::Subtract(mousepostion.xmf3, object->transform->position.xmf3);
 		}
+
+		XMFLOAT3 position = (gameObject->transform->position / 2).xmf3;
+		XMFLOAT3 lookAt = position;
+		position.z = -10;
+		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+
+		Camera::main->GenerateViewMatrix(position, lookAt, up);
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
