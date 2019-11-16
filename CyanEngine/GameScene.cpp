@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "GameScene.h"
 
-#include "pch.h"
-#include "Scene.h"
+Material* SceneManager::materials[16];
 
 void GameScene::BuildObjects()
 {
@@ -13,6 +12,15 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
+	for (auto& material : SceneManager::materials)
+	{
+		float r = Random::Range(0.0f, 1.0f);
+		float g = Random::Range(0.0f, 1.0f);
+		float b = Random::Range(0.0f, 1.0f);
+		material = new DefaultMaterial;
+		material->shader = defaultMaterial->shader;
+		material->albedo = XMFLOAT4(r, g, b, 1);
+	}
 
 	GameObject* cube = CreateGameObject();
 	{

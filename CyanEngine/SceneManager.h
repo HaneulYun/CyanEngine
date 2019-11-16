@@ -8,6 +8,8 @@ private:
 public:
 	GameObject* gameObject{ nullptr };
 
+	static Material* materials[16];
+
 private:
 	friend class GameObject;
 	SceneManager() = default;
@@ -52,10 +54,7 @@ public:
 				float z = Random::Range(10, 500);
 				instance->transform->position = Vector3{ x, y, z };
 
-				float r = Random::Range(0.f, 1.f);
-				float g = Random::Range(0.f, 1.f);
-				float b = Random::Range(0.f, 1.f);
-				instance->GetComponent<Renderer>()->material->albedo = XMFLOAT4(r, g, b, 0.2);
+				instance->GetComponent<Renderer>()->material = materials[Random::Range(0, 15)];
 				instance->GetComponent<RotatingBehavior>()->speedRotating = 90;
 
 				time -= boundary;

@@ -14,14 +14,7 @@ public:
 private:
 	friend class GameObject;
 	Renderer();
-	Renderer(Renderer& component)
-		: rendererManager(component.rendererManager)
-	{
-		if (component.material)
-		{
-			material = new Material(*component.material);
-		}
-	}
+	Renderer(Renderer&) = default;
 
 public:
 	~Renderer();
