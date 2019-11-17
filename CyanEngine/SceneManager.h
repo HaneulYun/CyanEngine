@@ -2,23 +2,22 @@
 #include "framework.h"
 #include "StarGuardian.h"
 
-enum {WAIT, START, END};
+enum {Wait, Start, End};
 
 class SceneManager : public Component
 {
 private:
 
 public:
+	static GameObject* playerprefab;
+	static GameObject* player[3];
 	static GameObject* scenemanager;
-	GameObject* playerprefab;
-	GameObject* player[3];
 
 	//GameObject* gameObject{ nullptr };
 	float speedRotating{ 30.f };
 	float angle{ 0.0f };
-	int gameState{ WAIT };
+	int gameState{ Wait };
 	int myid{ 0 };
-	bool ready{ false };
 
 
 private:
@@ -52,15 +51,13 @@ public:
 	{
 		static float time = 0;
 		time += Time::deltaTime;
-		angle += speedRotating * Time::deltaTime;
 
-		if (Input::GetMouseButtonDown(0) && ready == false) {
-			ready = true;
-			Message message;
-			message.msgId = MESSAGE_READY;
-			message.lParam = myid;
-			int retval = send(Thread::sock, (char*)& message, sizeof(Message), 0);
-		}
+		angle += speedRotating * Time::deltaTime;
+	}
+
+	bool isReady(int num)
+	{
+		return player[num]->GetComponent<StarGuadian>()->ready;
 	}
 
 	void CreatePlayer(int id) {

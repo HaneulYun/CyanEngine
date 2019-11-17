@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "GameScene.h"
 
+GameObject* SceneManager::player[3];
+GameObject* SceneManager::playerprefab;
 GameObject* SceneManager::scenemanager;
 
 void GameScene::BuildObjects()
@@ -51,7 +53,7 @@ void GameScene::BuildObjects()
 		guardian->GetComponent<StarGuadian>()->bullet = bullet;
 		guardian->GetComponent<StarGuadian>()->ready = true;
 		//scenemanager->GetComponent<SceneManager>()->player[0] = guardian;
-		SceneManager::scenemanager->GetComponent<SceneManager>()->playerprefab = guardian;
+		SceneManager::playerprefab = guardian;
 		
 	}
 
@@ -84,7 +86,7 @@ void GameScene::BuildObjects()
 	}
 
 	GameObject* Recvthread = AddGameObject(); {
-		Recvthread->AddComponent<Thread>()->severip = "192.168.35.95";
+		Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
 		//Recvthread->GetComponent<Thread>()
 	}
 }

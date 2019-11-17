@@ -10,6 +10,7 @@ private:
 public:
 	// 이 영역에 public 변수를 선언하세요.
 	GameObject* bullet{ nullptr };
+	bool ready{ false };
 
 private:
 	friend class GameObject;

@@ -59,8 +59,6 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 #include "Input.h"
 #include "Random.h"
 
-#include "Message.h"
-
 #include "Object.h"
 #include "Shader.h"
 #include "Mesh.h"
