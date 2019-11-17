@@ -8,6 +8,7 @@ class MessagingThread : public Thread
 {
 public:
 	SOCKET clientSock;
+	bool isReady;
 
 public:
 	MessagingThread(int tId, LPVOID fParam);

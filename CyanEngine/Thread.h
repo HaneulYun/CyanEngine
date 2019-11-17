@@ -70,6 +70,7 @@ private:
 			case MESSAGE_YOUR_ID:
 				id = buf.lParam;
 				SceneManager::scenemanager->GetComponent<SceneManager>()->myid = id;
+				SceneManager::scenemanager->GetComponent<SceneManager>()->angle = buf.mParam;
 				SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(id);
 				break;
 			// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)

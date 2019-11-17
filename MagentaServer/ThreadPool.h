@@ -35,6 +35,7 @@ public:
 	static DWORD WINAPI Connection(LPVOID listen_sock);
 	static int getRestedThread();
 	static Message curConnectedClients();
+	static bool isAllClientsReady();
 }; 
 
 

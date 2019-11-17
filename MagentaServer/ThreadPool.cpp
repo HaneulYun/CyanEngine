@@ -1,4 +1,5 @@
 #include "ThreadPool.h"
+#include "Scene.h"
 #include "PrintErrors.h"
 #include "Globals.h"
 
@@ -60,6 +61,20 @@ Message ThreadPool::curConnectedClients()
 	}
 
 	return msg;
+}
+
+bool ThreadPool::isAllClientsReady()
+{
+	if (clients.size() < maxClients)
+		return false;
+
+	for (int i = 0; i < clients.size(); ++i)
+	{
+		if (!clients[i]->isReady)
+			return false;
+	}
+
+	return true;
 }
 
 DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
@@ -135,7 +150,7 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 				Message clientsInform;
 				clientsInform.msgId = MESSAGE_YOUR_ID;
 				clientsInform.lParam = ThreadPool::clients[index]->id - 3;
-				clientsInform.mParam = ThreadPool::clients[index]->id - 3;
+				clientsInform.mParam = ThreadPool::clients.back()->id - 3;
 				clientsInform.rParam = ThreadPool::clients[index]->id - 3;
 				retval = send(ThreadPool::clients[index]->clientSock, (char*)&clientsInform, sizeof(Message), 0);
 				if (retval == SOCKET_ERROR) {

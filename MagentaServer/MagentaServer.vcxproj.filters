@@ -22,6 +22,12 @@
     <Filter Include="Message">
       <UniqueIdentifier>{be4e7688-b419-49ff-96d3-dd6cf177a3c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameScene">
+      <UniqueIdentifier>{a24875da-dff0-4cf9-8979-09acc0b7daf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameScene\GameObjects">
+      <UniqueIdentifier>{0ed6d2cc-5dc2-43e6-a994-6f0afc954689}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -60,6 +66,15 @@
     <ClCompile Include="SendingThread.cpp">
       <Filter>Thread</Filter>
     </ClCompile>
+    <ClCompile Include="Star.cpp">
+      <Filter>GameScene\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>GameScene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PrintErrors.h">
@@ -91,6 +106,15 @@
     </ClInclude>
     <ClInclude Include="SendingThread.h">
       <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Star.h">
+      <Filter>GameScene\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>GameScene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
