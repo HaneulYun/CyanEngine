@@ -108,8 +108,7 @@ protected:
 	이렇게 하면 작은 격자(적은 정점)를 사용하더라도 큰 크기의 격자(지형)를 생성할수 있다.*/
 	XMFLOAT3 m_xmf3Scale;
 public:
-	CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
-		int xStart, int zStart, int nWidth, int nLength,
+	CHeightMapGridMesh( int xStart, int zStart, int nWidth, int nLength,
 		XMFLOAT3 xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f),
 		XMFLOAT4 xmf4Color = XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f),
 		void* pContext = NULL);

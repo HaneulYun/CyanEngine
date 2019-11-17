@@ -395,8 +395,8 @@ float CHeightMapImage::GetHeight(float fx, float fz)
 	return(fHeight);
 }
 
-CHeightMapGridMesh::CHeightMapGridMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
-	int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext)
+CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int nLength,
+	XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext)
 {
 	//격자의 교점(정점)의 개수는 (nWidth * nLength)이다.
 	m_nVertices = nWidth * nLength;

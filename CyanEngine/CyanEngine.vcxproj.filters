@@ -159,6 +159,9 @@
     <ClInclude Include="Time.h">
       <Filter>0_00_CyanEngine\30_MANAGER</Filter>
     </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -232,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="Time.cpp">
       <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -71,6 +71,7 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 #include "MeshFilter.h"
 #include "Renderer.h"
 #include "Camera.h"
+#include "Terrain.h"
 
 #include "ShaderManager.h"
 #include "RendererManager.h"
