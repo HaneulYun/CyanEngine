@@ -78,9 +78,9 @@ private:
 			case MESSAGE_CONNECTED_IDS:
 				if (buf.lParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[0] == nullptr)
 					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(0);
-				else if (buf.mParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[1] == nullptr)
+				if (buf.mParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[1] == nullptr)
 					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(1);
-				else if (buf.rParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[2] == nullptr)
+				if (buf.rParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[2] == nullptr)
 					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(2);
 				break;
 			case MESSAGE_GAME_START:

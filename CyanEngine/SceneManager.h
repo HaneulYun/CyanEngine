@@ -85,11 +85,11 @@ public:
 	void StartGame() {
 		gameState = START;
 		for (int i = 0; i < 3; ++i) {
-			/*RevolvingBehavior* revolvingBehavior = player[i]->AddComponent<RevolvingBehavior>();
+			RevolvingBehavior* revolvingBehavior = player[i]->AddComponent<RevolvingBehavior>();
 			revolvingBehavior->target = star;
 			revolvingBehavior->radius = 25.f;
-			revolvingBehavior->angle = 120.f * i;*/
-			player[i]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * i;
+			revolvingBehavior->angle = 120.f * i;
+			//player[i]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * i;
 		}
 	}
 
