@@ -61,7 +61,7 @@ public:
 	}
 
 	void CreatePlayer(int id) {
-		player[id] = player[id]->scene->Instantiate(playerprefab);
+		player[id] = playerprefab->scene->Instantiate(playerprefab);
 		player[id]->GetComponent<RevolvingBehavior>()->speedRotating = speedRotating;
 		player[id]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * id;
 		XMFLOAT4 color[3] = { XMFLOAT4(1, 0, 0, 1), XMFLOAT4(0, 1, 0, 1), XMFLOAT4(0, 0, 1, 1) };
