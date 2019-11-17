@@ -1,12 +1,22 @@
 #pragma once
 #include "framework.h"
 
+enum {Wait, Start, End};
+
 class SceneManager : public Component
 {
 private:
+	const int myid = 0;
 
 public:
-	GameObject* gameObject{ nullptr };
+	static GameObject* player[3];
+	static GameObject* scenemanager;
+
+	//GameObject* gameObject{ nullptr };
+	float speedRotating{ 30.f };
+	float angle{ 0.0f };
+	int gameState{ Wait };
+
 
 private:
 	friend class GameObject;
@@ -20,6 +30,7 @@ public:
 
 	void Start()
 	{
+		scenemanager = gameObject;
 		//int xObjects = 1, yObjects = 1, zObjects = 1, i = 0;
 		//for (int x = -xObjects; x <= xObjects; x++)
 		//	for (int y = -yObjects; y <= yObjects; y++)
@@ -38,6 +49,13 @@ public:
 	{
 		static float time = 0;
 		time += Time::deltaTime;
+
+		angle += speedRotating * Time::deltaTime;
+	}
+
+	bool isReady(int num)
+	{
+		return player[num]->GetComponent<StarGuadian>()->ready;
 	}
 
 };

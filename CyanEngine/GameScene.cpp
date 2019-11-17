@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "GameScene.h"
 
-GameObject* Thread::player;
+//GameObject* SceneManager::player[3];
 
 void GameScene::BuildObjects()
 {
@@ -16,6 +16,9 @@ void GameScene::BuildObjects()
 	GameObject* object = CreateGameObject();
 	object->AddComponent<MeshFilter>();
 	object->AddComponent<Renderer>()->material = defaultMaterial;
+
+	GameObject* scenemanager = AddGameObject();
+	scenemanager->AddComponent<SceneManager>();
 
 	GameObject* star = Instantiate(object);
 	{
@@ -33,19 +36,21 @@ void GameScene::BuildObjects()
 	bullet->AddComponent<Bullet>();
 
 	//for (int i = 0; i < 1; ++i) {
-		GameObject* guardian = Instantiate(object);
-		{
-			guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+	GameObject* guardian = Instantiate(object);
+	{
+		guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 
-			RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
-			revolvingBehavior->target = star;
-			revolvingBehavior->radius = 25.f;
-			revolvingBehavior->speedRotating = 60.0f;
-			revolvingBehavior->angle = 120.0f;// *i;
+		RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
+		revolvingBehavior->target = star;
+		revolvingBehavior->radius = 25.f;
+		revolvingBehavior->speedRotating = scenemanager->GetComponent<SceneManager>()->speedRotating;
+		revolvingBehavior->angle = scenemanager->GetComponent<SceneManager>()->angle; //0.0f * i;
 
-			guardian->AddComponent<StarGuadian>();
-			guardian->GetComponent<StarGuadian>()->bullet = bullet;
-		}
+		guardian->AddComponent<StarGuadian>();
+		guardian->GetComponent<StarGuadian>()->bullet = bullet;
+		guardian->GetComponent<StarGuadian>()->ready = true;
+		scenemanager->GetComponent<SceneManager>()->player[0] = guardian;
+	}
 	//}
 
 	GameObject* enemy = CreateGameObject(object);
@@ -60,7 +65,7 @@ void GameScene::BuildObjects()
 	}
 
 	GameObject* Recvthread = AddGameObject(); {
-		Recvthread->AddComponent<Thread>()->player = guardian;
-		Recvthread->GetComponent<Thread>()->severip = "192.168.20.58";
+		//Recvthread->AddComponent<Thread>()->player = guardian;
+		//Recvthread->GetComponent<Thread>()->severip = "192.168.35.95";
 	}
 }

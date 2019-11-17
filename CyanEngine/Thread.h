@@ -18,7 +18,7 @@ public:
 	const char* severip{ "127.0.0.1" };
 	const short severport{ 9000 };
 
-	static GameObject* player;
+	
 
 private:
 	friend class GameObject;
@@ -59,18 +59,24 @@ private:
 			if (retval == SOCKET_ERROR) {
 				;//err_display("recv()");
 			}
-			printf("recvbuf: %c, %d, %d, %d\n", buf.msgId, buf.lParam, buf.mParam, buf.rParam);
+			//printf("recvbuf: %c, %d, %d, %d\n", buf.msgId, buf.lParam, buf.mParam, buf.rParam);
 
+			//EnterCriticalSection(&rqcs);
 			switch (buf.msgId)
 			{
 			case 0:
-				XMFLOAT4 color[3] = { XMFLOAT4(1, 0, 0, 1), XMFLOAT4(0, 1, 0, 1), XMFLOAT4(0, 0, 1, 1) };
-				player->GetComponent<Renderer>()->material->albedo = color[buf.lParam];
+				// 플레이어 접속 메시지
+				for (int i = 0; i < 3; ++i) {
+					if (SceneManager::player[i] == nullptr) {
+						SceneManager::player[i] = SceneManager::player[i]->Instantiate(SceneManager::player[0]);
+						SceneManager::player[i]->GetComponent<RevolvingBehavior>()->speedRotating = SceneManager::scenemanager->GetComponent<SceneManager>()->speedRotating;
+						SceneManager::player[i]->GetComponent<RevolvingBehavior>()->angle = SceneManager::scenemanager->GetComponent<SceneManager>()->angle + 120 * i;
+						XMFLOAT4 color[3] = { XMFLOAT4(1, 0, 0, 1), XMFLOAT4(0, 1, 0, 1), XMFLOAT4(0, 0, 1, 1) };
+						SceneManager::player[i]->GetComponent<Renderer>()->material->albedo = color[buf.lParam];
+					}
+				}
 				break;
 			}
-			//printf("recvbuf: %c, %d, %d, %d\n", buf.msgId, buf.lParam, buf.mParam, buf.rParam);
-			//EnterCriticalSection(&rqcs);
-			//recvQueue.push(buf);
 			//LeaveCriticalSection(&rqcs);
 		}
 		return 0;
