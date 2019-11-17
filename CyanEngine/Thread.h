@@ -15,6 +15,8 @@ private:
 
 public:
 	// 이 영역에 public 변수를 선언하세요.
+	//192.168.35.35
+	//192.168.35.95 나
 	const char* severip{ "192.168.35.35" };
 	const short severport{ 9000 };
 
