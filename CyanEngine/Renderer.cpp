@@ -19,7 +19,7 @@ void Renderer::Start()
 	if (!meshFilter)
 		return;
 	
-	auto pair = std::pair<Material*, Mesh*>(renderer->material, meshFilter->mesh);
+	auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
 
 	rendererManager->isRenewed = false;
 	rendererManager->instances[pair].second.push_back(gameObject);

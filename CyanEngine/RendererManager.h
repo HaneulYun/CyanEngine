@@ -12,6 +12,8 @@ struct INSTANCING
 	MEMORY* memory{ nullptr };
 
 	D3D12_VERTEX_BUFFER_VIEW view;
+
+	Shader* shader;
 };
 
 class RendererManager : public Singleton<RendererManager>
@@ -36,7 +38,7 @@ public:
 	void UpdateManager();
 
 public:
-	std::map<std::pair<Material*, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> instances;
+	std::map<std::pair<std::string, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> instances;
 	 
 
 private:

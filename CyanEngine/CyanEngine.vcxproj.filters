@@ -177,6 +177,9 @@
     <ClInclude Include="Message.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

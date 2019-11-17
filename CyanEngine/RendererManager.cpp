@@ -42,16 +42,17 @@ void RendererManager::Start()
 	{
 		if (!d.second.first)
 		{
-			Shader* shader = d.first.first->shader;
-			Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
-			material->rootSignature = material->CreateGraphicsRootSignature(device.Get());
+			d.second.first = new INSTANCING();
+
+			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
+			//Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
+			shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
 			shader->m_ppd3dPipelineStates = new ID3D12PipelineState * [1];
-			shader->CreateShader(device.Get(), material->rootSignature);
+			shader->CreateShader(device.Get(), shader->rootSignature);
 		}
 
-		d.second.first = new INSTANCING();
 
-		d.second.first->resource = CreateBufferResource(device.Get(), commandList.Get(), NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		d.second.first->resource = CreateBufferResource(NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 		
 		d.second.first->resource->Map(0, NULL, (void**)& d.second.first->memory);
 		
@@ -106,8 +107,8 @@ void RendererManager::PreRender()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	commandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
 
-	float pfClearColor[4] = { 0.0 / 256.0, 0.0 / 256.0, 50.0 / 256.0, 1.0f };
-	//float pfClearColor[4] = { 0.1921569f, 0.3019608, 0.4745098, 1.0f };
+	//float pfClearColor[4] = { 0.0 / 256.0, 0.0 / 256.0, 50.0 / 256.0, 1.0f };
+	float pfClearColor[4] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
 	commandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
 
 	commandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
@@ -124,14 +125,14 @@ void RendererManager::Render()
 		//Shader* shader = d.first.first;
 		Mesh* mesh = d.first.second;
 
-		commandList->SetGraphicsRootSignature(d.first.first->rootSignature);
-		commandList->SetPipelineState(d.first.first->shader->m_ppd3dPipelineStates[0]);
+		commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
+		commandList->SetPipelineState(d.second.first->shader->m_ppd3dPipelineStates[0]);
 		m_pCamera->UpdateShaderVariables(commandList.Get());
 
 		if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
-			mesh->Render(commandList.Get(), d.second.second.size(), d.second.first->view);
+			mesh->Render(d.second.second.size(), d.second.first->view);
 		else
-			mesh->Render(commandList.Get(), d.second.second.size());
+			mesh->Render(d.second.second.size());
 	}
 
 	PostRender();
