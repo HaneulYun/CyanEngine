@@ -57,6 +57,9 @@
     <ClCompile Include="Message.cpp">
       <Filter>Message</Filter>
     </ClCompile>
+    <ClCompile Include="SendingThread.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PrintErrors.h">
@@ -85,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="Message.h">
       <Filter>Message</Filter>
+    </ClInclude>
+    <ClInclude Include="SendingThread.h">
+      <Filter>Thread</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
