@@ -6,9 +6,9 @@ enum {Wait, Start, End};
 class SceneManager : public Component
 {
 private:
-	const int myid = 0;
 
 public:
+	static GameObject* playerprefab;
 	static GameObject* player[3];
 	static GameObject* scenemanager;
 
@@ -16,6 +16,7 @@ public:
 	float speedRotating{ 30.f };
 	float angle{ 0.0f };
 	int gameState{ Wait };
+	int myid{ 0 };
 
 
 private:
@@ -58,5 +59,12 @@ public:
 		return player[num]->GetComponent<StarGuadian>()->ready;
 	}
 
+	void CreatePlayer(int id) {
+		player[id] = Instantiate(playerprefab);
+		player[id]->GetComponent<RevolvingBehavior>()->speedRotating = speedRotating;
+		player[id]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * id;
+		XMFLOAT4 color[3] = { XMFLOAT4(1, 0, 0, 1), XMFLOAT4(0, 1, 0, 1), XMFLOAT4(0, 0, 1, 1) };
+		player[id]->GetComponent<Renderer>()->material->albedo = color[id];
+	}
 };
 

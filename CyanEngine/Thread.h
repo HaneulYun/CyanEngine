@@ -15,7 +15,7 @@ private:
 
 public:
 	// 이 영역에 public 변수를 선언하세요.
-	const char* severip{ "127.0.0.1" };
+	const char* severip{ "192.168.35.35" };
 	const short severport{ 9000 };
 
 	
@@ -61,23 +61,27 @@ private:
 			}
 			//printf("recvbuf: %c, %d, %d, %d\n", buf.msgId, buf.lParam, buf.mParam, buf.rParam);
 
-			//EnterCriticalSection(&rqcs);
+			int id = buf.lParam;
+			EnterCriticalSection(&rqcs);
 			switch (buf.msgId)
 			{
-			case 0:
-				// 플레이어 접속 메시지
-				for (int i = 0; i < 3; ++i) {
-					if (SceneManager::player[i] == nullptr) {
-						SceneManager::player[i] = SceneManager::player[i]->Instantiate(SceneManager::player[0]);
-						SceneManager::player[i]->GetComponent<RevolvingBehavior>()->speedRotating = SceneManager::scenemanager->GetComponent<SceneManager>()->speedRotating;
-						SceneManager::player[i]->GetComponent<RevolvingBehavior>()->angle = SceneManager::scenemanager->GetComponent<SceneManager>()->angle + 120 * i;
-						XMFLOAT4 color[3] = { XMFLOAT4(1, 0, 0, 1), XMFLOAT4(0, 1, 0, 1), XMFLOAT4(0, 0, 1, 1) };
-						SceneManager::player[i]->GetComponent<Renderer>()->material->albedo = color[buf.lParam];
-					}
-				}
+			// 내가 접속했을 때
+			case MESSAGE_YOUR_ID:
+				id = buf.lParam;
+				SceneManager::scenemanager->GetComponent<SceneManager>()->myid = id;
+				SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(id);
+				break;
+			// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
+			case MESSAGE_CONNECTED_IDS:
+				if (buf.lParam && SceneManager::player[0] != nullptr)
+					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(0);
+				else if (buf.mParam && SceneManager::player[1] != nullptr)
+					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(1);
+				else if (buf.rParam && SceneManager::player[2] != nullptr)
+					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(2);
 				break;
 			}
-			//LeaveCriticalSection(&rqcs);
+			LeaveCriticalSection(&rqcs);
 		}
 		return 0;
 	}
