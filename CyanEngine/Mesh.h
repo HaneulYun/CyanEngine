@@ -133,7 +133,7 @@ class CMeshLoadInfo
 {
 public:
 	CMeshLoadInfo() { }
-	~CMeshLoadInfo();
+	~CMeshLoadInfo() {}
 
 public:
 	char		m_pstrMeshName[256] = { 0 };

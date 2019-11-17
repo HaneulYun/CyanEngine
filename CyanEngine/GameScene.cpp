@@ -27,6 +27,9 @@ void GameScene::BuildObjects()
 		cube->AddComponent<RotatingBehavior>();
 		cube->AddComponent<MovingBehavior>();
 	}
+
+	GameObject* model = AddGameObject();
+	model->LoadGeometryFromFile("Model/Apache.bin");
 	
 	GameObject* _sceneManager = AddGameObject();
 	{
