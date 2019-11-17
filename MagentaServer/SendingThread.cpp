@@ -22,7 +22,7 @@ DWORD WINAPI Sender(LPVOID arg)
 
 	while (1)
 	{
-		while (!ThreadPool::sendQueue.empty()) {
+		if(!ThreadPool::sendQueue.empty()){
 			EnterCriticalSection(&ThreadPool::sqcs);
 			Message curMessage = ThreadPool::sendQueue.front();
 			ThreadPool::sendQueue.pop();
