@@ -30,14 +30,16 @@ public:
 	void Start()
 	{
 		// 초기화 코드를 작성하세요.
-		LPCTSTR pFileName{ L"heightMap.raw" };
-		int nWidth{ 257 };
-		int nLength{ 257 };
-		int nBlockWidth{ 257 };
-		int nBlockLength{ 257 };
-		XMFLOAT3 xmf3Scale(2.0f, 0.5f, 2.0f);
-		XMFLOAT4 xmf4Color(0.0f, 0.2f, 0.0f, 0.0f);
+	}
 
+	void Update()
+	{
+		// 업데이트 코드를 작성하세요.
+	}
+
+	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
+	void LoadTerrain(LPCTSTR pFileName, int nWidth, int nLength , int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color)
+	{
 		//지형에 사용할 높이 맵의 가로, 세로의 크기이다.
 		m_nWidth = nWidth;
 		m_nLength = nLength;
@@ -86,13 +88,6 @@ public:
 		//pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 		//SetShader(pShader);
 	}
-
-	void Update()
-	{
-		// 업데이트 코드를 작성하세요.
-	}
-
-	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 
 	//지형의 높이를 계산하는 함수이다(월드 좌표계). 높이 맵의 높이에 스케일의 y를 곱한 값이다.
 	float GetHeight(float x, float z)
