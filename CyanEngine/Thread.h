@@ -3,7 +3,6 @@
 #pragma once
 #include <winsock2.h>
 #include "framework.h"
-#include "Message.h"
 
 class Thread : public Component
 {
@@ -11,14 +10,14 @@ private:
 	// 이 영역에 private 변수를 선언하세요.
 	int retval;
 	WSADATA wsa;
-	SOCKET sock;
 
 public:
 	// 이 영역에 public 변수를 선언하세요.
 	//192.168.35.35
 	//192.168.35.95 나
-	const char* severip{ "192.168.35.35" };
+	const char* severip{ "127.0.0.1" };
 	const short severport{ 9000 };
+	static SOCKET sock;
 
 	
 
@@ -75,12 +74,15 @@ private:
 				break;
 			// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
 			case MESSAGE_CONNECTED_IDS:
-				if (buf.lParam && SceneManager::player[0] == nullptr)
+				if (buf.lParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[0] == nullptr)
 					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(0);
-				else if (buf.mParam && SceneManager::player[1] == nullptr)
+				else if (buf.mParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[1] == nullptr)
 					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(1);
-				else if (buf.rParam && SceneManager::player[2] == nullptr)
+				else if (buf.rParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[2] == nullptr)
 					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(2);
+				break;
+			case MESSAGE_GAME_START:
+				SceneManager::scenemanager->GetComponent<SceneManager>()->gameState = START;
 				break;
 			}
 			LeaveCriticalSection(&rqcs);
