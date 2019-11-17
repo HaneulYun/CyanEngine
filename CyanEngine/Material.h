@@ -28,6 +28,4 @@ public:
 public:
 	Material() = default;
 	Material(Material&) = default;
-
-	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* _device);
 };

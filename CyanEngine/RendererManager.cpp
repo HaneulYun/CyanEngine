@@ -41,14 +41,15 @@ void RendererManager::Start()
 	{
 		if (!d.second.first)
 		{
-			Shader* shader = d.first.first->shader;
-			Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
-			material->rootSignature = material->CreateGraphicsRootSignature(device.Get());
+			d.second.first = new INSTANCING();
+
+			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
+			//Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
+			shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
 			shader->m_ppd3dPipelineStates = new ID3D12PipelineState * [1];
-			shader->CreateShader(device.Get(), material->rootSignature);
+			shader->CreateShader(device.Get(), shader->rootSignature);
 		}
 
-		d.second.first = new INSTANCING();
 
 		d.second.first->resource = CreateBufferResource(NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 		
@@ -123,8 +124,8 @@ void RendererManager::Render()
 		//Shader* shader = d.first.first;
 		Mesh* mesh = d.first.second;
 
-		commandList->SetGraphicsRootSignature(d.first.first->rootSignature);
-		commandList->SetPipelineState(d.first.first->shader->m_ppd3dPipelineStates[0]);
+		commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
+		commandList->SetPipelineState(d.second.first->shader->m_ppd3dPipelineStates[0]);
 		m_pCamera->UpdateShaderVariables(commandList.Get());
 
 		if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
