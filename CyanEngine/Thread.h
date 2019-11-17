@@ -1,7 +1,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS // 최신 VC++ 컴파일 시 경고 방지
 #pragma comment(lib, "ws2_32")
-#pragma once
 #include <winsock2.h>
+#pragma once
 #include "framework.h"
 #include "Message.h"
 
@@ -118,7 +118,7 @@ public:
 		//printf("IP 입력: ");
 		//char* SERVERIP = (char*)malloc(sizeof(char) * STRMAX);
 		//scanf_s(" %s", SERVERIP);
-
+		SceneManager::scenemanager->GetComponent<SceneManager>()->sock = &sock;
 		// connect()
 		SOCKADDR_IN serveraddr;
 		ZeroMemory(&serveraddr, sizeof(serveraddr));
