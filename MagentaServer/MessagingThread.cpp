@@ -12,6 +12,7 @@ MessagingThread::MessagingThread(int tId, LPVOID fParam)
 	: Thread(tId, Messenger, (LPVOID)tId)
 {
 	clientSock = (SOCKET)fParam;
+	isReady = false;
 }
 
 MessagingThread::~MessagingThread()

@@ -3,9 +3,12 @@
 #include <winsock2.h>
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "ThreadPool.h"
-#include "PrintErrors.h"
+#include "Scene.h"
+
 #include "Globals.h"
+#include "PrintErrors.h"
 
 HANDLE EndEvent;
 
@@ -38,6 +41,7 @@ int main(int argc, char* argv[])
 	//ThreadPool* threadPool = new ThreadPool(5, listenSocket);
 	ThreadPool::Instance();
 	ThreadPool::setConnectingThread(&listen_sock);
+	Scene::Instance();
 
 	EndEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if (EndEvent == NULL) return 1;

@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SendingThread.cpp" />
     <ClCompile Include="ConnectingThread.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -152,11 +153,14 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PrintErrors.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="Star.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="ThreadPool.h" />
+    <ClCompile Include="Time.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="SendingThread.h" />
     <ClInclude Include="ConnectingThread.h" />
     <ClInclude Include="Globals.h" />
@@ -166,7 +170,9 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PrintErrors.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Star.h" />
     <ClInclude Include="Thread.h" />
+    <ClInclude Include="Time.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

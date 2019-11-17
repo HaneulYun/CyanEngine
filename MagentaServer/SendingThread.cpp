@@ -1,6 +1,7 @@
 #include "SendingThread.h"
 #include "ThreadPool.h"
 #include "PrintErrors.h"
+#include "Scene.h"
 
 CRITICAL_SECTION ThreadPool::sqcs;
 queue<Message> ThreadPool::sendQueue;
@@ -26,7 +27,6 @@ DWORD WINAPI Sender(LPVOID arg)
 			EnterCriticalSection(&ThreadPool::sqcs);
 			Message curMessage = ThreadPool::sendQueue.front();
 			ThreadPool::sendQueue.pop();
-			LeaveCriticalSection(&ThreadPool::sqcs);
 
 			for (int i = 0; i < ThreadPool::clients.size(); ++i)
 			{
@@ -38,6 +38,11 @@ DWORD WINAPI Sender(LPVOID arg)
 					}
 				}
 			}
+
+			if (curMessage.msgId == MESSAGE_GAME_START)
+				Scene::gameState = Runtime;
+
+			LeaveCriticalSection(&ThreadPool::sqcs);
 		}
 	}
 
