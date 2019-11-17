@@ -150,7 +150,7 @@ DWORD WINAPI ThreadPool::Connection(LPVOID listen_sock)
 				Message clientsInform;
 				clientsInform.msgId = MESSAGE_YOUR_ID;
 				clientsInform.lParam = ThreadPool::clients[index]->id - 3;
-				clientsInform.mParam = ThreadPool::clients.back()->id - 3;
+				clientsInform.mParam = ThreadPool::clients[index]->id - 3;
 				clientsInform.rParam = ThreadPool::clients[index]->id - 3;
 				retval = send(ThreadPool::clients[index]->clientSock, (char*)&clientsInform, sizeof(Message), 0);
 				if (retval == SOCKET_ERROR) {
