@@ -75,12 +75,15 @@ private:
 				break;
 			// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
 			case MESSAGE_CONNECTED_IDS:
-				if (buf.lParam && SceneManager::player[0] == nullptr)
+				if (buf.lParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[0] == nullptr)
 					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(0);
-				else if (buf.mParam && SceneManager::player[1] == nullptr)
+				else if (buf.mParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[1] == nullptr)
 					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(1);
-				else if (buf.rParam && SceneManager::player[2] == nullptr)
+				else if (buf.rParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[2] == nullptr)
 					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(2);
+				break;
+			case MESSAGE_GAME_START:
+				SceneManager::scenemanager->GetComponent<SceneManager>()->StartGame();
 				break;
 			}
 			LeaveCriticalSection(&rqcs);

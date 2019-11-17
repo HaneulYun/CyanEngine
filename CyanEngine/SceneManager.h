@@ -2,21 +2,22 @@
 #include "framework.h"
 #include "StarGuardian.h"
 
-enum {Wait, Start, End};
+enum {WAIT, START, END};
 
 class SceneManager : public Component
 {
 private:
 
 public:
-	static GameObject* playerprefab;
-	static GameObject* player[3];
-	static GameObject* scenemanager;
+	static GameObject* scenemanager; 
+	GameObject* playerprefab;
+	GameObject* player[3];
+	GameObject* star;
 
 	//GameObject* gameObject{ nullptr };
 	float speedRotating{ 30.f };
 	float angle{ 0.0f };
-	int gameState{ Wait };
+	int gameState{ WAIT };
 	int myid{ 0 };
 
 
@@ -55,11 +56,6 @@ public:
 		angle += speedRotating * Time::deltaTime;
 	}
 
-	bool isReady(int num)
-	{
-		return player[num]->GetComponent<StarGuadian>()->ready;
-	}
-
 	void CreatePlayer(int id) {
 		player[id] = playerprefab->scene->Instantiate(playerprefab);
 		player[id]->GetComponent<RevolvingBehavior>()->speedRotating = speedRotating;
@@ -67,5 +63,16 @@ public:
 		XMFLOAT4 color[3] = { XMFLOAT4(1, 0, 0, 1), XMFLOAT4(0, 1, 0, 1), XMFLOAT4(0, 0, 1, 1) };
 		player[id]->GetComponent<Renderer>()->material->albedo = color[id];
 	}
+
+	void StartGame() {
+		gameState = START;
+		for (int i = 0; i < 3; ++i) {
+			RevolvingBehavior* revolvingBehavior = player[i]->AddComponent<RevolvingBehavior>();
+			revolvingBehavior->target = star;
+			revolvingBehavior->radius = 25.f;
+			revolvingBehavior->angle = 120.f * i;
+		}
+	}
+
 };
 

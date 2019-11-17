@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "GameScene.h"
 
-GameObject* SceneManager::player[3];
-GameObject* SceneManager::playerprefab;
 GameObject* SceneManager::scenemanager;
 
 void GameScene::BuildObjects()
@@ -20,12 +18,13 @@ void GameScene::BuildObjects()
 	object->AddComponent<Renderer>()->material = defaultMaterial;
 
 	GameObject* scenemanager = AddGameObject();
-	scenemanager->AddComponent<SceneManager>();
+	SceneManager* scnmgr = scenemanager->AddComponent<SceneManager>();
 
 	GameObject* star = Instantiate(object);
 	{
 		star->GetComponent<MeshFilter>()->mesh = pCircleMesh;
 		star->AddComponent<Star>();
+		scnmgr->star = star;
 	}
 
 	GameObject* orbit = Instantiate(object);
@@ -37,42 +36,20 @@ void GameScene::BuildObjects()
 	bullet->GetComponent<MeshFilter>()->mesh = pTriangleMesh;
 	bullet->AddComponent<Bullet>();
 
-	//for (int i = 0; i < 1; ++i) {
 
 	GameObject* guardian = CreateGameObject(object);
 	{
 		guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 
-		RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
+		/*RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
 		revolvingBehavior->target = star;
-		revolvingBehavior->radius = 25.f;
-		//revolvingBehavior->speedRotating = scenemanager->GetComponent<SceneManager>()->speedRotating;
-		//revolvingBehavior->angle = scenemanager->GetComponent<SceneManager>()->angle; //0.0f * i;
+		revolvingBehavior->radius = 25.f;*/
 
 		guardian->AddComponent<StarGuadian>();
 		guardian->GetComponent<StarGuadian>()->bullet = bullet;
-		guardian->GetComponent<StarGuadian>()->ready = true;
-		//scenemanager->GetComponent<SceneManager>()->player[0] = guardian;
-		SceneManager::playerprefab = guardian;
+		scnmgr->playerprefab = guardian;
 		
 	}
-
-	//GameObject* guardian = Instantiate(object);
-	//{
-	//	guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
-
-	//	RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
-	//	revolvingBehavior->target = star;
-	//	revolvingBehavior->radius = 25.f;
-	//	revolvingBehavior->speedRotating = scenemanager->GetComponent<SceneManager>()->speedRotating;
-	//	revolvingBehavior->angle = scenemanager->GetComponent<SceneManager>()->angle; //0.0f * i;
-
-	//	guardian->AddComponent<StarGuadian>();
-	//	guardian->GetComponent<StarGuadian>()->bullet = bullet;
-	//	guardian->GetComponent<StarGuadian>()->ready = true;
-	//	scenemanager->GetComponent<SceneManager>()->player[0] = guardian;
-	//}
-	//}
 
 	GameObject* enemy = CreateGameObject(object);
 	{
@@ -86,7 +63,7 @@ void GameScene::BuildObjects()
 	}
 
 	GameObject* Recvthread = AddGameObject(); {
-		Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
+		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
 		//Recvthread->GetComponent<Thread>()
 	}
 }
