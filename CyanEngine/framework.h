@@ -105,6 +105,12 @@ namespace NS_Vector4
 
 namespace NS_Matrix4x4
 {
+	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, fScalar * XMLoadFloat4(&xmf4Vector));
+		return(xmf4Result);
+	}
 	inline XMFLOAT4X4 Identity()
 	{
 		XMFLOAT4X4 xmmtx4x4Result;
