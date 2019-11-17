@@ -5,12 +5,10 @@ GameObject* Thread::player;
 
 void GameScene::BuildObjects()
 {
-	ComPtr<ID3D12Device> _device = rendererManager->device.Get();
-
-	Quad* pQuadMesh = new Quad(_device.Get(), rendererManager->commandList.Get(), 10.0f, 10.0f);
-	Circle* pCircleMesh = new Circle(_device.Get(), rendererManager->commandList.Get(), 10, 48);
-	CircleLine* pCircleLineMesh = new CircleLine(_device.Get(), rendererManager->commandList.Get(), 25.f);
-	TriangleMesh* pTriangleMesh = new TriangleMesh(_device.Get(), rendererManager->commandList.Get());
+	Quad* pQuadMesh = new Quad(10.0f, 10.0f);
+	Circle* pCircleMesh = new Circle(10, 48);
+	CircleLine* pCircleLineMesh = new CircleLine(25.f);
+	TriangleMesh* pTriangleMesh = new TriangleMesh();
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();

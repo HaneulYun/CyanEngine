@@ -40,6 +40,8 @@ public:
 
 	int m_nPipelineStates = 0;
 public:
+	ID3D12RootSignature* rootSignature;
+	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* _device);
 };
 
 class PlayerShader : public Shader

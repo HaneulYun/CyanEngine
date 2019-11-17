@@ -36,7 +36,7 @@ VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	float3 normalW = mul(input.normal, (float3x3)input.mtxTransform);
 #ifdef _WITH_VERTEX_LIGHTING
-	output.color = Lighting(output.positionW, normalize(normalW));
+	output.color = input.instanceColor * Lighting(output.positionW, normalize(normalW));
 #else
 	output.normalW = normalW;
 #endif

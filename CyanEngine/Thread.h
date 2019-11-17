@@ -3,14 +3,7 @@
 #pragma once
 #include <winsock2.h>
 #include "framework.h"
-
-struct Message
-{
-	char msgId;
-	int lParam;
-	int mParam;
-	int rParam;
-};
+#include "Message.h"
 
 class Thread : public Component
 {
@@ -75,6 +68,10 @@ private:
 				player->GetComponent<Renderer>()->material->albedo = color[buf.lParam];
 				break;
 			}
+			//printf("recvbuf: %c, %d, %d, %d\n", buf.msgId, buf.lParam, buf.mParam, buf.rParam);
+			//EnterCriticalSection(&rqcs);
+			//recvQueue.push(buf);
+			//LeaveCriticalSection(&rqcs);
 		}
 		return 0;
 	}
@@ -84,6 +81,8 @@ public:
 		// closesocket()
 		closesocket(sock);
 		WSACleanup();
+
+		DeleteCriticalSection(&rqcs);
 	}
 	virtual Component* Duplicate() { return new Thread; }
 	virtual Component* Duplicate(Component* component) { return new Thread(*(Thread*)component); }
@@ -91,6 +90,8 @@ public:
 	void Start()
 	{
 		// 초기화 코드를 작성하세요.		
+		InitializeCriticalSection(&rqcs);
+
 		retval = WSAStartup(MAKEWORD(2, 2), &wsa);
 		if(retval != 0)
 			err_quit("WSAStartup error");

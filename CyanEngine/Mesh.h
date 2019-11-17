@@ -1,97 +1,25 @@
 #pragma once
-
-class Vertex
-{
-protected:
-	XMFLOAT3 m_xmf3Position;
-
-public:
-	Vertex()
-	{
-		m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	}
-	Vertex(XMFLOAT3 xmf3Position)
-	{
-		m_xmf3Position = xmf3Position;
-	}
-	~Vertex() { }
-};
-
-class DiffusedVertex : public Vertex
-{
-protected:
-	XMFLOAT4 m_xmf4Diffuse;
-
-public:
-	DiffusedVertex()
-	{
-		m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		m_xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	}
-	DiffusedVertex(float x, float y, float z, XMFLOAT4 xmf4Diffuse)
-	{
-		m_xmf3Position = XMFLOAT3(x, y, z);
-		m_xmf4Diffuse = xmf4Diffuse;
-	}
-	DiffusedVertex(XMFLOAT3 xmf3Position, XMFLOAT4 xmf4Diffuse)
-	{
-		m_xmf3Position = xmf3Position;
-		m_xmf4Diffuse = xmf4Diffuse;
-	}
-	~DiffusedVertex() { }
-};
-
-class IlluminatedVertex : public Vertex
-{
-protected:
-	XMFLOAT3 m_xmf3Normal;
-
-public:
-	IlluminatedVertex()
-	{
-		m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		m_xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	}
-	IlluminatedVertex(float x, float y, float z, XMFLOAT3 xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f))
-	{
-		m_xmf3Position = XMFLOAT3(x, y, z);
-		m_xmf3Normal = xmf3Normal;
-	}
-	IlluminatedVertex(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f))
-	{
-		m_xmf3Position = xmf3Position;
-		m_xmf3Normal = xmf3Normal;
-	}
-	~IlluminatedVertex() { }
-};
+#include "Vertex.h"
 
 class Mesh
 {
 public:
-	Mesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual ~Mesh();
-
-private:
-	int m_nReferences = 0;
-
-public:
-	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
-	void ReleaseUploadBuffers();
+	Mesh() = default;
+	virtual ~Mesh() = default;
 
 protected:
-	ID3D12Resource* m_pd3dVertexBuffer = NULL;
-	ID3D12Resource* m_pd3dVertexUploadBuffer = NULL;
+	ComPtr<ID3D12Resource> m_pd3dVertexBuffer{ nullptr };
+	ComPtr<ID3D12Resource> m_pd3dVertexUploadBuffer{ nullptr };
 	D3D12_VERTEX_BUFFER_VIEW m_d3dVertexBufferView;
-	D3D12_PRIMITIVE_TOPOLOGY m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	D3D12_PRIMITIVE_TOPOLOGY m_d3dPrimitiveTopology{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 	UINT m_nSlot = 0;
 	UINT m_nVertices = 0;
 	UINT m_nStride = 0;
 	UINT m_nOffset = 0;
 
 protected:
-	ID3D12Resource* m_pd3dIndexBuffer = NULL;
-	ID3D12Resource* m_pd3dIndexUploadBuffer = NULL;
+	ComPtr<ID3D12Resource> m_pd3dIndexBuffer{ nullptr };
+	ComPtr<ID3D12Resource> m_pd3dIndexUploadBuffer{ nullptr };
 	D3D12_INDEX_BUFFER_VIEW m_d3dIndexBufferView;
 
 	UINT m_nIndices = 0;
@@ -99,48 +27,48 @@ protected:
 	int m_nBaseVertex = 0;
 
 public:
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nInstances = 1, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView = {});
+	virtual void Render(UINT nInstances = 1, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView = {});
 };
 
 class TriangleMesh : public Mesh
 {
 public:
-	TriangleMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	TriangleMesh();
 	virtual ~TriangleMesh() { }
 };
 
 class Quad : public Mesh
 {
 public:
-	Quad(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight);
+	Quad(float fWidth, float fHeight);
 	virtual ~Quad() { }
 };
 
 class CircleLine : public Mesh
 {
 public:
-	CircleLine(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius);
+	CircleLine(float fRadius);
 	virtual ~CircleLine() { }
 };
 
 class Circle : public Mesh
 {
 public:
-	Circle(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fRadius, int slice);
+	Circle(float fRadius, int slice);
 	virtual ~Circle() { }
 };
 
 class CubeMeshDiffused : public Mesh
 {
 public:
-	CubeMeshDiffused(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
+	CubeMeshDiffused(float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
 	virtual ~CubeMeshDiffused() { }
 };
 
 class MeshIlluminated : public Mesh
 {
 public:
-	MeshIlluminated(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	MeshIlluminated() = default;
 	virtual ~MeshIlluminated() { }
 
 public:
@@ -153,6 +81,6 @@ public:
 class CubeMeshIlluminated : public MeshIlluminated
 {
 public:
-	CubeMeshIlluminated(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
+	CubeMeshIlluminated(float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
 	virtual ~CubeMeshIlluminated() { }
 }; 
