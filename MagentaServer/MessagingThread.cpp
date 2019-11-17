@@ -21,10 +21,10 @@ MessagingThread::~MessagingThread()
 DWORD WINAPI Messenger(LPVOID arg)
 {
 	while (1) {
-		if(ThreadPool::clients[(int)arg-2]->isWorking)
+		if (ThreadPool::clients[(int)arg - 3]->isWorking)
 		{
 			// id를 arg로 받는다면..?
-			MessagingThread* msgt = ThreadPool::clients[(int)arg - 2];
+			MessagingThread* msgt = ThreadPool::clients[(int)arg - 3];
 
 			SOCKET client_sock = msgt->clientSock;
 			int retval;
@@ -63,6 +63,11 @@ DWORD WINAPI Messenger(LPVOID arg)
 			printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n",
 				inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 			msgt->isWorking = false;
+
+			Message sendMsg = ThreadPool::curConnectedClients();
+			EnterCriticalSection(&ThreadPool::sqcs);
+			ThreadPool::sendQueue.push(sendMsg);
+			LeaveCriticalSection(&ThreadPool::sqcs);
 		}
 	}
 	return 0;
