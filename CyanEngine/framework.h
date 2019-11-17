@@ -14,7 +14,7 @@
 
 #include <string>
 #include <wrl.h>
-#include <shellapi.h>
+//#include <shellapi.h>
 
 #include <typeinfo>
 
@@ -95,7 +95,13 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 
 namespace NS_Vector4
 {
-	inline XMFLOAT4 Add(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
+	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, fScalar * XMLoadFloat4(&xmf4Vector));
+		return(xmf4Result);
+	}
+	inline XMFLOAT4 Add(const XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
 	{
 		XMFLOAT4 xmf4Result;
 		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
@@ -105,12 +111,6 @@ namespace NS_Vector4
 
 namespace NS_Matrix4x4
 {
-	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
-	{
-		XMFLOAT4 xmf4Result;
-		XMStoreFloat4(&xmf4Result, fScalar * XMLoadFloat4(&xmf4Vector));
-		return(xmf4Result);
-	}
 	inline XMFLOAT4X4 Identity()
 	{
 		XMFLOAT4X4 xmmtx4x4Result;

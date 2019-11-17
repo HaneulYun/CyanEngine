@@ -72,9 +72,6 @@
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Time.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClInclude>
@@ -159,12 +156,12 @@
     <ClInclude Include="Vertex.h">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Time.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
@@ -231,6 +228,9 @@
       <Filter>0_00_CyanEngine\30_MANAGER</Filter>
     </ClCompile>
     <ClCompile Include="Random.cpp">
+      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
       <Filter>0_00_CyanEngine\30_MANAGER</Filter>
     </ClCompile>
   </ItemGroup>
