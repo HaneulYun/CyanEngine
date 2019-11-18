@@ -1,7 +1,7 @@
 #pragma once
 #include "framework.h"
 
-class MovingBehavior : public Component
+class MovingBehavior : public MonoBehavior<MovingBehavior>
 {
 private:
 	// 이 영역에 private 변수를 선언하세요.
@@ -16,13 +16,14 @@ public:
 
 private:
 	friend class GameObject;
+	friend class MonoBehavior<MovingBehavior>;
 	MovingBehavior() = default;
 	MovingBehavior(MovingBehavior&) = default;
 
 public:
 	~MovingBehavior() {}
-	virtual Component* Duplicate() { return new MovingBehavior; }
-	virtual Component* Duplicate(Component* component) { return new MovingBehavior(*(MovingBehavior*)component); }
+	//virtual Component* Duplicate() { return new MovingBehavior; }
+	//virtual Component* Duplicate(Component* component) { return new MovingBehavior(*(MovingBehavior*)component); }
 
 	void Start()
 	{

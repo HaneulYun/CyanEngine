@@ -162,6 +162,9 @@
     <ClInclude Include="Terrain.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
+    <ClInclude Include="MonoBehavior.h">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
