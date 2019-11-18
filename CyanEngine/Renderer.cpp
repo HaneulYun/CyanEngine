@@ -33,7 +33,3 @@ void Renderer::Update()
 void Renderer::Render()
 {
 }
-
-void Renderer::Destroy()
-{
-}

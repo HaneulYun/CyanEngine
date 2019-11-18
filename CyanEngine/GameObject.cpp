@@ -35,11 +35,6 @@ void GameObject::Update()
 		component->UpdateComponent();
 }
 
-void GameObject::Destroy()
-{
-}
-
-
 int ReadIntegerFromFile(FILE* pInFile)
 {
 	int nValue = 0;

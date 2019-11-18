@@ -109,7 +109,6 @@ public:
 
 	void Start();
 	void Update();
-	void Destroy();
 
 	template <typename T>
 	T* AddComponent(T* component);
