@@ -17,7 +17,8 @@ void Renderer::Start()
 	if (!renderer)
 		return;
 	if (!meshFilter)
-		return;
+		if(!(meshFilter = gameObject->GetComponent<Terrain>()))
+			return;
 	
 	auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
 
@@ -30,9 +31,5 @@ void Renderer::Update()
 }
 
 void Renderer::Render()
-{
-}
-
-void Renderer::Destroy()
 {
 }

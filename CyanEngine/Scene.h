@@ -22,4 +22,5 @@ public:
 	GameObject* CreateGameObject(GameObject* gameObject);
 	GameObject* AddGameObject();
 	GameObject* AddGameObject(GameObject* gameObject);
+	void RemoveGameObject(GameObject* gameObject);
 };
