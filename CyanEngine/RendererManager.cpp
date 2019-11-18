@@ -11,6 +11,7 @@ RendererManager::RendererManager()
 	m_pCamera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
 	m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
 	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
+	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 50.0f, -100.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
@@ -75,7 +76,10 @@ void RendererManager::Update()
 		for (auto& gameObject : d.second.second)
 		{
 			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
+			XMFLOAT4X4 xmf4x4 = gameObject->transform->localToWorldMatrix;
+			if (gameObject->parent)
+				xmf4x4 = NS_Matrix4x4::Multiply(gameObject->transform->localToWorldMatrix, gameObject->parent->transform->localToWorldMatrix);
+			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&xmf4x4)));
 			++j;
 		}
 	}
@@ -132,7 +136,7 @@ void RendererManager::Render()
 		std::string str2 = typeid(CMeshIlluminatedFromFile).name();
 
 		if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
-			((CMeshIlluminatedFromFile*)mesh)->Render(1);
+			((CMeshIlluminatedFromFile*)mesh)->Render(0, d.second.first->view);
 		else if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
 			mesh->Render(d.second.second.size(), d.second.first->view);
 		else

@@ -195,5 +195,5 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dNormalBufferView;
 
 public:
-	virtual void Render(int nSubSet);
+	virtual void Render(int nSubSet, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
 };

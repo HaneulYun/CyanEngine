@@ -86,6 +86,7 @@ class GameObject : public Object
 public:
 	Scene* scene{ nullptr };
 
+	GameObject* parent{ nullptr };
 	std::deque<Component*> components;
 	std::deque<GameObject*> children;
 	Transform* transform{ nullptr };

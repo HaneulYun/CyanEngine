@@ -11,7 +11,7 @@ struct VS_LIGHTING_INPUT
 	float3 position : POSITION;
 	float3 normal : NORMAL;
 	float4x4 mtxTransform : WORLDMATRIX;
-	float4 instanceColor : INSTANCECOLOR;
+	float4 instanceColor : COLOR;
 };
 
 struct VS_LIGHTING_OUTPUT

@@ -47,7 +47,7 @@ public:
 		{
 			gameObject->transform->position = Vector3{ 0, 0, 0 };
 			speed = 0;
-			Destroy(gameObject);
+			//Destroy(gameObject);
 		}
 
 

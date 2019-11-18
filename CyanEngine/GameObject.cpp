@@ -263,6 +263,7 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(FILE* pInFile)
 		{
 			pGameObject = new GameObject();
 			pGameObject->scene = scene;
+			pGameObject->parent = this;
 			scene->AddGameObject(pGameObject);
 
 			nFrame = ::ReadIntegerFromFile(pInFile);
@@ -279,7 +280,9 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(FILE* pInFile)
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{
-			nReads = (UINT)::fread(&pGameObject->GetComponent<Transform>()->localToWorldMatrix, sizeof(float), 16, pInFile);
+			XMFLOAT4X4 xmf4x4;
+			nReads = (UINT)::fread(&xmf4x4, sizeof(float), 16, pInFile);
+			pGameObject->GetComponent<Transform>()->localToWorldMatrix = xmf4x4;
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
@@ -292,7 +295,7 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(FILE* pInFile)
 					pMesh = new CMeshIlluminatedFromFile(pMeshInfo);
 				}
 				if (pMesh)
-					pGameObject->AddComponent<MeshFilter>()->mesh = pMesh;
+					pGameObject->AddComponent<MeshFilter>()->mesh = pMesh;// new CubeMeshIlluminated(4.0f, 4.0f, 4.0f);
 					//pGameObject->SetMesh(pMesh);
 				delete pMeshInfo;
 			}

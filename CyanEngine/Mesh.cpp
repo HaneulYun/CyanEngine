@@ -668,10 +668,10 @@ void CMeshIlluminatedFromFile::ReleaseUploadBuffers()
 	m_pd3dNormalUploadBuffer = NULL;
 }
 
-void CMeshIlluminatedFromFile::Render(int nSubSet)
+void CMeshIlluminatedFromFile::Render(int nSubSet, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
 {
 	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[2] = { m_d3dPositionBufferView, m_d3dNormalBufferView };
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[2] = { m_d3dPositionBufferView, d3dInstancingBufferView };
 	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 2, pVertexBufferViews);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{
@@ -682,4 +682,24 @@ void CMeshIlluminatedFromFile::Render(int nSubSet)
 	{
 		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 	}
+
+
+	//if (memcmp(&d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
+	//{
+	//	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[] = { m_d3dVertexBufferView, d3dInstancingBufferView };
+	//	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, _countof(pVertexBufferViews), pVertexBufferViews);
+	//}
+	//else
+	//	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
+	//
+	//RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	//if (m_pd3dIndexBuffer)
+	//{
+	//	RendererManager::Instance()->commandList->IASetIndexBuffer(&m_d3dIndexBufferView);
+	//	RendererManager::Instance()->commandList->DrawIndexedInstanced(m_nIndices, nInstances, 0, 0, 0);
+	//}
+	//else
+	//{
+	//	RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
+	//}
 }
