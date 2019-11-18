@@ -39,22 +39,22 @@
     <Filter Include="0_00_CyanEngine\44_Materials">
       <UniqueIdentifier>{4a8d17c5-8389-46f3-ae1d-c3f8c7abc368}</UniqueIdentifier>
     </Filter>
-    <Filter Include="1_00_Project">
-      <UniqueIdentifier>{6278fbf3-a6b9-4bd0-90e5-e0469395c962}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="1_00_Project\00_Scene">
-      <UniqueIdentifier>{9e10db84-6f52-4402-a5d4-909d396d3ce8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="1_00_Project\10_Scripts">
-      <UniqueIdentifier>{8a066a5c-fd82-4600-881a-762e61d9436a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="1_00_Project\10_Scripts\11_Form">
-      <UniqueIdentifier>{1acdfba3-2a73-4300-801d-621662c8d63e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine\15_Math">
       <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
     </Filter>
-    <Filter Include="1_00_Project\리소스 파일">
+    <Filter Include="1_00_YellowProject">
+      <UniqueIdentifier>{6278fbf3-a6b9-4bd0-90e5-e0469395c962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\00_Scene">
+      <UniqueIdentifier>{9e10db84-6f52-4402-a5d4-909d396d3ce8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\10_Scripts">
+      <UniqueIdentifier>{8a066a5c-fd82-4600-881a-762e61d9436a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\10_Scripts\11_Form">
+      <UniqueIdentifier>{1acdfba3-2a73-4300-801d-621662c8d63e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
@@ -133,19 +133,19 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="RotatingBehavior.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="GameScene.h">
-      <Filter>1_00_Project\00_Scene</Filter>
+      <Filter>1_00_YellowProject\00_Scene</Filter>
     </ClInclude>
     <ClInclude Include="SceneManager.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="ScriptForm.h">
-      <Filter>1_00_Project\10_Scripts\11_Form</Filter>
+      <Filter>1_00_YellowProject\10_Scripts\11_Form</Filter>
     </ClInclude>
     <ClInclude Include="RevolvingBehavior.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>0_00_CyanEngine\30_MANAGER</Filter>
@@ -157,22 +157,22 @@
       <Filter>0_00_CyanEngine\15_Math</Filter>
     </ClInclude>
     <ClInclude Include="Spawner.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="MovingBehavior.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Star.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Bullet.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="StarGuardian.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Thread.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Message.h">
       <Filter>헤더 파일</Filter>
@@ -246,7 +246,7 @@
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClCompile>
     <ClCompile Include="GameScene.cpp">
-      <Filter>1_00_Project\00_Scene</Filter>
+      <Filter>1_00_YellowProject\00_Scene</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
       <Filter>0_00_CyanEngine\30_MANAGER</Filter>
@@ -257,15 +257,15 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CyanEngine.rc">
-      <Filter>1_00_Project\리소스 파일</Filter>
+      <Filter>1_00_YellowProject\리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
-      <Filter>1_00_Project\리소스 파일</Filter>
+      <Filter>1_00_YellowProject\리소스 파일</Filter>
     </Image>
     <Image Include="CyanEngine.ico">
-      <Filter>1_00_Project\리소스 파일</Filter>
+      <Filter>1_00_YellowProject\리소스 파일</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
