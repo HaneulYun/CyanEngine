@@ -630,18 +630,18 @@ void CMeshFromFile::ReleaseUploadBuffers()
 	}
 }
 
-void CMeshFromFile::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet)
+void CMeshFromFile::Render(int nSubSet)
 {
-	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
+	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{
-		pd3dCommandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
-		pd3dCommandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
+		RendererManager::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
+		RendererManager::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
 	}
 	else
 	{
-		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
+		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 	}
 }
 
@@ -668,18 +668,18 @@ void CMeshIlluminatedFromFile::ReleaseUploadBuffers()
 	m_pd3dNormalUploadBuffer = NULL;
 }
 
-void CMeshIlluminatedFromFile::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet)
+void CMeshIlluminatedFromFile::Render(int nSubSet)
 {
-	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[2] = { m_d3dPositionBufferView, m_d3dNormalBufferView };
-	pd3dCommandList->IASetVertexBuffers(m_nSlot, 2, pVertexBufferViews);
+	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 2, pVertexBufferViews);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{
-		pd3dCommandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
-		pd3dCommandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
+		RendererManager::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
+		RendererManager::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
 	}
 	else
 	{
-		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
+		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 	}
 }

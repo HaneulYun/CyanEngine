@@ -178,7 +178,7 @@ protected:
 	D3D12_INDEX_BUFFER_VIEW*	m_pd3dSubSetIndexBufferViews = NULL;
 
 public:
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet);
+	virtual void Render(int nSubSet);
 };
 
 class CMeshIlluminatedFromFile : public CMeshFromFile
@@ -195,5 +195,5 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dNormalBufferView;
 
 public:
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet);
+	virtual void Render(int nSubSet);
 };

@@ -29,11 +29,14 @@ void GameScene::BuildObjects()
 	}
 
 	GameObject* model = AddGameObject();
-	model->LoadGeometryFromFile("Model/Apache.bin");
-	
-	GameObject* _sceneManager = AddGameObject();
 	{
-		SceneManager* sceneManager = _sceneManager->AddComponent<SceneManager>();
-		sceneManager->gameObject = cube;
+		model->AddComponent<Renderer>()->material = defaultMaterial;
+		model->LoadGeometryFromFile("Model/Apache.bin");
 	}
+	
+	//GameObject* _sceneManager = AddGameObject();
+	//{
+	//	SceneManager* sceneManager = _sceneManager->AddComponent<SceneManager>();
+	//	sceneManager->gameObject = cube;
+	//}
 }

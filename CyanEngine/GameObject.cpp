@@ -262,6 +262,8 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(FILE* pInFile)
 		if (!strcmp(pstrToken, "<Frame>:"))
 		{
 			pGameObject = new GameObject();
+			pGameObject->scene = scene;
+			scene->AddGameObject(pGameObject);
 
 			nFrame = ::ReadIntegerFromFile(pInFile);
 			::ReadStringFromFile(pInFile, pGameObject->m_pstrFrameName);
@@ -326,8 +328,12 @@ GameObject* GameObject::LoadFrameHierarchyFromFile(FILE* pInFile)
 				for (int i = 0; i < nChilds; i++)
 				{
 					GameObject* pChild = GameObject::LoadFrameHierarchyFromFile(pInFile);
-					//if (pChild)
-					//	pGameObject->SetChild(pChild);
+					if (pChild)
+					{
+						pChild->AddComponent<Renderer>()->material = GetComponent<Renderer>()->material;
+						children.push_back(pChild);
+					}
+						//pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_RUNTIME_FRAME_HIERARCHY
 					TCHAR pstrDebug[256] = { 0 };
 					_stprintf_s(pstrDebug, 256, _T("(Child Frame: %p) (Parent Frame: %p)\n"), pChild, pGameObject);
