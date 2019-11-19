@@ -42,7 +42,7 @@ void GameScene::BuildObjects()
 				Material* material = model->AddComponent<Renderer>()->material = new DefaultMaterial();
 				material->albedo = RANDOM_COLOR;
 				material->shader = defaultMaterial->shader;
-				model->LoadGeometryFromFile("Model/Apache.bin");
+				ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
 				model->AddComponent<RotatingBehavior>();
 			}
 	

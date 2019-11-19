@@ -75,6 +75,7 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 
 #include "MonoBehavior.h"
 
+#include "ModelManager.h"
 #include "ShaderManager.h"
 #include "RendererManager.h"
 
