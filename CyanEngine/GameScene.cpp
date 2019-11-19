@@ -28,16 +28,6 @@ void GameScene::BuildObjects()
 		cube->AddComponent<RotatingBehavior>();
 		cube->AddComponent<MovingBehavior>();
 	}
-	
-	//GameObject* cube2 = CreateGameObject();
-	//cube->children.push_back(cube2);
-	//cube2->parent = cube;
-	//{
-	//	cube2->GetComponent<Transform>()->position.x = 50;
-	//	cube2->AddComponent<MeshFilter>()->mesh = pCubeMesh;
-	//	cube2->AddComponent<Renderer>()->material = defaultMaterial;
-	//	cube2->AddComponent<RotatingBehavior>();
-	//}
 
 	float interval = 150.f;
 	int xObjects = 1, yObjects = 0, zObjects = 1, i = 0;
