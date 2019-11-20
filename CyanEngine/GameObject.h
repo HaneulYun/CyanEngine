@@ -33,6 +33,8 @@ public:
 	void Start();
 	void Update();
 
+	XMFLOAT4X4 GetMatrix();
+
 	GameObject* AddChild(GameObject* child)
 	{
 		child->parent = this;

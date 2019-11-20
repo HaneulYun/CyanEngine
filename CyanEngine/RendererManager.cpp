@@ -76,10 +76,8 @@ void RendererManager::Update()
 		for (auto& gameObject : d.second.second)
 		{
 			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-			XMFLOAT4X4 xmf4x4 = gameObject->transform->localToWorldMatrix;
-			if (gameObject->parent)
-				xmf4x4 = NS_Matrix4x4::Multiply(gameObject->transform->localToWorldMatrix, gameObject->parent->transform->localToWorldMatrix);
-			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&xmf4x4)));
+			
+			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
 			++j;
 		}
 	}

@@ -30,7 +30,7 @@ GameObject* ModelManager::LoadGeometryFromFile(const char* pstrFileName)
 {
 	auto iter = database.find(pstrFileName);
 	if (iter != database.end())
-		return iter->second;
+		return new GameObject(iter->second);
 
 	FILE* pInFile = NULL;
 	::fopen_s(&pInFile, pstrFileName, "rb");
@@ -158,7 +158,8 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile)
 					if (pChild)
 					{
 						pChild->AddComponent<Renderer>()->material = pGameObject->GetComponent<Renderer>()->material;
-						pGameObject->children.push_back(pChild);
+						pGameObject->AddChild(pChild);
+						//pGameObject->children.push_back(pChild);
 					}
 					//pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_RUNTIME_FRAME_HIERARCHY
