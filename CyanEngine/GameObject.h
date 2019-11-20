@@ -33,6 +33,13 @@ public:
 	void Start();
 	void Update();
 
+	GameObject* AddChild(GameObject* child)
+	{
+		child->parent = this;
+		children.push_back(child);
+		return child;
+	}
+
 	template <typename T>
 	T* AddComponent(T* component);
 	template <typename T>

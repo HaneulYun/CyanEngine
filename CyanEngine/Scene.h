@@ -7,6 +7,9 @@ protected:
 	RendererManager* rendererManager;
 
 public:
+	static Scene* scene;
+
+public:
 	Scene();
 	virtual ~Scene();
 
@@ -22,4 +25,8 @@ public:
 	GameObject* AddGameObject();
 	GameObject* AddGameObject(GameObject* gameObject);
 	void RemoveGameObject(GameObject* gameObject);
+
+	//GameObject* CreateEmpty();
+	//GameObject* Duplicate(GameObject* gameObject);
+	//void Delete(GameObject* gameObject);
 };

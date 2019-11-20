@@ -12,7 +12,7 @@ void GameScene::BuildObjects()
 	{
 		XMFLOAT3 scale(5.0f, 0.5f, 5.0f);
 		XMFLOAT4 color(0.0f, 0.2f, 0.0f, 0.0f);
-	
+
 		terrain->GetComponent<Transform>()->position.x = -64 * 5 * 2;
 		terrain->GetComponent<Transform>()->position.z = -64 * 5 * 2;
 		terrain->GetComponent<Transform>()->position.y = -100.f;
@@ -30,7 +30,7 @@ void GameScene::BuildObjects()
 	}
 
 	float interval = 150.f;
-	int xObjects = 1, yObjects = 0, zObjects = 1, i = 0;
+	int xObjects = 0, yObjects = 0, zObjects = 0, i = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
 			for (int z = -zObjects; z <= zObjects; z++)
@@ -38,14 +38,10 @@ void GameScene::BuildObjects()
 				GameObject* model = AddGameObject();
 
 				model->transform->position = Vector3{ interval * x, interval * y, interval * z };
-
-				Material* material = model->AddComponent<Renderer>()->material = new DefaultMaterial();
-				material->albedo = RANDOM_COLOR;
-				material->shader = defaultMaterial->shader;
-				ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
+				model->AddChild(ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin"));
 				model->AddComponent<RotatingBehavior>();
 			}
-	
+
 	//GameObject* _sceneManager = AddGameObject();
 	//{
 	//	SceneManager* sceneManager = _sceneManager->AddComponent<SceneManager>();

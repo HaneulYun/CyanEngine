@@ -75,6 +75,11 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile)
 		if (!strcmp(pstrToken, "<Frame>:"))
 		{
 			pGameObject = new GameObject();
+
+			Material* material = pGameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
+			material->albedo = RANDOM_COLOR;
+			material->shader = new StandardShader();
+
 			//pGameObject->scene = scene;
 			//pGameObject->parent = this;
 			//scene->AddGameObject(pGameObject);
@@ -146,8 +151,8 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile)
 					GameObject* pChild = ModelManager::LoadFrameHierarchyFromFile(pInFile);
 					if (pChild)
 					{
-						//pChild->AddComponent<Renderer>()->material = GetComponent<Renderer>()->material;
-						//children.push_back(pChild);
+						pChild->AddComponent<Renderer>()->material = pGameObject->GetComponent<Renderer>()->material;
+						pGameObject->children.push_back(pChild);
 					}
 					//pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_RUNTIME_FRAME_HIERARCHY
