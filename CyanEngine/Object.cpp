@@ -7,3 +7,8 @@ GameObject* Object::Instantiate(GameObject* original)
 	original->scene->AddGameObject(instance);
 	return instance;
 }
+
+void Object::Destroy(GameObject* obj)
+{
+	obj->scene->RemoveGameObject(obj);
+}

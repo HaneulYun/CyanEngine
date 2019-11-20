@@ -40,21 +40,6 @@ public:
 	void Start()
 	{
 		scenemanager = gameObject;
-		//printf("IP ют╥б: ");
-		//char* SERVERIP = (char*)malloc(sizeof(char) * STRMAX);
-		//scanf_s(" %s", SERVERIP);
-		//int xObjects = 1, yObjects = 1, zObjects = 1, i = 0;
-		//for (int x = -xObjects; x <= xObjects; x++)
-		//	for (int y = -yObjects; y <= yObjects; y++)
-		//		for (int z = -zObjects; z <= zObjects; z++)
-		//		{
-		//			GameObject* instance = Instantiate(gameObject);
-		//
-		//			instance->transform->position = XMFLOAT3{ 10.0f * x, 10.0f * y, 10.0f * z };
-		//			//instance->GetComponent<Transform>()->position = XMFLOAT3{ 10.0f * x, 10.0f * y, 10.0f * z };
-		//			
-		//			instance->GetComponent<RotatingBehavior>()->speedRotating = 0;// 10.0f * (i++ % 10);
-		//		}
 	}
 
 	void Update()
@@ -78,7 +63,7 @@ public:
 		player[id]->transform->position.xmf3 = XMFLOAT3(25.f * cos(120 * id * PI / 180.0f), 25.f * sin(120 * id * PI / 180.0f), 0.0f);
 		/*player[id]->GetComponent<RevolvingBehavior>()->speedRotating = speedRotating;
 		player[id]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * id;*/
-		XMFLOAT4 color[3] = { XMFLOAT4(1, 0, 0, 1), XMFLOAT4(0, 1, 0, 1), XMFLOAT4(0, 0, 1, 1) };
+		XMFLOAT4 color[3] = { XMFLOAT4(1, 1, 0, 1), XMFLOAT4(0, 1, 1, 1), XMFLOAT4(1, 0, 1, 1) };
 		player[id]->GetComponent<Renderer>()->material->albedo = color[id];
 	}
 

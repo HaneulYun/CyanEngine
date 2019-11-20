@@ -31,8 +31,6 @@ public:
 	void Update() override;
 	void Render() override;
 
-	void Destroy() override;
-
 	virtual Component* Duplicate() { return new Renderer; };
 	virtual Component* Duplicate(Component* component) { return new Renderer(*(Renderer*)component); }
 };
