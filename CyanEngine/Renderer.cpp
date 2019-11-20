@@ -29,7 +29,3 @@ void Renderer::Start()
 void Renderer::Update()
 {
 }
-
-void Renderer::Render()
-{
-}

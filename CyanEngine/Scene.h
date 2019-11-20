@@ -16,7 +16,6 @@ public:
 	virtual void Start();
 	virtual void Update();
 	virtual void Render();
-	virtual void Destroy();
 
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();

@@ -33,12 +33,6 @@ void Scene::Render()
 	rendererManager->Render();
 }
 
-void Scene::Destroy()
-{
-	ReleaseObjects();
-	rendererManager->Destroy();
-}
-
 void Scene::BuildObjects()
 {
 }
