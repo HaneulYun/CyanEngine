@@ -63,7 +63,7 @@ GameObject* ModelManager::LoadGeometryFromFile(const char* pstrFileName)
 
 	database[pstrFileName] = pGameObject;
 
-	return (pGameObject);
+	return new GameObject(pGameObject);
 }
 
 GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile)
@@ -157,7 +157,7 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile)
 					GameObject* pChild = ModelManager::LoadFrameHierarchyFromFile(pInFile);
 					if (pChild)
 					{
-						pChild->AddComponent<Renderer>()->material = pGameObject->GetComponent<Renderer>()->material;
+						//pChild->AddComponent<Renderer>()->material = pGameObject->GetComponent<Renderer>()->material;
 						pGameObject->AddChild(pChild);
 						//pGameObject->children.push_back(pChild);
 					}

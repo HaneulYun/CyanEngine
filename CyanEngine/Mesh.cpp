@@ -683,7 +683,6 @@ void CMeshIlluminatedFromFile::Render(int nSubSet, D3D12_VERTEX_BUFFER_VIEW d3dI
 		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 	}
 
-
 	//if (memcmp(&d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
 	//{
 	//	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[] = { m_d3dVertexBufferView, d3dInstancingBufferView };
