@@ -134,7 +134,7 @@ void RendererManager::Render()
 		std::string str2 = typeid(CMeshIlluminatedFromFile).name();
 
 		if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
-			((CMeshIlluminatedFromFile*)mesh)->Render(0, d.second.first->view);
+			((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0, d.second.first->view);
 		else if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
 			mesh->Render(d.second.second.size(), d.second.first->view);
 		else
