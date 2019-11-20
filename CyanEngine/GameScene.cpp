@@ -30,7 +30,7 @@ void GameScene::BuildObjects()
 	}
 
 	float interval = 150.f;
-	int xObjects = 0, yObjects = 0, zObjects = 0, i = 0;
+	int xObjects = 3, yObjects = 0, zObjects = 3, i = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
 			for (int z = -zObjects; z <= zObjects; z++)

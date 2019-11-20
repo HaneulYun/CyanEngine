@@ -28,6 +28,10 @@ BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 
 GameObject* ModelManager::LoadGeometryFromFile(const char* pstrFileName)
 {
+	auto iter = database.find(pstrFileName);
+	if (iter != database.end())
+		return iter->second;
+
 	FILE* pInFile = NULL;
 	::fopen_s(&pInFile, pstrFileName, "rb");
 	::rewind(pInFile);
@@ -56,6 +60,8 @@ GameObject* ModelManager::LoadGeometryFromFile(const char* pstrFileName)
 
 	CGameObject::PrintFrameInfo(pGameObject, NULL);
 #endif
+
+	database[pstrFileName] = pGameObject;
 
 	return (pGameObject);
 }

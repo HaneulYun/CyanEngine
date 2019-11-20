@@ -81,6 +81,9 @@ public:
 
 class ModelManager : public Singleton<ModelManager>
 {
+private:
+	std::map<std::string, GameObject*> database;
+
 public:
 	GameObject* LoadGeometryFromFile(const char* pstrFileName);
 	GameObject* LoadFrameHierarchyFromFile(FILE* pInFile);
