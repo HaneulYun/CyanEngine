@@ -86,7 +86,7 @@ private:
 
 public:
 	GameObject* LoadGeometryFromFile(const char* pstrFileName);
-	GameObject* LoadFrameHierarchyFromFile(FILE* pInFile);
+	GameObject* LoadFrameHierarchyFromFile(FILE* pInFile, GameObject* parent = nullptr);
 
 	CMeshLoadInfo* LoadMeshInfoFromFile(FILE* pInFile);
 	MATERIALSLOADINFO* LoadMaterialsInfoFromFile(FILE* pInFile);

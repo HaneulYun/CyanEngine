@@ -30,7 +30,13 @@ GameObject* ModelManager::LoadGeometryFromFile(const char* pstrFileName)
 {
 	auto iter = database.find(pstrFileName);
 	if (iter != database.end())
-		return new GameObject(iter->second);
+	{
+		GameObject* gameObject = new GameObject(iter->second);
+		gameObject->GetComponent<Renderer>()->material->albedo = RANDOM_COLOR;
+		for (auto iter : gameObject->children)
+			iter->GetComponent<Renderer>()->material = gameObject->GetComponent<Renderer>()->material;
+		return gameObject;
+	}
 
 	FILE* pInFile = NULL;
 	::fopen_s(&pInFile, pstrFileName, "rb");
@@ -66,7 +72,7 @@ GameObject* ModelManager::LoadGeometryFromFile(const char* pstrFileName)
 	return new GameObject(pGameObject);
 }
 
-GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile)
+GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile, GameObject* parent)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -82,9 +88,14 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile)
 		{
 			pGameObject = new GameObject();
 
-			Material* material = pGameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
-			material->albedo = RANDOM_COLOR;
-			material->shader = new StandardShader();
+			if (parent)
+				pGameObject->AddComponent<Renderer>()->material = parent->GetComponent<Renderer>()->material;
+			else
+			{
+				Material* material = pGameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
+				material->albedo = RANDOM_COLOR;
+				material->shader = new StandardShader();
+			}
 
 			//pGameObject->scene = scene;
 			//pGameObject->parent = this;
@@ -154,7 +165,7 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile)
 			{
 				for (int i = 0; i < nChilds; i++)
 				{
-					GameObject* pChild = ModelManager::LoadFrameHierarchyFromFile(pInFile);
+					GameObject* pChild = ModelManager::LoadFrameHierarchyFromFile(pInFile, pGameObject);
 					if (pChild)
 					{
 						//pChild->AddComponent<Renderer>()->material = pGameObject->GetComponent<Renderer>()->material;
