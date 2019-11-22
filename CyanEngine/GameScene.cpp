@@ -33,51 +33,13 @@ void GameScene::BuildObjects()
 	//	cube->AddComponent<MovingBehavior>();
 	//}
 
-	//{
-	//	GameObject* model = CreateEmpty();
-	//	model->transform->position = Vector3{ 0, 0, 400 };
-	//	model->AddComponent<MeshFilter>()->mesh = pCubeMesh;
-	//	model->AddComponent<Renderer>()->material = defaultMaterial;
-	//
-	//	GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
-	//	child->parent = model;
-	//
-	//	child->transform->position = Vector3{ 0, 0, 400 };
-	//	child->AddComponent<MeshFilter>()->mesh = pCubeMesh;
-	//	child->AddComponent<Renderer>()->material = defaultMaterial;
-	//
-	//	model->AddChild(child);
-	//	model->AddComponent<RotatingBehavior>();
-	//}
-	//
-	//{
-	//	GameObject* model = CreateEmpty();
-	//	model->transform->position = Vector3{ -400, 0, 0 };
-	//	model->AddComponent<MeshFilter>()->mesh = pCubeMesh;
-	//	model->AddComponent<Renderer>()->material = defaultMaterial;
-	//
-	//	GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
-	//	
-	//	child->parent = model;
-	//	child->transform->position = Vector3{ 0, 0, 400 };
-	//	child->AddComponent<MeshFilter>()->mesh = pCubeMesh;
-	//	child->AddComponent<Renderer>()->material = defaultMaterial;
-	//	
-	//	model->AddChild(child);
-	//	model->AddComponent<RotatingBehavior>();
-	//}
-	//
-	//{
-	//	GameObject* model = CreateEmpty();
-	//	model->transform->position = Vector3{ 400, 0, 0 };
-	//	model->AddComponent<MeshFilter>()->mesh = pCubeMesh;
-	//	model->AddComponent<Renderer>()->material = defaultMaterial;
-	//
-	//	GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
-	//	child->parent = model;
-	//	model->AddChild(child);
-	//	model->AddComponent<RotatingBehavior>();
-	//}
+	GameObject* cube = CreateEmpty();
+	{
+		cube->AddComponent<MeshFilter>()->mesh = pCubeMesh;
+		cube->AddComponent<Renderer>()->material = defaultMaterial;
+		cube->AddComponent<RotatingBehavior>();
+		//cube->AddComponent<MovingBehavior>();
+	}
 
 	float interval = 150.f;
 	int xObjects = 4, yObjects = 1, zObjects = 4, i = 0;
@@ -91,13 +53,13 @@ void GameScene::BuildObjects()
 	
 				GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
 				model->AddChild(child);
-				model->AddComponent<RotatingBehavior>();
-				model->AddComponent<MovingBehavior>();
+				model->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.f, 90.f);
+				//model->AddComponent<MovingBehavior>();
+				model->AddComponent<RotorBehavior>();
 			}
 
-	//GameObject* _sceneManager = AddGameObject();
-	//{
-	//	SceneManager* sceneManager = _sceneManager->AddComponent<SceneManager>();
-	//	sceneManager->gameObject = cube;
-	//}
+	GameObject* sceneManager = CreateEmpty();
+	{
+		sceneManager->AddComponent<SceneManager>()->gameObject = cube;
+	}
 }

@@ -171,6 +171,9 @@
     <ClInclude Include="Time.h">
       <Filter>0_00_CyanEngine\11_Interface</Filter>
     </ClInclude>
+    <ClInclude Include="RotorBehavior.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

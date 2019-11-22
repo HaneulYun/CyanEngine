@@ -60,18 +60,11 @@ T* GameObject::AddComponent(T* _component)
 	components.push_back(component);
 
 	if (typeid(Transform).name() == typeid(*_component).name())
-	{
 		transform = dynamic_cast<Transform*>(component);
-	}
 	if (typeid(MeshFilter).name() == typeid(*_component).name())
-	{
 		meshFilter = component;
-	}
 	if (typeid(Renderer).name() == typeid(*_component).name())
-	{
 		renderer = component;
-	}
-
 	component->gameObject = this;
 
 	return dynamic_cast<T*>(component);
