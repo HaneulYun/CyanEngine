@@ -73,6 +73,9 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 #include "Camera.h"
 #include "Terrain.h"
 
+#include "Collider.h"
+#include "BoxCollider.h"
+
 #include "MonoBehavior.h"
 
 #include "ModelManager.h"
