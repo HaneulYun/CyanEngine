@@ -88,10 +88,12 @@ private:
 				sceneManager->StartGame();
 				break;
 			//case MESSAGE_BULLET_CREATE:
-				//sceneManager->CreateBullet(buf.mParam, buf.rParam);
+			//	sceneManager->CreateBullet(buf.mParam, buf.rParam);
 			//	sceneManager->player[myid]->Shoot();
 			//	break;
-
+			//case MESSAGE_BULLET_CREATE:
+			//	sceneManager->CreateEnemy(buf.mParam);
+			//	break;
 			}
 			LeaveCriticalSection(&rqcs);
 		}

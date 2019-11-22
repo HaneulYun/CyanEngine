@@ -11,3 +11,4 @@
 #include "Thread.h"
 #include "SceneManager.h"
 #include "RotorBehavior.h"
+#include "WhirlingBehavior.h""
