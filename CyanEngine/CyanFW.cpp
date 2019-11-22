@@ -29,8 +29,6 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 void CyanFW::OnDestroy()
 {
-	if (scene)
-		scene->Destroy();
 }
 
 void CyanFW::FrameAdvance()

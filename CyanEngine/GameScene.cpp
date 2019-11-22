@@ -4,8 +4,11 @@
 GameObject* SceneManager::scenemanager;
 
 
+Scene* Scene::scene{ nullptr };
+
 void GameScene::BuildObjects()
 {
+	scene = this;
 	Quad* pQuadMesh = new Quad(10.0f, 10.0f);
 	Circle* pCircleMesh = new Circle(10, 48);
 	CircleLine* pCircleLineMesh = new CircleLine(25.f);

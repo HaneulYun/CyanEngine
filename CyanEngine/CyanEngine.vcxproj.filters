@@ -21,9 +21,6 @@
     <Filter Include="0_00_CyanEngine\20_Scene">
       <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\30_MANAGER">
-      <UniqueIdentifier>{49fd7a77-e251-4134-81a5-4118fe56c241}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine\90_PATTERN">
       <UniqueIdentifier>{554ca85f-d882-4f3c-a855-931b01dcb805}</UniqueIdentifier>
     </Filter>
@@ -54,6 +51,14 @@
     <Filter Include="1_00_YellowProject\10_Scripts\11_Form">
       <UniqueIdentifier>{1acdfba3-2a73-4300-801d-621662c8d63e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\30_Manager">
+      <UniqueIdentifier>{49fd7a77-e251-4134-81a5-4118fe56c241}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\11_Interface">
+      <UniqueIdentifier>{01839377-33fb-4f77-ac2e-7c2ac006ab2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\12_Math">
+      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
     <Filter Include="1_00_YellowProject\리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -97,10 +102,10 @@
       <Filter>0_00_CyanEngine\10_CORE</Filter>
     </ClInclude>
     <ClInclude Include="RendererManager.h">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>0_00_CyanEngine\10_CORE</Filter>
@@ -144,14 +149,8 @@
     <ClInclude Include="RevolvingBehavior.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
-    </ClInclude>
-    <ClInclude Include="Random.h">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
-    </ClInclude>
     <ClInclude Include="Vector3.h">
-      <Filter>0_00_CyanEngine\15_Math</Filter>
+      <Filter>0_00_CyanEngine\12_Math</Filter>
     </ClInclude>
     <ClInclude Include="Spawner.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
@@ -177,11 +176,26 @@
     <ClInclude Include="Vertex.h">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="Time.h">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
-    </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MonoBehavior.h">
+      <Filter>0_00_CyanEngine\10_CORE</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelManager.h">
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="RotorBehavior.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -216,10 +230,10 @@
       <Filter>0_00_CyanEngine\10_CORE</Filter>
     </ClCompile>
     <ClCompile Include="RendererManager.cpp">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>0_00_CyanEngine\10_CORE</Filter>
@@ -248,17 +262,20 @@
     <ClCompile Include="GameScene.cpp">
       <Filter>1_00_YellowProject\00_Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
-    </ClCompile>
-    <ClCompile Include="Random.cpp">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
-    </ClCompile>
-    <ClCompile Include="Time.cpp">
-      <Filter>0_00_CyanEngine\30_MANAGER</Filter>
-    </ClCompile>
     <ClCompile Include="Terrain.cpp">
       <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelManager.cpp">
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Random.cpp">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

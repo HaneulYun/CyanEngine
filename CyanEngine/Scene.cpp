@@ -33,12 +33,6 @@ void Scene::Render()
 	rendererManager->Render();
 }
 
-void Scene::Destroy()
-{
-	ReleaseObjects();
-	rendererManager->Destroy();
-}
-
 void Scene::BuildObjects()
 {
 }
@@ -50,40 +44,25 @@ void Scene::ReleaseObjects()
 	gameObjects.clear();
 }
 
-GameObject* Scene::CreateGameObject()
+GameObject* Scene::CreateEmpty()
 {
 	GameObject* gameObject = new GameObject();
 	gameObject->scene = this;
+	gameObjects.push_back(gameObject);
 
 	return gameObject;
 }
 
-GameObject* Scene::CreateGameObject(GameObject* _gameObject)
+GameObject* Scene::Duplicate(GameObject* _gameObject)
 {
 	GameObject* gameObject = new GameObject(_gameObject);
 	gameObject->scene = this;
-
-	return gameObject;
-}
-
-GameObject* Scene::AddGameObject()
-{
-	GameObject* gameObject = new GameObject();
-	gameObject->scene = this;
 	gameObjects.push_back(gameObject);
 
 	return gameObject;
 }
 
-GameObject* Scene::AddGameObject(GameObject* gameObject)
-{
-	gameObject->scene = this;
-	gameObjects.push_back(gameObject);
-
-	return gameObject;
-}
-
-void Scene::RemoveGameObject(GameObject* gameObject)
+void Scene::Delete(GameObject* gameObject)
 {
 	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
 		if (*iter == gameObject)
