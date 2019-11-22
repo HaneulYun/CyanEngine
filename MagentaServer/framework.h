@@ -52,6 +52,7 @@ using namespace DirectX::PackedVector;
 #include "SendingThread.h"
 #include "ThreadPool.h"
 
+#include "MagentaFW.h"
 
 namespace NS_Vector4
 {

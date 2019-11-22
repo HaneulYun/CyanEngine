@@ -57,6 +57,7 @@ DWORD WINAPI Messenger(LPVOID arg)
 			printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n",
 				inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 			msgt->isWorking = false;
+			msgt->isReady = false;
 
 			Message sendMsg = ThreadPool::curConnectedClients();
 			EnterCriticalSection(&ThreadPool::sqcs);

@@ -3,6 +3,7 @@
 #include "pch.h"
 
 HANDLE EndEvent;
+MagentaFW gMagentaFW;
 
 int main(int argc, char* argv[])
 {
@@ -29,11 +30,10 @@ int main(int argc, char* argv[])
 	// listen()
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit((char*)"listen()");
-	
+
+	gMagentaFW.OnCreate();
 	ThreadPool::Instance();
 	ThreadPool::setConnectingThread(&listen_sock);
-	Scene* scene = new Scene();
-	//Scene::Instance();
 
 	EndEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if (EndEvent == NULL) return 1;
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 	SetEvent(EndEvent);
 
 	CloseHandle(EndEvent);
-	delete(scene);
+	gMagentaFW.OnDestroy();
 	// 윈속 종료
 	WSACleanup();
 	return 0;

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "MainThread.h"
 
+extern MagentaFW gMagentaFW;
+
 MainThread::MainThread(int tId, LPVOID fParam)
 	: Thread(tId, Calculate, fParam)
 {
@@ -17,11 +19,7 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 	Message result;
 
 	while (1) {
-		//if (GameScene::gameState == Runtime)
-		//{
-		//	Time::Instance()->Tick();
-		//	Scene::star->Update();
-		//}
+		gMagentaFW.FrameAdvance();
 
 		while (!ThreadPool::recvQueue.empty())
 		{
