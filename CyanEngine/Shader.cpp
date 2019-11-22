@@ -148,7 +148,7 @@ ID3D12RootSignature* Shader::CreateGraphicsRootSignature(ID3D12Device* _device)
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
-	D3D12_ROOT_PARAMETER rootParameter[3];
+	D3D12_ROOT_PARAMETER rootParameter[2];
 	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	rootParameter[0].Constants.Num32BitValues = 16;
 	rootParameter[0].Constants.ShaderRegister = 0;
@@ -161,10 +161,10 @@ ID3D12RootSignature* Shader::CreateGraphicsRootSignature(ID3D12Device* _device)
 	rootParameter[1].Constants.RegisterSpace = 0;
 	rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
-	rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-	rootParameter[2].Descriptor.ShaderRegister = 0;
-	rootParameter[2].Descriptor.RegisterSpace = 0;
-	rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	//rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	//rootParameter[2].Descriptor.ShaderRegister = 0;
+	//rootParameter[2].Descriptor.RegisterSpace = 0;
+	//rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |

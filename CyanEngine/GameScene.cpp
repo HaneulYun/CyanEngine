@@ -4,8 +4,11 @@
 GameObject* SceneManager::scenemanager;
 
 
+Scene* Scene::scene{ nullptr };
+
 void GameScene::BuildObjects()
 {
+	scene = this;
 	Quad* pQuadMesh = new Quad(10.0f, 10.0f);
 	Circle* pCircleMesh = new Circle(10, 48);
 	CircleLine* pCircleLineMesh = new CircleLine(25.f);
@@ -18,7 +21,7 @@ void GameScene::BuildObjects()
 	object->AddComponent<MeshFilter>();
 	object->AddComponent<Renderer>()->material = defaultMaterial;
 
-	GameObject* scenemanager = AddGameObject();
+	GameObject* scenemanager = CreateEmpty();
 	SceneManager* scnmgr = scenemanager->AddComponent<SceneManager>();
 
 	GameObject* star = Instantiate(object);
@@ -55,16 +58,16 @@ void GameScene::BuildObjects()
 	GameObject* enemy = CreateGameObject(object);
 	{
 		enemy->GetComponent<MeshFilter>()->mesh = pQuadMesh;
-		enemy->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>();
+		enemy->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 	}
 	
-	GameObject* spawner = AddGameObject();
+	GameObject* spawner = CreateEmpty();
 	{
 		spawner->AddComponent<Spawner>()->enemy = enemy;
 	}
 
-	GameObject* Recvthread = AddGameObject(); {
-		Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
+	GameObject* Recvthread = CreateEmpty(); {
+		//Recvthread->AddComponent<Thread>()->severip = "192.168.22.159";
 		//Recvthread->GetComponent<Thread>()
 	}
 }

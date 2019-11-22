@@ -9,3 +9,5 @@
 #include "StarGuardian.h"
 #include "Bullet.h"
 #include "Thread.h"
+#include "SceneManager.h"
+#include "RotorBehavior.h"
