@@ -1,7 +1,5 @@
 #pragma once
 
-class ThreadPool;
-
 class SendingThread : public Thread
 {
 public:

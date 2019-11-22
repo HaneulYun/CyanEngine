@@ -17,7 +17,9 @@ class Scene : public Object
 {
 protected:
 	std::deque<GameObject*> gameObjects;
-//	RendererManager* rendererManager;
+
+public:
+	static Scene* scene;
 
 public:
 	Scene();
@@ -25,14 +27,17 @@ public:
 
 	virtual void Start();
 	virtual void Update();
-	virtual void Destroy();
 
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();
 
 	GameObject* CreateGameObject();
-	GameObject* CreateGameObject(GameObject* gameObject);
-	GameObject* AddGameObject();
-	GameObject* AddGameObject(GameObject* gameObject);
-	void RemoveGameObject(GameObject* gameObject);
+	GameObject* CreateGameObject(GameObject*);
+	//GameObject* AddGameObject();
+	//GameObject* AddGameObject(GameObject* gameObject);
+	//void RemoveGameObject(GameObject* gameObject);
+
+	GameObject* CreateEmpty();
+	GameObject* Duplicate(GameObject*);
+	void Delete(GameObject* gameObject);
 };

@@ -41,6 +41,7 @@ using namespace DirectX::PackedVector;
 #include "Bullet.h"
 #include "Star.h"
 #include "Scene.h"
+#include "GameScene.h"
 
 #include "Message.h"
 #include "Thread.h"
@@ -75,7 +76,7 @@ namespace NS_Matrix4x4
 		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixIdentity());
 		return(xmmtx4x4Result);
 	}
-	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
+	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, const XMFLOAT4X4& xmmtx4x4Matrix2)
 	{
 		XMFLOAT4X4 xmmtx4x4Result;
 		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * XMLoadFloat4x4(&xmmtx4x4Matrix2));
