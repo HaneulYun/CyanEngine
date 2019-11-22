@@ -44,6 +44,12 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 					LeaveCriticalSection(&ThreadPool::sqcs);
 				}
 				break;
+			case MESSAGE_REQUEST_BULLET_CREATION:
+				result.msgId = MESSAGE_CREATE_BULLET;
+				result.lParam = curMessage.lParam;
+				result.mParam = curMessage.mParam;
+				result.rParam = curMessage.rParam;
+				break;
 			}
 		}
 

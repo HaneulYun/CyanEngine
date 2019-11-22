@@ -87,7 +87,7 @@ private:
 			case MESSAGE_GAME_START:
 				sceneManager->StartGame();
 				break;
-			case MESSAGE_REQUEST_BULLET_CREATION:
+			case MESSAGE_CREATE_BULLET:
 				sceneManager->CreateBullet(buf.mParam, buf.rParam);
 				break;
 			//case MESSAGE_BULLET_CREATE:
