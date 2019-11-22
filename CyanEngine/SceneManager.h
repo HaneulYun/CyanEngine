@@ -40,8 +40,9 @@ public:
 	Vector3 AngletoDir(float angle)
 	{
 		Vector3 axis{ 0.0f, 0.0f, 1.0f };
+		Vector3 v{ 0.0f, 1.0f, 0.0f };
 		XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&axis.xmf3), XMConvertToRadians(angle));
-		return NS_Vector3::TransformCoord(axis.xmf3, mtxRotate);
+		return NS_Vector3::TransformCoord(v.xmf3, mtxRotate);
 	}
 
 	float DirtoAngle(Vector3 direction) // -180~180
@@ -89,8 +90,6 @@ public:
 
 			Vector3 direction = NS_Vector3::Normalize((Camera::main->ScreenToWorldPoint(Input::mousePosition) - player[myid]->transform->position).xmf3);
 			direction.z = 0;		
-
-			starGuardian->Shoot(1, direction);
 
 			//Send Shoot Message
 			Message message;
