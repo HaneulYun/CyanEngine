@@ -61,16 +61,35 @@ public:
 	{
 		static float time = 0;
 		time += Time::deltaTime;
+
+		XMFLOAT3 position = (player[myid]->transform->position / 2).xmf3;
+		XMFLOAT3 lookAt = position;
+		position.z = -10;
+		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+
+		Camera::main->GenerateViewMatrix(position, lookAt, up);
+
 		if (gameState == START)
 			angle += speedRotating * Time::deltaTime;
 
-		if (Input::GetMouseButtonDown(0) && ready == false) {
+		if (Input::GetMouseButtonDown(0) && !ready) {
 			ready = true;
-			Message message;
+			/*Message message;
 			message.msgId = MESSAGE_READY;
 			message.lParam = myid;
-			int retval = send(*sock, (char*)& message, sizeof(Message), 0);
+			int retval = send(*sock, (char*)& message, sizeof(Message), 0);*/
 		}
+		else if (Input::GetMouseButtonDown(0) && ready) {
+			StarGuardian* starGuardian = player[myid]->GetComponent<StarGuardian>();
+			starGuardian->Shoot(1);
+			//Send Shoot Message
+			//Message message;
+			//message.msgId = MESSAGE_CREATE_BULLET;
+			//message.lParam = myid;
+			//int retval = send(*sock, (char*)& message, sizeof(Message), 0);
+		}
+
+
 	}
 
 	void CreatePlayer(int id) {
@@ -92,6 +111,4 @@ public:
 			//player[i]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * i;
 		}
 	}
-
 };
-

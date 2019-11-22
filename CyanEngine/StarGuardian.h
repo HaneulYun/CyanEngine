@@ -2,7 +2,7 @@
 #include "framework.h"
 #include "Bullet.h"
 
-class StarGuadian : public Component
+class StarGuardian : public Component
 {
 private:
 	// 이 영역에 private 변수를 선언하세요.
@@ -13,13 +13,13 @@ public:
 
 private:
 	friend class GameObject;
-	StarGuadian() {}
-	StarGuadian(StarGuadian&) = default;
+	StarGuardian() {}
+	StarGuardian(StarGuardian&) = default;
 
 public:
-	~StarGuadian() {}
-	virtual Component* Duplicate() { return new StarGuadian; };
-	virtual Component* Duplicate(Component* component) { return new StarGuadian(*(StarGuadian*)component); }
+	~StarGuardian() {}
+	virtual Component* Duplicate() { return new StarGuardian; };
+	virtual Component* Duplicate(Component* component) { return new StarGuardian(*(StarGuardian*)component); }
 
 	void Starguadiant()
 	{
@@ -29,7 +29,12 @@ public:
 	void Update()
 	{
 		// 업데이트 코드를 작성하세요.
-		if (Input::GetMouseButtonDown(0)) {
+		
+	}
+
+	void Shoot(int type)
+	{
+		//if (Input::GetMouseButtonDown(0)) {
 			GameObject* object = Instantiate(bullet);
 			Vector3 mousepostion = Camera::main->ScreenToWorldPoint(Input::mousePosition);
 
@@ -37,14 +42,7 @@ public:
 			Vector3 direction = mousepostion - object->transform->position;
 			direction.z = 0;
 			object->GetComponent<Bullet>()->direction = direction;
-		}
-
-		XMFLOAT3 position = (gameObject->transform->position / 2).xmf3;
-		XMFLOAT3 lookAt = position;
-		position.z = -10;
-		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-
-		Camera::main->GenerateViewMatrix(position, lookAt, up);
+		//}
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
