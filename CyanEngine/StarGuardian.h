@@ -32,17 +32,11 @@ public:
 		
 	}
 
-	void Shoot(int type)
+	void Shoot(int type, Vector3 direction)
 	{
-		//if (Input::GetMouseButtonDown(0)) {
-			GameObject* object = Instantiate(bullet);
-			Vector3 mousepostion = Camera::main->ScreenToWorldPoint(Input::mousePosition);
-
-			object->transform->position = gameObject->transform->position;
-			Vector3 direction = mousepostion - object->transform->position;
-			direction.z = 0;
-			object->GetComponent<Bullet>()->direction = direction;
-		//}
+		GameObject* object = Instantiate(bullet);
+		object->transform->position = gameObject->transform->position;
+		object->GetComponent<Bullet>()->direction = direction;
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.

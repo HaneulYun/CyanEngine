@@ -88,6 +88,7 @@ private:
 				sceneManager->StartGame();
 				break;
 			//case MESSAGE_BULLET_CREATE:
+				//sceneManager->CreateBullet(buf.mParam, buf.rParam);
 			//	sceneManager->player[myid]->Shoot();
 			//	break;
 

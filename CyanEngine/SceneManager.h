@@ -37,6 +37,24 @@ public:
 	virtual Component* Duplicate() { return new SceneManager; }
 	virtual Component* Duplicate(Component* component) { return new SceneManager(*(SceneManager*)component); }
 
+	Vector3 AngletoDir(float angle)
+	{
+		Vector3 axis{ 0.0f, 0.0f, 1.0f };
+		XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&axis.xmf3), XMConvertToRadians(angle));
+		return NS_Vector3::TransformCoord(axis.xmf3, mtxRotate);
+	}
+
+	float DirtoAngle(Vector3 direction) // -180~180
+	{
+		Vector3 axis{ 0.0f, 1.0f, 0.0f };
+		float angle = NS_Vector3::Angle(axis.xmf3, direction.xmf3);
+
+		if (NS_Vector3::CrossProduct(axis.xmf3, direction.xmf3).z < 0.f)
+			angle = -angle;
+
+		return angle;
+	}
+
 	void Start()
 	{
 		scenemanager = gameObject;
@@ -66,7 +84,6 @@ public:
 		XMFLOAT3 lookAt = position;
 		position.z = -10;
 		XMFLOAT3 up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-
 		Camera::main->GenerateViewMatrix(position, lookAt, up);
 
 		if (gameState == START)
@@ -81,15 +98,19 @@ public:
 		}
 		else if (Input::GetMouseButtonDown(0) && ready) {
 			StarGuardian* starGuardian = player[myid]->GetComponent<StarGuardian>();
-			starGuardian->Shoot(1);
+
+			Vector3 direction = NS_Vector3::Normalize((Camera::main->ScreenToWorldPoint(Input::mousePosition) - player[myid]->transform->position).xmf3);
+			direction.z = 0;		
+
+			starGuardian->Shoot(1, direction);
+
 			//Send Shoot Message
 			//Message message;
 			//message.msgId = MESSAGE_CREATE_BULLET;
-			//message.lParam = myid;
+			//message.mParam = myid;
+			//message.rParam = DirtoAngle(direction);
 			//int retval = send(*sock, (char*)& message, sizeof(Message), 0);
 		}
-
-
 	}
 
 	void CreatePlayer(int id) {
@@ -110,5 +131,11 @@ public:
 			revolvingBehavior->angle = 120.f * i;
 			//player[i]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * i;
 		}
+	}
+
+	void CreateBullet(int id, float angle)
+	{
+		Vector3 direction = AngletoDir(angle);
+		player[id]->GetComponent<StarGuardian>()->Shoot(1, direction);
 	}
 };
