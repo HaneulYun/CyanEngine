@@ -44,6 +44,22 @@ void Scene::ReleaseObjects()
 	gameObjects.clear();
 }
 
+GameObject* Scene::CreateGameObject()
+{
+	GameObject* gameObject = new GameObject();
+	gameObject->scene = this;
+
+	return gameObject;
+}
+
+GameObject* Scene::CreateGameObject(GameObject* _gameObject)
+{
+	GameObject* gameObject = new GameObject(_gameObject);
+	gameObject->scene = this;
+
+	return gameObject;
+}
+
 GameObject* Scene::CreateEmpty()
 {
 	GameObject* gameObject = new GameObject();

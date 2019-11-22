@@ -20,7 +20,8 @@ public:
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();
 
-	//GameObject* CreateGameObject();
+	GameObject* CreateGameObject();
+	GameObject* CreateGameObject(GameObject*);
 	//GameObject* AddGameObject();
 	//GameObject* AddGameObject(GameObject* gameObject);
 	//void RemoveGameObject(GameObject* gameObject);

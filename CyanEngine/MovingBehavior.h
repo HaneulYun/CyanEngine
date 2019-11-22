@@ -9,6 +9,7 @@ private:
 public:
 	// 이 영역에 public 변수를 선언하세요.
 	Vector3 target{ 0, 0, 0 };
+	Vector3 old;
 
 	float speed{ 15 };
 
