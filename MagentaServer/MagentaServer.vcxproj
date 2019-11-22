@@ -143,10 +143,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="MagentaFW.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SendingThread.cpp" />
     <ClCompile Include="ConnectingThread.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -156,6 +160,7 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PrintErrors.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="Star.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="Time.cpp" />
@@ -166,9 +171,11 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="K.h" />
+    <ClInclude Include="GameScene.h" />
+    <ClInclude Include="MagentaFW.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SendingThread.h" />
     <ClInclude Include="ConnectingThread.h" />
     <ClInclude Include="Globals.h" />

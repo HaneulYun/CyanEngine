@@ -16,23 +16,29 @@
     <Filter Include="Thread">
       <UniqueIdentifier>{b90e9537-1738-4931-8702-a94867c402b7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Pool">
-      <UniqueIdentifier>{c6c1867d-4fe7-4fcc-8fa5-d04ed65e37ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Message">
       <UniqueIdentifier>{be4e7688-b419-49ff-96d3-dd6cf177a3c9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameScene">
-      <UniqueIdentifier>{a24875da-dff0-4cf9-8979-09acc0b7daf2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameScene\GameObjects">
-      <UniqueIdentifier>{0ed6d2cc-5dc2-43e6-a994-6f0afc954689}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{625e08da-4a42-4c3c-b49b-5d4dc2e17fc3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Components">
       <UniqueIdentifier>{bc4843da-a761-47e1-b9c7-784077319d53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{e70618e7-5249-4409-912e-943fe35f87e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\GameScene">
+      <UniqueIdentifier>{a24875da-dff0-4cf9-8979-09acc0b7daf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\GameScene\GameObjects">
+      <UniqueIdentifier>{0ed6d2cc-5dc2-43e6-a994-6f0afc954689}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{c6c1867d-4fe7-4fcc-8fa5-d04ed65e37ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MagentaServer">
+      <UniqueIdentifier>{4bd153a0-e5cf-42d0-bda4-b9bdda0f5e8f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,7 +67,7 @@
       <Filter>Thread</Filter>
     </ClCompile>
     <ClCompile Include="ThreadPool.cpp">
-      <Filter>Pool</Filter>
+      <Filter>Manager</Filter>
     </ClCompile>
     <ClCompile Include="Message.cpp">
       <Filter>Message</Filter>
@@ -71,9 +77,6 @@
     </ClCompile>
     <ClCompile Include="Time.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>GameScene</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
       <Filter>Core</Filter>
@@ -86,6 +89,24 @@
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Bullet.cpp">
+      <Filter>Scene\GameScene\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Star.cpp">
+      <Filter>Scene\GameScene\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScene.cpp">
+      <Filter>Scene\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="MagentaFW.cpp">
+      <Filter>MagentaServer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -120,16 +141,13 @@
       <Filter>Thread</Filter>
     </ClInclude>
     <ClInclude Include="Star.h">
-      <Filter>GameScene\GameObjects</Filter>
+      <Filter>Scene\GameScene\GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="Time.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>GameScene</Filter>
-    </ClInclude>
     <ClInclude Include="Bullet.h">
-      <Filter>GameScene\GameObjects</Filter>
+      <Filter>Scene\GameScene\GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="Vector3.h">
       <Filter>헤더 파일</Filter>
@@ -148,12 +166,6 @@
     </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPool.h">
-      <Filter>Pool</Filter>
-    </ClInclude>
-    <ClInclude Include="K.h">
-      <Filter>Pool</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

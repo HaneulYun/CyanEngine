@@ -1,24 +1,8 @@
 #include "pch.h"
 #include "Scene.h"
 
-//Star* Scene::star;
-//int Scene::gameState;
-//
-//Scene::Scene()
-//{
-//	star = new Star();
-//	gameState = Waiting;
-//}
-//
-//Scene::~Scene()
-//{
-//	delete star;
-//}
-//
-
 Scene::Scene()
 {
-	//rendererManager = RendererManager::Instance();
 }
 
 Scene::~Scene()
@@ -29,29 +13,14 @@ void Scene::Start()
 {
 	BuildObjects();
 
-	//for (GameObject* gameObject : gameObjects)
-	//	gameObject->Start();
 	for (int i = 0; i < gameObjects.size(); ++i)
 		gameObjects[i]->Start();
-	//rendererManager->UpdateManager();;
 }
 
 void Scene::Update()
 {
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Update();
-	//rendererManager->UpdateManager();
-}
-
-//void Scene::Render()
-//{
-//	//rendererManager->Render();
-//}
-
-void Scene::Destroy()
-{
-	ReleaseObjects();
-	//rendererManager->Destroy();
 }
 
 void Scene::BuildObjects()
@@ -81,7 +50,7 @@ GameObject* Scene::CreateGameObject(GameObject* _gameObject)
 	return gameObject;
 }
 
-GameObject* Scene::AddGameObject()
+GameObject* Scene::CreateEmpty()
 {
 	GameObject* gameObject = new GameObject();
 	gameObject->scene = this;
@@ -90,36 +59,22 @@ GameObject* Scene::AddGameObject()
 	return gameObject;
 }
 
-GameObject* Scene::AddGameObject(GameObject* gameObject)
+GameObject* Scene::Duplicate(GameObject* _gameObject)
 {
+	GameObject* gameObject = new GameObject(_gameObject);
 	gameObject->scene = this;
 	gameObjects.push_back(gameObject);
 
 	return gameObject;
 }
 
-void Scene::RemoveGameObject(GameObject* gameObject)
+void Scene::Delete(GameObject* gameObject)
 {
 	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
 		if (*iter == gameObject)
 		{
-			//Renderer* renderer = gameObject->GetComponent<Renderer>();
-			//MeshFilter* meshFilter = gameObject->GetComponent<MeshFilter>();
-			//
-			//if (!meshFilter)
-			//	meshFilter = gameObject->GetComponent<Terrain>();
-			//auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
-			//auto& list = rendererManager->instances[pair].second;
-			//for (auto mgrIter = list.begin(); mgrIter != list.end(); ++mgrIter)
-			//	if (*mgrIter == gameObject)
-			//	{
-			//		list.erase(mgrIter);
-			//		break;
-			//	}
-
 			delete (*iter);
 			gameObjects.erase(iter);
 			return;
-			//iter = gameObjects.erase(iter);
 		}
 }

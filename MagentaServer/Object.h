@@ -16,5 +16,5 @@ public:
 	}
 
 	GameObject* Instantiate(GameObject* original);
+	void Destroy(GameObject* obj);
 };
-

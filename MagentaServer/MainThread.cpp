@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "MainThread.h"
 
+extern MagentaFW gMagentaFW;
+
 MainThread::MainThread(int tId, LPVOID fParam)
 	: Thread(tId, Calculate, fParam)
 {
@@ -17,11 +19,7 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 	Message result;
 
 	while (1) {
-		//if (Scene::gameState == Runtime)
-		//{
-		//	Time::Instance()->Tick();
-		//	Scene::star->Update();
-		//}
+		gMagentaFW.FrameAdvance();
 
 		while (!ThreadPool::recvQueue.empty())
 		{
@@ -33,30 +31,6 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 			// 임시(테스트용)
 			switch (curMessage.msgId)
 			{
-			case ADD:
-				result.msgId = 'E';
-				result.lParam = curMessage.lParam + curMessage.mParam + curMessage.rParam;
-				result.mParam = curMessage.lParam + curMessage.mParam + curMessage.rParam;
-				result.rParam = curMessage.lParam + curMessage.mParam + curMessage.rParam;
-				printf("%d\n", result.lParam);
-
-				EnterCriticalSection(&ThreadPool::sqcs);
-				ThreadPool::sendQueue.push(result);
-				LeaveCriticalSection(&ThreadPool::sqcs);
-				break;
-
-			case SUB:
-				result.msgId = 'E';
-				result.lParam = curMessage.lParam - curMessage.mParam - curMessage.rParam;
-				result.mParam = curMessage.lParam - curMessage.mParam - curMessage.rParam;
-				result.rParam = curMessage.lParam - curMessage.mParam - curMessage.rParam;
-				printf("%d\n", result.lParam);
-
-				EnterCriticalSection(&ThreadPool::sqcs);
-				ThreadPool::sendQueue.push(result);
-				LeaveCriticalSection(&ThreadPool::sqcs);
-				break;
-
 			case MESSAGE_READY:
 				ThreadPool::clients[curMessage.lParam]->isReady = true;
 				if (ThreadPool::isAllClientsReady())
