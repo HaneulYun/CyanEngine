@@ -49,6 +49,9 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 				result.lParam = curMessage.lParam;
 				result.mParam = curMessage.mParam;
 				result.rParam = curMessage.rParam;
+				EnterCriticalSection(&ThreadPool::sqcs);
+				ThreadPool::sendQueue.push(result);
+				LeaveCriticalSection(&ThreadPool::sqcs);
 				break;
 			}
 		}
