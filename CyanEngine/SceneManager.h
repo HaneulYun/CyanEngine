@@ -93,11 +93,11 @@ public:
 			starGuardian->Shoot(1, direction);
 
 			//Send Shoot Message
-			//Message message;
-			//message.msgId = MESSAGE_CREATE_BULLET;
-			//message.mParam = myid;
-			//message.rParam = DirtoAngle(direction);
-			//int retval = send(*sock, (char*)& message, sizeof(Message), 0);
+			Message message;
+			message.msgId = MESSAGE_REQUEST_BULLET_CREATION;
+			message.mParam = myid;
+			message.rParam = DirtoAngle(direction);
+			int retval = send(*sock, (char*)& message, sizeof(Message), 0);
 		}
 	}
 

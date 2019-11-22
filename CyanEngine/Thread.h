@@ -87,10 +87,9 @@ private:
 			case MESSAGE_GAME_START:
 				sceneManager->StartGame();
 				break;
-			//case MESSAGE_BULLET_CREATE:
-			//	sceneManager->CreateBullet(buf.mParam, buf.rParam);
-			//	sceneManager->player[myid]->Shoot();
-			//	break;
+			case MESSAGE_REQUEST_BULLET_CREATION:
+				sceneManager->CreateBullet(buf.mParam, buf.rParam);
+				break;
 			//case MESSAGE_BULLET_CREATE:
 			//	sceneManager->CreateEnemy(buf.mParam);
 			//	break;
