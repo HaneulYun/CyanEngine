@@ -1,5 +1,5 @@
 #pragma once
-#include "Time.h"
+#include "pch.h"
 
 class Star
 {

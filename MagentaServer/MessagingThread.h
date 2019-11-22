@@ -1,8 +1,6 @@
 #pragma once
-#include <windows.h>
-#include <queue>
-#include "Message.h"
-#include "Thread.h"
+
+class ThreadPool;
 
 class MessagingThread : public Thread
 {

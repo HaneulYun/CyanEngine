@@ -1,6 +1,8 @@
 #pragma once
 
 class Scene;
+class Component;
+class Transform;
 
 class GameObject : public Object
 {
@@ -10,7 +12,7 @@ public:
 	std::deque<Component*> components;
 	Transform* transform{ nullptr };
 	Component* meshFilter{ nullptr };
-	Component* renderer{ nullptr };
+	//Component* renderer{ nullptr };
 
 private:
 	friend class Scene;
@@ -47,14 +49,14 @@ T* GameObject::AddComponent(T* _component)
 	{
 		transform = dynamic_cast<Transform*>(component);
 	}
-	if (typeid(MeshFilter).name() == typeid(*_component).name())
-	{
-		meshFilter = component;
-	}
-	if (typeid(Renderer).name() == typeid(*_component).name())
-	{
-		renderer = component;
-	}
+	//if (typeid(MeshFilter).name() == typeid(*_component).name())
+	//{
+	//	meshFilter = component;
+	//}
+	//if (typeid(Renderer).name() == typeid(*_component).name())
+	//{
+	//	renderer = component;
+	//}
 
 	component->gameObject = this;
 
@@ -70,10 +72,10 @@ T* GameObject::AddComponent()
 
 	if (typeid(Transform).name() == typeid(T).name())
 		transform = dynamic_cast<Transform*>(component);
-	if (typeid(MeshFilter).name() == typeid(T).name())
-		meshFilter = component;
-	if (typeid(Renderer).name() == typeid(T).name())
-		renderer = component;
+	//if (typeid(MeshFilter).name() == typeid(T).name())
+	//	meshFilter = component;
+	//if (typeid(Renderer).name() == typeid(T).name())
+	//	renderer = component;
 
 	return dynamic_cast<T*>(component);
 }

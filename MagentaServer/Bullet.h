@@ -1,8 +1,7 @@
 #pragma once
-#include "Vector3.h"
-#include "Time.h"
+#include "pch.h"
 
-class Bullet
+class Bullet : public Component
 {
 private:
 	// 이 영역에 private 변수를 선언하세요.
@@ -19,8 +18,8 @@ private:
 
 public:
 	~Bullet() {}
-	//virtual Component* Duplicate() { return new Bullet; };
-	//virtual Component* Duplicate(Component* component) { return new Bullet(*(Bullet*)component); }
+	virtual Component* Duplicate() { return new Bullet; };
+	virtual Component* Duplicate(Component* component) { return new Bullet(*(Bullet*)component); }
 
 	void Start()
 	{

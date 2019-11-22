@@ -1,6 +1,6 @@
 #pragma once
-#include <windows.h>
-#include "Thread.h"
+
+class ThreadPool;
 
 DWORD WINAPI Calculate(LPVOID arg);
 

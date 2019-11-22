@@ -1,7 +1,5 @@
 #pragma once
 #include "pch.h"
-#include <math.h>
-#include <wchar.h>
 #include "Time.h"
 
 float Time::deltaTime = 0;

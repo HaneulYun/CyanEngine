@@ -1,5 +1,6 @@
 #pragma once
-#include "Thread.h"
+
+class ThreadPool;
 
 class ConnectingThread : public Thread
 {

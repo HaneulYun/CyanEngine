@@ -1,14 +1,5 @@
 #pragma once
-#include <vector>
-#include <queue>
-#include "Singleton.h"
-#include "MainThread.h"
-#include "SendingThread.h"
-#include "ConnectingThread.h"
-#include "MessagingThread.h"
-#include "Message.h"
-
-using namespace std;
+#include "pch.h"
 
 class ThreadPool : public Singleton<ThreadPool>
 {
