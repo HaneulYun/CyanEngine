@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "GameScene.h"
 
-Scene* Scene::scene{ nullptr };
+GameObject* SceneManager::scenemanager;
+Scene* Scene::scene = nullptr;
 
 void GameScene::BuildObjects()
 {
@@ -9,6 +10,7 @@ void GameScene::BuildObjects()
 
 	GameObject* object = CreateGameObject();
 	GameObject* scenemanager = CreateEmpty();
+	SceneManager* scnmgr = scenemanager->AddComponent<SceneManager>();
 	
 	GameObject* star = Instantiate(object);
 	{

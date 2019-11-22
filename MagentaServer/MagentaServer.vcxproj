@@ -149,6 +149,7 @@
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SendingThread.cpp" />
     <ClCompile Include="ConnectingThread.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SendingThread.h" />
     <ClInclude Include="ConnectingThread.h" />
     <ClInclude Include="Globals.h" />

@@ -42,6 +42,7 @@ using namespace DirectX::PackedVector;
 #include "Star.h"
 #include "Scene.h"
 #include "GameScene.h"
+#include "SceneManager.h"
 
 #include "Message.h"
 #include "Thread.h"

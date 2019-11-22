@@ -16,9 +16,6 @@
     <Filter Include="Thread">
       <UniqueIdentifier>{b90e9537-1738-4931-8702-a94867c402b7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Pool">
-      <UniqueIdentifier>{c6c1867d-4fe7-4fcc-8fa5-d04ed65e37ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Message">
       <UniqueIdentifier>{be4e7688-b419-49ff-96d3-dd6cf177a3c9}</UniqueIdentifier>
     </Filter>
@@ -36,6 +33,9 @@
     </Filter>
     <Filter Include="Scene\GameScene\GameObjects">
       <UniqueIdentifier>{0ed6d2cc-5dc2-43e6-a994-6f0afc954689}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{c6c1867d-4fe7-4fcc-8fa5-d04ed65e37ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -64,7 +64,7 @@
       <Filter>Thread</Filter>
     </ClCompile>
     <ClCompile Include="ThreadPool.cpp">
-      <Filter>Pool</Filter>
+      <Filter>Manager</Filter>
     </ClCompile>
     <ClCompile Include="Message.cpp">
       <Filter>Message</Filter>
@@ -98,6 +98,9 @@
     </ClCompile>
     <ClCompile Include="GameScene.cpp">
       <Filter>Scene\GameScene</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -159,13 +162,16 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ThreadPool.h">
-      <Filter>Pool</Filter>
+      <Filter>Manager</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="GameScene.h">
       <Filter>Scene\GameScene</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Manager</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

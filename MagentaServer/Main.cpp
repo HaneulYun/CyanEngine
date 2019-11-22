@@ -30,7 +30,6 @@ int main(int argc, char* argv[])
 	retval = listen(listen_sock, SOMAXCONN);
 	if (retval == SOCKET_ERROR) err_quit((char*)"listen()");
 	
-	//ThreadPool* threadPool = new ThreadPool(5, listenSocket);
 	ThreadPool::Instance();
 	ThreadPool::setConnectingThread(&listen_sock);
 	Scene* scene = new Scene();
