@@ -7,18 +7,20 @@ private:
 
 protected:
 	Component() = default;
-	Component(Component& component) = default;
+	Component(Component&) = default;
 
 public:
 	GameObject* gameObject{ nullptr };
 
 public:
-	virtual ~Component() {}
+	virtual ~Component();
 
 	void UpdateComponent();
 
 	virtual void Start() {}
 	virtual void Update() {}
+	virtual void Render() {}
+	virtual void Destroy() {}
 
 	virtual Component* Duplicate(Component* component) { return new Component(*component); }
 };

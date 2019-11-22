@@ -1,12 +1,5 @@
-#include <stdio.h>
-#include <queue>
-#include "ThreadPool.h"
+#include "pch.h"
 #include "MessagingThread.h"
-#include "Globals.h"
-#include "PrintErrors.h"
-
-queue<Message> ThreadPool::recvQueue;
-CRITICAL_SECTION ThreadPool::rqcs;
 
 MessagingThread::MessagingThread(int tId, LPVOID fParam)
 	: Thread(tId, Messenger, (LPVOID)tId)

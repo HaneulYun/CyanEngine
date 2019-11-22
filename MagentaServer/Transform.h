@@ -15,7 +15,7 @@ public:
 			Vector3 forward;	float _02;
 			Vector3 position;	float _03;
 		};
-		XMFLOAT4X4 localToWorldMatrix ;
+		XMFLOAT4X4 localToWorldMatrix;
 	};
 
 public:
@@ -25,6 +25,8 @@ public:
 
 	void Start() override {}
 	void Update() override {}
+	void Render() override {}
+	void Destroy() override {}
 
 	virtual Component* Duplicate() { return new Transform; };
 	virtual Component* Duplicate(Component* component) { return new Transform(*(Transform*)component); }

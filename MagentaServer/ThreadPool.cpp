@@ -1,12 +1,15 @@
-#include "ThreadPool.h"
-#include "Scene.h"
-#include "PrintErrors.h"
-#include "Globals.h"
+#include "pch.h"
+//#include "ThreadPool.h"
 
 MainThread* ThreadPool::mainThread;
 ConnectingThread* ThreadPool::connThread;
 SendingThread* ThreadPool::sendThread;
 vector<MessagingThread*> ThreadPool::clients;
+
+queue<Message> ThreadPool::recvQueue;
+CRITICAL_SECTION ThreadPool::rqcs;
+CRITICAL_SECTION ThreadPool::sqcs;
+queue<Message> ThreadPool::sendQueue;
 
 int ThreadPool::maxClients = 3;
 int ThreadPool::nClients = 0;

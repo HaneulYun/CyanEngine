@@ -76,7 +76,8 @@ void RendererManager::Update()
 		for (auto& gameObject : d.second.second)
 		{
 			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
+			
+			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
 			++j;
 		}
 	}
@@ -129,7 +130,12 @@ void RendererManager::Render()
 		commandList->SetPipelineState(d.second.first->shader->m_ppd3dPipelineStates[0]);
 		m_pCamera->UpdateShaderVariables(commandList.Get());
 
-		if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
+		std::string str1 = typeid(*mesh).name();
+		std::string str2 = typeid(CMeshIlluminatedFromFile).name();
+
+		if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
+			((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0, d.second.first->view);
+		else if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
 			mesh->Render(d.second.second.size(), d.second.first->view);
 		else
 			mesh->Render(d.second.second.size());

@@ -143,6 +143,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Component.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SendingThread.cpp" />
     <ClCompile Include="ConnectingThread.cpp" />
@@ -153,13 +156,18 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PrintErrors.cpp" />
     <ClCompile Include="Singleton.cpp" />
-    <ClCompile Include="Star.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
-    <ClCompile Include="ThreadPool.h" />
     <ClCompile Include="Time.cpp" />
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bullet.h" />
+    <ClInclude Include="Component.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="K.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SendingThread.h" />
     <ClInclude Include="ConnectingThread.h" />
@@ -172,7 +180,10 @@
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Star.h" />
     <ClInclude Include="Thread.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="Time.h" />
+    <ClInclude Include="Transform.h" />
+    <ClInclude Include="Vector3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

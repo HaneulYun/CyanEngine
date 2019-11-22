@@ -1,22 +1,20 @@
-﻿#pragma once
+#pragma once
 
-#include "targetver.h"
-#define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
-// Windows 헤더 파일
-#include <windows.h>
-// C 런타임 헤더 파일입니다.
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
+#include <winsock2.h>
 #include <stdlib.h>
-#include <malloc.h>
-#include <memory.h>
-#include <tchar.h>
-
-#include <math.h>
-
+#include <Windows.h>
 #include <string>
-#include <wrl.h>
-//#include <shellapi.h>
-
+#include <vector>
+#include <queue>
+#include <deque>
+#include <stdio.h>
+#include <math.h>
+#include <wchar.h>
 #include <typeinfo>
+
+using namespace std;
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -30,71 +28,33 @@
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
-using Microsoft::WRL::ComPtr;
-
-#pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxgi.lib")
-
-#define FRAME_BUFFER_WIDTH 1600
-#define FRAME_BUFFER_HEIGHT 900
-#define PI (3.141592f)
-
-//typedef XMFLOAT3 Vector3;
-
-//#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
-
-//#define SAFE_DELETE(p) { if(p) { delete p; p = nullptr; } }
-
-ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
-
-#include <deque>
-#include <map>
-
+#include "Globals.h"
 #include "Singleton.h"
-
+#include "PrintErrors.h"
+#include "Time.h"
 #include "Vector3.h"
 
-#include "Time.h"
-#include "Input.h"
-#include "Random.h"
-
 #include "Object.h"
-#include "Shader.h"
-#include "Mesh.h"
-
-#include "Material.h"
-#include "DefaultMaterial.h"
+#include "GameObject.h"
 
 #include "Component.h"
 #include "Transform.h"
-#include "MeshFilter.h"
-#include "Renderer.h"
-#include "Camera.h"
-#include "Terrain.h"
-
-#include "MonoBehavior.h"
-
-#include "ModelManager.h"
-#include "ShaderManager.h"
-#include "RendererManager.h"
-
-#include "GameObject.h"
 
 #include "Scene.h"
-#include "GameScene.h"
-
-#include "CyanWindow.h"
-#include "CyanFW.h"
 
 
-#define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+#include "Message.h"
+#include "Thread.h"
+#include "ConnectingThread.h"
+#include "MainThread.h"
+#include "MessagingThread.h"
+#include "SendingThread.h"
 
-#define MAX_LIGHTS			8
-#define MAX_MATERIALS		8
-#define POINT_LIGHT			1
-#define SPOT_LIGHT			2
-#define DIRECTIONAL_LIGHT	3
+#include "ThreadPool.h"
+#include "K.h"
+
+#include "Bullet.h"
+#include "Star.h"
 
 namespace NS_Vector4
 {
@@ -120,7 +80,7 @@ namespace NS_Matrix4x4
 		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixIdentity());
 		return(xmmtx4x4Result);
 	}
-	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, const XMFLOAT4X4& xmmtx4x4Matrix2)
+	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
 	{
 		XMFLOAT4X4 xmmtx4x4Result;
 		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * XMLoadFloat4x4(&xmmtx4x4Matrix2));

@@ -1,5 +1,4 @@
 #pragma once
-#include "Thread.h"
 
 class SendingThread : public Thread
 {

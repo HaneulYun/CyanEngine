@@ -1,14 +1,6 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS // 최신 VC++ 컴파일 시 경고 방지
 #pragma comment(lib, "ws2_32")
-#include <winsock2.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-#include "ThreadPool.h"
-#include "Scene.h"
-
-#include "Globals.h"
-#include "PrintErrors.h"
+#include "pch.h"
 
 HANDLE EndEvent;
 
@@ -41,7 +33,8 @@ int main(int argc, char* argv[])
 	//ThreadPool* threadPool = new ThreadPool(5, listenSocket);
 	ThreadPool::Instance();
 	ThreadPool::setConnectingThread(&listen_sock);
-	Scene::Instance();
+	Scene* scene = new Scene();
+	//Scene::Instance();
 
 	EndEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if (EndEvent == NULL) return 1;
@@ -54,7 +47,7 @@ int main(int argc, char* argv[])
 	SetEvent(EndEvent);
 
 	CloseHandle(EndEvent);
-
+	delete(scene);
 	// 윈속 종료
 	WSACleanup();
 	return 0;

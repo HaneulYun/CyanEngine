@@ -1,8 +1,5 @@
-#include <stdio.h>
+#include "pch.h"
 #include "MainThread.h"
-#include "ThreadPool.h"
-#include "Scene.h"
-#include "Time.h"
 
 MainThread::MainThread(int tId, LPVOID fParam)
 	: Thread(tId, Calculate, fParam)
@@ -20,11 +17,11 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 	Message result;
 
 	while (1) {
-		if (Scene::gameState == Runtime)
-		{
-			Time::Instance()->Tick();
-			Scene::star->Update();
-		}
+		//if (Scene::gameState == Runtime)
+		//{
+		//	Time::Instance()->Tick();
+		//	Scene::star->Update();
+		//}
 
 		while (!ThreadPool::recvQueue.empty())
 		{

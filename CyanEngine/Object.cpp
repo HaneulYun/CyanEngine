@@ -3,7 +3,11 @@
 
 GameObject* Object::Instantiate(GameObject* original)
 {
-	GameObject* instance = new GameObject(original);
-	original->scene->AddGameObject(instance);
+	GameObject* instance = original->scene->Duplicate(original);
 	return instance;
+}
+
+void Object::Destroy(GameObject* obj)
+{
+	obj->scene->Delete(obj);
 }

@@ -8,6 +8,18 @@ private:
 	float rotatingSpeed = 30.f;
 
 public:
-	void Update();
-	float getStandardAngle();
+
+	void Update()
+	{
+		static float time = 0;
+		time += Time::deltaTime;
+
+		standardAngle += rotatingSpeed * Time::deltaTime;
+		printf("Angle: %f\n", standardAngle);
+	}
+
+	float getStandardAngle()
+	{
+		return standardAngle;
+	}
 };

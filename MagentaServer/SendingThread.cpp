@@ -1,10 +1,5 @@
+#include "pch.h"
 #include "SendingThread.h"
-#include "ThreadPool.h"
-#include "PrintErrors.h"
-#include "Scene.h"
-
-CRITICAL_SECTION ThreadPool::sqcs;
-queue<Message> ThreadPool::sendQueue;
 
 SendingThread::SendingThread(int tId, LPVOID fParam)
 	:Thread(tId, Sender, (LPVOID)fParam)
@@ -39,8 +34,8 @@ DWORD WINAPI Sender(LPVOID arg)
 				}
 			}
 
-			if (curMessage.msgId == MESSAGE_GAME_START)
-				Scene::gameState = Runtime;
+			//if (curMessage.msgId == MESSAGE_GAME_START)
+			//	Scene::gameState = Runtime;
 
 			LeaveCriticalSection(&ThreadPool::sqcs);
 		}

@@ -1,6 +1,4 @@
 #pragma once
-#include <windows.h>
-#include "Thread.h"
 
 DWORD WINAPI Calculate(LPVOID arg);
 

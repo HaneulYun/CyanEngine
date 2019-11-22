@@ -1,5 +1,4 @@
-#include <windows.h>
-#include <stdio.h>
+#include "pch.h"
 #include "PrintErrors.h"
 
 // 소켓 함수 오류 출력 후 종료
