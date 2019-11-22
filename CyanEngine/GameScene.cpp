@@ -41,19 +41,35 @@ void GameScene::BuildObjects()
 	bullet->AddComponent<Bullet>();
 
 
-	GameObject* guardian = CreateGameObject(object);
-	{
+	//GameObject* guardian = CreateGameObject(object);
+	//{
+	//	guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+
+	//	/*RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
+	//	revolvingBehavior->target = star;
+	//	revolvingBehavior->radius = 25.f;*/
+
+	//	guardian->AddComponent<StarGuadian>();
+	//	guardian->GetComponent<StarGuadian>()->bullet = bullet;
+	//	scnmgr->playerprefab = guardian;
+	//	
+	//}
+
+	// 서버 연결X
+	for (int i = 0; i < 3; ++i) {
+		GameObject* guardian = Instantiate(object);
 		guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 
-		/*RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
+		RevolvingBehavior* revolvingBehavior = guardian->AddComponent<RevolvingBehavior>();
 		revolvingBehavior->target = star;
-		revolvingBehavior->radius = 25.f;*/
+		revolvingBehavior->radius = 25.f;
+		revolvingBehavior->angle = 120 * i;
 
-		guardian->AddComponent<StarGuadian>();
-		guardian->GetComponent<StarGuadian>()->bullet = bullet;
-		scnmgr->playerprefab = guardian;
-		
+		guardian->AddComponent<StarGuardian>();
+		guardian->GetComponent<StarGuardian>()->bullet = bullet;
+		scnmgr->player[i] = guardian;
 	}
+	
 
 	GameObject* enemy = CreateGameObject(object);
 	{
@@ -66,8 +82,8 @@ void GameScene::BuildObjects()
 		spawner->AddComponent<Spawner>()->enemy = enemy;
 	}
 
-	GameObject* Recvthread = CreateEmpty(); {
-		//Recvthread->AddComponent<Thread>()->severip = "192.168.22.159";
+	GameObject* Recvthread = CreateGameObject(); {
+		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
 		//Recvthread->GetComponent<Thread>()
 	}
 }

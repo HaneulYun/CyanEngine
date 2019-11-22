@@ -55,6 +55,7 @@ private:
 	{
 		Message buf;
 		int retval;
+		SceneManager* sceneManager = SceneManager::scenemanager->GetComponent<SceneManager>();
 
 		while (1) {
 			retval = recv((SOCKET)sock, (char*)&buf, sizeof(Message), 0);
@@ -70,22 +71,27 @@ private:
 			// 내가 접속했을 때
 			case MESSAGE_YOUR_ID:
 				id = buf.lParam;
-				SceneManager::scenemanager->GetComponent<SceneManager>()->myid = id;
-				SceneManager::scenemanager->GetComponent<SceneManager>()->angle = buf.mParam;
-				SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(id);
+				sceneManager->myid = id;
+				sceneManager->angle = buf.mParam;
+				sceneManager->CreatePlayer(id);
 				break;
 			// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
 			case MESSAGE_CONNECTED_IDS:
-				if (buf.lParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[0] == nullptr)
-					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(0);
-				if (buf.mParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[1] == nullptr)
-					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(1);
-				if (buf.rParam && SceneManager::scenemanager->GetComponent<SceneManager>()->player[2] == nullptr)
-					SceneManager::scenemanager->GetComponent<SceneManager>()->CreatePlayer(2);
+				if (buf.lParam && sceneManager->player[0] == nullptr)
+					sceneManager->CreatePlayer(0);
+				if (buf.mParam && sceneManager->player[1] == nullptr)
+					sceneManager->CreatePlayer(1);
+				if (buf.rParam && sceneManager->player[2] == nullptr)
+					sceneManager->CreatePlayer(2);
 				break;
 			case MESSAGE_GAME_START:
-				SceneManager::scenemanager->GetComponent<SceneManager>()->StartGame();
+				sceneManager->StartGame();
 				break;
+			//case MESSAGE_BULLET_CREATE:
+				//sceneManager->CreateBullet(buf.mParam, buf.rParam);
+			//	sceneManager->player[myid]->Shoot();
+			//	break;
+
 			}
 			LeaveCriticalSection(&rqcs);
 		}

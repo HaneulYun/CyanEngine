@@ -1,5 +1,7 @@
 #pragma once
+
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <winsock2.h>
 #include <stdlib.h>
 #include <Windows.h>
@@ -38,11 +40,10 @@ using namespace DirectX::PackedVector;
 #include "Component.h"
 #include "Transform.h"
 
-#include "Bullet.h"
-#include "Star.h"
 #include "Scene.h"
 #include "GameScene.h"
 #include "SceneManager.h"
+
 
 #include "Message.h"
 #include "Thread.h"
@@ -52,6 +53,8 @@ using namespace DirectX::PackedVector;
 #include "SendingThread.h"
 #include "ThreadPool.h"
 
+#include "Bullet.h"
+#include "Star.h"
 #include "MagentaFW.h"
 
 namespace NS_Vector4
