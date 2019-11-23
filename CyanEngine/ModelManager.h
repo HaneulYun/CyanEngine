@@ -49,36 +49,6 @@ public:
 	XMFLOAT4 m_xmf4Emissive = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 };
 
-class CMaterial
-{
-public:
-	CMaterial() {}
-	virtual ~CMaterial() {}
-
-private:
-	int m_nReferences = 0;
-
-public:
-	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
-
-	Shader* m_pShader = NULL;
-
-	CMaterialColors* m_pMaterialColors = NULL;
-
-	//void SetMaterialColors(CMaterialColors* pMaterialColors);
-	//void SetShader(Shader* pShader);
-	//void SetIlluminatedShader() { SetShader(m_pIlluminatedShader); }
-
-	//void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList);
-
-protected:
-	static Shader* m_pIlluminatedShader;
-
-public:
-	//static void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
-};
-
 class ModelManager : public Singleton<ModelManager>
 {
 private:

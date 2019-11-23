@@ -34,7 +34,7 @@ struct VS_LIGHTING_OUTPUT
 #include "Light.hlsl"
 
 
-VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input, uint nInstanceID : SV_InstanceID)
+VS_LIGHTING_OUTPUT VSTextured(VS_LIGHTING_INPUT input, uint nInstanceID : SV_InstanceID)
 {
 	VS_LIGHTING_OUTPUT output;
 
@@ -49,7 +49,7 @@ VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input, uint nInstanceID : SV_Ins
 	return(output);
 }
 
-float4 PSLighting(VS_LIGHTING_OUTPUT input) : SV_TARGET
+float4 PSTextured(VS_LIGHTING_OUTPUT input) : SV_TARGET
 {
 #ifdef _WITH_VERTEX_LIGHTING
 	return(input.color);
