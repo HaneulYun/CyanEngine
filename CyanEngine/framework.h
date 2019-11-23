@@ -14,7 +14,7 @@
 
 #include <string>
 #include <wrl.h>
-//#include <shellapi.h>
+#include <shellapi.h>
 
 #include <typeinfo>
 

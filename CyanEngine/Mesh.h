@@ -29,7 +29,7 @@ protected:
 	int m_nBaseVertex = 0;
 
 public:
-	virtual void Render(UINT nInstances = 1, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView = {});
+	virtual void Render(UINT nInstances = 1);
 };
 
 class TriangleMesh : public Mesh
@@ -195,6 +195,6 @@ protected:
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dNormalBufferView;
 
 public:
-	virtual void Render(int nSubSet, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
-	virtual void Render(UINT nInstances, int nSubSet, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView);
+	virtual void Render(int nSubSet);
+	virtual void Render(UINT nInstances, int nSubSet);
 };

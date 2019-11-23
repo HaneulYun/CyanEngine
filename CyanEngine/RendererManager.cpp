@@ -33,7 +33,7 @@ void RendererManager::UpdateManager()
 		isRenewed = true;
 		Start();
 	}
-	Update();
+	//Update();
 }
 
 void RendererManager::Start()
@@ -52,13 +52,9 @@ void RendererManager::Start()
 		}
 
 
-		d.second.first->resource = CreateBufferResource(NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+		d.second.first->resource = CreateBufferResource(NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
 		
 		d.second.first->resource->Map(0, NULL, (void**)& d.second.first->memory);
-		
-		d.second.first->view.BufferLocation = d.second.first->resource->GetGPUVirtualAddress();
-		d.second.first->view.StrideInBytes = sizeof(MEMORY);
-		d.second.first->view.SizeInBytes = sizeof(MEMORY) * d.second.second.size();
 	}
 
 	//commandList->Close();
@@ -73,6 +69,7 @@ void RendererManager::Update()
 	for (auto& d : instances)
 	{
 		int j = 0;
+		commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
 		for (auto& gameObject : d.second.second)
 		{
 			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -130,13 +127,18 @@ void RendererManager::Render()
 		commandList->SetPipelineState(d.second.first->shader->m_ppd3dPipelineStates[0]);
 		m_pCamera->UpdateShaderVariables(commandList.Get());
 
-		std::string str1 = typeid(*mesh).name();
-		std::string str2 = typeid(CMeshIlluminatedFromFile).name();
+		int j = 0;
+		commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
+		for (auto& gameObject : d.second.second)
+		{
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+
+			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
+			++j;
+		}
 
 		if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
-			((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0, d.second.first->view);
-		else if (memcmp(&d.second.first->view, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
-			mesh->Render(d.second.second.size(), d.second.first->view);
+			((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0);
 		else
 			mesh->Render(d.second.second.size());
 	}

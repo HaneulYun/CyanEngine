@@ -118,7 +118,12 @@ void Shader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dRoo
 	d3dPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	d3dPipelineStateDesc.SampleDesc.Count = 1;
 	d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-	pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)& m_ppd3dPipelineStates[0]);
+
+	HRESULT result{ S_OK };
+	ComPtr<ID3DBlob> error{ nullptr };
+	result = pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)& m_ppd3dPipelineStates[0]);
+	if (error)
+		OutputDebugStringA((const char*)error.Get()->GetBufferPointer());
 
 	if (pd3dVertexShaderBlob)
 		pd3dVertexShaderBlob->Release();
@@ -148,7 +153,7 @@ ID3D12RootSignature* Shader::CreateGraphicsRootSignature(ID3D12Device* _device)
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
-	D3D12_ROOT_PARAMETER rootParameter[2];
+	D3D12_ROOT_PARAMETER rootParameter[3];
 	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	rootParameter[0].Constants.Num32BitValues = 16;
 	rootParameter[0].Constants.ShaderRegister = 0;
@@ -161,10 +166,10 @@ ID3D12RootSignature* Shader::CreateGraphicsRootSignature(ID3D12Device* _device)
 	rootParameter[1].Constants.RegisterSpace = 0;
 	rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
-	//rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-	//rootParameter[2].Descriptor.ShaderRegister = 0;
-	//rootParameter[2].Descriptor.RegisterSpace = 0;
-	//rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+	rootParameter[2].Descriptor.ShaderRegister = 0;
+	rootParameter[2].Descriptor.RegisterSpace = 0;
+	rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags =
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -547,17 +552,11 @@ void ObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, Camera* p
 
 D3D12_INPUT_LAYOUT_DESC StandardShader::CreateInputLayout()
 {
-	UINT nInputElementDescs = 7;
+	UINT nInputElementDescs = 2;
 	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
-	pd3dInputElementDescs[2] = { "WORLDMATRIX", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 };
-	pd3dInputElementDescs[3] = { "WORLDMATRIX", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 };
-	pd3dInputElementDescs[4] = { "WORLDMATRIX", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 };
-	pd3dInputElementDescs[5] = { "WORLDMATRIX", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 };
-	pd3dInputElementDescs[6] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 64, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
