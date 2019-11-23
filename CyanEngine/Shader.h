@@ -2,16 +2,7 @@
 
 class GameObject;
 
-struct CB_GAMEOBJECT_INFO
-{
-	XMFLOAT4X4 m_xmf4x4World;
-};
-
-struct VS_VB_INSTANCE
-{
-	XMFLOAT4X4 m_xmf4x4Transform;
-	XMFLOAT4 m_xmcColor;
-};
+class Camera;
 
 class Shader
 {
@@ -49,6 +40,8 @@ public:
 
 	int m_nPipelineStates = 0;
 public:
+	ID3D12RootSignature* rootSignature;
+	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* _device);
 };
 
 class PlayerShader : public Shader

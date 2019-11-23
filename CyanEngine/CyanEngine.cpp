@@ -40,14 +40,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 	while (true)
 	{
-		if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
 			if (msg.message == WM_QUIT)
 				break;
-			if (!::TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 			{
-				::TranslateMessage(&msg);
-				::DispatchMessage(&msg);
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
 			}
 		}
 		else
@@ -89,8 +89,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    RECT rc = { 0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
    AdjustWindowRect(&rc, dwStyle, FALSE);
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, dwStyle,
-      CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr);
+   HWND hWnd = CreateWindowW(szWindowClass, szTitle, dwStyle,  CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr);
     
    gCyanFW.OnCreate(hInst, hWnd);
 

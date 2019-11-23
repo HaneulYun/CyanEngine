@@ -1,27 +1,45 @@
 #pragma once
 
+struct MEMORY
+{
+	XMFLOAT4X4 transform;
+	XMFLOAT4 color;
+};
+
 struct INSTANCING
 {
-	ID3D12Resource* m_pd3dcbGameObjects = NULL;
-	VS_VB_INSTANCE* m_pcbMappedGameObjects = NULL;
+	ID3D12Resource* resource{ nullptr };
+	MEMORY* memory{ nullptr };
 
-	D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
+	D3D12_VERTEX_BUFFER_VIEW view;
+
+	Shader* shader;
 };
 
 class RendererManager : public Singleton<RendererManager>
 {
-
 private:
-	// DXGI 备己 夸家
-	IDXGIFactory4* m_pdxgiFactory{ nullptr };
-	IDXGISwapChain3* m_pdxgiSwapChain{ nullptr };
+#if defined(_DEBUG)
+	ComPtr<ID3D12Debug> debug{ nullptr };
+#endif
+	ComPtr<IDXGIFactory4> factory{ nullptr };
+	ComPtr<IDXGISwapChain3> swapChain{ nullptr };
+public:
+	ComPtr<ID3D12Device> device{ nullptr };
+	ComPtr<ID3D12CommandQueue> commandQueue{ nullptr };
+	ComPtr<ID3D12CommandAllocator> commandAllocator{ nullptr };
+	ComPtr<ID3D12GraphicsCommandList> commandList{ nullptr };
+private:
+	ComPtr<ID3D12DescriptorHeap> rtvHeap{ nullptr };
+	ComPtr<ID3D12DescriptorHeap> dsvHeap{ nullptr };
 
 public:
-	std::map<std::pair<Shader*, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> instances;
-	 
+	bool isRenewed{ false };
+	void UpdateManager();
+
 public:
-	// DX 备己 夸家
-	ID3D12Device* m_pd3dDevice{ nullptr };
+	std::map<std::pair<std::string, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> instances;
+	 
 
 private:
 	bool m_bMsaa4xEnable{ false };
@@ -33,28 +51,19 @@ private:
 	UINT m_nSwapChainBufferIndex{ NULL };
 
 	ID3D12Resource* m_ppd3dRenderTargetBuffers[m_nSwapChainBuffers];
-	ID3D12DescriptorHeap* m_pd3dRtvDescriptorHeap{ nullptr };
 	UINT m_nRtvDescriptorIncrementSize{ 0 };
 
 	ID3D12Resource* m_pd3dDepthStencilBuffer{ nullptr };
-	ID3D12DescriptorHeap* m_pd3dDsvDescriptorHeap{ nullptr };
 	UINT m_nDsvDescriptorIncrementSize{ 0 };
 
-public:
-	ID3D12CommandQueue* m_pd3dCommandQueue{ nullptr };
-	ID3D12CommandAllocator* m_pd3dCommandAllocator{ nullptr };
-	static ID3D12GraphicsCommandList* m_pd3dCommandList;
 private:
 
 	ID3D12PipelineState* m_pd3dPipelineState{ nullptr };
 
-	ID3D12Fence* m_pd3dFence{ nullptr };
+	ComPtr<ID3D12Fence> fence{ nullptr };
 	UINT64 m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE m_hFenceEvent{ nullptr };
 
-#if defined(_DEBUG)
-	ID3D12Debug* m_pd3dDebugController{ nullptr };
-#endif
 	Camera* m_pCamera{ nullptr };
 
 
@@ -74,9 +83,9 @@ public:
 	//--------------//
 	void CreateDirect3DDevice();
 	void CreateCommandQueueAndList();
+	void CreateRtvAndDsvDescriptorHeaps();
 	void CreateSwapChain();
 
-	void CreateRtvAndDsvDescriptorHeaps();
 	void CreateRenderTargetView();
 	void CreateDepthStencilView();
 

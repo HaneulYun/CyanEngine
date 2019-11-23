@@ -1,24 +1,28 @@
 #pragma once
+#include "framework.h"
 
-class RotatingBehavior : public Component
+class RotatingBehavior : public MonoBehavior<RotatingBehavior>
 {
-private:
-	XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
-
 public:
-	XMFLOAT3 pos{ 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
 	float speedRotating{ 90.f };
 
 private:
 	friend class GameObject;
-	RotatingBehavior();
+	friend class MonoBehavior<RotatingBehavior>;
+	RotatingBehavior() = default;
+	RotatingBehavior(RotatingBehavior&) = default;
 
 public:
-	~RotatingBehavior();
+	~RotatingBehavior() {}
 
-	void Start() override;
-	void Update() override;
-	void Render() override;
-	void Destroy() override;
+	void Start() 
+	{
+	}
+
+	void Update() 
+	{
+		gameObject->transform ->Rotate(axis, speedRotating * Time::deltaTime);
+	}
 };
 

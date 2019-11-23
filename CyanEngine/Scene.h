@@ -2,39 +2,30 @@
 
 class Scene
 {
-private:
+protected:
 	std::deque<GameObject*> gameObjects;
 	RendererManager* rendererManager;
 
 public:
+	static Scene* scene;
+
+public:
 	Scene();
-	~Scene();
+	virtual ~Scene();
 
-	void Start();
+	virtual void Start();
+	virtual void Update();
+	virtual void Render();
 
-	void Update();
-	void Render();
+	virtual void BuildObjects();
+	virtual void ReleaseObjects();
 
-	void Destroy();
+	//GameObject* CreateGameObject();
+	//GameObject* AddGameObject();
+	//GameObject* AddGameObject(GameObject* gameObject);
+	//void RemoveGameObject(GameObject* gameObject);
 
-	//----------------//
-	void BuildObjects(ID3D12Device* pd3dDevice = nullptr);
-	void ReleaseObjects();
-	//void AnimateObjects(float fTimeElapsed = 0);
-
-	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-
-	//----------------//
-	//void ReleaseUploadBuffers();
-
-	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
-	ID3D12RootSignature* GetGraphicsRootSignature();
-
-private:
-	//InstancingShader* m_pShaders = NULL;
-	//int m_nShaders = 0;
-
-	ID3D12RootSignature* m_pd3dGraphicsRootSignature{ nullptr };
+	GameObject* CreateEmpty();
+	GameObject* Duplicate(GameObject*);
+	void Delete(GameObject* gameObject);
 };
-

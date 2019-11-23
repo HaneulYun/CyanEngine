@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "Component.h"
 
-Component::Component()
+void Component::UpdateComponent()
 {
-}
-
-Component::~Component()
-{
+	if (!isStarted)
+	{
+		isStarted = true;
+		this->Start();
+	}
+	this->Update();
 }

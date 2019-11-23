@@ -12,30 +12,20 @@ Renderer::~Renderer()
 
 void Renderer::Start()
 {
-	Renderer* renderer = static_cast<Renderer*>(gameObject->renderer); // GetComponent<Renderer>();
-	MeshFilter* meshFilter = static_cast<MeshFilter*>(gameObject->meshFilter); // GetComponent<MeshFilter>();
-
+	Renderer* renderer = gameObject->GetComponent<Renderer>();
+	MeshFilter* meshFilter = gameObject->GetComponent<MeshFilter>();
 	if (!renderer)
 		return;
 	if (!meshFilter)
-		return;
+		if(!(meshFilter = gameObject->GetComponent<Terrain>()))
+			return;
 	
-	auto pair = std::pair<Shader*, Mesh*>(renderer->material->shader, meshFilter->mesh);
+	auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
 
-	const type_info* t = &typeid(pair);
-
+	rendererManager->isRenewed = false;
 	rendererManager->instances[pair].second.push_back(gameObject);
 }
 
 void Renderer::Update()
-{
-	
-}
-
-void Renderer::Render()
-{
-}
-
-void Renderer::Destroy()
 {
 }

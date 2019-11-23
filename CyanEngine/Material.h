@@ -2,8 +2,10 @@
 
 class Material : public Object
 {
+public:
+	XMFLOAT4 albedo{ 1, 1, 1, 1 };
+
 private:
-	XMFLOAT4 albedo{ 0, 0, 0, 1 };
 
 	D3D12_SHADER_BYTECODE ps{ NULL };
 	D3D12_SHADER_BYTECODE vs{ NULL };
@@ -22,4 +24,8 @@ public:
 
 public:
 	Shader* shader;
+
+public:
+	Material() = default;
+	Material(Material&) = default;
 };

@@ -15,22 +15,19 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CyanWindow::m_hInstance = hInstance;
 	CyanWindow::m_hWnd = hMainWnd;
 
-	scene = new Scene();
+	scene = new GameScene();
 	if (scene)
 		scene->Start();
 
 	Time::Instance()->Reset();
-	
+	Input::Instance();
+	Random::Instance();
+	Random::Start();
+
 	return true;
 }
 
 void CyanFW::OnDestroy()
-{
-	if (scene)
-		scene->Destroy();
-}
-
-void CyanFW::ProcessInput()
 {
 }
 
@@ -38,13 +35,14 @@ void CyanFW::FrameAdvance()
 {
 	Time::Instance()->Tick();
 
+
 	scene->Update();
 	scene->Render();
 
-	Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
-	::SetWindowText(CyanWindow::m_hWnd, m_pszFrameRate);
+	Input::Update();
 
-	ProcessInput();
+	Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
+	SetWindowText(CyanWindow::m_hWnd, m_pszFrameRate);
 }
 
 void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -52,12 +50,13 @@ void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
+		Input::mouseDown[0] = true;
 		break;
+	case WM_RBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
-		break;
 	case WM_MOUSEMOVE:
+		Input::mousePosition = Vector3(LOWORD(lParam), HIWORD(lParam), 0);
 		break;
 	default:
 		break;
@@ -72,10 +71,9 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		switch (wParam)
 		{
 		case VK_ESCAPE:
-			::PostQuitMessage(0);
+			PostQuitMessage(0);
 			break;
 		case VK_RETURN:
-			break;
 		case VK_F8:
 			break;
 		case VK_F9:
