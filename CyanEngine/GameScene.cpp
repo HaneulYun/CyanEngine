@@ -35,6 +35,9 @@ void GameScene::BuildObjects()
 
 	GameObject* cube = CreateEmpty();
 	{
+		Material* defaultMaterial = new DefaultMaterial();
+		defaultMaterial->shader = new TextureShader();
+
 		cube->AddComponent<MeshFilter>()->mesh = pCubeMesh;
 		cube->AddComponent<Renderer>()->material = defaultMaterial;
 		cube->AddComponent<RotatingBehavior>();

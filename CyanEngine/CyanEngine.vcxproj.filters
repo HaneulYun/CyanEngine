@@ -285,5 +285,6 @@
     <FxCompile Include="Standard.hlsl" />
     <FxCompile Include="Lighting.hlsl" />
     <FxCompile Include="Light.hlsl" />
+    <FxCompile Include="Texture.hlsl" />
   </ItemGroup>
 </Project>
