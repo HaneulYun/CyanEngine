@@ -61,6 +61,9 @@
     <Filter Include="0_00_CyanEngine\12_Math">
       <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\80_API">
+      <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -180,6 +183,9 @@
     <ClInclude Include="BoxCollider.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
+    <ClInclude Include="DDSTextureLoader12.h">
+      <Filter>0_00_CyanEngine\80_API</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -265,6 +271,9 @@
     </ClCompile>
     <ClCompile Include="BoxCollider.cpp">
       <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>0_00_CyanEngine\80_API</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
