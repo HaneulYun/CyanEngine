@@ -43,18 +43,24 @@ void RendererManager::Start()
 		if (!d.second.first)
 		{
 			d.second.first = new INSTANCING();
-
 			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
+
 			//Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
 			shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
 			shader->m_ppd3dPipelineStates = new ID3D12PipelineState * [1];
 			shader->CreateShader(device.Get(), shader->rootSignature);
+
 		}
 
-
 		d.second.first->resource = CreateBufferResource(NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
-		
-		d.second.first->resource->Map(0, NULL, (void**)& d.second.first->memory);
+
+		d.second.first->resource->Map(0, NULL, (void**)&d.second.first->memory);
+
+		if (typeid(d.second.first->shader).name() == typeid(TextureShader).name())
+		{
+			UINT ncbElementBytes = ((sizeof(MEMORY) + 255) & ~255);
+			d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
+		}
 	}
 
 	//commandList->Close();
@@ -73,7 +79,7 @@ void RendererManager::Update()
 		for (auto& gameObject : d.second.second)
 		{
 			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-			
+
 			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
 			++j;
 		}
@@ -82,7 +88,7 @@ void RendererManager::Update()
 
 void RendererManager::PreRender()
 {
-	HRESULT hResult = commandAllocator->Reset(); 
+	HRESULT hResult = commandAllocator->Reset();
 	hResult = commandList->Reset(commandAllocator.Get(), NULL);
 
 	// m_pd3dCommandList->RSSetViewports(1, &m_d3dViewport);
@@ -220,7 +226,7 @@ inline void RendererManager::CreateDirect3DDevice()
 	device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &d3dMsaaQualityLevels, sizeof(D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS));
 	m_nMsaa4xQualityLevels = d3dMsaaQualityLevels.NumQualityLevels;
 	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
-	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)& fence);
+	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)&fence);
 
 	m_nFenceValues[0] = 0;
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -236,8 +242,8 @@ inline void RendererManager::CreateCommandQueueAndList()
 	device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&commandQueue));
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), NULL, IID_PPV_ARGS(&commandList));
-	
-	commandList->Close(); 
+
+	commandList->Close();
 	commandList->Reset(commandAllocator.Get(), NULL);
 }
 
@@ -255,7 +261,7 @@ inline void RendererManager::CreateRtvAndDsvDescriptorHeaps()
 
 	descriptorHeapDesc.NumDescriptors = 1;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-	
+
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 	m_nDsvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
@@ -307,11 +313,11 @@ inline void RendererManager::CreateSwapChain()
 inline void RendererManager::CreateRenderTargetView()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	
+
 	HRESULT hResult;
 	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
 	{
-		hResult = swapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void**)& m_ppd3dRenderTargetBuffers[i]);
+		hResult = swapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_ppd3dRenderTargetBuffers[i]);
 		device->CreateRenderTargetView(m_ppd3dRenderTargetBuffers[i], NULL, d3dRtvCPUDescriptorHandle);
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
@@ -344,7 +350,7 @@ inline void RendererManager::CreateDepthStencilView()
 	d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	d3dClearValue.DepthStencil.Depth = 1.0f;
 	d3dClearValue.DepthStencil.Stencil = 0;
-	device->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void**)& m_pd3dDepthStencilBuffer);
+	device->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void**)&m_pd3dDepthStencilBuffer);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	device->CreateDepthStencilView(m_pd3dDepthStencilBuffer, NULL, d3dDsvCPUDescriptorHandle);

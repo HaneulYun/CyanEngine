@@ -198,3 +198,10 @@ public:
 	virtual void Render(int nSubSet);
 	virtual void Render(UINT nInstances, int nSubSet);
 };
+
+class CCubeMeshTextured : public Mesh
+{
+public:
+	CCubeMeshTextured(float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
+	virtual ~CCubeMeshTextured() {}
+};

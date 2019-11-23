@@ -5,6 +5,8 @@ struct MEMORY
 };
 
 StructuredBuffer<MEMORY> instance : register(t0);
+Texture2D gtxtTexture : register(t1);
+SamplerState gSamplerState : register(s0);
 
 cbuffer cbCameraInfo : register(b1)
 {
@@ -18,6 +20,7 @@ struct VS_LIGHTING_INPUT
 {
 	float3 position : POSITION;
 	float3 normal : NORMAL;
+	float2 uv : TEXCOORD;
 };
 
 struct VS_LIGHTING_OUTPUT
@@ -29,6 +32,7 @@ struct VS_LIGHTING_OUTPUT
 #else
 	float3 normalW : NORMAL;
 #endif
+	float2 uv : TEXCOORD;
 };
 
 #include "Light.hlsl"
@@ -46,16 +50,20 @@ VS_LIGHTING_OUTPUT VSTextured(VS_LIGHTING_INPUT input, uint nInstanceID : SV_Ins
 #else
 	output.normalW = normalW;
 #endif
+	output.uv = input.uv;
 	return(output);
 }
 
 float4 PSTextured(VS_LIGHTING_OUTPUT input) : SV_TARGET
 {
 #ifdef _WITH_VERTEX_LIGHTING
+	float4 cColor = gtxtTexture.Sample(gSamplerState, input.uv);
+	return(cColor);
 	return(input.color);
 #else
 	float3 normalW = normalize(input.normalW);
 	float4 color = Lighting(input.positionW, normalW);
+
 	return(color);
 #endif
 }

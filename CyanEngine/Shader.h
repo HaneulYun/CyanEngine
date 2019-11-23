@@ -31,7 +31,7 @@ public:
 	void CreateConstantBufferViews(int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
 	void CreateShaderResourceViews(CTexture* pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
 
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) { }
+	virtual void CreateShaderVariables() { }
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList) { }
 	virtual void ReleaseShaderVariables() { }
 
