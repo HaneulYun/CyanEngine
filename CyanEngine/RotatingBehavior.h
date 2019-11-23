@@ -1,7 +1,7 @@
 #pragma once
 #include "framework.h"
 
-class RotatingBehavior : public Component
+class RotatingBehavior : public MonoBehavior<RotatingBehavior>
 {
 public:
 	XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
@@ -9,6 +9,7 @@ public:
 
 private:
 	friend class GameObject;
+	friend class MonoBehavior<RotatingBehavior>;
 	RotatingBehavior() = default;
 	RotatingBehavior(RotatingBehavior&) = default;
 
@@ -23,8 +24,5 @@ public:
 	{
 		gameObject->transform ->Rotate(axis, speedRotating * Time::deltaTime);
 	}
-
-	virtual Component* Duplicate() { return new RotatingBehavior; };
-	virtual Component* Duplicate(Component* component) { return new RotatingBehavior(*(RotatingBehavior*)component); }
 };
 
