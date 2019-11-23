@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GameScene.h"
 
+
 Scene* Scene::scene{ nullptr };
 
 void GameScene::BuildObjects()
@@ -61,6 +62,20 @@ void GameScene::BuildObjects()
 				child->children[27]->AddComponent<RotatingBehavior>()->speedRotating = 360;
 				child->children[7]->AddComponent<RotatingBehavior>()->speedRotating = -720;
 			}
+
+	CTexture* ppTextures[TEXTURES];
+	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	ppTextures[0]->LoadTextureFromFile(L"Texture/Lava(Diffuse).dds", 0);
+	ppTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	ppTextures[1]->LoadTextureFromFile(L"Texture/Stone01.dds", 0);
+	ppTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	ppTextures[2]->LoadTextureFromFile(L"Texture/Metal01.dds", 0);
+	ppTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	ppTextures[3]->LoadTextureFromFile(L"Texture/Metal02.dds", 0);
+	ppTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	ppTextures[4]->LoadTextureFromFile(L"Texture/Rock01.dds", 0);
+	ppTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	ppTextures[5]->LoadTextureFromFile(L"Texture/Lava(Emissive).dds", 0);
 
 	GameObject* sceneManager = CreateEmpty();
 	{

@@ -88,7 +88,7 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 	return(pd3dBuffer);
 }
 
-ID3D12Resource* CreateTextureResourceFromFile(wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates)
+ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates)
 {
 	ID3D12Resource* pd3dTexture = NULL;
 	std::unique_ptr<uint8_t[]> ddsData;

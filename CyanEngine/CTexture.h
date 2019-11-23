@@ -1,5 +1,7 @@
 #pragma once
 
+#define TEXTURES 6
+
 #define RESOURCE_TEXTURE2D			0x01
 #define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]
 #define RESOURCE_TEXTURE2DARRAY		0x03
@@ -44,7 +46,7 @@ public:
 	void UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nIndex);
 	void ReleaseShaderVariables();
 
-	void LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, wchar_t* pszFileName, UINT nIndex);
+	void LoadTextureFromFile(const wchar_t* pszFileName, UINT nIndex);
 
 	int GetTextures() { return(m_nTextures); }
 	ID3D12Resource* GetTexture(int nIndex) { return(m_ppd3dTextures[nIndex]); }
