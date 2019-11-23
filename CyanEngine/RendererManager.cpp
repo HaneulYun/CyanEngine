@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "RendererManager.h"
 
+extern UINT gnCbvSrvDescriptorIncrementSize;
+
 RendererManager::RendererManager()
 {
 	for (int i = 0; i < m_nSwapChainBuffers; i++)
@@ -52,14 +54,14 @@ void RendererManager::Start()
 
 		}
 
-		d.second.first->resource = CreateBufferResource(NULL, sizeof(MEMORY) * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
+		UINT ncbElementBytes = ((sizeof(MEMORY) + 255) & ~255);
+		d.second.first->resource = CreateBufferResource(NULL, ncbElementBytes * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
 
 		d.second.first->resource->Map(0, NULL, (void**)&d.second.first->memory);
 
-		if (typeid(d.second.first->shader).name() == typeid(TextureShader).name())
+		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name())
 		{
-			UINT ncbElementBytes = ((sizeof(MEMORY) + 255) & ~255);
-			d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
+			//d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
 		}
 	}
 
@@ -83,6 +85,10 @@ void RendererManager::Update()
 			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
 			++j;
 		}
+		//for (int i = 0; i < m_nTextures; i++)
+		//{
+		//	commandList->SetGraphicsRootDescriptorTable(m_pRootArgumentInfos[i].m_nRootParameterIndex, m_pRootArgumentInfos[i].m_d3dSrvGpuDescriptorHandle);
+		//}
 	}
 }
 
@@ -131,7 +137,13 @@ void RendererManager::Render()
 
 		commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
 		commandList->SetPipelineState(d.second.first->shader->m_ppd3dPipelineStates[0]);
+
 		m_pCamera->UpdateShaderVariables(commandList.Get());
+
+		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name())
+		{
+			commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
+		}
 
 		int j = 0;
 		commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
@@ -143,6 +155,16 @@ void RendererManager::Render()
 			++j;
 		}
 
+		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name())
+		{
+			TextureShader* shader = dynamic_cast<TextureShader*>(d.second.first->shader);
+			commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
+			for (int i = 0; i < TEXTURES; i++)
+			{
+				commandList->SetGraphicsRootDescriptorTable(shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_nRootParameterIndex, shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
+			}
+		}
+		
 		if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
 			((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0);
 		else
@@ -230,6 +252,8 @@ inline void RendererManager::CreateDirect3DDevice()
 
 	m_nFenceValues[0] = 0;
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+
+	gnCbvSrvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 inline void RendererManager::CreateCommandQueueAndList()

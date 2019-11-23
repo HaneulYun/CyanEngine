@@ -19,8 +19,8 @@ cbuffer cbCameraInfo : register(b1)
 struct VS_LIGHTING_INPUT
 {
 	float3 position : POSITION;
-	float3 normal : NORMAL;
 	float2 uv : TEXCOORD;
+	float3 normal : NORMAL;
 };
 
 struct VS_LIGHTING_OUTPUT
@@ -56,9 +56,10 @@ VS_LIGHTING_OUTPUT VSTextured(VS_LIGHTING_INPUT input, uint nInstanceID : SV_Ins
 
 float4 PSTextured(VS_LIGHTING_OUTPUT input) : SV_TARGET
 {
-#ifdef _WITH_VERTEX_LIGHTING
+	//return float4(input.uv.x, input.uv.y, 0, 1);
 	float4 cColor = gtxtTexture.Sample(gSamplerState, input.uv);
 	return(cColor);
+#ifdef _WITH_VERTEX_LIGHTING
 	return(input.color);
 #else
 	float3 normalW = normalize(input.normalW);

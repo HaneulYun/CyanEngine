@@ -20,7 +20,8 @@ public:
 	void Start()
 	{
 		Material* defaultMaterial = new DefaultMaterial();
-		defaultMaterial->shader = new TextureShader();
+		TextureShader* shader = new TextureShader();
+		defaultMaterial->shader = shader;
 
 		gameObject->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(14.0f, 14.0f, 14.0f);;
 		gameObject->AddComponent<Renderer>()->material = defaultMaterial;
@@ -46,12 +47,22 @@ public:
 		for (int i = 0; i < TEXTURES; i++)
 			defaultMaterial->shader->CreateShaderResourceViews(ppTextures[i], 3, false);
 
-		CMaterial* ppMaterials[TEXTURES];
 		for (int i = 0; i < TEXTURES; i++)
 		{
-			ppMaterials[i] = new CMaterial();
-			ppMaterials[i]->SetTexture(ppTextures[i]);
+			shader->ppMaterials[i] = new CMaterial();
+			shader->ppMaterials[i]->SetTexture(ppTextures[i]);
 		}
+
+
+		float interval = 150.f;
+		int xObjects = 5, yObjects = 5, zObjects = 5, i = 0;
+		for (int x = -xObjects; x <= xObjects; x++)
+			for (int y = -yObjects; y <= yObjects; y++)
+				for (int z = -zObjects; z <= zObjects; z++)
+				{
+					GameObject* model = Instantiate(gameObject);
+					model->transform->position = Vector3{ interval * x, interval * y, interval * z };
+				}
 	}
 
 	void Update()
@@ -64,29 +75,29 @@ public:
 		if (Input::GetMouseButtonDown(0))
 			instancing = !instancing;
 
-		if (instancing)
-		{
-			if (time > boundary)
-			{
-				for (int i = 0; i < 1; ++i)
-				{
-					auto instance = Instantiate(gameObject);
-					float x = Random::Range(-1500, 1500);
-					float y = Random::Range(-1500, 1500);
-					float z = Random::Range(-1000, 2000);
-					instance->transform->position = Vector3{ x, y, z };
-
-					float r = Random::Range(0.0f, 1.0f);
-					float g = Random::Range(0.0f, 1.0f);
-					float b = Random::Range(0.0f, 1.0f);
-					instance->GetComponent<Renderer>()->material->albedo = XMFLOAT4(r, g, b, 1.0f);
-					instance->GetComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.0f, 90.0f);
-
-					instance->AddComponent<MovingBehavior>();
-				}
-				time -= boundary;
-			}
-		}
+		//if (instancing)
+		//{
+		//	if (time > boundary)
+		//	{
+		//		for (int i = 0; i < 1; ++i)
+		//		{
+		//			auto instance = Instantiate(gameObject);
+		//			float x = Random::Range(-1500, 1500);
+		//			float y = Random::Range(-1500, 1500);
+		//			float z = Random::Range(-1000, 2000);
+		//			instance->transform->position = Vector3{ x, y, z };
+		//
+		//			float r = Random::Range(0.0f, 1.0f);
+		//			float g = Random::Range(0.0f, 1.0f);
+		//			float b = Random::Range(0.0f, 1.0f);
+		//			instance->GetComponent<Renderer>()->material->albedo = XMFLOAT4(r, g, b, 1.0f);
+		//			instance->GetComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.0f, 90.0f);
+		//
+		//			instance->AddComponent<MovingBehavior>();
+		//		}
+		//		time -= boundary;
+		//	}
+		//}
 	}
 };
 

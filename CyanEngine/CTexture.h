@@ -22,7 +22,7 @@ public:
 	CTexture(int nTextureResources = 1, UINT nResourceType = RESOURCE_TEXTURE2D, int nSamplers = 0);
 	virtual ~CTexture();
 
-private:
+public:
 	int								m_nReferences = 0;
 
 	UINT							m_nTextureType = RESOURCE_TEXTURE2D;
