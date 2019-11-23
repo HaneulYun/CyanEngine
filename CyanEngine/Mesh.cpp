@@ -663,7 +663,7 @@ void CMeshIlluminatedFromFile::ReleaseUploadBuffers()
 
 void CMeshIlluminatedFromFile::Render(int nSubSet)
 {
-	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
+	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
 	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{
@@ -678,8 +678,7 @@ void CMeshIlluminatedFromFile::Render(int nSubSet)
 
 void CMeshIlluminatedFromFile::Render(UINT nInstances, int nSubSet)
 {
-
-	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
+	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
 	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{

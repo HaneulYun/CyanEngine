@@ -42,7 +42,7 @@ void GameScene::BuildObjects()
 	}
 
 	float interval = 150.f;
-	int xObjects = 3, yObjects = 3, zObjects = 3, i = 0;
+	int xObjects = 3, yObjects = 1, zObjects = 3, i = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
 			for (int z = -zObjects; z <= zObjects; z++)
@@ -53,7 +53,7 @@ void GameScene::BuildObjects()
 	
 				GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
 				model->AddChild(child);
-				model->AddComponent<RotatingBehavior>()->speedRotating = 0;// Random::Range(-90.f, 90.f);
+				model->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.f, 90.f);
 
 				child->children[27]->AddComponent<RotatingBehavior>()->speedRotating = 360;
 				child->children[7]->AddComponent<RotatingBehavior>()->speedRotating = -720;
