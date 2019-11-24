@@ -33,31 +33,36 @@ void GameScene::BuildObjects()
 	}
 
 	
-	GameObject* bullet = CreateGameObject(object);
-	{
-		// StraightBullet
+	{	// StraightBullet
+		GameObject* bullet = CreateGameObject(object);
 		bullet->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		bullet->AddComponent<Bullet>()->speed = 200.f;
 		scnmgr->bulletprefab[0] = bullet;
-
+	}
+	{	
+		GameObject* bullet = CreateGameObject(object);
 		bullet->GetComponent<MeshFilter>()->mesh = CannonMesh;
-		bullet->GetComponent<Bullet>()->speed = 100.f;
+		bullet->AddComponent<Bullet>()->speed = 100.f;
 		scnmgr->bulletprefab[1] = bullet;
-
+	} 
+	{	
+		GameObject* bullet = CreateGameObject(object);
 		bullet->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		bullet->GetComponent<Bullet>()->speed = 260.f;
+		bullet->AddComponent<Bullet>()->speed = 260.f;
 		scnmgr->bulletprefab[2] = bullet;
-
+	} 
+	{	
+		GameObject* bullet = CreateGameObject(object);
 		bullet->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		bullet->GetComponent<Bullet>()->speed = 0.f;
+		bullet->AddComponent<Bullet>()->speed = 0.f;
 		scnmgr->bulletprefab[3] = bullet;
-
+	} 
+	{	
+		GameObject* bullet = CreateGameObject(object);
 		bullet->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		bullet->GetComponent<Bullet>()->speed = 140.f;
+		bullet->AddComponent<Bullet>()->speed = 140.f;
 		scnmgr->bulletprefab[4] = bullet;
 	}
-	
-
 
 	GameObject* guardian = CreateGameObject(object);
 	{
@@ -103,7 +108,7 @@ void GameScene::BuildObjects()
 	
 	GameObject* spawner = CreateEmpty();
 	{
-		spawner->AddComponent<Spawner>()->enemy = enemy1;
+		//spawner->AddComponent<Spawner>()->enemy = enemy1;
 	}
 
 	GameObject* Recvthread = CreateEmpty();

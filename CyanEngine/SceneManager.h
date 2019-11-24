@@ -77,7 +77,7 @@ public:
 		player[id] = Instantiate(playerprefab);
 		player[id]->transform->position.xmf3 = XMFLOAT3(25.f * cos(120 * id * PI / 180.0f), 25.f * sin(120 * id * PI / 180.0f), 0.0f);
 		player[id]->GetComponent<Renderer>()->material->albedo = color[id];
-		for (int i = 0; i < 1; ++i)
+		for (int i = 0; i < 5; ++i)
 		{
 			GameObject* bullet = gameObject->scene->CreateGameObject(bulletprefab[i]);
 			bullet->GetComponent<Renderer>()->material->albedo = color[id];
@@ -86,10 +86,10 @@ public:
 		}
 	}
 
-	void CreateBullet(int id, float angle)
+	void CreateBullet(int type, int id, float angle)
 	{
 		Vector3 direction = AngletoDir(angle);
-		player[id]->GetComponent<StarGuardian>()->Shoot(0, direction);
+		player[id]->GetComponent<StarGuardian>()->Shoot(type, direction);
 	}
 
 	void CreateEnemy(int type, float radian)
