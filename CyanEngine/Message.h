@@ -32,6 +32,11 @@ static CRITICAL_SECTION rqcs;
 
 // lParam = ObjectID / mParam = 별 수호자 ID / rParam = 방향(radian)
 #define MESSAGE_CREATE_BULLET 0x10
+#define MESSAGE_CREATE_BULLET_STRAIGHT 0x11
+#define MESSAGE_CREATE_BULLET_CANNON 0x12
+#define MESSAGE_CREATE_BULLET_SHARP 0x13
+#define MESSAGE_CREATE_BULLET_LASER 0x14
+#define MESSAGE_CREATE_BULLET_GUIDED 0x15
 
 // lParam = ObjectID / mParam = None / rParam = 방향(radian)
 //#define MESSAGE_CREATE_ENEMY 0x20
