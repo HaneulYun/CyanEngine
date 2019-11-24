@@ -4,11 +4,12 @@
 class Bullet : public Component
 {
 private:
-	// 이 영역에 private 변수를 선언하세요.
-	float speed{ 200.f };
+	// 이 영역에 private 변수를 선언하세요
+	float elapsedTime{ 0.f };
 
 public:
 	// 이 영역에 public 변수를 선언하세요.
+	float speed{ 200.f };
 	Vector3 direction;
 
 private:
