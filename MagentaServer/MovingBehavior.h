@@ -51,5 +51,10 @@ public:
 		}
 	}
 
+	void OnTriggerEnter(GameObject* collision)
+	{
+		printf("뀩\n");
+	}
+
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };
