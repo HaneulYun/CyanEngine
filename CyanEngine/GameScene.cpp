@@ -29,6 +29,7 @@ void GameScene::BuildObjects()
 	{
 		cube->AddComponent<MeshFilter>()->mesh = pCubeMesh;
 		cube->AddComponent<Renderer>()->material = defaultMaterial;
+		cube->AddComponent<BoxCollider>();
 	}
 
 

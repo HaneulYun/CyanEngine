@@ -11,6 +11,7 @@ struct Vector3
 {
 	union
 	{
+		XMFLOAT3 xmf3;
 		struct
 		{
 			float x;
@@ -23,7 +24,6 @@ struct Vector3
 			float g;
 			float b;
 		};
-		XMFLOAT3 xmf3;
 	};
 
 	Vector3() = default;

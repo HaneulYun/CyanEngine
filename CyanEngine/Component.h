@@ -1,8 +1,5 @@
 #pragma once
 
-class Collision;
-class Collider;
-
 class Component : public Object
 {
 private:
@@ -23,12 +20,12 @@ public:
 	virtual void Start() {}
 	virtual void Update() {}
 
-	virtual void OnTriggerEnter(Collision* collision) {}
-	virtual void OnTriggerStay(Collision* collision) {}
-	virtual void OnTriggerExit(Collision* collision) {}
-	virtual void OnCollisionEnter(Collider* other) {}
-	virtual void OnCollisionStay(Collider* other) {}
-	virtual void OnCollisionExit(Collider* other) {}
+	virtual void OnTriggerEnter(GameObject* collision) {}
+	virtual void OnTriggerStay(GameObject* collision) {}
+	virtual void OnTriggerExit(GameObject* collision) {}
+	virtual void OnCollisionEnter(GameObject* other) {}
+	virtual void OnCollisionStay(GameObject* other) {}
+	virtual void OnCollisionExit(GameObject* other) {}
 
 	virtual Component* Duplicate(Component* component) { return new Component(*component); }
 };

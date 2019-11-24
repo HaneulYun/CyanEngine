@@ -2,6 +2,12 @@
 
 class Scene;
 
+enum class CollisionType
+{
+	eCollisionEnter, eCollisionStay, eCollisionExit,
+	eTriggerEnter, eTriggerStay, eTriggerExit
+};
+
 class GameObject : public Object
 {
 public:
@@ -19,6 +25,8 @@ public:
 	int m_nMaterials = 0;
 	CMaterial** m_ppMaterials = NULL;
 
+	std::map<GameObject*, CollisionType> collisionType;
+
 private:
 	friend class Scene;
 	friend class Object;
@@ -32,6 +40,13 @@ public:
 
 	void Start();
 	void Update();
+
+	void OnTriggerEnter(GameObject* other);
+	void OnTriggerStay(GameObject* other);
+	void OnTriggerExit(GameObject* other);
+	void OnCollisionEnter(GameObject* other);
+	void OnCollisionStay(GameObject* other);
+	void OnCollisionExit(GameObject* other);
 
 	XMFLOAT4X4 GetMatrix();
 
