@@ -4,8 +4,8 @@ struct Message
 {
 	char msgId;
 	int lParam;
-	int mParam;
-	int rParam;
+	float mParam;
+	float rParam;
 };
 
 static std::queue<Message> recvQueue;

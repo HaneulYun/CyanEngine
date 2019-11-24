@@ -14,9 +14,9 @@ private:
 public:
 	static GameObject* scenemanager;
 	GameObject* playerprefab{ nullptr };
+	GameObject* enemyprefab[5]{ nullptr, };
 	GameObject* player[3]{ nullptr, };
 	GameObject* star{ nullptr };
-	Thread* Sender{ nullptr };
 	SOCKET* sock;
 
 	float speedRotating{ 30.f };
@@ -24,6 +24,7 @@ public:
 	int gameState{ WAIT };
 	int myid{ 0 };
 	bool ready{ false };
+	float spawnRadius{ 200 };
 
 
 private:
@@ -80,6 +81,15 @@ public:
 	{
 		Vector3 direction = AngletoDir(angle);
 		player[id]->GetComponent<StarGuardian>()->Shoot(1, direction);
+	}
+
+	void CreateEnemy(int type, float radian)
+	{
+		GameObject* object = Instantiate(enemyprefab[type]);
+		{
+			float radian = Random::Range(0.0f, XM_2PI);
+			object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);
+		}
 	}
 
 	void Start()

@@ -71,25 +71,27 @@ void GameScene::BuildObjects()
 	}*/
 	
 
-	//GameObject* enemy = CreateGameObject(object);
-	//{
-	//	enemy->GetComponent<MeshFilter>()->mesh = pQuadMesh;
-	//	enemy->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
-	// }
-
-	GameObject* enemy = CreateGameObject(object);
+	GameObject* enemy0 = CreateGameObject(object);
 	{
-		enemy->GetComponent<MeshFilter>()->mesh = pQuadMesh;
-		enemy->AddComponent<WhirlingBehavior>();
+		enemy0->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+		enemy0->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
+	 }
+
+	GameObject* enemy1 = CreateGameObject(object);
+	{
+		enemy1->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+		enemy1->AddComponent<WhirlingBehavior>();
 	}
+
+	scnmgr->enemyprefab[0] = enemy1;
 	
 	GameObject* spawner = CreateEmpty();
 	{
-		spawner->AddComponent<Spawner>()->enemy = enemy;
+		//spawner->AddComponent<Spawner>()->enemy = enemy1;
 	}
 
 	GameObject* Recvthread = CreateEmpty();
 	{
-		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
+		Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
 	}
 }
