@@ -91,7 +91,7 @@ private:
 				sceneManager->CreateBullet(buf.mParam, buf.rParam);
 				break;
 			case MESSAGE_CREATE_ENEMY_COMINGRECT:
-				sceneManager->CreateEnemy(1, buf.rParam);
+				sceneManager->CreateEnemy(0, buf.rParam);
 				break;
 			}
 			LeaveCriticalSection(&rqcs);

@@ -87,7 +87,6 @@ public:
 	{
 		GameObject* object = Instantiate(enemyprefab[type]);
 		{
-			float radian = Random::Range(0.0f, XM_2PI);
 			object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);
 		}
 	}
