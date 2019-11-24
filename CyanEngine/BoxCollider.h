@@ -29,18 +29,14 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
+		extents = { 10, 10, 10 };
 	}
 	
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
 	}
 
-public:
-
-	bool Compare(BoxCollider* other)
-	{
-		return boundingBox.Intersects(other->boundingBox);
-	}
+	bool Compare(BoxCollider* other);
 };
 
 
