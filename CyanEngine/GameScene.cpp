@@ -12,7 +12,7 @@ void GameScene::BuildObjects()
 	Quad* pQuadMesh = new Quad(10.0f, 10.0f);
 	Circle* pCircleMesh = new Circle(10, 48);
 	CircleLine* pCircleLineMesh = new CircleLine(25.f);
-	TriangleMesh* pTriangleMesh = new TriangleMesh();
+	TriangleMesh* pTriangleMesh = new TriangleMesh(3.0f);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
@@ -31,11 +31,6 @@ void GameScene::BuildObjects()
 		scnmgr->star = star;
 	}
 
-	GameObject* orbit = Instantiate(object);
-	{
-		orbit->GetComponent<MeshFilter>()->mesh = pCircleLineMesh;
-	}
-
 	GameObject* bullet = CreateGameObject(object);
 	bullet->GetComponent<MeshFilter>()->mesh = pTriangleMesh;
 	bullet->AddComponent<Bullet>();
@@ -50,8 +45,9 @@ void GameScene::BuildObjects()
 		revolvingBehavior->radius = 25.f;*/
 
 		guardian->AddComponent<StarGuardian>();
-		guardian->GetComponent<StarGuardian>()->bullet = bullet;
+		//guardian->GetComponent<StarGuardian>()->bullet = bullet;
 		scnmgr->playerprefab = guardian;
+		scnmgr->bulletprefab[0] = bullet;
 		
 	 }
 
@@ -93,5 +89,11 @@ void GameScene::BuildObjects()
 	GameObject* Recvthread = CreateEmpty();
 	{
 		Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
+		//Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
+	}
+
+	GameObject* orbit = Instantiate(object);
+	{
+		orbit->GetComponent<MeshFilter>()->mesh = pCircleLineMesh;
 	}
 }

@@ -15,6 +15,7 @@ public:
 	static GameObject* scenemanager;
 	GameObject* playerprefab{ nullptr };
 	GameObject* enemyprefab[5]{ nullptr, };
+	GameObject* bulletprefab[5]{ nullptr, };
 	GameObject* player[3]{ nullptr, };
 	GameObject* star{ nullptr };
 	SOCKET* sock;
@@ -23,6 +24,7 @@ public:
 	float angle{ 0.0f };
 	int gameState{ WAIT };
 	int myid{ 0 };
+	int nplayer{ 0 };
 	bool ready{ false };
 	float spawnRadius{ 200 };
 
@@ -58,7 +60,7 @@ public:
 	void StartGame() 
 	{
 		gameState = START;
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < nplayer; ++i) {
 			RevolvingBehavior* revolvingBehavior = player[i]->AddComponent<RevolvingBehavior>();
 			revolvingBehavior->target = star;
 			revolvingBehavior->radius = 25.f;
@@ -69,18 +71,25 @@ public:
 
 	void CreatePlayer(int id) 
 	{
-		player[id] = playerprefab->scene->Instantiate(playerprefab);
-		player[id]->transform->position.xmf3 = XMFLOAT3(25.f * cos(120 * id * PI / 180.0f), 25.f * sin(120 * id * PI / 180.0f), 0.0f);
-		/*player[id]->GetComponent<RevolvingBehavior>()->speedRotating = speedRotating;
-		player[id]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * id;*/
+		++nplayer;
 		XMFLOAT4 color[3] = { XMFLOAT4(1, 1, 0, 1), XMFLOAT4(0, 1, 1, 1), XMFLOAT4(1, 0, 1, 1) };
+
+		player[id] = Instantiate(playerprefab);
+		player[id]->transform->position.xmf3 = XMFLOAT3(25.f * cos(120 * id * PI / 180.0f), 25.f * sin(120 * id * PI / 180.0f), 0.0f);
 		player[id]->GetComponent<Renderer>()->material->albedo = color[id];
+		for (int i = 0; i < 1; ++i)
+		{
+			GameObject* bullet = gameObject->scene->CreateGameObject(bulletprefab[i]);
+			bullet->GetComponent<Renderer>()->material->albedo = color[id];
+			player[id]->GetComponent<StarGuardian>()->bullet[i] = bullet;
+
+		}
 	}
 
 	void CreateBullet(int id, float angle)
 	{
 		Vector3 direction = AngletoDir(angle);
-		player[id]->GetComponent<StarGuardian>()->Shoot(1, direction);
+		player[id]->GetComponent<StarGuardian>()->Shoot(0, direction);
 	}
 
 	void CreateEnemy(int type, float radian)

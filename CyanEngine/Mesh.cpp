@@ -16,16 +16,16 @@ void Mesh::Render(UINT nInstances)
 	}
 }
 
-TriangleMesh::TriangleMesh()
+TriangleMesh::TriangleMesh(float size)
 {
 	m_nVertices = 3;
 	m_nStride = sizeof(DiffusedVertex);
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	DiffusedVertex pVertices[3];
-	pVertices[0] = DiffusedVertex(XMFLOAT3(0.0f, 0.5f, 0.0f), XMFLOAT4(Colors::White));
-	pVertices[1] = DiffusedVertex(XMFLOAT3(0.5f, -0.5f, 0.0f), XMFLOAT4(Colors::White));
-	pVertices[2] = DiffusedVertex(XMFLOAT3(-0.5f, -0.5f, 0.0f), XMFLOAT4(Colors::White));
+	pVertices[0] = DiffusedVertex(XMFLOAT3(0.0f, size/2.f, 0.0f), XMFLOAT4(Colors::White));
+	pVertices[1] = DiffusedVertex(XMFLOAT3(size / 2.f, -size / 2.f, 0.0f), XMFLOAT4(Colors::White));
+	pVertices[2] = DiffusedVertex(XMFLOAT3(-size / 2.f, -size / 2.f, 0.0f), XMFLOAT4(Colors::White));
 	 
 	m_pd3dVertexBuffer = CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 
