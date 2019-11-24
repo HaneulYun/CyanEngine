@@ -16,6 +16,7 @@ void GameScene::BuildObjects()
 	{
 		star->AddComponent<Star>();
 		star->AddComponent<Damageable>()->SetHealth(5);
+		star->AddComponent<BoxCollider>();
 		scnmgr->star = star;
 	}
 
@@ -32,6 +33,7 @@ void GameScene::BuildObjects()
 	GameObject* enemy = CreateGameObject(object);
 	{
 		enemy->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
+		enemy->AddComponent<BoxCollider>();
 	}
 
 	GameObject* spawner = CreateEmpty();

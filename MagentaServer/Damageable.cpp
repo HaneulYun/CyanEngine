@@ -21,6 +21,7 @@ void Damageable::TakeDamage(Damager damager)
 		return;
 
 	health -= damager.GetDamageAmount();
+	printf("¾Æ¾ß!\n");
 }
 
 void Damageable::SetHealth(int amount)
@@ -44,4 +45,3 @@ bool Damageable::isDead()
 		return true;
 	return false;
 }
-

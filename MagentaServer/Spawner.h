@@ -8,7 +8,7 @@ private:
 	float elapsedTime{ 0 };
 
 	float spawnRadius{ 120 };
-
+	bool spawn{ false };
 public:
 	// 이 영역에 public 변수를 선언하세요.
 	GameObject* enemy;
@@ -35,7 +35,7 @@ public:
 
 			elapsedTime += Time::deltaTime;
 
-			if (elapsedTime > spawnTime)
+			if (elapsedTime > spawnTime && !spawn)
 			{
 				elapsedTime -= spawnTime;
 
@@ -51,6 +51,8 @@ public:
 					EnterCriticalSection(&ThreadPool::sqcs);
 					ThreadPool::sendQueue.push(result);
 					LeaveCriticalSection(&ThreadPool::sqcs);
+
+					spawn = true;
 				}
 			}
 		}
