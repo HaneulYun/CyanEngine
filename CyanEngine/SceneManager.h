@@ -3,7 +3,6 @@
 #pragma comment(lib, "ws2_32")
 #include <winsock2.h>
 #include "framework.h"
-//#include "StarGuardian.h"
 #include "Message.h"
 
 enum {WAIT, START, END};
@@ -13,18 +12,19 @@ class SceneManager : public MonoBehavior<SceneManager>
 private:
 
 public:
-	static GameObject* scenemanager; 
-	GameObject* playerprefab;
-	GameObject* player[3] {nullptr,};
-	GameObject* star;
+	static GameObject* scenemanager;
+	GameObject* playerprefab{ nullptr };
+	GameObject* enemyprefab[5]{ nullptr, };
+	GameObject* player[3]{ nullptr, };
+	GameObject* star{ nullptr };
 	SOCKET* sock;
 
-	//GameObject* gameObject{ nullptr };
 	float speedRotating{ 30.f };
 	float angle{ 0.0f };
 	int gameState{ WAIT };
 	int myid{ 0 };
 	bool ready{ false };
+	float spawnRadius{ 200 };
 
 
 private:
@@ -55,6 +55,43 @@ public:
 		return angle;
 	}
 
+	void StartGame() 
+	{
+		gameState = START;
+		for (int i = 0; i < 3; ++i) {
+			RevolvingBehavior* revolvingBehavior = player[i]->AddComponent<RevolvingBehavior>();
+			revolvingBehavior->target = star;
+			revolvingBehavior->radius = 25.f;
+			revolvingBehavior->angle = 120.f * i;
+			//player[i]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * i;
+		}
+	}
+
+	void CreatePlayer(int id) 
+	{
+		player[id] = playerprefab->scene->Instantiate(playerprefab);
+		player[id]->transform->position.xmf3 = XMFLOAT3(25.f * cos(120 * id * PI / 180.0f), 25.f * sin(120 * id * PI / 180.0f), 0.0f);
+		/*player[id]->GetComponent<RevolvingBehavior>()->speedRotating = speedRotating;
+		player[id]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * id;*/
+		XMFLOAT4 color[3] = { XMFLOAT4(1, 1, 0, 1), XMFLOAT4(0, 1, 1, 1), XMFLOAT4(1, 0, 1, 1) };
+		player[id]->GetComponent<Renderer>()->material->albedo = color[id];
+	}
+
+	void CreateBullet(int id, float angle)
+	{
+		Vector3 direction = AngletoDir(angle);
+		player[id]->GetComponent<StarGuardian>()->Shoot(1, direction);
+	}
+
+	void CreateEnemy(int type, float radian)
+	{
+		GameObject* object = Instantiate(enemyprefab[type]);
+		{
+			float radian = Random::Range(0.0f, XM_2PI);
+			object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);
+		}
+	}
+
 	void Start()
 	{
 		scenemanager = gameObject;
@@ -64,8 +101,8 @@ public:
 	{
 		static float time = 0;
 		time += Time::deltaTime;
-		
-		if (player[myid] != nullptr)
+
+		if (player[myid])
 		{
 			XMFLOAT3 position = (player[myid]->transform->position / 2).xmf3;
 			XMFLOAT3 lookAt = position;
@@ -77,51 +114,25 @@ public:
 		if (gameState == START)
 			angle += speedRotating * Time::deltaTime;
 
-		if (Input::GetMouseButtonDown(0) && !ready) {
+		if (Input::GetMouseButtonDown(0) && !ready) 
+		{
 			ready = true;
 			Message message;
 			message.msgId = MESSAGE_READY;
 			message.lParam = myid;
+			//int retval = Sender->SendMsg(message);
 			int retval = send(*sock, (char*)& message, sizeof(Message), 0);
 		}
 		else if (Input::GetMouseButtonDown(0) && ready) {
-			StarGuardian* starGuardian = player[myid]->GetComponent<StarGuardian>();
-
 			Vector3 direction = NS_Vector3::Normalize((Camera::main->ScreenToWorldPoint(Input::mousePosition) - player[myid]->transform->position).xmf3);
-			direction.z = 0;		
+			direction.z = 0;
 
-			//Send Shoot Message
 			Message message;
 			message.msgId = MESSAGE_REQUEST_BULLET_CREATION;
 			message.mParam = myid;
 			message.rParam = DirtoAngle(direction);
+			//int retval = Sender->SendMsg(message);
 			int retval = send(*sock, (char*)& message, sizeof(Message), 0);
 		}
-	}
-
-	void CreatePlayer(int id) {
-		player[id] = playerprefab->scene->Instantiate(playerprefab);
-		player[id]->transform->position.xmf3 = XMFLOAT3(25.f * cos(120 * id * PI / 180.0f), 25.f * sin(120 * id * PI / 180.0f), 0.0f);
-		/*player[id]->GetComponent<RevolvingBehavior>()->speedRotating = speedRotating;
-		player[id]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * id;*/
-		XMFLOAT4 color[3] = { XMFLOAT4(1, 1, 0, 1), XMFLOAT4(0, 1, 1, 1), XMFLOAT4(1, 0, 1, 1) };
-		player[id]->GetComponent<Renderer>()->material->albedo = color[id];
-	}
-
-	void StartGame() {
-		gameState = START;
-		for (int i = 0; i < 3; ++i) {
-			RevolvingBehavior* revolvingBehavior = player[i]->AddComponent<RevolvingBehavior>();
-			revolvingBehavior->target = star;
-			revolvingBehavior->radius = 25.f;
-			revolvingBehavior->angle = 120.f * i;
-			//player[i]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * i;
-		}
-	}
-
-	void CreateBullet(int id, float angle)
-	{
-		Vector3 direction = AngletoDir(angle);
-		player[id]->GetComponent<StarGuardian>()->Shoot(1, direction);
 	}
 };
