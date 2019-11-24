@@ -13,7 +13,7 @@ void GameScene::BuildObjects()
 	Circle* pCircleMesh = new Circle(10, 48);
 	CircleLine* pCircleLineMesh = new CircleLine(25.f);
 	TriangleMesh* BulletMesh = new TriangleMesh(3.0f);
-	Circle* CannonMesh = new Circle(6, 48);
+	Circle* CannonMesh = new Circle(4, 48);
 
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
@@ -114,7 +114,8 @@ void GameScene::BuildObjects()
 	GameObject* Recvthread = CreateEmpty();
 	{
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
-		//Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
+		Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
+		scnmgr->Sender = Recvthread->GetComponent<Thread>();
 	}
 
 	GameObject* orbit = Instantiate(object);

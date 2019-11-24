@@ -18,7 +18,7 @@ public:
 	GameObject* bulletprefab[5]{ nullptr, };
 	GameObject* player[3]{ nullptr, };
 	GameObject* star{ nullptr };
-	SOCKET* sock;
+	Thread* Sender{ nullptr };
 
 	float speedRotating{ 30.f };
 	float angle{ 0.0f };
@@ -100,6 +100,46 @@ public:
 		}
 	}
 
+	void UpdateRecvQueue()
+	{
+		while (!recvQueue.empty())
+		{
+			EnterCriticalSection(&rqcs);
+			Message curMsg = recvQueue.front();
+			recvQueue.pop();
+			LeaveCriticalSection(&rqcs);
+			/////////////////////////////////////////
+
+			switch (curMsg.msgId)
+			{
+				// 내가 접속했을 때
+			case MESSAGE_YOUR_ID:
+				myid = curMsg.lParam;
+				angle = curMsg.mParam;
+				CreatePlayer(curMsg.lParam);
+				break;
+				// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
+			case MESSAGE_CONNECTED_IDS:
+				if (curMsg.lParam && player[0] == nullptr)
+					CreatePlayer(0);
+				if (curMsg.mParam && player[1] == nullptr)
+					CreatePlayer(1);
+				if (curMsg.rParam && player[2] == nullptr)
+					CreatePlayer(2);
+				break;
+			case MESSAGE_GAME_START:
+				StartGame();
+				break;
+			case MESSAGE_CREATE_BULLET:
+				CreateBullet(1, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_ENEMY_COMINGRECT:
+				CreateEnemy(0, curMsg.rParam);
+				break;
+			}
+		}
+	}
+
 	void Start()
 	{
 		scenemanager = gameObject;
@@ -109,6 +149,8 @@ public:
 	{
 		static float time = 0;
 		time += Time::deltaTime;
+
+		UpdateRecvQueue();
 
 		if (player[myid])
 		{
@@ -120,7 +162,9 @@ public:
 		}
 
 		if (gameState == START)
+		{
 			angle += speedRotating * Time::deltaTime;
+		}
 
 		if (Input::GetMouseButtonDown(0) && !ready) 
 		{
@@ -128,8 +172,8 @@ public:
 			Message message;
 			message.msgId = MESSAGE_READY;
 			message.lParam = myid;
-			//int retval = Sender->SendMsg(message);
-			int retval = send(*sock, (char*)& message, sizeof(Message), 0);
+			int retval = Sender->SendMsg(message);
+			//int retval = send(*sock, (char*)& message, sizeof(Message), 0);
 		}
 		else if (Input::GetMouseButtonDown(0) && ready) {
 			Vector3 direction = NS_Vector3::Normalize((Camera::main->ScreenToWorldPoint(Input::mousePosition) - player[myid]->transform->position).xmf3);
@@ -139,8 +183,8 @@ public:
 			message.msgId = MESSAGE_REQUEST_BULLET_CREATION;
 			message.mParam = myid;
 			message.rParam = DirtoAngle(direction);
-			//int retval = Sender->SendMsg(message);
-			int retval = send(*sock, (char*)& message, sizeof(Message), 0);
+			int retval = Sender->SendMsg(message);
+			//int retval = send(*sock, (char*)& message, sizeof(Message), 0);
 		}
 	}
 };
