@@ -1,6 +1,6 @@
 #pragma once
 
-#define TEXTURES 6
+#define TEXTURES 1
 
 #define RESOURCE_TEXTURE2D			0x01
 #define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]

@@ -140,11 +140,6 @@ void RendererManager::Render()
 
 		m_pCamera->UpdateShaderVariables(commandList.Get());
 
-		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name())
-		{
-			commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
-		}
-
 		int j = 0;
 		commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
 		for (auto& gameObject : d.second.second)
