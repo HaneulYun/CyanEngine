@@ -38,6 +38,11 @@ public:
 		time += Time::deltaTime;
 		if (gameState == START)
 			standardAngle += speedRotating * Time::deltaTime;
+		if (star->GetComponent<Damageable>()->isDead())
+		{
+			gameState = END;
+			printf("³¡\n");
+		}
 	}
 
 	void CreatePlayer(int id) {
@@ -46,7 +51,6 @@ public:
 
 	void StartGame() {
 		gameState = START;
-
 	}
 
 	float getStandardAngle()

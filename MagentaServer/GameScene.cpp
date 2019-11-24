@@ -15,6 +15,8 @@ void GameScene::BuildObjects()
 	GameObject* star = Instantiate(object);
 	{
 		star->AddComponent<Star>();
+		star->AddComponent<Damageable>()->SetHealth(5);
+		scnmgr->star = star;
 	}
 
 	GameObject* bullet = CreateGameObject(object);

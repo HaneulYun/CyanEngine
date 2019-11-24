@@ -3,9 +3,6 @@
 class Star : public Component
 {
 private:
-	int health;
-
-private:
 	friend class GameObject;
 	Star() {}
 
@@ -20,6 +17,6 @@ public:
 
 	void Update()
 	{
-
+		
 	}
 };

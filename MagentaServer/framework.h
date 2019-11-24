@@ -40,6 +40,8 @@ using namespace DirectX::PackedVector;
 
 #include "Component.h"
 #include "Transform.h"
+#include "Damager.h"
+#include "Damageable.h"
 
 #include "Scene.h"
 #include "GameScene.h"
