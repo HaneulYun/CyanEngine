@@ -64,6 +64,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="0_00_CyanEngine\80_API">
+      <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -198,6 +201,18 @@
     <ClInclude Include="RotorBehavior.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollider.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader12.h">
+      <Filter>0_00_CyanEngine\80_API</Filter>
+    </ClInclude>
+    <ClInclude Include="CTexture.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="WhirlingBehavior.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
@@ -281,6 +296,18 @@
     <ClCompile Include="Time.cpp">
       <Filter>0_00_CyanEngine\11_Interface</Filter>
     </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxCollider.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>0_00_CyanEngine\80_API</Filter>
+    </ClCompile>
+    <ClCompile Include="CTexture.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CyanEngine.rc">
@@ -300,5 +327,6 @@
     <FxCompile Include="Standard.hlsl" />
     <FxCompile Include="Lighting.hlsl" />
     <FxCompile Include="Light.hlsl" />
+    <FxCompile Include="Texture.hlsl" />
   </ItemGroup>
 </Project>

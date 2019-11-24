@@ -1,16 +1,9 @@
 #include "pch.h"
 #include "Mesh.h"
 
-void Mesh::Render(UINT nInstances, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
+void Mesh::Render(UINT nInstances)
 {
-	if (memcmp(&d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
-	{
-		D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[] = { m_d3dVertexBufferView, d3dInstancingBufferView };
-		RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, _countof(pVertexBufferViews), pVertexBufferViews);
-	}
-	else
-		RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
-
+	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
 	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	if (m_pd3dIndexBuffer)
 	{
@@ -717,11 +710,10 @@ void CMeshIlluminatedFromFile::ReleaseUploadBuffers()
 	m_pd3dNormalUploadBuffer = NULL;
 }
 
-void CMeshIlluminatedFromFile::Render(int nSubSet, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
+void CMeshIlluminatedFromFile::Render(int nSubSet)
 {
+	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
 	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[2] = { m_d3dPositionBufferView, d3dInstancingBufferView };
-	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 2, pVertexBufferViews);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{
 		RendererManager::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
@@ -731,33 +723,12 @@ void CMeshIlluminatedFromFile::Render(int nSubSet, D3D12_VERTEX_BUFFER_VIEW d3dI
 	{
 		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 	}
-
-	//if (memcmp(&d3dInstancingBufferView, &D3D12_VERTEX_BUFFER_VIEW(), sizeof(D3D12_VERTEX_BUFFER_VIEW)))
-	//{
-	//	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[] = { m_d3dVertexBufferView, d3dInstancingBufferView };
-	//	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, _countof(pVertexBufferViews), pVertexBufferViews);
-	//}
-	//else
-	//	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
-	//
-	//RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	//if (m_pd3dIndexBuffer)
-	//{
-	//	RendererManager::Instance()->commandList->IASetIndexBuffer(&m_d3dIndexBufferView);
-	//	RendererManager::Instance()->commandList->DrawIndexedInstanced(m_nIndices, nInstances, 0, 0, 0);
-	//}
-	//else
-	//{
-	//	RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
-	//}
 }
 
-void CMeshIlluminatedFromFile::Render(UINT nInstances, int nSubSet, D3D12_VERTEX_BUFFER_VIEW d3dInstancingBufferView)
+void CMeshIlluminatedFromFile::Render(UINT nInstances, int nSubSet)
 {
-
+	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
 	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[2] = { m_d3dPositionBufferView, d3dInstancingBufferView };
-	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 2, pVertexBufferViews);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{
 		RendererManager::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
@@ -767,4 +738,72 @@ void CMeshIlluminatedFromFile::Render(UINT nInstances, int nSubSet, D3D12_VERTEX
 	{
 		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
 	}
+}
+
+CCubeMeshTextured::CCubeMeshTextured(float fWidth, float fHeight, float fDepth)
+{
+	m_nVertices = 36;
+	m_nStride = sizeof(CTexturedVertex);
+	m_nOffset = 0;
+	m_nSlot = 0;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	float fx = fWidth * 0.5f, fy = fHeight * 0.5f, fz = fDepth * 0.5f;
+
+	CTexturedVertex pVertices[36];
+	int i = 0;
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(1.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(0.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(1.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(0.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(1.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, +fy, -fz), XMFLOAT2(1.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(-fx, -fy, +fz), XMFLOAT2(0.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, +fy, +fz), XMFLOAT2(1.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f));
+
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f));
+	pVertices[i++] = CTexturedVertex(XMFLOAT3(+fx, -fy, -fz), XMFLOAT2(0.0f, 1.0f));
+
+	m_pd3dVertexBuffer = CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 }

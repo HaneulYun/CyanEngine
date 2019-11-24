@@ -90,6 +90,6 @@ void GameScene::BuildObjects()
 
 	GameObject* Recvthread = CreateEmpty();
 	{
-		Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
+		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
 	}
 }

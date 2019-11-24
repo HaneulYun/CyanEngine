@@ -11,8 +11,6 @@ struct INSTANCING
 	ID3D12Resource* resource{ nullptr };
 	MEMORY* memory{ nullptr };
 
-	D3D12_VERTEX_BUFFER_VIEW view;
-
 	Shader* shader;
 };
 
