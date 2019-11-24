@@ -29,12 +29,12 @@ void GameScene::BuildObjects()
 
 	GameObject* enemy = CreateGameObject(object);
 	{
-		//enemy->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
+		enemy->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 	}
 
 	GameObject* spawner = CreateEmpty();
 	{
-		//spawner->AddComponent<Spawner>()->enemy = enemy;
+		spawner->AddComponent<Spawner>()->enemy = enemy;
 	}
 
 }

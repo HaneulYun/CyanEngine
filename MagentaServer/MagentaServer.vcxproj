@@ -148,7 +148,10 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="MagentaFW.cpp" />
+    <ClCompile Include="MonoBehavior.cpp" />
+    <ClCompile Include="MovingBehavior.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Random.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SendingThread.cpp" />
@@ -160,6 +163,7 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PrintErrors.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="Spawner.cpp" />
     <ClCompile Include="Star.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
@@ -173,7 +177,10 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="MagentaFW.h" />
+    <ClInclude Include="MonoBehavior.h" />
+    <ClInclude Include="MovingBehavior.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Random.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="SendingThread.h" />
@@ -185,6 +192,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PrintErrors.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Spawner.h" />
     <ClInclude Include="Star.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="ThreadPool.h" />

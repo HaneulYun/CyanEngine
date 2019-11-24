@@ -4,8 +4,8 @@ struct Message
 {
 	unsigned char msgId;
 	int lParam;
-	int mParam;
-	int rParam;
+	float mParam;
+	float rParam;
 };
 
 // 임시 메시지
@@ -36,3 +36,12 @@ struct Message
 
 // lParam = ObjectID / mParam = 별 수호자 ID / rParam = 방향(radian)
 #define MESSAGE_CREATE_BULLET 0x10
+
+// lParam = ObjectID / mParam = None / rParam = 방향(radian)
+//#define MESSAGE_CREATE_ENEMY 0x20
+#define MESSAGE_CREATE_ENEMY_COMINGRECT 0x20
+#define MESSAGE_CREATE_ENEMY_ROTATINGRECT 0x21
+#define MESSAGE_CREATE_ENEMY_COMINGBIGRECT 0x22
+#define MESSAGE_CREATE_ENEMY_COMINGTWOTRIANGLE 0x23
+#define MESSAGE_CREATE_ENEMY_WHIRLINGCOMINGRECT 0x24
+
