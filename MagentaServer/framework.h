@@ -32,6 +32,7 @@ using namespace DirectX::PackedVector;
 #include "Singleton.h"
 #include "PrintErrors.h"
 #include "Time.h"
+#include "Random.h"
 #include "Vector3.h"
 
 #include "Object.h"
@@ -44,6 +45,8 @@ using namespace DirectX::PackedVector;
 #include "GameScene.h"
 #include "SceneManager.h"
 
+#include "MonoBehavior.h"
+#include "MovingBehavior.h"
 
 #include "Message.h"
 #include "Thread.h"
@@ -55,6 +58,7 @@ using namespace DirectX::PackedVector;
 
 #include "Bullet.h"
 #include "Star.h"
+#include "Spawner.h"
 #include "MagentaFW.h"
 
 namespace NS_Vector4
