@@ -2,4 +2,6 @@
 
 class Collider : public Component
 {
+protected:
+	Collider() = default;
 };

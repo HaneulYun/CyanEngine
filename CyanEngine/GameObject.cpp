@@ -37,6 +37,42 @@ void GameObject::Update()
 		component->UpdateComponent();
 }
 
+void GameObject::OnTriggerEnter(GameObject* other)
+{
+	for (Component* component : components)
+		component->OnTriggerEnter(other);
+}
+
+void GameObject::OnTriggerStay(GameObject* other)
+{
+	for (Component* component : components)
+		component->OnTriggerStay(other);
+}
+
+void GameObject::OnTriggerExit(GameObject* other)
+{
+	for (Component* component : components)
+		component->OnTriggerExit(other);
+}
+
+void GameObject::OnCollisionEnter(GameObject* other)
+{
+	for (Component* component : components)
+		component->OnCollisionEnter(other);
+}
+
+void GameObject::OnCollisionStay(GameObject* other)
+{
+	for (Component* component : components)
+		component->OnCollisionStay(other);
+}
+
+void GameObject::OnCollisionExit(GameObject* other)
+{
+	for (Component* component : components)
+		component->OnCollisionExit(other);
+}
+
 XMFLOAT4X4 GameObject::GetMatrix()
 {
 	if (parent)
