@@ -114,7 +114,7 @@ void GameScene::BuildObjects()
 	GameObject* Recvthread = CreateEmpty();
 	{
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
-		Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
+		//Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
 	}
 
 	GameObject* orbit = Instantiate(object);

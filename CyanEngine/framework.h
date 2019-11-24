@@ -40,8 +40,6 @@ using Microsoft::WRL::ComPtr;
 #define FRAME_BUFFER_HEIGHT 900
 #define PI (3.141592f)
 
-//typedef XMFLOAT3 Vector3;
-
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
 //#define SAFE_DELETE(p) { if(p) { delete p; p = nullptr; } }
@@ -84,6 +82,7 @@ ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12
 #include "ModelManager.h"
 #include "ShaderManager.h"
 #include "RendererManager.h"
+#include "ObjectManager.h"
 
 #include "GameObject.h"
 
