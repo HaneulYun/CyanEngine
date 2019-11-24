@@ -31,6 +31,7 @@ public:
 	{
 		if (SceneManager::scenemanager->GetComponent<SceneManager>()->gameState == START) {
 			// 업데이트 코드를 작성하세요.
+
 			Vector3 v = (target - gameObject->transform->position).Normalize();
 
 			auto t = NS_Vector3::Angle(v.xmf3, old.xmf3);

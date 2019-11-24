@@ -83,7 +83,7 @@ void GameScene::BuildObjects()
 		enemy1->AddComponent<WhirlingBehavior>();
 	}
 
-	scnmgr->enemyprefab[0] = enemy1;
+	scnmgr->enemyprefab[0] = enemy0;
 	
 	GameObject* spawner = CreateEmpty();
 	{
