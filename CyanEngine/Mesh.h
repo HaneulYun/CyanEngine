@@ -35,7 +35,7 @@ public:
 class TriangleMesh : public Mesh
 {
 public:
-	TriangleMesh();
+	TriangleMesh(float size);
 	virtual ~TriangleMesh() { }
 };
 

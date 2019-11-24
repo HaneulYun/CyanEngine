@@ -9,7 +9,7 @@ private:
 
 public:
 	// 이 영역에 public 변수를 선언하세요.
-	GameObject* bullet{ nullptr };
+	GameObject* bullet[5]{ nullptr, };
 
 private:
 	friend class GameObject;
@@ -21,7 +21,7 @@ public:
 	virtual Component* Duplicate() { return new StarGuardian; };
 	virtual Component* Duplicate(Component* component) { return new StarGuardian(*(StarGuardian*)component); }
 
-	void Starguadiant()
+	void Start()
 	{
 		// 초기화 코드를 작성하세요.
 	}
@@ -34,11 +34,10 @@ public:
 
 	void Shoot(int type, Vector3 direction)
 	{
-		GameObject* object = Instantiate(bullet);
+		GameObject* object = Instantiate(bullet[type]);
 		object->transform->position = gameObject->transform->position;
 		object->GetComponent<Bullet>()->direction = direction;
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };
-
