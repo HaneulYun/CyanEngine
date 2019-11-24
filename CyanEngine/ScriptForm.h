@@ -1,7 +1,7 @@
 #pragma once
 #include "framework.h"
 
-class ScriptForm : public Component
+class ScriptForm : public MonoBehavior<ScriptForm>
 {
 private /*이 영역에 private 변수를 선언하세요.*/ :
 

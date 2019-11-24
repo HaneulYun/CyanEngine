@@ -8,7 +8,7 @@
 
 enum {WAIT, START, END};
 
-class SceneManager : public Component
+class SceneManager : public MonoBehavior<SceneManager>
 {
 private:
 
@@ -29,13 +29,12 @@ public:
 
 private:
 	friend class GameObject;
+	friend class MonoBehavior<SceneManager>;
 	SceneManager() = default;
 	SceneManager(SceneManager&) = default;
 
 public:
 	~SceneManager() {}
-	virtual Component* Duplicate() { return new SceneManager; }
-	virtual Component* Duplicate(Component* component) { return new SceneManager(*(SceneManager*)component); }
 
 	Vector3 AngletoDir(float angle)
 	{

@@ -1,7 +1,7 @@
 #pragma once
 #include "framework.h"
 
-class RotatingBehavior : public Component
+class RotatingBehavior : public MonoBehavior<RotatingBehavior>
 {
 private:
 	XMFLOAT3 axis{ 0.0f, 0.0f, 1.0f };
@@ -12,13 +12,12 @@ public:
 
 private:
 	friend class GameObject;
+	friend class MonoBehavior<RotatingBehavior>;
 	RotatingBehavior() = default;
 	RotatingBehavior(RotatingBehavior&) = default;
 
 public:
 	~RotatingBehavior() {}
-	virtual Component* Duplicate() { return new RotatingBehavior; }
-	virtual Component* Duplicate(Component* component) { return new RotatingBehavior(*(RotatingBehavior*)component); }
 
 	void Start() 
 	{
@@ -30,6 +29,5 @@ public:
 
 		gameObject->transform->position = Camera::main->ScreenToWorldPoint(Input::mousePosition);
 	}
-
 };
 
