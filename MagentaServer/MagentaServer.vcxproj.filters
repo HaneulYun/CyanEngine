@@ -126,6 +126,12 @@
     <ClCompile Include="Damageable.cpp">
       <Filter>Components</Filter>
     </ClCompile>
+    <ClCompile Include="BoxCollider.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PrintErrors.h">
@@ -216,6 +222,12 @@
       <Filter>Components</Filter>
     </ClInclude>
     <ClInclude Include="Damageable.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollider.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
       <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>

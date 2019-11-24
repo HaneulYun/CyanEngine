@@ -68,9 +68,9 @@ Message ThreadPool::curConnectedClients()
 
 bool ThreadPool::isAllClientsReady()
 {
-	if (clients.size() < maxClients)
-		return false;
-
+	//if (clients.size() < maxClients)
+	//	return false;
+	
 	for (int i = 0; i < clients.size(); ++i)
 	{
 		if (!clients[i]->isReady)

@@ -9,6 +9,7 @@
 #include <vector>
 #include <queue>
 #include <deque>
+#include <map>
 #include <stdio.h>
 #include <math.h>
 #include <wchar.h>
@@ -40,14 +41,16 @@ using namespace DirectX::PackedVector;
 
 #include "Component.h"
 #include "Transform.h"
+#include "Collider.h"
+#include "BoxCollider.h"
 #include "Damager.h"
 #include "Damageable.h"
 
 #include "Scene.h"
 #include "GameScene.h"
-#include "SceneManager.h"
 
 #include "MonoBehavior.h"
+#include "SceneManager.h"
 #include "MovingBehavior.h"
 
 #include "Message.h"
