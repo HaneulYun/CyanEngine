@@ -22,11 +22,15 @@ public:
 
 	float speedRotating{ 30.f };
 	float angle{ 0.0f };
-	int gameState{ WAIT };
-	int myid{ 0 };
-	int nplayer{ 0 };
-	bool ready{ false };
 	float spawnRadius{ 200 };
+
+	bool ready{ false };
+	int gameState{ WAIT };
+	int nplayer{ 0 };
+
+	int myid{ 0 };
+	int bulletType{ 1 };
+	float elapsedTime{ 0.f };
 
 
 private:
@@ -131,7 +135,22 @@ public:
 				StartGame();
 				break;
 			case MESSAGE_CREATE_BULLET:
+				CreateBullet(bulletType, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_STRAIGHT:
+				CreateBullet(0, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_CANNON:
 				CreateBullet(1, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_SHARP:
+				CreateBullet(2, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_LASER:
+				CreateBullet(3, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_GUIDED:
+				CreateBullet(4, curMsg.mParam, curMsg.rParam);
 				break;
 			case MESSAGE_CREATE_ENEMY_COMINGRECT:
 				CreateEnemy(0, curMsg.rParam);
@@ -149,6 +168,7 @@ public:
 	{
 		static float time = 0;
 		time += Time::deltaTime;
+		elapsedTime += Time::deltaTime;
 
 		UpdateRecvQueue();
 
@@ -172,19 +192,24 @@ public:
 			Message message;
 			message.msgId = MESSAGE_READY;
 			message.lParam = myid;
-			int retval = Sender->SendMsg(message);
-			//int retval = send(*sock, (char*)& message, sizeof(Message), 0);
+			if (Sender)
+				int retval = Sender->SendMsg(message);
 		}
 		else if (Input::GetMouseButtonDown(0) && ready) {
-			Vector3 direction = NS_Vector3::Normalize((Camera::main->ScreenToWorldPoint(Input::mousePosition) - player[myid]->transform->position).xmf3);
-			direction.z = 0;
+			float timeCycle = bulletprefab[bulletType]->GetComponent<Bullet>()->timeCycle;
+			if (timeCycle <= elapsedTime)
+			{
+				elapsedTime = 0.f;
+				Vector3 direction = NS_Vector3::Normalize((Camera::main->ScreenToWorldPoint(Input::mousePosition) - player[myid]->transform->position).xmf3);
+				direction.z = 0;
 
-			Message message;
-			message.msgId = MESSAGE_REQUEST_BULLET_CREATION;
-			message.mParam = myid;
-			message.rParam = DirtoAngle(direction);
-			int retval = Sender->SendMsg(message);
-			//int retval = send(*sock, (char*)& message, sizeof(Message), 0);
+				Message message;
+				message.msgId = MESSAGE_REQUEST_BULLET_CREATION;// +bulletType;
+				message.mParam = myid;
+				message.rParam = DirtoAngle(direction);
+				if (Sender)
+					int retval = Sender->SendMsg(message);
+			}
 		}
 	}
 };
