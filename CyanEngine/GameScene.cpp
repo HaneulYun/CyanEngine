@@ -45,7 +45,6 @@ void GameScene::BuildObjects()
 		revolvingBehavior->radius = 25.f;*/
 
 		guardian->AddComponent<StarGuardian>();
-		//guardian->GetComponent<StarGuardian>()->bullet = bullet;
 		scnmgr->playerprefab = guardian;
 		scnmgr->bulletprefab[0] = bullet;
 		
@@ -76,20 +75,20 @@ void GameScene::BuildObjects()
 	GameObject* enemy1 = CreateGameObject(object);
 	{
 		enemy1->GetComponent<MeshFilter>()->mesh = pQuadMesh;
-		enemy1->AddComponent<WhirlingBehavior>();
+		enemy1->AddComponent<WhirlingBehavior>()->target = star;
 	}
 
 	scnmgr->enemyprefab[0] = enemy0;
 	
 	GameObject* spawner = CreateEmpty();
 	{
-		//spawner->AddComponent<Spawner>()->enemy = enemy1;
+		spawner->AddComponent<Spawner>()->enemy = enemy1;
 	}
 
 	GameObject* Recvthread = CreateEmpty();
 	{
-		Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
-		//Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
+		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
+		Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
 	}
 
 	GameObject* orbit = Instantiate(object);
