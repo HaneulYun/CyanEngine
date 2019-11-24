@@ -8,11 +8,9 @@ private:
 
 public:
 	// 이 영역에 public 변수를 선언하세요.
-	Vector3 target{ 0, 0, 0 };
+	Vector3 direction;
 
-	float speed{ 90 };
-
-	Vector3 old;
+	float speed{ 100.f };
 
 private:
 	friend class GameObject;
@@ -26,29 +24,13 @@ public:
 	void Start()
 	{
 		// 초기화 코드를 작성하세요.
-		old = (target - gameObject->transform->position).Normalize();
+		direction = (Vector3(0, 0, 0) - gameObject->transform->position).Normalize();
 	}
 
 	void Update()
 	{
 		// 업데이트 코드를 작성하세요.
-		Vector3 v = (target - gameObject->transform->position).Normalize();
-
-		auto t = NS_Vector3::Angle(v.xmf3, old.xmf3);
-		if (t > 30)
-		{
-			gameObject->transform->position = Vector3{ 0, 0, 0 };
-			speed = 0;
-			//Destroy(gameObject);
-		}
-
-
-		if (speed)
-		{
-			gameObject->transform->position = gameObject->transform->position + v * speed * Time::deltaTime;
-		}
-
-		old = v;
+		gameObject->transform->position = gameObject->transform->position + direction * speed * Time::deltaTime;
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.

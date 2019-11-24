@@ -189,6 +189,9 @@
     <ClInclude Include="CTexture.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectManager.h">
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -280,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="CTexture.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectManager.cpp">
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

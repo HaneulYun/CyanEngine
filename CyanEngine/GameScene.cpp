@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "GameScene.h"
 
-
 Scene* Scene::scene{ nullptr };
 
 void GameScene::BuildObjects()
@@ -13,49 +12,25 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
-	GameObject* terrain = CreateEmpty();
-	{
-		XMFLOAT3 scale(5.0f, 0.5f, 5.0f);
-		XMFLOAT4 color(0.0f, 0.2f, 0.0f, 0.0f);
-	
-		terrain->GetComponent<Transform>()->position.x = -64 * 5 * 2;
-		terrain->GetComponent<Transform>()->position.z = -64 * 5 * 2;
-		terrain->GetComponent<Transform>()->position.y = -100.f;
-		terrain->AddComponent<Terrain>()->LoadTerrain(L"heightMap.raw", 257, 257, 257, 257, scale, color);
-		terrain->AddComponent<Renderer>()->material = defaultMaterial;
-		terrain->GetComponent<Renderer>()->material->albedo = XMFLOAT4{ 71.f / 255.f, 102.f / 255.f, 0.f, 1 };
-	}
-	
-	//GameObject* cube = CreateEmpty();
+	//GameObject* terrain = CreateEmpty();
 	//{
-	//	cube->AddComponent<MeshFilter>()->mesh = pCubeMesh;
-	//	cube->AddComponent<Renderer>()->material = defaultMaterial;
-	//	cube->AddComponent<RotatingBehavior>();
-	//	cube->AddComponent<MovingBehavior>();
+	//	XMFLOAT3 scale(5.0f, 0.5f, 5.0f);
+	//	XMFLOAT4 color(0.0f, 0.2f, 0.0f, 0.0f);
+	//
+	//	terrain->GetComponent<Transform>()->position.x = -64 * 5 * 2;
+	//	terrain->GetComponent<Transform>()->position.z = -64 * 5 * 2;
+	//	terrain->GetComponent<Transform>()->position.y = -100.f;
+	//	terrain->AddComponent<Terrain>()->LoadTerrain(L"heightMap.raw", 257, 257, 257, 257, scale, color);
+	//	terrain->AddComponent<Renderer>()->material = defaultMaterial;
+	//	terrain->GetComponent<Renderer>()->material->albedo = XMFLOAT4{ 71.f / 255.f, 102.f / 255.f, 0.f, 1 };
 	//}
 
 	GameObject* cube = CreateEmpty();
 	{
-		//cube->AddComponent<MovingBehavior>();
+		cube->AddComponent<MeshFilter>()->mesh = pCubeMesh;
+		cube->AddComponent<Renderer>()->material = defaultMaterial;
 	}
 
-	float interval = 150.f;
-	int xObjects = 3, yObjects = 1, zObjects = 3, i = 0;
-	for (int x = -xObjects; x <= xObjects; x++)
-		for (int y = -yObjects; y <= yObjects; y++)
-			for (int z = -zObjects; z <= zObjects; z++)
-			{
-				GameObject* model = CreateEmpty();
-				model->transform->position = Vector3{ interval * x, interval * y, interval * z };
-				model->transform->Rotate(XMFLOAT3(0, 1, 0), 90);
-	
-				GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
-				model->AddChild(child);
-				model->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.f, 90.f);
-	
-				child->children[27]->AddComponent<RotatingBehavior>()->speedRotating = 360;
-				child->children[7]->AddComponent<RotatingBehavior>()->speedRotating = -720;
-			}
 
 	GameObject* sceneManager = CreateEmpty();
 	{

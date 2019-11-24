@@ -84,6 +84,7 @@ ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12
 #include "ModelManager.h"
 #include "ShaderManager.h"
 #include "RendererManager.h"
+#include "ObjectManager.h"
 
 #include "GameObject.h"
 
