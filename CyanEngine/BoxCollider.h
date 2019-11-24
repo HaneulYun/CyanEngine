@@ -29,7 +29,7 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
-		extents = { 10, 10, 10 };
+		extents = { 14, 14, 14 };
 	}
 	
 	void Update(/*업데이트 코드를 작성하세요.*/)
