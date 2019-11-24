@@ -1,7 +1,7 @@
 #pragma once
 enum { WAIT, START, END };
 
-class SceneManager : public Component
+class SceneManager : public MonoBehavior<SceneManager>
 {
 private:
 
@@ -19,6 +19,7 @@ public:
 
 private:
 	friend class GameObject;
+	friend class MonoBehavior<SceneManager>;
 	SceneManager() = default;
 	SceneManager(SceneManager&) = default;
 

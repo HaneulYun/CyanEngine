@@ -27,7 +27,6 @@ struct Vector3
 	};
 
 	Vector3() = default;
-	Vector3(XMFLOAT3&& _xmf3) : xmf3(_xmf3) {}
 	Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
 
 	bool operator==(const Vector3& rhs) const
@@ -104,7 +103,7 @@ namespace NS_Vector3
 		XMStoreFloat3(&xmf3Result, xmvVector);
 		return(xmf3Result);
 	}
-	inline XMFLOAT3 ScalarProduct(const XMFLOAT3& xmf3Vector, float fScalar, bool bNormalize = true)
+	inline XMFLOAT3 ScalarProduct(XMFLOAT3& xmf3Vector, float fScalar, bool bNormalize = true)
 	{
 		XMFLOAT3 xmf3Result;
 		if (bNormalize)
