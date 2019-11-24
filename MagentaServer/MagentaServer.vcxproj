@@ -145,6 +145,8 @@
   <ItemGroup>
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="Damageable.cpp" />
+    <ClCompile Include="Damager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="MagentaFW.cpp" />
@@ -173,6 +175,8 @@
   <ItemGroup>
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="Damageable.h" />
+    <ClInclude Include="Damager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />

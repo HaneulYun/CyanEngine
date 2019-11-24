@@ -120,6 +120,12 @@
     <ClCompile Include="MonoBehavior.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Damager.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Damageable.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PrintErrors.h">
@@ -205,6 +211,12 @@
     </ClInclude>
     <ClInclude Include="MonoBehavior.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Damager.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Damageable.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

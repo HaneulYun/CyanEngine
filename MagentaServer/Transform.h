@@ -25,7 +25,6 @@ public:
 
 	void Start() override {}
 	void Update() override {}
-	void Render() override {}
 	void Destroy() override {}
 
 	virtual Component* Duplicate() { return new Transform; };
