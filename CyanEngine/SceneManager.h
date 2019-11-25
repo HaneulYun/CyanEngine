@@ -18,15 +18,19 @@ public:
 	GameObject* bulletprefab[5]{ nullptr, };
 	GameObject* player[3]{ nullptr, };
 	GameObject* star{ nullptr };
-	SOCKET* sock;
+	Thread* Sender{ nullptr };
 
 	float speedRotating{ 30.f };
 	float angle{ 0.0f };
-	int gameState{ WAIT };
-	int myid{ 0 };
-	int nplayer{ 0 };
-	bool ready{ false };
 	float spawnRadius{ 200 };
+
+	bool ready{ false };
+	int gameState{ WAIT };
+	int nplayer{ 0 };
+
+	int myid{ 0 };
+	int bulletType{ 1 };
+	float elapsedTime{ 0.f };
 
 
 private:
@@ -100,6 +104,61 @@ public:
 		}
 	}
 
+	void UpdateRecvQueue()
+	{
+		while (!recvQueue.empty())
+		{
+			EnterCriticalSection(&rqcs);
+			Message curMsg = recvQueue.front();
+			recvQueue.pop();
+			LeaveCriticalSection(&rqcs);
+			/////////////////////////////////////////
+
+			switch (curMsg.msgId)
+			{
+				// 내가 접속했을 때
+			case MESSAGE_YOUR_ID:
+				myid = curMsg.lParam;
+				angle = curMsg.mParam;
+				CreatePlayer(curMsg.lParam);
+				break;
+				// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
+			case MESSAGE_CONNECTED_IDS:
+				if (curMsg.lParam && player[0] == nullptr)
+					CreatePlayer(0);
+				if (curMsg.mParam && player[1] == nullptr)
+					CreatePlayer(1);
+				if (curMsg.rParam && player[2] == nullptr)
+					CreatePlayer(2);
+				break;
+			case MESSAGE_GAME_START:
+				StartGame();
+				break;
+			case MESSAGE_CREATE_BULLET:
+				CreateBullet(bulletType, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_STRAIGHT:
+				CreateBullet(0, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_CANNON:
+				CreateBullet(1, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_SHARP:
+				CreateBullet(2, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_LASER:
+				CreateBullet(3, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_BULLET_GUIDED:
+				CreateBullet(4, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_CREATE_ENEMY_COMINGRECT:
+				CreateEnemy(0, curMsg.rParam);
+				break;
+			}
+		}
+	}
+
 	void Start()
 	{
 		scenemanager = gameObject;
@@ -109,6 +168,9 @@ public:
 	{
 		static float time = 0;
 		time += Time::deltaTime;
+		elapsedTime += Time::deltaTime;
+
+		UpdateRecvQueue();
 
 		if (player[myid])
 		{
@@ -120,7 +182,9 @@ public:
 		}
 
 		if (gameState == START)
+		{
 			angle += speedRotating * Time::deltaTime;
+		}
 
 		if (Input::GetMouseButtonDown(0) && !ready) 
 		{
@@ -128,19 +192,24 @@ public:
 			Message message;
 			message.msgId = MESSAGE_READY;
 			message.lParam = myid;
-			//int retval = Sender->SendMsg(message);
-			int retval = send(*sock, (char*)& message, sizeof(Message), 0);
+			if (Sender)
+				int retval = Sender->SendMsg(message);
 		}
 		else if (Input::GetMouseButtonDown(0) && ready) {
-			Vector3 direction = NS_Vector3::Normalize((Camera::main->ScreenToWorldPoint(Input::mousePosition) - player[myid]->transform->position).xmf3);
-			direction.z = 0;
+			float timeCycle = bulletprefab[bulletType]->GetComponent<Bullet>()->timeCycle;
+			if (timeCycle <= elapsedTime)
+			{
+				elapsedTime = 0.f;
+				Vector3 direction = NS_Vector3::Normalize((Camera::main->ScreenToWorldPoint(Input::mousePosition) - player[myid]->transform->position).xmf3);
+				direction.z = 0;
 
-			Message message;
-			message.msgId = MESSAGE_REQUEST_BULLET_CREATION;
-			message.mParam = myid;
-			message.rParam = DirtoAngle(direction);
-			//int retval = Sender->SendMsg(message);
-			int retval = send(*sock, (char*)& message, sizeof(Message), 0);
+				Message message;
+				message.msgId = MESSAGE_REQUEST_BULLET_CREATION;// +bulletType;
+				message.mParam = myid;
+				message.rParam = DirtoAngle(direction);
+				if (Sender)
+					int retval = Sender->SendMsg(message);
+			}
 		}
 	}
 };

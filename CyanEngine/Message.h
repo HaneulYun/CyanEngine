@@ -2,7 +2,7 @@
 #include <queue>
 struct Message
 {
-	char msgId;
+	unsigned char msgId;
 	int lParam;
 	float mParam;
 	float rParam;

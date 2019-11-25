@@ -17,7 +17,7 @@ public:
 	// 이 영역에 public 변수를 선언하세요.
 	//192.168.35.35
 	//192.168.35.95 나
-	const char* severip{ "192.168.35.35" };
+	const char* severip{ "127.0.0.1" };
 	const short severport{ 9000 };
 
 	
@@ -55,45 +55,15 @@ private:
 	{
 		Message buf;
 		int retval;
-		SceneManager* sceneManager = SceneManager::scenemanager->GetComponent<SceneManager>();
+		//SceneManager* sceneManager = SceneManager::scenemanager->GetComponent<SceneManager>();
 
 		while (1) {
 			retval = recv((SOCKET)sock, (char*)&buf, sizeof(Message), 0);
 			if (retval == SOCKET_ERROR) {
 				;//err_display("recv()");
 			}
-			//printf("recvbuf: %c, %d, %d, %d\n", buf.msgId, buf.lParam, buf.mParam, buf.rParam);
-
-			int id = buf.lParam;
 			EnterCriticalSection(&rqcs);
-			switch (buf.msgId)
-			{
-			// 내가 접속했을 때
-			case MESSAGE_YOUR_ID:
-				id = buf.lParam;
-				sceneManager->myid = id;
-				sceneManager->angle = buf.mParam;
-				sceneManager->CreatePlayer(id);
-				break;
-			// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
-			case MESSAGE_CONNECTED_IDS:
-				if (buf.lParam && sceneManager->player[0] == nullptr)
-					sceneManager->CreatePlayer(0);
-				if (buf.mParam && sceneManager->player[1] == nullptr)
-					sceneManager->CreatePlayer(1);
-				if (buf.rParam && sceneManager->player[2] == nullptr)
-					sceneManager->CreatePlayer(2);
-				break;
-			case MESSAGE_GAME_START:
-				sceneManager->StartGame();
-				break;
-			case MESSAGE_CREATE_BULLET:
-				sceneManager->CreateBullet(1, buf.mParam, buf.rParam);
-				break;
-			case MESSAGE_CREATE_ENEMY_COMINGRECT:
-				sceneManager->CreateEnemy(0, buf.rParam);
-				break;
-			}
+			recvQueue.push(buf);
 			LeaveCriticalSection(&rqcs);
 		}
 		return 0;
@@ -122,10 +92,7 @@ public:
 		// socket()
 		sock = socket(AF_INET, SOCK_STREAM, 0);
 		if (sock == INVALID_SOCKET) err_quit("socket()");
-		//printf("IP 입력: ");
-		//char* SERVERIP = (char*)malloc(sizeof(char) * STRMAX);
-		//scanf_s(" %s", SERVERIP);
-		SceneManager::scenemanager->GetComponent<SceneManager>()->sock = &sock;
+	
 		// connect()
 		SOCKADDR_IN serveraddr;
 		ZeroMemory(&serveraddr, sizeof(serveraddr));
@@ -145,6 +112,9 @@ public:
 		// 업데이트 코드를 작성하세요.
 	}
 
+	int SendMsg(Message message) {
+		return send(sock, (char*)& message, sizeof(Message), 0);
+	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };

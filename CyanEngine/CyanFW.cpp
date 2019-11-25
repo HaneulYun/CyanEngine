@@ -79,6 +79,13 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		case VK_F9:
 			RendererManager::Instance()->ChangeSwapChainState();
 			break;
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+			SceneManager::scenemanager->GetComponent<SceneManager>()->bulletType = wParam - '1';
+			break;
 		default:
 			break;
 		}
