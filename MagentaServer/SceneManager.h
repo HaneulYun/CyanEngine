@@ -58,5 +58,4 @@ public:
 	{
 		return standardAngle;
 	}
-
 };

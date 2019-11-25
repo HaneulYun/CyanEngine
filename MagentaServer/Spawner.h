@@ -8,7 +8,6 @@ private:
 	float elapsedTime{ 0 };
 
 	float spawnRadius{ 120 };
-	bool spawn{ false };
 public:
 	// 이 영역에 public 변수를 선언하세요.
 	GameObject* enemy;
@@ -35,7 +34,7 @@ public:
 
 			elapsedTime += Time::deltaTime;
 
-			if (elapsedTime > spawnTime && !spawn)
+			if (elapsedTime > spawnTime)
 			{
 				elapsedTime -= spawnTime;
 
@@ -43,7 +42,7 @@ public:
 				{
 					float radian = Random::Range(0.0f, XM_2PI);
 					object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);
-
+					object->AddComponent<BoxCollider>();
 					Message result;
 					result.msgId = MESSAGE_CREATE_ENEMY_COMINGRECT;
 					result.rParam = radian;
@@ -51,8 +50,6 @@ public:
 					EnterCriticalSection(&ThreadPool::sqcs);
 					ThreadPool::sendQueue.push(result);
 					LeaveCriticalSection(&ThreadPool::sqcs);
-
-					spawn = true;
 				}
 			}
 		}

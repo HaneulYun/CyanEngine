@@ -54,7 +54,7 @@ public:
 	void OnTriggerEnter(GameObject* collision)
 	{
 		printf("¾Ç\n");
-		//if (collision->GetComponent<Damageable>()  NULL)
+		//if (collision->GetComponent<Damageable>() != NULL)
 		//{
 		//	gameObject->GetComponent<Damager>()->AddDamageTo(*collision->GetComponent<Damageable>());
 		//}
