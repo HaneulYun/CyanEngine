@@ -73,6 +73,11 @@ public:
 		}
 	}
 
+	void EndGame()
+	{
+		gameState = END;
+	}
+
 	void CreatePlayer(int id) 
 	{
 		++nplayer;
@@ -104,6 +109,11 @@ public:
 		}
 	}
 
+	void ChangeStarHealth(int health)
+	{
+		star->GetComponent<Star>()->health = health;
+	}
+
 	void UpdateRecvQueue()
 	{
 		while (!recvQueue.empty())
@@ -121,6 +131,10 @@ public:
 				myid = curMsg.lParam;
 				angle = curMsg.mParam;
 				CreatePlayer(curMsg.lParam);
+				for (int i = 0; i < 5; ++i)
+				{
+					player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<Damager>();
+				}
 				break;
 				// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
 			case MESSAGE_CONNECTED_IDS:
@@ -134,26 +148,24 @@ public:
 			case MESSAGE_GAME_START:
 				StartGame();
 				break;
-			/*case MESSAGE_CREATE_BULLET:
-				CreateBullet(bulletType, curMsg.mParam, curMsg.rParam);
-				break;*/
+			case MESSAGE_GAME_END:
+				EndGame();
+				break;
+			// Bullet
 			case MESSAGE_CREATE_BULLET_STRAIGHT:
-				CreateBullet(0, curMsg.mParam, curMsg.rParam);
-				break;
 			case MESSAGE_CREATE_BULLET_CANNON:
-				CreateBullet(1, curMsg.mParam, curMsg.rParam);
-				break;
 			case MESSAGE_CREATE_BULLET_SHARP:
-				CreateBullet(2, curMsg.mParam, curMsg.rParam);
-				break;
 			case MESSAGE_CREATE_BULLET_LASER:
-				CreateBullet(3, curMsg.mParam, curMsg.rParam);
-				break;
 			case MESSAGE_CREATE_BULLET_GUIDED:
-				CreateBullet(4, curMsg.mParam, curMsg.rParam);
+				CreateBullet(curMsg.msgId - MESSAGE_CREATE_BULLET_STRAIGHT, curMsg.mParam, curMsg.rParam);
 				break;
+			// Enemy Creation
 			case MESSAGE_CREATE_ENEMY_COMINGRECT:
 				CreateEnemy(0, curMsg.rParam);
+				break;
+			// Collision
+			case MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY:
+				ChangeStarHealth(curMsg.mParam);
 				break;
 			}
 		}
@@ -195,7 +207,7 @@ public:
 			if (Sender)
 				int retval = Sender->SendMsg(message);
 		}
-		else if (Input::GetMouseButtonDown(0) && ready) {
+		else if (Input::GetMouseButtonDown(0) && gameState == START) {
 			float timeCycle = bulletprefab[bulletType]->GetComponent<Bullet>()->timeCycle;
 			if (timeCycle <= elapsedTime)
 			{

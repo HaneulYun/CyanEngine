@@ -219,6 +219,12 @@
     <ClInclude Include="WhirlingBehavior.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="Damageable.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="Damager.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -313,6 +319,12 @@
     </ClCompile>
     <ClCompile Include="ObjectManager.cpp">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Damager.cpp">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="Damageable.cpp">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

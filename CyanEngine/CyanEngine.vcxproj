@@ -160,6 +160,8 @@
     <ClInclude Include="CyanEngine.h" />
     <ClInclude Include="CyanFW.h" />
     <ClInclude Include="CyanWindow.h" />
+    <ClInclude Include="Damageable.h" />
+    <ClInclude Include="Damager.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="DefaultMaterial.h" />
     <ClInclude Include="framework.h" />
@@ -211,6 +213,8 @@
     <ClCompile Include="CyanEngine.cpp" />
     <ClCompile Include="CyanFW.cpp" />
     <ClCompile Include="CyanWindow.cpp" />
+    <ClCompile Include="Damageable.cpp" />
+    <ClCompile Include="Damager.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="DefaultMaterial.cpp" />
     <ClCompile Include="framework.cpp" />
