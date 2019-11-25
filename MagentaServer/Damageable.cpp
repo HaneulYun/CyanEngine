@@ -17,10 +17,13 @@ Damageable::~Damageable()
 
 void Damageable::TakeDamage(Damager damager)
 {
+	if (damager.isTeam == isTeam)
+		return;
 	if (health <= 0)
 		return;
 
 	health -= damager.GetDamageAmount();
+	printf("¾Æ¾ß!\n");
 }
 
 void Damageable::SetHealth(int amount)
@@ -45,3 +48,10 @@ bool Damageable::isDead()
 	return false;
 }
 
+void Damageable::OnTriggerEnter(GameObject* collision)
+{
+	if (collision->GetComponent<Damager>() != NULL)
+	{
+		TakeDamage(*collision->GetComponent<Damager>());
+	}
+}

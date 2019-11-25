@@ -19,4 +19,21 @@ public:
 	{
 		
 	}
+
+	void OnTriggerEnter(GameObject* collision)
+	{
+		if (collision->GetComponent<MovingBehavior>() != NULL)
+		{
+			if (!collision->GetComponent<MovingBehavior>()->collision)
+			{
+				collision->GetComponent<MovingBehavior>()->collision = true;
+				Message sendMsg;
+				sendMsg.msgId = MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY;
+				sendMsg.mParam = gameObject->GetComponent<Damageable>()->GetCurHealth();
+				EnterCriticalSection(&ThreadPool::sqcs);
+				ThreadPool::sendQueue.push(sendMsg);
+				LeaveCriticalSection(&ThreadPool::sqcs);
+			}
+		}
+	}
 };

@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "scripts.h"
 #include "CyanFW.h"
 
 CyanFW::CyanFW()

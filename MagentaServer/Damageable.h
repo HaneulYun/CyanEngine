@@ -7,6 +7,9 @@ private:
 	int health;
 
 public:
+	bool isTeam;
+
+public:
 	Damageable();
 	Damageable(int hp);
 	~Damageable();
@@ -23,4 +26,6 @@ public:
 	int GetCurHealth();
 	void ResetHealth();
 	bool isDead();
+
+	void OnTriggerEnter(GameObject* damager);
 };

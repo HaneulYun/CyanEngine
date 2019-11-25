@@ -7,8 +7,7 @@ private:
 	float spawnTime{ 0.3 };
 	float elapsedTime{ 0 };
 
-	float spawnRadius{ 120 };
-
+	float spawnRadius{ 200 };
 public:
 	// 이 영역에 public 변수를 선언하세요.
 	GameObject* enemy;
@@ -43,7 +42,6 @@ public:
 				{
 					float radian = Random::Range(0.0f, XM_2PI);
 					object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);
-
 					Message result;
 					result.msgId = MESSAGE_CREATE_ENEMY_COMINGRECT;
 					result.rParam = radian;

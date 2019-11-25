@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "scripts.h"
 #include "GameScene.h"
 
 GameObject* SceneManager::scenemanager{ nullptr };
@@ -37,7 +38,7 @@ void GameScene::BuildObjects()
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 200.f;
-		bullet->timeCycle = 0.5f;
+		bullet->timeCycle = 0.25f;
 		scnmgr->bulletprefab[0] = bulletobj;
 	}
 	{	
@@ -45,7 +46,7 @@ void GameScene::BuildObjects()
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 100.f;
-		bullet->timeCycle = 1.0f;
+		bullet->timeCycle = 0.5f;
 		scnmgr->bulletprefab[1] = bulletobj;
 	} 
 	{	
@@ -53,7 +54,7 @@ void GameScene::BuildObjects()
 		bulletobj->GetComponent<MeshFilter>()->mesh = SharpBulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 260.f;
-		bullet->timeCycle = 0.25f;
+		bullet->timeCycle = 0.125f;
 		scnmgr->bulletprefab[2] = bulletobj;
 	} 
 	{	
@@ -69,7 +70,7 @@ void GameScene::BuildObjects()
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 140.f;
-		bullet->timeCycle = 0.5f;
+		bullet->timeCycle = 0.25f;
 		scnmgr->bulletprefab[4] = bulletobj;
 	}
 
@@ -122,6 +123,7 @@ void GameScene::BuildObjects()
 
 	GameObject* Recvthread = CreateEmpty();
 	{
+		//Recvthread->AddComponent<Thread>()->severip = "192.168.22.163";
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
 		Recvthread->AddComponent<Thread>()->severip = "192.168.100.77";
 		scnmgr->Sender = Recvthread->GetComponent<Thread>();

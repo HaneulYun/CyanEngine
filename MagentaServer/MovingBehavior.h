@@ -11,7 +11,7 @@ public:
 	Vector3 old;
 
 	float speed{ 15 };
-
+	bool collision{ false };
 private:
 	friend class GameObject;
 	friend class MonoBehavior<MovingBehavior>;
@@ -39,7 +39,7 @@ public:
 			{
 				gameObject->transform->position = Vector3{ 0, 0, 0 };
 				speed = 0;
-				//Destroy(gameObject);
+
 			}
 
 			if (speed)
@@ -50,6 +50,5 @@ public:
 			old = v;
 		}
 	}
-
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };
