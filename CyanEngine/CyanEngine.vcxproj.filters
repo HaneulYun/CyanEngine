@@ -192,6 +192,9 @@
     <ClInclude Include="ObjectManager.h">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -286,6 +289,9 @@
     </ClCompile>
     <ClCompile Include="ObjectManager.cpp">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereCollider.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

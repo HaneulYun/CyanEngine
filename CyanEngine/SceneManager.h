@@ -35,7 +35,7 @@ public:
 			instance->GetComponent<Renderer>()->material->albedo = RANDOM_COLOR;
 			instance->GetComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.0f, 90.0f);
 			instance->AddComponent<MovingBehavior>();
-			instance->AddComponent<BoxCollider>();
+			instance->AddComponent<BoxCollider>()->extents = { 7, 7, 7 };
 		}
 	}
 

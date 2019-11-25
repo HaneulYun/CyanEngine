@@ -78,6 +78,7 @@ ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12
 
 #include "Collider.h"
 #include "BoxCollider.h"
+#include "SphereCollider.h"
 
 #include "MonoBehavior.h"
 

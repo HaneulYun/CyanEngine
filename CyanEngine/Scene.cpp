@@ -24,24 +24,25 @@ void Scene::Start()
 void Scene::Update()
 {
 	// fixed update
-	BoxCollider *lhs_collider, *rhs_collider;
+	Collider *lhs_collider, *rhs_collider;
 	for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)
-		if (lhs_collider = (*lhs_iter)->GetComponent<BoxCollider>())
-			for (auto rhs_iter = lhs_iter + 1; rhs_iter != gameObjects.end(); ++rhs_iter)
-				if (rhs_collider = (*rhs_iter)->GetComponent<BoxCollider>())
-				{
-					auto iter = (*lhs_iter)->collisionType.find(*rhs_iter);
-					
-					if (lhs_collider->Compare(rhs_collider))
+		if (lhs_collider = (*lhs_iter)->GetComponent<Collider>())
+			for (auto rhs_iter = gameObjects.begin(); rhs_iter != gameObjects.end(); ++rhs_iter)
+				if(lhs_iter != rhs_iter)
+					if (rhs_collider = (*rhs_iter)->GetComponent<Collider>())
 					{
-						if (iter == (*lhs_iter)->collisionType.end())
-							((*lhs_iter)->collisionType)[*rhs_iter] = CollisionType::eTriggerEnter;
-						else if (iter->second == CollisionType::eTriggerEnter)
-							iter->second = CollisionType::eTriggerStay;
+						auto iter = (*lhs_iter)->collisionType.find(*rhs_iter);
+
+						if (lhs_collider->Compare(rhs_collider))
+						{
+							if (iter == (*lhs_iter)->collisionType.end())
+								((*lhs_iter)->collisionType)[*rhs_iter] = CollisionType::eTriggerEnter;
+							else if (iter->second == CollisionType::eTriggerEnter)
+								iter->second = CollisionType::eTriggerStay;
+						}
+						else if (iter != (*lhs_iter)->collisionType.end())
+							iter->second = CollisionType::eTriggerExit;
 					}
-					else if (iter != (*lhs_iter)->collisionType.end())
-						iter->second = CollisionType::eTriggerExit;
-				}
 
 	for (GameObject* gameObject : gameObjects)
 	{
