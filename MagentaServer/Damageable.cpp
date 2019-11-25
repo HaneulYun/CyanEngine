@@ -17,6 +17,8 @@ Damageable::~Damageable()
 
 void Damageable::TakeDamage(Damager damager)
 {
+	if (damager.isTeam == isTeam)
+		return;
 	if (health <= 0)
 		return;
 
@@ -44,4 +46,12 @@ bool Damageable::isDead()
 	if (health <= 0)
 		return true;
 	return false;
+}
+
+void Damageable::OnTriggerEnter(GameObject* collision)
+{
+	if (collision->GetComponent<Damager>() != NULL)
+	{
+		TakeDamage(*collision->GetComponent<Damager>());
+	}
 }

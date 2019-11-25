@@ -7,7 +7,9 @@ class Damager : public Component
 private:
 	int damageAmount;
 	bool canDamage;
-	// collider 변수 추가..?
+
+public:
+	bool isTeam;
 
 public:
 	Damager();
