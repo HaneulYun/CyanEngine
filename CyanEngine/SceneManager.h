@@ -134,9 +134,9 @@ public:
 			case MESSAGE_GAME_START:
 				StartGame();
 				break;
-			case MESSAGE_CREATE_BULLET:
+			/*case MESSAGE_CREATE_BULLET:
 				CreateBullet(bulletType, curMsg.mParam, curMsg.rParam);
-				break;
+				break;*/
 			case MESSAGE_CREATE_BULLET_STRAIGHT:
 				CreateBullet(0, curMsg.mParam, curMsg.rParam);
 				break;
@@ -204,7 +204,7 @@ public:
 				direction.z = 0;
 
 				Message message;
-				message.msgId = MESSAGE_REQUEST_BULLET_CREATION;// +bulletType;
+				message.msgId = MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT + bulletType;
 				message.mParam = myid;
 				message.rParam = DirtoAngle(direction);
 				if (Sender)
