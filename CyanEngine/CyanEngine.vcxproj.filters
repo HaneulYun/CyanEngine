@@ -216,6 +216,9 @@
     <ClInclude Include="ObjectManager.h">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
     <ClInclude Include="WhirlingBehavior.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
@@ -319,6 +322,9 @@
     </ClCompile>
     <ClCompile Include="ObjectManager.cpp">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereCollider.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClCompile>
     <ClCompile Include="Damager.cpp">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
