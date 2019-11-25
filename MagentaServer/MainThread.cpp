@@ -53,6 +53,51 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 				ThreadPool::sendQueue.push(result);
 				LeaveCriticalSection(&ThreadPool::sqcs);
 				break;
+			case MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT:
+				result.msgId = MESSAGE_CREATE_BULLET_STRAIGHT;
+				result.lParam = curMessage.lParam;
+				result.mParam = curMessage.mParam;
+				result.rParam = curMessage.rParam;
+				EnterCriticalSection(&ThreadPool::sqcs);
+				ThreadPool::sendQueue.push(result);
+				LeaveCriticalSection(&ThreadPool::sqcs);
+				break;
+			case MESSAGE_REQUEST_BULLET_CREATION_CANNON:
+				result.msgId = MESSAGE_CREATE_BULLET_CANNON;
+				result.lParam = curMessage.lParam;
+				result.mParam = curMessage.mParam;
+				result.rParam = curMessage.rParam;
+				EnterCriticalSection(&ThreadPool::sqcs);
+				ThreadPool::sendQueue.push(result);
+				LeaveCriticalSection(&ThreadPool::sqcs);
+				break;
+			case MESSAGE_REQUEST_BULLET_CREATION_SHARP:
+				result.msgId = MESSAGE_CREATE_BULLET_SHARP;
+				result.lParam = curMessage.lParam;
+				result.mParam = curMessage.mParam;
+				result.rParam = curMessage.rParam;
+				EnterCriticalSection(&ThreadPool::sqcs);
+				ThreadPool::sendQueue.push(result);
+				LeaveCriticalSection(&ThreadPool::sqcs);
+				break;
+			case MESSAGE_REQUEST_BULLET_CREATION_LASER:
+				result.msgId = MESSAGE_CREATE_BULLET_LASER;
+				result.lParam = curMessage.lParam;
+				result.mParam = curMessage.mParam;
+				result.rParam = curMessage.rParam;
+				EnterCriticalSection(&ThreadPool::sqcs);
+				ThreadPool::sendQueue.push(result);
+				LeaveCriticalSection(&ThreadPool::sqcs);
+				break;
+			case MESSAGE_REQUEST_BULLET_CREATION_GUIDED:
+				result.msgId = MESSAGE_CREATE_BULLET_GUIDED;
+				result.lParam = curMessage.lParam;
+				result.mParam = curMessage.mParam;
+				result.rParam = curMessage.rParam;
+				EnterCriticalSection(&ThreadPool::sqcs);
+				ThreadPool::sendQueue.push(result);
+				LeaveCriticalSection(&ThreadPool::sqcs);
+				break;
 			}
 		}
 

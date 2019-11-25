@@ -11,7 +11,7 @@ public:
 	Vector3 old;
 
 	float speed{ 15 };
-
+	bool collision{ false };
 private:
 	friend class GameObject;
 	friend class MonoBehavior<MovingBehavior>;
