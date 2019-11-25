@@ -4,6 +4,7 @@
 
 #include <winsock2.h>
 #include <stdlib.h>
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <string>
 #include <vector>
@@ -50,8 +51,6 @@ using namespace DirectX::PackedVector;
 #include "GameScene.h"
 
 #include "MonoBehavior.h"
-#include "SceneManager.h"
-#include "MovingBehavior.h"
 
 #include "Message.h"
 #include "Thread.h"
@@ -61,9 +60,6 @@ using namespace DirectX::PackedVector;
 #include "SendingThread.h"
 #include "ThreadPool.h"
 
-#include "Bullet.h"
-#include "Star.h"
-#include "Spawner.h"
 #include "MagentaFW.h"
 
 namespace NS_Vector4

@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "scripts.h"
 #include "SendingThread.h"
 
 SendingThread::SendingThread(int tId, LPVOID fParam)
