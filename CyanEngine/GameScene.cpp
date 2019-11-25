@@ -125,7 +125,7 @@ void GameScene::BuildObjects()
 	{
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.22.163";
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
-		Recvthread->AddComponent<Thread>()->severip = "192.168.100.77";
+		//Recvthread->AddComponent<Thread>()->severip = "192.168.100.77";
 		scnmgr->Sender = Recvthread->GetComponent<Thread>();
 	}
 

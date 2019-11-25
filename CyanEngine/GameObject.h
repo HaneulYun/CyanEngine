@@ -108,6 +108,12 @@ T* GameObject::GetComponent()
 	for (Component* component : components)
 		if (typeid(*component).name() == typeid(T).name())
 			return dynamic_cast<T*>(component);
+		else if (typeid(Collider).name() == typeid(T).name())
+		{
+			if (typeid(*component).name() == typeid(BoxCollider).name() ||
+				typeid(*component).name() == typeid(SphereCollider).name())
+				return dynamic_cast<T*>(component);
+		}
 	
 	return nullptr;
 }
