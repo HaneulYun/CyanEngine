@@ -19,4 +19,13 @@ public:
 	{
 		
 	}
+
+	void OnTriggerEnter(GameObject* collision)
+	{
+		printf("ธิ\n");
+		//if (collision->GetComponent<Damageable>() != NULL)
+		//{
+		//	gameObject->GetComponent<Damager>()->AddDamageTo(*collision->GetComponent<Damageable>());
+		//}
+	}
 };

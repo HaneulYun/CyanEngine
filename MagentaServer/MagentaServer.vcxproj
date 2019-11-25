@@ -144,7 +144,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BoxCollider.cpp" />
-    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Damageable.cpp" />
@@ -153,7 +152,6 @@
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="MagentaFW.cpp" />
     <ClCompile Include="MonoBehavior.cpp" />
-    <ClCompile Include="MovingBehavior.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -167,8 +165,6 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PrintErrors.cpp" />
     <ClCompile Include="Singleton.cpp" />
-    <ClCompile Include="Spawner.cpp" />
-    <ClCompile Include="Star.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="Time.cpp" />

@@ -19,35 +19,32 @@
     <Filter Include="Message">
       <UniqueIdentifier>{be4e7688-b419-49ff-96d3-dd6cf177a3c9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components">
-      <UniqueIdentifier>{bc4843da-a761-47e1-b9c7-784077319d53}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Manager">
       <UniqueIdentifier>{c6c1867d-4fe7-4fcc-8fa5-d04ed65e37ab}</UniqueIdentifier>
     </Filter>
     <Filter Include="MagentaServer">
       <UniqueIdentifier>{4bd153a0-e5cf-42d0-bda4-b9bdda0f5e8f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="1_00_YelloProject">
+    <Filter Include="0_00_CyanEngine">
       <UniqueIdentifier>{a46419a3-6c42-44ce-9c6f-55abe5734441}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine">
-      <UniqueIdentifier>{6c702b0c-47d2-4dc3-9a00-2eae33cac528}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine\00_Scene">
-      <UniqueIdentifier>{0d560d4c-6939-43b9-a3a1-068c90a8d7d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="0_00_CyanEngine\10_Scripts">
-      <UniqueIdentifier>{ccee331c-b8f4-4774-b6c7-93a92a76c552}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="1_00_YelloProject\00_Scene">
       <UniqueIdentifier>{58079a2a-808f-4c44-a790-85f9f1155166}</UniqueIdentifier>
     </Filter>
-    <Filter Include="1_00_YelloProject\20_CoreComponent">
+    <Filter Include="0_00_CyanEngine\20_CoreComponent">
       <UniqueIdentifier>{5ceb2a45-0dc2-426f-91d4-ef1ad2c45018}</UniqueIdentifier>
     </Filter>
-    <Filter Include="1_00_YelloProject\10_Core">
+    <Filter Include="0_00_CyanEngine\10_Core">
       <UniqueIdentifier>{625e08da-4a42-4c3c-b49b-5d4dc2e17fc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject">
+      <UniqueIdentifier>{6c702b0c-47d2-4dc3-9a00-2eae33cac528}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\00_Scene">
+      <UniqueIdentifier>{0d560d4c-6939-43b9-a3a1-068c90a8d7d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\10_Scripts">
+      <UniqueIdentifier>{ccee331c-b8f4-4774-b6c7-93a92a76c552}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -88,13 +85,13 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
-      <Filter>1_00_YelloProject\10_Core</Filter>
+      <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
-      <Filter>1_00_YelloProject\10_Core</Filter>
+      <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClCompile>
     <ClCompile Include="Component.cpp">
-      <Filter>1_00_YelloProject\10_Core</Filter>
+      <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClCompile>
     <ClCompile Include="SceneManager.cpp">
       <Filter>Manager</Filter>
@@ -106,40 +103,28 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="MonoBehavior.cpp">
-      <Filter>1_00_YelloProject\10_Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Bullet.cpp">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
-    </ClCompile>
-    <ClCompile Include="Spawner.cpp">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
-    </ClCompile>
-    <ClCompile Include="Star.cpp">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
+      <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClCompile>
     <ClCompile Include="GameScene.cpp">
-      <Filter>0_00_CyanEngine\00_Scene</Filter>
+      <Filter>1_00_YellowProject\00_Scene</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>1_00_YelloProject\00_Scene</Filter>
+      <Filter>0_00_CyanEngine\00_Scene</Filter>
     </ClCompile>
     <ClCompile Include="Transform.cpp">
-      <Filter>1_00_YelloProject\20_CoreComponent</Filter>
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
     </ClCompile>
     <ClCompile Include="Collider.cpp">
-      <Filter>1_00_YelloProject\20_CoreComponent</Filter>
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
     </ClCompile>
     <ClCompile Include="BoxCollider.cpp">
-      <Filter>1_00_YelloProject\20_CoreComponent</Filter>
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
     </ClCompile>
     <ClCompile Include="Damageable.cpp">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClCompile>
     <ClCompile Include="Damager.cpp">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
-    </ClCompile>
-    <ClCompile Include="MovingBehavior.cpp">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -180,13 +165,13 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
-      <Filter>1_00_YelloProject\10_Core</Filter>
+      <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
-      <Filter>1_00_YelloProject\10_Core</Filter>
+      <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClInclude>
     <ClInclude Include="Component.h">
-      <Filter>1_00_YelloProject\10_Core</Filter>
+      <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>헤더 파일</Filter>
@@ -204,40 +189,40 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="MonoBehavior.h">
-      <Filter>1_00_YelloProject\10_Core</Filter>
+      <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClInclude>
     <ClInclude Include="Bullet.h">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Spawner.h">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Star.h">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="GameScene.h">
-      <Filter>0_00_CyanEngine\00_Scene</Filter>
+      <Filter>1_00_YellowProject\00_Scene</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>1_00_YelloProject\00_Scene</Filter>
+      <Filter>0_00_CyanEngine\00_Scene</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
-      <Filter>1_00_YelloProject\20_CoreComponent</Filter>
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h">
-      <Filter>1_00_YelloProject\20_CoreComponent</Filter>
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
     </ClInclude>
     <ClInclude Include="BoxCollider.h">
-      <Filter>1_00_YelloProject\20_CoreComponent</Filter>
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
     </ClInclude>
     <ClInclude Include="Damageable.h">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Damager.h">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="MovingBehavior.h">
-      <Filter>0_00_CyanEngine\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
