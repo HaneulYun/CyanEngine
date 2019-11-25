@@ -191,6 +191,7 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="scripts.h" />
     <ClInclude Include="SendingThread.h" />
     <ClInclude Include="ConnectingThread.h" />
     <ClInclude Include="Globals.h" />
