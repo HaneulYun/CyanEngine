@@ -87,6 +87,27 @@ struct Vector3
 		XMStoreFloat3(&result.xmf3, XMLoadFloat3(&xmf3) / rhs);
 		return result;
 	}
+
+	Vector3& operator+=(const Vector3& rhs)
+	{
+		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) + XMLoadFloat3(&rhs.xmf3));
+		return *this;
+	}
+	Vector3& operator-=(const Vector3& rhs)
+	{
+		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) - XMLoadFloat3(&rhs.xmf3));
+		return *this;
+	}
+	Vector3& operator*=(const Vector3& rhs)
+	{
+		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) * XMLoadFloat3(&rhs.xmf3));
+		return *this;
+	}
+	Vector3& operator/=(const Vector3& rhs)
+	{
+		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) / XMLoadFloat3(&rhs.xmf3));
+		return *this;
+	}
 };
 
 namespace NS_Vector3
