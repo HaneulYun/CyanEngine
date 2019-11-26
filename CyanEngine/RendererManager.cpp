@@ -22,6 +22,8 @@ RendererManager::RendererManager()
 
 	CreateRenderTargetView();
 	CreateDepthStencilView();
+
+	commandList->Reset(commandAllocator.Get(), NULL);
 }
 
 RendererManager::~RendererManager()
@@ -40,6 +42,7 @@ void RendererManager::UpdateManager()
 
 void RendererManager::Start()
 {
+
 	for (auto& d : instances)
 	{
 		if (!d.second.first)
@@ -49,7 +52,6 @@ void RendererManager::Start()
 
 			//Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
 			shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
-			shader->m_ppd3dPipelineStates = new ID3D12PipelineState * [1];
 			shader->CreateShader(device.Get(), shader->rootSignature);
 
 		}
@@ -94,41 +96,37 @@ void RendererManager::Update()
 
 void RendererManager::PreRender()
 {
-	HRESULT hResult = commandAllocator->Reset();
-	hResult = commandList->Reset(commandAllocator.Get(), NULL);
+	commandAllocator->Reset();
+	commandList->Reset(commandAllocator.Get(), NULL);
 
-	// m_pd3dCommandList->RSSetViewports(1, &m_d3dViewport);
-	// m_pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
+	D3D12_RESOURCE_BARRIER resourceBarrier;
+	::ZeroMemory(&resourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	resourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
+	resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList->ResourceBarrier(1, &resourceBarrier);
 
-	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	d3dResourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
-	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	commandList->ResourceBarrier(1, &d3dResourceBarrier);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvCpuDescriptorHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	rtvCpuDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvCpuDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
+	float clearColor[4] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
+	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
-	commandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
-
-	//float pfClearColor[4] = { 0.0 / 256.0, 0.0 / 256.0, 50.0 / 256.0, 1.0f };
-	float pfClearColor[4] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
-	commandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
-
-	commandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-
-	m_pCamera->SetViewportsAndScissorRects(commandList.Get());
+	commandList->OMSetRenderTargets(1, &rtvCpuDescriptorHandle, FALSE, &dsvCpuDescriptorHandle);
+	commandList->ClearRenderTargetView(rtvCpuDescriptorHandle, clearColor, 0, NULL);
+	commandList->ClearDepthStencilView(dsvCpuDescriptorHandle, clearFlags, 1.0f, 0, 0, NULL);
 }
 
 void RendererManager::Render()
 {
 	PreRender();
+
+	m_pCamera->SetViewportsAndScissorRects(commandList.Get());
 
 	for (auto& d : instances)
 	{
@@ -136,7 +134,7 @@ void RendererManager::Render()
 		Mesh* mesh = d.first.second;
 
 		commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
-		commandList->SetPipelineState(d.second.first->shader->m_ppd3dPipelineStates[0]);
+		commandList->SetPipelineState(d.second.first->shader->pipelineState.Get());
 
 		m_pCamera->UpdateShaderVariables(commandList.Get());
 
@@ -171,17 +169,16 @@ void RendererManager::Render()
 
 void RendererManager::PostRender()
 {
-	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	d3dResourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
-	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	commandList->ResourceBarrier(1, &d3dResourceBarrier);
-
-	HRESULT hResult = commandList->Close();
+	D3D12_RESOURCE_BARRIER resourceBarrier;
+	::ZeroMemory(&resourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	resourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
+	resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList->ResourceBarrier(1, &resourceBarrier);
+	commandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
 	commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
@@ -263,7 +260,6 @@ inline void RendererManager::CreateCommandQueueAndList()
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), NULL, IID_PPV_ARGS(&commandList));
 
 	commandList->Close();
-	commandList->Reset(commandAllocator.Get(), NULL);
 }
 
 inline void RendererManager::CreateRtvAndDsvDescriptorHeaps()

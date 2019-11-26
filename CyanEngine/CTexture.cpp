@@ -90,7 +90,6 @@ CMaterial::CMaterial()
 CMaterial::~CMaterial()
 {
 	if (m_pTexture) m_pTexture->Release();
-	if (m_pShader) m_pShader->Release();
 }
 
 void CMaterial::SetTexture(CTexture* pTexture)
@@ -102,9 +101,7 @@ void CMaterial::SetTexture(CTexture* pTexture)
 
 void CMaterial::SetShader(Shader* pShader)
 {
-	if (m_pShader) m_pShader->Release();
 	m_pShader = pShader;
-	if (m_pShader) m_pShader->AddRef();
 }
 
 void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -114,7 +111,6 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 
 void CMaterial::ReleaseShaderVariables()
 {
-	if (m_pShader) m_pShader->ReleaseShaderVariables();
 	if (m_pTexture) m_pTexture->ReleaseShaderVariables();
 }
 
