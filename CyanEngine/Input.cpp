@@ -2,6 +2,7 @@
 #include "Input.h"
 
 Vector3 Input::mousePosition;
+bool Input::keys[256];
 bool Input::keyDown[256];
 bool Input::mouseDown[3];
 
