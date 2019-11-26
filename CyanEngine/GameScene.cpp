@@ -33,5 +33,7 @@ void GameScene::BuildObjects()
 		//child->children[6]->AddComponent<RotatingBehavior>()->speedRotating = 360;
 		//child->children[6]->GetComponent<RotatingBehavior>()->axis = { 0.3, 0, 0.3 };
 		child->children[7]->AddComponent<RotatingBehavior>()->speedRotating = -720;
+
+		player->AddComponent<Controller>();
 	}
 }
