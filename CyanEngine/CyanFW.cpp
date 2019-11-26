@@ -58,10 +58,6 @@ void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	case WM_MOUSEMOVE:
 		Input::mousePosition = Vector3(LOWORD(lParam), HIWORD(lParam), 0);
 		break;
-	case WM_KEYDOWN:
-		int key = ('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam;
-		Input::keyDown[wParam] = true;
-		break;
 	default:
 		break;
 	}
@@ -86,6 +82,8 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		default:
 			break;
 		}
+
+		Input::keyDown[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = true;
 		break;
 	default:
 		break;
