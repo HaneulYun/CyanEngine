@@ -21,6 +21,11 @@ void Input::Update()
 		d = false;
 }
 
+bool Input::GetKey(KeyCode key)
+{
+	return false;
+}
+
 bool Input::GetKeyDown(KeyCode key)
 {
 	return keyDown[(int)key];
