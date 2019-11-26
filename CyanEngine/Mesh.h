@@ -8,21 +8,19 @@ public:
 	virtual ~Mesh() = default;
 
 protected:
-	ComPtr<ID3D12Resource> m_pd3dVertexBuffer{ nullptr };
-	ComPtr<ID3D12Resource> m_pd3dVertexUploadBuffer{ nullptr };
-	D3D12_VERTEX_BUFFER_VIEW m_d3dVertexBufferView;
+	ComPtr<ID3D12Resource> vertexBuffer{ nullptr };
+	ComPtr<ID3D12Resource> vertexUploadBuffer{ nullptr };
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
 	D3D12_PRIMITIVE_TOPOLOGY m_d3dPrimitiveTopology{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 	UINT m_nSlot = 0;
 	UINT m_nVertices = 0;
 	UINT m_nStride = 0;
 	UINT m_nOffset = 0;
-
 	UINT m_nType = 0;
 
-protected:
-	ComPtr<ID3D12Resource> m_pd3dIndexBuffer{ nullptr };
-	ComPtr<ID3D12Resource> m_pd3dIndexUploadBuffer{ nullptr };
-	D3D12_INDEX_BUFFER_VIEW m_d3dIndexBufferView;
+	ComPtr<ID3D12Resource> indexBuffer{ nullptr };
+	ComPtr<ID3D12Resource> indexUploadBuffer{ nullptr };
+	D3D12_INDEX_BUFFER_VIEW indexBufferView{};
 
 	UINT m_nIndices = 0;
 	UINT m_nStartIndex = 0;
@@ -49,7 +47,7 @@ public:
 class CubeMeshDiffused : public Mesh
 {
 public:
-	CubeMeshDiffused(float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
+	CubeMeshDiffused(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
 	virtual ~CubeMeshDiffused() { }
 };
 

@@ -42,8 +42,6 @@ public:
 public:
 	ComPtr<ID3D12PipelineState> pipelineState;
 
-
-	
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dRootSignature);
 	
 	void CreateCbvSrvDescriptorHeaps(int nConstantBufferViews, int nShaderResourceViews);

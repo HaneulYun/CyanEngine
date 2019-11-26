@@ -77,8 +77,7 @@ public:
 				xStart = x * (nBlockWidth - 1);
 				zStart = z * (nBlockLength - 1);
 				//지형의 일부분을 나타내는 격자 메쉬를 생성하여 지형 메쉬에 저장한다.
-				mesh = new CHeightMapGridMesh(xStart, zStart,
-					nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
+				mesh = new CHeightMapGridMesh(xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
 				//SetMesh(x + (z * cxBlocks), pHeightMapGridMesh);
 			}
 		}
