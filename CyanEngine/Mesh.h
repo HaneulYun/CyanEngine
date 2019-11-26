@@ -40,7 +40,7 @@ public:
 class Quad : public Mesh
 {
 public:
-	Quad();
+	Quad(float width = 1.f, float depth = 1.f);
 	virtual ~Quad() { }
 };
 
