@@ -2,6 +2,7 @@
 #include "Input.h"
 
 Vector3 Input::mousePosition;
+bool Input::keys[256];
 bool Input::keyDown[256];
 bool Input::mouseDown[3];
 
@@ -19,6 +20,11 @@ void Input::Update()
 		d = false;
 	for (auto& d : mouseDown)
 		d = false;
+}
+
+bool Input::GetKey(KeyCode key)
+{
+	return false;
 }
 
 bool Input::GetKeyDown(KeyCode key)
