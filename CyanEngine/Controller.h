@@ -23,7 +23,13 @@ public:
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
 		if (Input::GetKeyDown(KeyCode::W))
-			gameObject->transform->position.x += 10;
+			gameObject->transform->position = gameObject->transform->position + gameObject->transform->forward * 1;
+		if (Input::GetKeyDown(KeyCode::S))
+			gameObject->transform->position = gameObject->transform->position - gameObject->transform->forward * 1;
+		if (Input::GetKeyDown(KeyCode::D))
+			gameObject->transform->position = gameObject->transform->position + gameObject->transform->right * 1;
+		if (Input::GetKeyDown(KeyCode::A))
+			gameObject->transform->position = gameObject->transform->position - gameObject->transform->right * 1;
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
