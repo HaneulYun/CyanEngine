@@ -8,9 +8,12 @@ protected:
 	XMFLOAT4X4 m_xmf4x4View;
 	XMFLOAT4X4 m_xmf4x4Projection;
 
+
 public:
 	D3D12_VIEWPORT m_d3dViewport;
 	D3D12_RECT m_d3dScissorRect;
+	
+	static Camera* main;
 
 public:
 	Camera();

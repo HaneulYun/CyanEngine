@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Camera.h"
 
+Camera* Camera::main{ nullptr };
+
 Camera::Camera()
 {
 	m_xmf4x4View = NS_Matrix4x4::Identity();

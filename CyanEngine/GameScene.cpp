@@ -7,6 +7,16 @@ void GameScene::BuildObjects()
 {
 	scene = this;
 
+	GameObject* camera = CreateEmpty();
+	{
+		Camera* _camera = camera->AddComponent<Camera>();
+		_camera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
+		_camera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
+		_camera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
+		_camera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
+		_camera->main = _camera;
+	}
+
 	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated();
 
 	Material* defaultMaterial = new DefaultMaterial();
