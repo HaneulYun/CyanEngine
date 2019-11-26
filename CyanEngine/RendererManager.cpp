@@ -8,11 +8,6 @@ RendererManager::RendererManager()
 	for (int i = 0; i < m_nSwapChainBuffers; i++)
 		m_nFenceValues[i] = 0;
 
-	m_pCamera = new Camera;
-	m_pCamera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
-	m_pCamera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
-	m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
-	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 15.0f, -25.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
@@ -125,7 +120,7 @@ void RendererManager::Render()
 {
 	PreRender();
 
-	m_pCamera->SetViewportsAndScissorRects(commandList.Get());
+	Camera::main->SetViewportsAndScissorRects(commandList.Get());
 
 	for (auto& d : instances)
 	{
@@ -135,7 +130,7 @@ void RendererManager::Render()
 		commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
 		commandList->SetPipelineState(d.second.first->shader->pipelineState.Get());
 
-		m_pCamera->UpdateShaderVariables(commandList.Get());
+		Camera::main->UpdateShaderVariables(commandList.Get());
 
 		int j = 0;
 		commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
