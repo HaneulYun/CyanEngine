@@ -61,6 +61,12 @@
     <Filter Include="0_00_CyanEngine\12_Math">
       <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\80_API">
+      <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\10_CORE\11_Renderer">
+      <UniqueIdentifier>{4117e4f1-5a33-4f36-85ec-d80a257d48ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -96,17 +102,11 @@
     <ClInclude Include="GameObject.h">
       <Filter>0_00_CyanEngine\10_CORE</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>0_00_CyanEngine\10_CORE</Filter>
-    </ClInclude>
     <ClInclude Include="RendererManager.h">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>0_00_CyanEngine\10_CORE</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
@@ -180,6 +180,24 @@
     <ClInclude Include="BoxCollider.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
+    <ClInclude Include="DDSTextureLoader12.h">
+      <Filter>0_00_CyanEngine\80_API</Filter>
+    </ClInclude>
+    <ClInclude Include="CTexture.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectManager.h">
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>0_00_CyanEngine\10_CORE\11_Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>0_00_CyanEngine\10_CORE\11_Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -209,17 +227,11 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>0_00_CyanEngine\10_CORE</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>0_00_CyanEngine\10_CORE</Filter>
-    </ClCompile>
     <ClCompile Include="RendererManager.cpp">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>0_00_CyanEngine\10_CORE</Filter>
     </ClCompile>
     <ClCompile Include="Singleton.cpp">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
@@ -266,6 +278,24 @@
     <ClCompile Include="BoxCollider.cpp">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>0_00_CyanEngine\80_API</Filter>
+    </ClCompile>
+    <ClCompile Include="CTexture.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectManager.cpp">
+      <Filter>0_00_CyanEngine\30_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereCollider.cpp">
+      <Filter>0_00_CyanEngine\41_Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>0_00_CyanEngine\10_CORE\11_Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>0_00_CyanEngine\10_CORE\11_Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CyanEngine.rc">
@@ -285,5 +315,6 @@
     <FxCompile Include="Standard.hlsl" />
     <FxCompile Include="Lighting.hlsl" />
     <FxCompile Include="Light.hlsl" />
+    <FxCompile Include="Texture.hlsl" />
   </ItemGroup>
 </Project>

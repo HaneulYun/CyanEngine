@@ -14,7 +14,7 @@
 
 #include <string>
 #include <wrl.h>
-//#include <shellapi.h>
+#include <shellapi.h>
 
 #include <typeinfo>
 
@@ -47,6 +47,7 @@ using Microsoft::WRL::ComPtr;
 //#define SAFE_DELETE(p) { if(p) { delete p; p = nullptr; } }
 
 ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
+ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates);
 
 #include <deque>
 #include <map>
@@ -58,6 +59,8 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 #include "Time.h"
 #include "Input.h"
 #include "Random.h"
+
+#include "CTexture.h"
 
 #include "Object.h"
 #include "Shader.h"
@@ -75,12 +78,14 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 
 #include "Collider.h"
 #include "BoxCollider.h"
+#include "SphereCollider.h"
 
 #include "MonoBehavior.h"
 
 #include "ModelManager.h"
 #include "ShaderManager.h"
 #include "RendererManager.h"
+#include "ObjectManager.h"
 
 #include "GameObject.h"
 
