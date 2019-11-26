@@ -58,6 +58,9 @@ void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	case WM_MOUSEMOVE:
 		Input::mousePosition = Vector3(LOWORD(lParam), HIWORD(lParam), 0);
 		break;
+	case WM_KEYDOWN:
+		Input::keyDown[wParam] = true;
+		break;
 	default:
 		break;
 	}
