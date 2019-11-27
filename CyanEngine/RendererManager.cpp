@@ -57,7 +57,7 @@ void RendererManager::Start()
 
 		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name())
 		{
-			d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
+			//d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
 		}
 	}
 
