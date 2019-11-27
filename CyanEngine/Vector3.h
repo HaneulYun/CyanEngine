@@ -38,7 +38,7 @@ struct Vector3
 		return !((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
 	}
 
-	float Lenght() const
+	float Length() const
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3)));
