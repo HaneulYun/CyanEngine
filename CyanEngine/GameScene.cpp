@@ -25,37 +25,11 @@ void GameScene::BuildObjects()
 		terrain->AddComponent<Renderer>()->material = defaultMaterial;
 		terrain->GetComponent<Renderer>()->material->albedo = XMFLOAT4{ 71.f / 255.f, 102.f / 255.f, 0.f, 1 };
 	}
-	
-	//GameObject* cube = CreateEmpty();
-	//{
-	//	cube->AddComponent<MeshFilter>()->mesh = pCubeMesh;
-	//	cube->AddComponent<Renderer>()->material = defaultMaterial;
-	//	cube->AddComponent<RotatingBehavior>();
-	//	cube->AddComponent<MovingBehavior>();
-	//}
 
 	GameObject* cube = CreateEmpty();
 	{
 		//cube->AddComponent<MovingBehavior>();
 	}
-
-	float interval = 150.f;
-	int xObjects = 3, yObjects = 1, zObjects = 3, i = 0;
-	for (int x = -xObjects; x <= xObjects; x++)
-		for (int y = -yObjects; y <= yObjects; y++)
-			for (int z = -zObjects; z <= zObjects; z++)
-			{
-				GameObject* model = CreateEmpty();
-				model->transform->position = Vector3{ interval * x, interval * y, interval * z };
-				model->transform->Rotate(XMFLOAT3(0, 1, 0), 90);
-	
-				GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
-				model->AddChild(child);
-				model->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.f, 90.f);
-	
-				child->children[27]->AddComponent<RotatingBehavior>()->speedRotating = 360;
-				child->children[7]->AddComponent<RotatingBehavior>()->speedRotating = -720;
-			}
 
 	GameObject* sceneManager = CreateEmpty();
 	{
