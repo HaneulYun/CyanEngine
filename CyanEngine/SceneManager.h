@@ -42,13 +42,13 @@ public:
 
 		for (int i = 0; i < 1; ++i)
 		{
-			auto instance = Instantiate(gameObject);
-			instance->transform->position = Vector3{ 0, 100, 10 };
-
-			instance->GetComponent<Renderer>()->material->shader = shader;
-			instance->GetComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.0f, 90.0f);
-
-			instance->AddComponent<MovingBehavior>();
+			//auto instance = Instantiate(gameObject);
+			//instance->transform->position = Vector3{ 0, 100, 10 };
+			//
+			//instance->GetComponent<Renderer>()->material->shader = shader;
+			//instance->GetComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.0f, 90.0f);
+			//
+			//instance->AddComponent<MovingBehavior>();
 		}
 	}
 
