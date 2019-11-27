@@ -12,9 +12,9 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
-	GameObject* cube = CreateEmpty();
+	GameObject* test = CreateEmpty();
 	{
-		cube->GetComponent<Transform>()->position = { 0, 100, 10 };
+		test->GetComponent<Transform>()->position = { 0, 100, 10 };
 
 		CTexture* ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		ppTextures->LoadTextureFromFile(L"Texture/Lava(Diffuse).dds", 0);
@@ -23,9 +23,124 @@ void GameScene::BuildObjects()
 		TextureShader* shader = new TextureShader();
 		material->shader = shader;
 
-		cube->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(14.0f, 14.0f, 14.0f);;
-		cube->AddComponent<Renderer>()->material = material;
-		cube->AddComponent<RotatingBehavior>();
+		test->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(4.0f, 4.0f, 4.0f);;
+		test->AddComponent<Renderer>()->material = material;
+		test->AddComponent<RotatingBehavior>();
+
+
+		shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
+		shader->CreateShaderResourceViews(ppTextures, 3, false);
+
+		shader->ppMaterials[0] = new CMaterial();
+		shader->ppMaterials[0]->SetTexture(ppTextures);
+	}
+
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { -5, 100, 10 };
+
+		CTexture* ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		ppTextures->LoadTextureFromFile(L"Texture/Stone01.dds", 0);
+
+		Material* material = new DefaultMaterial();
+		TextureShader* shader = new TextureShader();
+		material->shader = shader;
+
+		test->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(4.0f, 4.0f, 4.0f);;
+		test->AddComponent<Renderer>()->material = material;
+		test->AddComponent<RotatingBehavior>();
+
+
+		shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
+		shader->CreateShaderResourceViews(ppTextures, 3, false);
+
+		shader->ppMaterials[0] = new CMaterial();
+		shader->ppMaterials[0]->SetTexture(ppTextures);
+	}
+
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { -10, 100, 10 };
+
+		CTexture* ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		ppTextures->LoadTextureFromFile(L"Texture/Metal01.dds", 0);
+
+		Material* material = new DefaultMaterial();
+		TextureShader* shader = new TextureShader();
+		material->shader = shader;
+
+		test->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(4.0f, 4.0f, 4.0f);;
+		test->AddComponent<Renderer>()->material = material;
+		test->AddComponent<RotatingBehavior>();
+
+
+		shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
+		shader->CreateShaderResourceViews(ppTextures, 3, false);
+
+		shader->ppMaterials[0] = new CMaterial();
+		shader->ppMaterials[0]->SetTexture(ppTextures);
+	}
+
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 5, 100, 10 };
+
+		CTexture* ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		ppTextures->LoadTextureFromFile(L"Texture/Metal02.dds", 0);
+
+		Material* material = new DefaultMaterial();
+		TextureShader* shader = new TextureShader();
+		material->shader = shader;
+
+		test->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(4.0f, 4.0f, 4.0f);;
+		test->AddComponent<Renderer>()->material = material;
+		test->AddComponent<RotatingBehavior>();
+
+
+		shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
+		shader->CreateShaderResourceViews(ppTextures, 3, false);
+
+		shader->ppMaterials[0] = new CMaterial();
+		shader->ppMaterials[0]->SetTexture(ppTextures);
+	}
+
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 10, 100, 10 };
+
+		CTexture* ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		ppTextures->LoadTextureFromFile(L"Texture/Rock01.dds", 0);
+
+		Material* material = new DefaultMaterial();
+		TextureShader* shader = new TextureShader();
+		material->shader = shader;
+
+		test->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(4.0f, 4.0f, 4.0f);;
+		test->AddComponent<Renderer>()->material = material;
+		test->AddComponent<RotatingBehavior>();
+
+
+		shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
+		shader->CreateShaderResourceViews(ppTextures, 3, false);
+
+		shader->ppMaterials[0] = new CMaterial();
+		shader->ppMaterials[0]->SetTexture(ppTextures);
+	}
+
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 0, 105, 10 };
+
+		CTexture* ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		ppTextures->LoadTextureFromFile(L"Texture/Lava(Emissive).dds", 0);
+
+		Material* material = new DefaultMaterial();
+		TextureShader* shader = new TextureShader();
+		material->shader = shader;
+
+		test->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(4.0f, 4.0f, 4.0f);;
+		test->AddComponent<Renderer>()->material = material;
+		test->AddComponent<RotatingBehavior>();
 
 
 		shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
