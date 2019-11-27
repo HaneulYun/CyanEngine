@@ -15,28 +15,7 @@ Camera::~Camera()
 
 void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	XMFLOAT4X4 xmf4x4View;// { view };
-	//xmf4x4View._41 += 3;
-
-	//XMFLOAT4X4 xmf4x4View{ gameObject->transform->localToWorldMatrix };
-	//
-	//Vector3 position = gameObject->transform->position;
-	//Vector3 look = gameObject->transform->forward;
-	//Vector3 right = gameObject->transform->right;
-	//Vector3 up = gameObject->transform->up;
-	//
-	//look.xmf3 = NS_Vector3::Normalize(look.xmf3);
-	//right.xmf3 = NS_Vector3::CrossProduct(up.xmf3, look.xmf3, true);
-	//up.xmf3 = NS_Vector3::CrossProduct(look.xmf3, right.xmf3, true);
-	//
-	//xmf4x4View._11 = right.x; xmf4x4View._12 = up.x; xmf4x4View._13 = look.x;
-	//xmf4x4View._21 = right.y; xmf4x4View._22 = up.y; xmf4x4View._23 = look.y;
-	//xmf4x4View._31 = right.z; xmf4x4View._32 = up.z; xmf4x4View._33 = look.z;
-	//xmf4x4View._41 = -NS_Vector3::DotProduct(position.xmf3, right.xmf3);
-	//xmf4x4View._42 = -NS_Vector3::DotProduct(position.xmf3, up.xmf3);
-	//xmf4x4View._43 = -NS_Vector3::DotProduct(position.xmf3, look.xmf3);
-	//
-	//XMStoreFloat4x4(&xmf4x4View, XMMatrixMultiply(XMLoadFloat4x4(&view), XMLoadFloat4x4(&xmf4x4View)));
+	XMFLOAT4X4 xmf4x4View;
 	
 	XMFLOAT4X4 world{ gameObject->GetMatrix() };
 	XMFLOAT3 pos = this->pos;

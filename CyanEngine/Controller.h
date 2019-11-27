@@ -24,13 +24,23 @@ public:
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
 		if (Input::GetKey(KeyCode::W))
-			gameObject->transform->position = gameObject->transform->position + gameObject->transform->forward * speed * Time::deltaTime;
+			gameObject->transform->position += gameObject->transform->forward * speed * Time::deltaTime;
 		if (Input::GetKey(KeyCode::S))
-			gameObject->transform->position = gameObject->transform->position - gameObject->transform->forward * speed * Time::deltaTime;
+			gameObject->transform->position -= gameObject->transform->forward * speed * Time::deltaTime;
 		if (Input::GetKey(KeyCode::D))
-			gameObject->transform->position = gameObject->transform->position + gameObject->transform->right * speed * Time::deltaTime;
+			gameObject->transform->position += gameObject->transform->right * speed * Time::deltaTime;
 		if (Input::GetKey(KeyCode::A))
-			gameObject->transform->position = gameObject->transform->position - gameObject->transform->right * speed * Time::deltaTime;
+			gameObject->transform->position -= gameObject->transform->right * speed * Time::deltaTime;
+
+		if (Input::GetKey(KeyCode::R))
+			gameObject->transform->position += gameObject->transform->up * speed * Time::deltaTime;
+		if (Input::GetKey(KeyCode::F))
+			gameObject->transform->position -= gameObject->transform->up * speed * Time::deltaTime;
+
+		if (Input::GetKey(KeyCode::Q))
+			gameObject->transform->Rotate({ 0, 1, 0 }, -speed * Time::deltaTime);
+		if (Input::GetKey(KeyCode::E))
+			gameObject->transform->Rotate({ 0, 1, 0 }, speed * Time::deltaTime);
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
