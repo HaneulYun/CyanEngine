@@ -15,13 +15,14 @@ void GameScene::BuildObjects()
 	GameObject* terrain = CreateEmpty();
 	{
 		XMFLOAT3 scale = { 1000.f / 257.f, 100.f / 257.f, 1000.f / 257.f };
-		terrain->GetComponent<Transform>()->position = { -500, -500, 0 };
+		terrain->GetComponent<Transform>()->position = { -500, 0, -500 };
 		terrain->AddComponent<Terrain>()->LoadTerrain(L"heightMap.raw", 257, 257, 257, 257, scale, { 1, 1, 1, 1 });
 		terrain->AddComponent<Renderer>()->material = defaultMaterial;
 	}
 
 	GameObject* player = CreateEmpty();
 	{
+		player->GetComponent<Transform>()->position = { 0, 100, 0 };
 		player->AddComponent<MeshFilter>();
 
 		Camera* camera = player->AddComponent<Camera>();
