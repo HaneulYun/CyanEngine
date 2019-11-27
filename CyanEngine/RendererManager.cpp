@@ -137,7 +137,6 @@ void RendererManager::Render()
 		for (auto& gameObject : d.second.second)
 		{
 			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-
 			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
 			++j;
 		}

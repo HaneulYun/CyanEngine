@@ -12,25 +12,28 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
-	//GameObject* cube = CreateEmpty();
-	//{
-	//	cube->GetComponent<Transform>()->position = { 0, 100, 10 };
-	//	//cube->AddComponent<MeshFilter>()->mesh = new CubeMeshDiffused(4, 4, 4);
-	//	//cube->AddComponent<Renderer>()->material = defaultMaterial;
-	//
-	//	cube->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured();
-	//	TextureShader* shader = (TextureShader*)((cube->AddComponent<Renderer>()->material = new DefaultMaterial())->shader = new TextureShader());
-	//	
-	//	CTexture* ppTextures[TEXTURES];
-	//	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	//	ppTextures[0]->LoadTextureFromFile(L"Texture/Lava(Diffuse).dds", 0);
-	//	
-	//	shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
-	//	shader->CreateShaderResourceViews(ppTextures[0], 3, false);
-	//	//shader->CreateShaderVariables();
-	//	shader->ppMaterials[0] = new CMaterial();
-	//	shader->ppMaterials[0]->SetTexture(ppTextures[0]);
-	//}
+	GameObject* cube = CreateEmpty();
+	{
+		cube->GetComponent<Transform>()->position = { 0, 100, 10 };
+
+		CTexture* ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		ppTextures->LoadTextureFromFile(L"Texture/Lava(Diffuse).dds", 0);
+
+		Material* material = new DefaultMaterial();
+		TextureShader* shader = new TextureShader();
+		material->shader = shader;
+
+		cube->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(14.0f, 14.0f, 14.0f);;
+		cube->AddComponent<Renderer>()->material = material;
+		cube->AddComponent<RotatingBehavior>();
+
+
+		shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
+		shader->CreateShaderResourceViews(ppTextures, 3, false);
+
+		shader->ppMaterials[0] = new CMaterial();
+		shader->ppMaterials[0]->SetTexture(ppTextures);
+	}
 
 	GameObject* terrain = CreateEmpty();
 	{
@@ -64,11 +67,5 @@ void GameScene::BuildObjects()
 
 
 		player->AddComponent<Controller>();
-	}
-
-	GameObject* cube = CreateEmpty();
-	GameObject* sceneManager = CreateEmpty();
-	{
-		sceneManager->AddComponent<SceneManager>()->gameObject = cube;
 	}
 }
