@@ -12,25 +12,25 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
-	GameObject* cube = CreateEmpty();
-	{
-		cube->GetComponent<Transform>()->position = { 0, 100, 10 };
-		//cube->AddComponent<MeshFilter>()->mesh = new CubeMeshDiffused(4, 4, 4);
-		//cube->AddComponent<Renderer>()->material = defaultMaterial;
-
-		cube->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured();
-		TextureShader* shader = (TextureShader*)((cube->AddComponent<Renderer>()->material = new DefaultMaterial())->shader = new TextureShader());
-		
-		CTexture* ppTextures[TEXTURES];
-		ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-		ppTextures[0]->LoadTextureFromFile(L"Texture/Lava(Diffuse).dds", 0);
-		
-		shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
-		shader->CreateShaderResourceViews(ppTextures[0], 3, false);
-		//shader->CreateShaderVariables();
-		shader->ppMaterials[0] = new CMaterial();
-		shader->ppMaterials[0]->SetTexture(ppTextures[0]);
-	}
+	//GameObject* cube = CreateEmpty();
+	//{
+	//	cube->GetComponent<Transform>()->position = { 0, 100, 10 };
+	//	//cube->AddComponent<MeshFilter>()->mesh = new CubeMeshDiffused(4, 4, 4);
+	//	//cube->AddComponent<Renderer>()->material = defaultMaterial;
+	//
+	//	cube->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured();
+	//	TextureShader* shader = (TextureShader*)((cube->AddComponent<Renderer>()->material = new DefaultMaterial())->shader = new TextureShader());
+	//	
+	//	CTexture* ppTextures[TEXTURES];
+	//	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	//	ppTextures[0]->LoadTextureFromFile(L"Texture/Lava(Diffuse).dds", 0);
+	//	
+	//	shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
+	//	shader->CreateShaderResourceViews(ppTextures[0], 3, false);
+	//	//shader->CreateShaderVariables();
+	//	shader->ppMaterials[0] = new CMaterial();
+	//	shader->ppMaterials[0]->SetTexture(ppTextures[0]);
+	//}
 
 	GameObject* terrain = CreateEmpty();
 	{
@@ -56,7 +56,7 @@ void GameScene::BuildObjects()
 		child->GetComponent<Transform>()->Scale({ 0.2f, 0.2f, 0.2f });
 		player->AddChild(child);
 		player->AddComponent<RotatingBehavior>()->speedRotating = 0;// Random::Range(-90.f, 90.f);
-		
+
 		child->children[27]->AddComponent<RotatingBehavior>()->speedRotating = 360;
 		//child->children[6]->AddComponent<RotatingBehavior>()->speedRotating = 360;
 		//child->children[6]->GetComponent<RotatingBehavior>()->axis = { 0.3, 0, 0.3 };
@@ -64,5 +64,11 @@ void GameScene::BuildObjects()
 
 
 		player->AddComponent<Controller>();
+	}
+
+	GameObject* cube = CreateEmpty();
+	GameObject* sceneManager = CreateEmpty();
+	{
+		sceneManager->AddComponent<SceneManager>()->gameObject = cube;
 	}
 }

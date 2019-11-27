@@ -24,7 +24,7 @@ public:
 	void Start()
 	{
 		// 초기화 코드를 작성하세요.
-		direction = (Vector3(0, 0, 0) - gameObject->transform->position).Normalize();
+		direction = (Vector3(0, 100, 0) - gameObject->transform->position).Normalize();
 	}
 
 	void Update()

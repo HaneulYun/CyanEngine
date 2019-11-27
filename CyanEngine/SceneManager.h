@@ -4,6 +4,7 @@
 class SceneManager : public MonoBehavior<SceneManager>
 {
 private:
+	TextureShader* shader;
 
 public:
 	GameObject* gameObject{ nullptr };
@@ -19,23 +20,35 @@ public:
 
 	void Start()
 	{
+		CTexture* ppTextures;
+		ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		ppTextures->LoadTextureFromFile(L"Texture/Lava(Diffuse).dds", 0);
+
+		Material* defaultMaterial = new DefaultMaterial();
+
+		gameObject->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(14.0f, 14.0f, 14.0f);;
+		gameObject->AddComponent<Renderer>()->material = defaultMaterial;
 		gameObject->AddComponent<RotatingBehavior>();
 
-		for (int i = 0; i < 100; ++i)
+		shader = new TextureShader();
+		defaultMaterial->shader = shader;
+
+		shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
+		//shader->CreateShaderVariables();
+		shader->CreateShaderResourceViews(ppTextures, 3, false);
+
+		shader->ppMaterials[0] = new CMaterial();
+		shader->ppMaterials[0]->SetTexture(ppTextures);
+
+		for (int i = 0; i < 1; ++i)
 		{
 			auto instance = Instantiate(gameObject);
-			float x = Random::Range(-1500, 1500);
-			float y = Random::Range(-1500, 1500);
-			float z = Random::Range(-1000, 2000);
-			instance->transform->position = Vector3{ x, y, z };
+			instance->transform->position = Vector3{ 0, 100, 10 };
 
-			float r = Random::Range(0.0f, 1.0f);
-			float g = Random::Range(0.0f, 1.0f);
-			float b = Random::Range(0.0f, 1.0f);
-			instance->GetComponent<Renderer>()->material->albedo = RANDOM_COLOR;
+			instance->GetComponent<Renderer>()->material->shader = shader;
 			instance->GetComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.0f, 90.0f);
+
 			instance->AddComponent<MovingBehavior>();
-			instance->AddComponent<BoxCollider>()->extents = { 7, 7, 7 };
 		}
 	}
 
@@ -55,19 +68,19 @@ public:
 			{
 				for (int i = 0; i < 1; ++i)
 				{
-					auto instance = Instantiate(gameObject);
-					float x = Random::Range(-1500, 1500);
-					float y = Random::Range(-1500, 1500);
-					float z = Random::Range(-1000, 2000);
-					instance->transform->position = Vector3{ x, y, z };
-		
-					float r = Random::Range(0.0f, 1.0f);
-					float g = Random::Range(0.0f, 1.0f);
-					float b = Random::Range(0.0f, 1.0f);
-					instance->GetComponent<Renderer>()->material->albedo = RANDOM_COLOR;
-					instance->GetComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.0f, 90.0f);
-		
-					instance->AddComponent<MovingBehavior>();
+					//auto instance = Instantiate(gameObject);
+					//float x = Random::Range(-1500, 1500);
+					//float y = Random::Range(-1500, 1500);
+					//float z = Random::Range(-1000, 2000);
+					//instance->transform->position = Vector3{ x, y, z };
+					//
+					//float r = Random::Range(0.0f, 1.0f);
+					//float g = Random::Range(0.0f, 1.0f);
+					//float b = Random::Range(0.0f, 1.0f);
+					//instance->GetComponent<Renderer>()->material->shader = shader;
+					//instance->GetComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.0f, 90.0f);
+					//
+					//instance->AddComponent<MovingBehavior>();
 				}
 				time -= boundary;
 			}
