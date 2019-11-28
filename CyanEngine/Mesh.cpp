@@ -392,7 +392,7 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 {
 	//격자의 교점(정점)의 개수는 (nWidth * nLength)이다.
 	m_nVertices = nWidth * nLength;
-	m_nStride = sizeof(CTexturedVertex);
+	m_nStride = sizeof(CDiffused2TexturedVertex);
 
 	//격자는 삼각형 스트립으로 구성한다.
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
@@ -401,7 +401,7 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 	m_nLength = nLength;
 	m_xmf3Scale = xmf3Scale;
 
-	CTexturedVertex* pVertices = new CTexturedVertex[m_nVertices];
+	CDiffused2TexturedVertex* pVertices = new CDiffused2TexturedVertex[m_nVertices];
 	/*xStart와 zStart는 격자의 시작 위치(x-좌표와 z-좌표)를 나타낸다.
 	커다란 지형은 격자들의 이차원 배열로 만들 필요가 있기 때문에 전체 지형에서 각 격자의 시작 위치를 나타내는 정보가 필요하다.*/
 
@@ -416,9 +416,9 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 		{
 			fHeight = OnGetHeight(x, z, pContext);
 			pVertices[i].position = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
-			//Vertices[i].color = NS_Vector4::Add(OnGetColor(x, z, pContext), xmf4Color);
-			pVertices[i].uv = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
-			//pVertices[i].uv1 = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));
+			pVertices[i].color = NS_Vector4::Add(OnGetColor(x, z, pContext), xmf4Color);
+			pVertices[i].uv0 = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
+			pVertices[i].uv1 = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));
 			if (fHeight < fMinHeight) fMinHeight = fHeight;
 			if (fHeight > fMaxHeight) fMaxHeight = fHeight;
 		}

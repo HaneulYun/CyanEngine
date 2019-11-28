@@ -169,9 +169,14 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 		}
 
 	if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name() ||
-		typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
+		typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name() ||
+		typeid(*d.second.first->shader).name() == typeid(CTerrainShader).name())
 	{
 		TextureShader* shader = dynamic_cast<TextureShader*>(d.second.first->shader);
+
+		if (typeid(*d.second.first->shader).name() == typeid(CTerrainShader).name())
+			int k = 0;
+
 		commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
 		for (int i = 0; i < TEXTURES; i++)
 		{

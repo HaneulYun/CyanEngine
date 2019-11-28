@@ -319,5 +319,6 @@
     <FxCompile Include="Lighting.hlsl" />
     <FxCompile Include="Light.hlsl" />
     <FxCompile Include="Texture.hlsl" />
+    <FxCompile Include="Terrain.hlsl" />
   </ItemGroup>
 </Project>
