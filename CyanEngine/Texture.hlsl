@@ -68,3 +68,10 @@ float4 PSTextured(VS_LIGHTING_OUTPUT input) : SV_TARGET
 	return(color);
 #endif
 }
+
+float4 PSSkyBox(VS_LIGHTING_OUTPUT input) : SV_TARGET
+{
+	float4 cColor = gtxtTexture.Sample(gSamplerState, input.uv);
+
+	return(cColor);
+}

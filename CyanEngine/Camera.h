@@ -4,11 +4,12 @@
 
 class Camera : public Component
 {
-protected:
+public:
 	XMFLOAT4X4 view;
 	XMFLOAT4X4 projection;
 
 	XMFLOAT3 pos{ 0, 0, -1 };
+	XMFLOAT3 _pos{ 0, 0, -1 };
 	XMFLOAT3 lookAt{ 0, 0, 0 };
 	XMFLOAT3 up{ 0, 1, 0 };
 

@@ -1,5 +1,10 @@
 #pragma once
 
+enum class ShaderMode
+{
+	Standard, Skybox
+};
+
 class Material : public Object
 {
 public:
@@ -12,5 +17,5 @@ public:
 public:
 	Material(Material&) = default;
 
-	Material(const wchar_t* fileName = nullptr);
+	Material(const wchar_t* fileName = nullptr, ShaderMode mode = ShaderMode::Standard);
 };

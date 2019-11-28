@@ -55,7 +55,8 @@ void RendererManager::Start()
 
 		d.second.first->resource->Map(0, NULL, (void**)&d.second.first->memory);
 
-		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name())
+		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name() ||
+			typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
 		{
 			//d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
 		}
@@ -124,40 +125,64 @@ void RendererManager::Render()
 
 	for (auto& d : instances)
 	{
-		//Shader* shader = d.first.first;
-		Mesh* mesh = d.first.second;
+		if (typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
+			InstancingRender(d);
+	}
+	for (auto& d : instances)
+	{
+		if (typeid(*d.second.first->shader).name() != typeid(CSkyBoxShader).name())
+			InstancingRender(d);
+	}
 
-		commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
-		commandList->SetPipelineState(d.second.first->shader->pipelineState.Get());
+	PostRender();
+}
 
-		Camera::main->UpdateShaderVariables(commandList.Get());
+void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> d)
+{
+	//Shader* shader = d.first.first;
+	Mesh* mesh = d.first.second;
 
-		int j = 0;
-		commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
+	commandList->SetPipelineState(d.second.first->shader->pipelineState.Get());
+
+	Camera::main->UpdateShaderVariables(commandList.Get());
+
+	int j = 0;
+	commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
+	if (typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
+			XMFLOAT4X4 xmf4x4 = gameObject->transform->localToWorldMatrix;
+			xmf4x4._41 = Camera::main->_pos.x;
+			xmf4x4._42 = Camera::main->_pos.y;
+			xmf4x4._43 = Camera::main->_pos.z;
+			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&xmf4x4)));
+			++j;
+		}
+	else
+		for (auto& gameObject : d.second.second)
+		{
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
 			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
 			++j;
 		}
 
-		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name())
+	if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name() ||
+		typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
+	{
+		TextureShader* shader = dynamic_cast<TextureShader*>(d.second.first->shader);
+		commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
+		for (int i = 0; i < TEXTURES; i++)
 		{
-			TextureShader* shader = dynamic_cast<TextureShader*>(d.second.first->shader);
-			commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
-			for (int i = 0; i < TEXTURES; i++)
-			{
-				commandList->SetGraphicsRootDescriptorTable(shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_nRootParameterIndex, shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
-			}
+			commandList->SetGraphicsRootDescriptorTable(shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_nRootParameterIndex, shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
 		}
-		
-		if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
-			((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0);
-		else
-			mesh->Render(d.second.second.size());
 	}
 
-	PostRender();
+	if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
+		((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0);
+	else
+		mesh->Render(d.second.second.size());
 }
 
 void RendererManager::PostRender()

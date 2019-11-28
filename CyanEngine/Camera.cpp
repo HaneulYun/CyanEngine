@@ -18,15 +18,15 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	XMFLOAT4X4 xmf4x4View;
 	
 	XMFLOAT4X4 world{ gameObject->GetMatrix() };
-	XMFLOAT3 pos = this->pos;
+	_pos = this->pos;
 	XMFLOAT3 lookAt = this->lookAt;
 	XMFLOAT3 up { 0, 1, 0 };
 
-	XMStoreFloat3(&pos, XMVector3Transform(XMLoadFloat3(&pos), XMLoadFloat4x4(&world)));
+	XMStoreFloat3(&_pos, XMVector3Transform(XMLoadFloat3(&_pos), XMLoadFloat4x4(&world)));
 	XMStoreFloat3(&lookAt, XMVector3Transform(XMLoadFloat3(&lookAt), XMLoadFloat4x4(&world)));
 	//XMStoreFloat3(&up, XMVector3Transform(XMLoadFloat3(&up), XMLoadFloat4x4(&world)));
 
-	XMStoreFloat4x4(&xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&NS_Matrix4x4::LookAtLH(pos, lookAt, up))));
+	XMStoreFloat4x4(&xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&NS_Matrix4x4::LookAtLH(_pos, lookAt, up))));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4View, 0);
 
 	XMFLOAT4X4 xmf4x4Projection;

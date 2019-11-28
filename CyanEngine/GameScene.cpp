@@ -11,6 +11,44 @@ void GameScene::BuildObjects()
 
 	{
 		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 0, 100, 0 };
+		test->AddComponent<MeshFilter>()->mesh = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
+		test->AddComponent<Renderer>()->material = new Material(L"Texture/SkyBox_Front_0.dds", ShaderMode::Skybox);
+	}
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 0, 100, 0 };
+		test->AddComponent<MeshFilter>()->mesh = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, -10.0f);
+		test->AddComponent<Renderer>()->material = new Material(L"Texture/SkyBox_Back_0.dds", ShaderMode::Skybox);
+	}
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 0, 100, 0 };
+		test->AddComponent<MeshFilter>()->mesh = new CTexturedRectMesh(0.0f, 20.0f, 20.0f, -10.0f, 0.0f, 0.0f);
+		test->AddComponent<Renderer>()->material = new Material(L"Texture/SkyBox_Left_0.dds", ShaderMode::Skybox);
+	}
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 0, 100, 0 };
+		test->AddComponent<MeshFilter>()->mesh = new CTexturedRectMesh(0.0f, 20.0f, 20.0f, +10.0f, 0.0f, 0.0f);
+		test->AddComponent<Renderer>()->material = new Material(L"Texture/SkyBox_Right_0.dds", ShaderMode::Skybox);
+	}
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 0, 100, 0 };
+		test->AddComponent<MeshFilter>()->mesh = new CTexturedRectMesh(20.0f, 0.0f, 20.0f, 0.0f, +10.0f, 0.0f);
+		test->AddComponent<Renderer>()->material = new Material(L"Texture/SkyBox_Top_0.dds", ShaderMode::Skybox);
+	}
+	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 0, 100, 0 };
+		test->AddComponent<MeshFilter>()->mesh = new CTexturedRectMesh(20.0f, 0.0f, 20.0f, 0.0f, -10.0f, 0.0f);
+		test->AddComponent<Renderer>()->material = new Material(L"Texture/SkyBox_Bottom_0.dds", ShaderMode::Skybox);
+	}
+
+
+	{
+		GameObject* test = CreateEmpty();
 		test->GetComponent<Transform>()->position = { -25, 100, 10 };
 		test->AddComponent<MeshFilter>()->mesh = new CCubeMeshTextured(4.0f, 4.0f, 4.0f);;
 		test->AddComponent<Renderer>()->material = new Material(L"Texture/Lava(Diffuse).dds");
@@ -52,12 +90,6 @@ void GameScene::BuildObjects()
 		test->AddComponent<RotatingBehavior>();
 	}
 
-	{
-		GameObject* test = CreateEmpty();
-		test->GetComponent<Transform>()->position = { 25, 100, 5 };
-		test->AddComponent<MeshFilter>()->mesh = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
-		test->AddComponent<Renderer>()->material = new Material(L"Texture/SkyBox_Front_0.dds");
-	}
 
 	GameObject* terrain = CreateEmpty();
 	{
