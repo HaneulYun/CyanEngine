@@ -85,3 +85,28 @@ public:
 	}
 	~CDiffusedTexturedVertex() { }
 };
+
+class CDiffused2TexturedVertex : public DiffusedVertex
+{
+public:
+	XMFLOAT2 uv0{};
+	XMFLOAT2 uv1{};
+
+public:
+	CDiffused2TexturedVertex() = default;
+	CDiffused2TexturedVertex(float x, float y, float z, XMFLOAT4 xmf4Diffuse, XMFLOAT2 xmf2TexCoord0, XMFLOAT2 xmf2TexCoord1)
+	{
+		position = XMFLOAT3(x, y, z);
+		color = xmf4Diffuse;
+		uv0 = xmf2TexCoord0;
+		uv1 = xmf2TexCoord1;
+	}
+	CDiffused2TexturedVertex(XMFLOAT3 xmf3Position, XMFLOAT4 xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f), XMFLOAT2 xmf2TexCoord0 = XMFLOAT2(0.0f, 0.0f), XMFLOAT2 xmf2TexCoord1 = XMFLOAT2(0.0f, 0.0f))
+	{
+		position = xmf3Position;
+		color = xmf4Diffuse;
+		uv0 = xmf2TexCoord0;
+		uv1 = xmf2TexCoord1;
+	}
+	~CDiffused2TexturedVertex() { }
+};
