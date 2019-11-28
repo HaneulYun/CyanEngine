@@ -175,7 +175,8 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 		commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
 		for (int i = 0; i < TEXTURES; i++)
 		{
-			commandList->SetGraphicsRootDescriptorTable(shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_nRootParameterIndex, shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
+			shader->ppMaterials[i]->m_pTexture->UpdateShaderVariables(commandList.Get());
+			//commandList->SetGraphicsRootDescriptorTable(shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_nRootParameterIndex, shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
 		}
 	}
 

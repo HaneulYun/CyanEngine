@@ -92,7 +92,7 @@ void GameScene::BuildObjects()
 		XMFLOAT3 scale = { 1000.f / 257.f, 200.f / 257.f, 1000.f / 257.f };
 		terrain->GetComponent<Transform>()->position = { -500, 0, -500 };
 		terrain->AddComponent<Terrain>()->LoadTerrain(L"heightMap.raw", 257, 257, 257, 257, scale, { 1, 1, 1, 1 });
-		terrain->AddComponent<Renderer>()->material = new Material(L"Texture/Base_Texture.dds");
+		terrain->AddComponent<Renderer>()->material = new Material(nullptr, ShaderMode::Terrain);
 	}
 
 	GameObject* player = CreateEmpty();

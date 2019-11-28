@@ -19,7 +19,7 @@ struct SRVROOTARGUMENTINFO
 class CTexture
 {
 public:
-	CTexture(int nTextureResources = 1, UINT nResourceType = RESOURCE_TEXTURE2D, int nSamplers = 0);
+	CTexture(int nTextureResources = 1, UINT nResourceType = RESOURCE_TEXTURE2D, int nSamplers = 0, int nRootParameters = 1);
 	virtual ~CTexture();
 
 public:
