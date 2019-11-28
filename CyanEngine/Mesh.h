@@ -200,6 +200,13 @@ public:
 class CCubeMeshTextured : public Mesh
 {
 public:
-	CCubeMeshTextured(float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
+	CCubeMeshTextured(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
 	virtual ~CCubeMeshTextured() {}
+};
+
+class CTexturedRectMesh : public Mesh
+{
+public:
+	CTexturedRectMesh(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f, float fxPosition = 0.0f, float fyPosition = 0.0f, float fzPosition = 0.0f);
+	virtual ~CTexturedRectMesh();
 };
