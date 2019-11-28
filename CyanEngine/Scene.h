@@ -27,5 +27,8 @@ public:
 
 	GameObject* CreateEmpty();
 	GameObject* Duplicate(GameObject*);
-	void Delete(GameObject* gameObject);
+	void Delete(GameObject*);
+
+	GameObject* CreateEmptyPrefab();
+	GameObject* DuplicatePrefab(GameObject*);
 };

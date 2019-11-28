@@ -131,3 +131,19 @@ void Scene::Delete(GameObject* gameObject)
 			//iter = gameObjects.erase(iter);
 		}
 }
+
+GameObject* Scene::CreateEmptyPrefab()
+{
+	GameObject* gameObject = new GameObject();
+	gameObject->scene = this;
+
+	return gameObject;
+}
+
+GameObject* Scene::DuplicatePrefab(GameObject* _gameObject)
+{
+	GameObject* gameObject = new GameObject(_gameObject);
+	gameObject->scene = this;
+
+	return gameObject;
+}
