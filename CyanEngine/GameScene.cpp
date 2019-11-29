@@ -118,63 +118,67 @@ void GameScene::BuildObjects()
 
 			float xPosition;
 			float zPosition;
+			Mesh* mesh;
+			Material* material{ nullptr };
+			Vector3 vec;
 			for (int nObjects = 0, z = 2; z <= 254; z++)
 			{
 				for (int x = 2; x <= 254; x++)
 				{
 					BYTE nPixel = pRawFormatImage->GetRawImagePixel(x, z);
 			
-					if (!nPixel)
-						continue;
-			
-					GameObject * test = CreateEmpty();
-
 					xPosition = x * xmf3TerrainScale.x;
 					zPosition = z * xmf3TerrainScale.z;
 			
 					switch (nPixel)
 					{
 					case 102:
-						test->AddComponent<MeshFilter>()->mesh = mesh1;
-						test->AddComponent<Renderer>()->material = material01;
-						test->GetComponent<Renderer>()->material->albedo = { 8, 8, 0, 0 };
+						mesh = mesh1;
+						material = material01;
+						vec = { 8, 8, 0 };
 						break;
 					case 128:
-						test->AddComponent<MeshFilter>()->mesh = mesh2;
-						test->AddComponent<Renderer>()->material = material02;
-						test->GetComponent<Renderer>()->material->albedo = { 8, 6, 0, 0 };
+						mesh = mesh2;
+						material = material02;
+						vec = { 8, 6, 0 };
 						break;
 					case 153:
-						test->AddComponent<MeshFilter>()->mesh = mesh3;
-						test->AddComponent<Renderer>()->material = material03;
-						test->GetComponent<Renderer>()->material->albedo = { 8, 16, 0, 0 };
+						mesh = mesh3;
+						material = material03;
+						vec = { 8, 16, 0 };
 						break;
 					case 179:
-						test->AddComponent<MeshFilter>()->mesh = mesh4;
-						test->AddComponent<Renderer>()->material = material04;
-						test->GetComponent<Renderer>()->material->albedo = { 8, 16, 0, 0 };
+						mesh = mesh4;
+						material = material04;
+						vec = { 8, 16, 0 };
 						break;
 					case 204:
-						test->AddComponent<MeshFilter>()->mesh = mesh5;
-						test->AddComponent<Renderer>()->material = material05;
-						test->GetComponent<Renderer>()->material->albedo = { 24, 36, 0, 0 };
+						mesh = mesh5;
+						material = material05;
+						vec = { 24, 36, 0 };
 						break;
 					case 225:
-						test->AddComponent<MeshFilter>()->mesh = mesh6;
-						test->AddComponent<Renderer>()->material = material06;
-						test->GetComponent<Renderer>()->material->albedo = { 24, 36, 0, 0 };
+						mesh = mesh6;
+						material = material06;
+						vec = { 24, 36, 0 };
 						break;
 					case 255:
-						test->AddComponent<MeshFilter>()->mesh = mesh7;
-						test->AddComponent<Renderer>()->material = material07;
-						test->GetComponent<Renderer>()->material->albedo = { 16, 36, 0, 0 };
+						mesh = mesh7;
+						material = material07;
+						vec = { 16, 36, 0 };
 						break;
 					default:
+						continue;
 						break;
 					}
-					Vector3 t = test->GetComponent<Transform>()->position = {
+					GameObject* test = CreateEmpty();
+					test->AddComponent<MeshFilter>()->mesh = mesh;
+					test->AddComponent<Renderer>()->material = material;
+					test->GetComponent<Renderer>()->material->albedo = { vec.x, vec.y, vec.z, 1 };
+
+					test->GetComponent<Transform>()->position = {
 								x * xmf3TerrainScale.x - 500,
-								terrain->GetComponent<Terrain>()->GetHeight(xPosition, zPosition),
+								terrain->GetComponent<Terrain>()->GetHeight(xPosition, zPosition) + vec.y / 2,
 								z * xmf3TerrainScale.z - 500 };
 				}
 			}
