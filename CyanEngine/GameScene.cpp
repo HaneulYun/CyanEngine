@@ -43,6 +43,13 @@ void GameScene::BuildObjects()
 	}
 
 	{
+		GameObject* test = CreateEmpty();
+		test->GetComponent<Transform>()->position = { 0, 55, 0 };
+		test->AddComponent<MeshFilter>()->mesh = new CTexturedRectMesh(1000.0f, 0.0f, 1000.0f, 0.0f, -0.01, 0.0f);
+		test->AddComponent<Renderer>()->material = new Material(L"Texture/Water.dds");
+	}
+
+	{
 		{
 			GameObject* test = CreateEmpty();
 			test->GetComponent<Transform>()->position = { -25, 100, 10 };

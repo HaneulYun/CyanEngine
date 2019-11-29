@@ -15,7 +15,6 @@ cbuffer cbCameraInfo : register(b1)
 	matrix gmtxView : packoffset(c0);
 	matrix gmtxProjection : packoffset(c4);
 	float3 gvCameraPosition : packoffset(c8);
-
 };
 
 struct VS_BILLBOARD_INSTANCING_INPUT
