@@ -320,5 +320,6 @@
     <FxCompile Include="Light.hlsl" />
     <FxCompile Include="Texture.hlsl" />
     <FxCompile Include="Terrain.hlsl" />
+    <FxCompile Include="Billboard.hlsl" />
   </ItemGroup>
 </Project>

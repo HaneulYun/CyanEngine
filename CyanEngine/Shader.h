@@ -100,3 +100,25 @@ public:
 	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
 };
+
+class CBillboardObjectsShader : public TextureShader
+{
+public:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
+	virtual D3D12_BLEND_DESC CreateBlendState();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+
+	//CMaterial* m_pBillboardMaterial;
+	//
+	//ID3D12Resource* m_pd3dVertexBuffer = NULL;
+	//ID3D12Resource* m_pd3dVertexUploadBuffer = NULL;
+	//D3D12_VERTEX_BUFFER_VIEW		m_d3dVertexBufferView;
+	//
+	//int								m_nInstances = 0;
+	//ID3D12Resource* m_pd3dInstancesBuffer = NULL;
+	//ID3D12Resource* m_pd3dInstanceUploadBuffer = NULL;
+	//D3D12_VERTEX_BUFFER_VIEW		m_d3dInstancingBufferView;
+};
