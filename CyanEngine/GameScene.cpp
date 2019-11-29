@@ -101,7 +101,13 @@ void GameScene::BuildObjects()
 			int nTerrainLength = int(_terrain->GetLength());
 			XMFLOAT3 xmf3TerrainScale = _terrain->GetScale();
 
-			CTexturedRectMesh* mesh = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
+			CTexturedRectMesh* mesh1 = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
+			CTexturedRectMesh* mesh2 = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
+			CTexturedRectMesh* mesh3 = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
+			CTexturedRectMesh* mesh4 = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
+			CTexturedRectMesh* mesh5 = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
+			CTexturedRectMesh* mesh6 = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
+			CTexturedRectMesh* mesh7 = new CTexturedRectMesh(20.0f, 20.0f, 0.0f, 0.0f, 0.0f, +10.0f);
 			Material* material01 = new Material(L"Texture/Grass01.dds", ShaderMode::Billboard);
 			Material* material02 = new Material(L"Texture/Grass02.dds", ShaderMode::Billboard);
 			Material* material03 = new Material(L"Texture/Flower01.dds", ShaderMode::Billboard);
@@ -122,7 +128,6 @@ void GameScene::BuildObjects()
 						continue;
 			
 					GameObject * test = CreateEmpty();
-					test->AddComponent<MeshFilter>()->mesh = mesh;
 
 					xPosition = x * xmf3TerrainScale.x;
 					zPosition = z * xmf3TerrainScale.z;
@@ -130,39 +135,40 @@ void GameScene::BuildObjects()
 					switch (nPixel)
 					{
 					case 102:
+						test->AddComponent<MeshFilter>()->mesh = mesh1;
 						test->AddComponent<Renderer>()->material = material01;
 						test->GetComponent<Renderer>()->material->albedo = { 8, 8, 0, 0 };
 						break;
 					case 128:
+						test->AddComponent<MeshFilter>()->mesh = mesh2;
 						test->AddComponent<Renderer>()->material = material02;
 						test->GetComponent<Renderer>()->material->albedo = { 8, 6, 0, 0 };
 						break;
-						//fxWidth = 8.0f; fyHeight = 6.0f; nBillboardType = 1; nTextureType = 2; break;
 					case 153:
+						test->AddComponent<MeshFilter>()->mesh = mesh3;
 						test->AddComponent<Renderer>()->material = material03;
 						test->GetComponent<Renderer>()->material->albedo = { 8, 16, 0, 0 };
 						break;
-						//fxWidth = 8.0f; fyHeight = 16.0f; nBillboardType = 2; nTextureType = 3; break;
 					case 179:
+						test->AddComponent<MeshFilter>()->mesh = mesh4;
 						test->AddComponent<Renderer>()->material = material04;
 						test->GetComponent<Renderer>()->material->albedo = { 8, 16, 0, 0 };
 						break;
-						//fxWidth = 8.0f; fyHeight = 16.0f; nBillboardType = 2; nTextureType = 4; break;
 					case 204:
+						test->AddComponent<MeshFilter>()->mesh = mesh5;
 						test->AddComponent<Renderer>()->material = material05;
 						test->GetComponent<Renderer>()->material->albedo = { 24, 36, 0, 0 };
 						break;
-						//fxWidth = 24.0f; fyHeight = 36.0f; nBillboardType = 3; nTextureType = 5; break;
 					case 225:
+						test->AddComponent<MeshFilter>()->mesh = mesh6;
 						test->AddComponent<Renderer>()->material = material06;
 						test->GetComponent<Renderer>()->material->albedo = { 24, 36, 0, 0 };
 						break;
-						//fxWidth = 24.0f; fyHeight = 36.0f; nBillboardType = 3; nTextureType = 6; break;
 					case 255:
+						test->AddComponent<MeshFilter>()->mesh = mesh7;
 						test->AddComponent<Renderer>()->material = material07;
 						test->GetComponent<Renderer>()->material->albedo = { 16, 36, 0, 0 };
 						break;
-						//fxWidth = 16.0f; fyHeight = 36.0f; nBillboardType = 3; nTextureType = 7; break;
 					default:
 						break;
 					}
