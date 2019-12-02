@@ -6,8 +6,6 @@ class Terrain : public MeshFilter
 private:
 	// 이 영역에 private 변수를 선언하세요.
 
-	//지형의 높이 맵으로 사용할 이미지이다.
-	CHeightMapImage* m_pHeightMapImage;
 	//높이 맵의 가로와 세로 크기이다.
 	int m_nWidth;
 	int m_nLength;
@@ -15,6 +13,8 @@ private:
 	XMFLOAT3 m_xmf3Scale;
 
 public:
+	//지형의 높이 맵으로 사용할 이미지이다.
+	CHeightMapImage* m_pHeightMapImage;
 	// 이 영역에 public 변수를 선언하세요.
 
 private:
@@ -77,8 +77,7 @@ public:
 				xStart = x * (nBlockWidth - 1);
 				zStart = z * (nBlockLength - 1);
 				//지형의 일부분을 나타내는 격자 메쉬를 생성하여 지형 메쉬에 저장한다.
-				mesh = new CHeightMapGridMesh(xStart, zStart,
-					nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
+				mesh = new CHeightMapGridMesh(xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
 				//SetMesh(x + (z * cxBlocks), pHeightMapGridMesh);
 			}
 		}

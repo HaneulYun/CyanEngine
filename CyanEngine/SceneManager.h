@@ -10,6 +10,7 @@ enum {WAIT, START, END};
 class SceneManager : public MonoBehavior<SceneManager>
 {
 private:
+	TextureShader* shader;
 
 public:
 	static GameObject* scenemanager;

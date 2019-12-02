@@ -48,8 +48,10 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 			if (ppd3dUploadBuffer)
 			{
 				heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
-				RendererManager::Instance()->device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
-				
+				HRESULT result = RendererManager::Instance()->device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
+				if (result != S_OK)
+					int k = 0;
+
 				//업로드 버퍼를 매핑하여 초기화 데이터를 업로드 버퍼에 복사한다.
 				D3D12_RANGE d3dReadRange = { 0, 0 };
 				UINT8* pBufferDataBegin = NULL;
@@ -147,6 +149,37 @@ ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12
 	RendererManager::Instance()->commandList->ResourceBarrier(1, &d3dResourceBarrier);
 
 	//	delete[] pd3dSubResourceData;
+
+	return(pd3dTexture);
+}
+
+ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElements, UINT nMipLevels, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue)
+{
+	ID3D12Resource* pd3dTexture = NULL;
+
+	D3D12_HEAP_PROPERTIES d3dHeapPropertiesDesc;
+	::ZeroMemory(&d3dHeapPropertiesDesc, sizeof(D3D12_HEAP_PROPERTIES));
+	d3dHeapPropertiesDesc.Type = D3D12_HEAP_TYPE_DEFAULT;
+	d3dHeapPropertiesDesc.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	d3dHeapPropertiesDesc.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	d3dHeapPropertiesDesc.CreationNodeMask = 1;
+	d3dHeapPropertiesDesc.VisibleNodeMask = 1;
+
+	D3D12_RESOURCE_DESC d3dTextureResourceDesc;
+	::ZeroMemory(&d3dTextureResourceDesc, sizeof(D3D12_RESOURCE_DESC));
+	d3dTextureResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	d3dTextureResourceDesc.Alignment = 0;
+	d3dTextureResourceDesc.Width = nWidth;
+	d3dTextureResourceDesc.Height = nHeight;
+	d3dTextureResourceDesc.DepthOrArraySize = nElements;
+	d3dTextureResourceDesc.MipLevels = nMipLevels;
+	d3dTextureResourceDesc.Format = dxgiFormat;
+	d3dTextureResourceDesc.SampleDesc.Count = 1;
+	d3dTextureResourceDesc.SampleDesc.Quality = 0;
+	d3dTextureResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	d3dTextureResourceDesc.Flags = d3dResourceFlags;
+
+	HRESULT hResult = RendererManager::Instance()->device->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dTextureResourceDesc, d3dResourceStates, pd3dClearValue, __uuidof(ID3D12Resource), (void**)&pd3dTexture);
 
 	return(pd3dTexture);
 }

@@ -15,6 +15,16 @@ void GameScene::BuildObjects()
 	TriangleMesh* SharpBulletMesh = new TriangleMesh(1.0f);
 	Circle* CannonMesh = new Circle(4, 48);
 
+	GameObject* mainCamera = CreateEmpty();
+	{
+		Camera* camera = mainCamera->AddComponent<Camera>();
+		camera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
+		camera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
+		camera->GenerateProjectionMatrix(0.3f, 1000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
+		camera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -10.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
+		camera->main = camera;
+	}
+
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
@@ -32,7 +42,7 @@ void GameScene::BuildObjects()
 		scnmgr->star = star;
 	}
 
-	
+
 	{	// StraightBullet
 		GameObject* bulletobj = CreateGameObject(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
@@ -41,31 +51,31 @@ void GameScene::BuildObjects()
 		bullet->timeCycle = 0.25f;
 		scnmgr->bulletprefab[0] = bulletobj;
 	}
-	{	
+	{
 		GameObject* bulletobj = CreateGameObject(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 100.f;
 		bullet->timeCycle = 0.5f;
 		scnmgr->bulletprefab[1] = bulletobj;
-	} 
-	{	
+	}
+	{
 		GameObject* bulletobj = CreateGameObject(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = SharpBulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 260.f;
 		bullet->timeCycle = 0.125f;
 		scnmgr->bulletprefab[2] = bulletobj;
-	} 
-	{	
+	}
+	{
 		GameObject* bulletobj = CreateGameObject(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 0.f;
 		bullet->timeCycle = 0.0f;
 		scnmgr->bulletprefab[3] = bulletobj;
-	} 
-	{	
+	}
+	{
 		GameObject* bulletobj = CreateGameObject(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
@@ -84,7 +94,7 @@ void GameScene::BuildObjects()
 
 		guardian->AddComponent<StarGuardian>();
 		scnmgr->playerprefab = guardian;
-	 }
+	}
 
 	// 서버 연결X
 	/*for (int i = 0; i < 3; ++i) {
@@ -100,13 +110,13 @@ void GameScene::BuildObjects()
 		guardian->GetComponent<StarGuardian>()->bullet = bullet;
 		scnmgr->player[i] = guardian;
 	}*/
-	
+
 
 	GameObject* enemy0 = CreateGameObject(object);
 	{
 		enemy0->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy0->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
-	 }
+	}
 
 	GameObject* enemy1 = CreateGameObject(object);
 	{
@@ -115,7 +125,7 @@ void GameScene::BuildObjects()
 	}
 
 	scnmgr->enemyprefab[0] = enemy0;
-	
+
 	GameObject* spawner = CreateEmpty();
 	{
 		//spawner->AddComponent<Spawner>()->enemy = enemy1;
@@ -125,7 +135,7 @@ void GameScene::BuildObjects()
 	{
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.22.163";
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
-		//Recvthread->AddComponent<Thread>()->severip = "192.168.100.77";
+		Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
 		scnmgr->Sender = Recvthread->GetComponent<Thread>();
 	}
 
