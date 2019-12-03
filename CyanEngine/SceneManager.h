@@ -133,7 +133,32 @@ public:
 				CreatePlayer(curMsg.lParam);
 				for (int i = 0; i < 5; ++i)
 				{
-					player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<Damager>();
+					Damager* damager = player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<Damager>();
+					damager->isTeam = true;
+					switch (i)
+					{
+					case 1:
+						damager->SetDamageAmount(1);
+						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						break;
+					case 2:
+						damager->SetDamageAmount(3);
+						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<SphereCollider>()->radius = 4.f;
+						break;
+					case 3:
+						damager->SetDamageAmount(0.5);
+						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						break;
+					case 4:
+						damager->SetDamageAmount(1);
+						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						break;
+					case 5:
+						damager->SetDamageAmount(1);
+						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						break;
+					}
+					
 				}
 				break;
 				// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
@@ -171,6 +196,23 @@ public:
 		}
 	}
 
+	void UpdateSendQueue()
+	{
+		while (!sendQueue.empty())
+		{
+			Message curMsg = sendQueue.front();
+			sendQueue.pop();
+
+			switch (curMsg.msgId)
+			{
+			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
+				curMsg.mParam = myid;
+				break;
+			}
+			int retval = Sender->SendMsg(curMsg);
+		}
+	}
+
 	void Start()
 	{
 		scenemanager = gameObject;
@@ -183,6 +225,8 @@ public:
 		elapsedTime += Time::deltaTime;
 
 		UpdateRecvQueue();
+		if (Sender)
+			UpdateSendQueue();
 
 		if (player[myid])
 		{
@@ -204,8 +248,9 @@ public:
 			Message message;
 			message.msgId = MESSAGE_READY;
 			message.lParam = myid;
-			if (Sender)
-				int retval = Sender->SendMsg(message);
+			sendQueue.push(message);
+			//if (Sender)
+			//	int retval = Sender->SendMsg(message);
 		}
 		else if (Input::GetMouseButtonDown(0) && gameState == START) {
 			float timeCycle = bulletprefab[bulletType]->GetComponent<Bullet>()->timeCycle;
@@ -219,8 +264,9 @@ public:
 				message.msgId = MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT + bulletType;
 				message.mParam = myid;
 				message.rParam = DirtoAngle(direction);
-				if (Sender)
-					int retval = Sender->SendMsg(message);
+				sendQueue.push(message);
+				//if (Sender)
+				//	int retval = Sender->SendMsg(message);
 			}
 		}
 	}

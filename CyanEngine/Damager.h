@@ -6,7 +6,7 @@ class Damager : public Component
 {
 private:
 	int damageAmount;
-	bool canDamage;
+	bool canDamage{ true };
 
 public:
 	bool isTeam;
