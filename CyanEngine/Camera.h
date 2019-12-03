@@ -4,14 +4,19 @@
 
 class Camera : public Component
 {
-protected:
-	XMFLOAT4X4 m_xmf4x4View;
-	XMFLOAT4X4 m_xmf4x4Projection;
+public:
+	XMFLOAT4X4 view;
+	XMFLOAT4X4 projection;
+
+	XMFLOAT3 pos{ 0, 0, -1 };
+	XMFLOAT3 _pos{ 0, 0, -1 };
+	XMFLOAT3 lookAt{ 0, 0, 0 };
+	XMFLOAT3 up{ 0, 1, 0 };
 
 public:
-	D3D12_VIEWPORT m_d3dViewport;
-	D3D12_RECT m_d3dScissorRect;
-
+	D3D12_VIEWPORT viewport{ 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+	D3D12_RECT scissorRect{ 0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT };
+	
 	static Camera* main;
 
 public:

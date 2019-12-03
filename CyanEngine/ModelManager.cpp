@@ -89,7 +89,7 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile, GameObject* 
 			pGameObject = new GameObject();
 
 			if (parent)
-				pGameObject->AddComponent<Renderer>()->material = parent->GetComponent<Renderer>()->material;
+				;//pGameObject->AddComponent<Renderer>()->material = parent->GetComponent<Renderer>()->material;
 			else
 			{
 				Material* material = pGameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
@@ -150,6 +150,10 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile, GameObject* 
 					CMaterial* pMaterial = new CMaterial();
 
 					CMaterialColors* pMaterialColors = new CMaterialColors(&pMaterialsInfo->m_pMaterials[i]);
+
+					Material* material = pGameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
+					material->albedo = pMaterialsInfo->m_pMaterials[i].m_xmf4AlbedoColor;
+					material->shader = new StandardShader();
 					//pMaterial->SetMaterialColors(pMaterialColors);
 
 					//if (pGameObject->GetMeshType() & VERTEXT_NORMAL) pMaterial->SetIlluminatedShader();

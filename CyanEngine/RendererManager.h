@@ -74,6 +74,7 @@ public:
 	void Update();
 	void PreRender();
 	void Render();
+	void InstancingRender(std::pair<std::pair<std::string, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>>);
 	void PostRender();
 
 	void Destroy();

@@ -53,7 +53,8 @@ namespace DirectX
         std::vector<D3D12_SUBRESOURCE_DATA>& subresources,
         size_t maxsize = 0,
         _Out_opt_ DDS_ALPHA_MODE* alphaMode = nullptr,
-        _Out_opt_ bool* isCubeMap = nullptr);
+        _Out_opt_ bool* isCube
+		= nullptr);
 
     HRESULT __cdecl LoadDDSTextureFromFile(
         _In_ ID3D12Device* d3dDevice,

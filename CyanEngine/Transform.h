@@ -6,6 +6,8 @@ public:
 	XMFLOAT3 localPosition;
 	XMFLOAT3 eulerAngles;
 
+	Vector3 localScale{ 1, 1, 1 };
+
 	union
 	{
 		struct
@@ -30,5 +32,6 @@ public:
 	virtual Component* Duplicate(Component* component) { return new Transform(*(Transform*)component); }
 
 	void Rotate(const XMFLOAT3& axis, float angle);
+	void Scale(const XMFLOAT3& scale);
 };
 

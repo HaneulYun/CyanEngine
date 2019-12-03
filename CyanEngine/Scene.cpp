@@ -24,25 +24,25 @@ void Scene::Start()
 void Scene::Update()
 {
 	// fixed update
-	Collider *lhs_collider, *rhs_collider;
-	for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)
-		if (lhs_collider = (*lhs_iter)->GetComponent<Collider>())
-			for (auto rhs_iter = gameObjects.begin(); rhs_iter != gameObjects.end(); ++rhs_iter)
-				if(lhs_iter != rhs_iter)
-					if (rhs_collider = (*rhs_iter)->GetComponent<Collider>())
-					{
-						auto iter = (*lhs_iter)->collisionType.find(*rhs_iter);
-
-						if (lhs_collider->Compare(rhs_collider))
-						{
-							if (iter == (*lhs_iter)->collisionType.end())
-								((*lhs_iter)->collisionType)[*rhs_iter] = CollisionType::eTriggerEnter;
-							else if (iter->second == CollisionType::eTriggerEnter)
-								iter->second = CollisionType::eTriggerStay;
-						}
-						else if (iter != (*lhs_iter)->collisionType.end())
-							iter->second = CollisionType::eTriggerExit;
-					}
+	//Collider *lhs_collider, *rhs_collider;
+	//for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)
+	//	if (lhs_collider = (*lhs_iter)->GetComponent<Collider>())
+	//		for (auto rhs_iter = gameObjects.begin(); rhs_iter != gameObjects.end(); ++rhs_iter)
+	//			if(lhs_iter != rhs_iter)
+	//				if (rhs_collider = (*rhs_iter)->GetComponent<Collider>())
+	//				{
+	//					auto iter = (*lhs_iter)->collisionType.find(*rhs_iter);
+	//
+	//					if (lhs_collider->Compare(rhs_collider))
+	//					{
+	//						if (iter == (*lhs_iter)->collisionType.end())
+	//							((*lhs_iter)->collisionType)[*rhs_iter] = CollisionType::eTriggerEnter;
+	//						else if (iter->second == CollisionType::eTriggerEnter)
+	//							iter->second = CollisionType::eTriggerStay;
+	//					}
+	//					else if (iter != (*lhs_iter)->collisionType.end())
+	//						iter->second = CollisionType::eTriggerExit;
+	//				}
 
 	for (GameObject* gameObject : gameObjects)
 	{
@@ -146,4 +146,20 @@ void Scene::Delete(GameObject* gameObject)
 			return;
 			//iter = gameObjects.erase(iter);
 		}
+}
+
+GameObject* Scene::CreateEmptyPrefab()
+{
+	GameObject* gameObject = new GameObject();
+	gameObject->scene = this;
+
+	return gameObject;
+}
+
+GameObject* Scene::DuplicatePrefab(GameObject* _gameObject)
+{
+	GameObject* gameObject = new GameObject(_gameObject);
+	gameObject->scene = this;
+
+	return gameObject;
 }

@@ -16,6 +16,16 @@ void GameScene::BuildObjects()
 	TriangleMesh* SharpBulletMesh = new TriangleMesh(1.0f);
 	Circle* CannonMesh = new Circle(4, 48);
 
+	GameObject* mainCamera = CreateEmpty();
+	{
+		Camera* camera = mainCamera->AddComponent<Camera>();
+		camera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
+		camera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
+		camera->GenerateProjectionMatrix(0.3f, 1000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
+		camera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -10.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
+		camera->main = camera;
+	}
+
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
@@ -46,7 +56,7 @@ void GameScene::BuildObjects()
 		//bulletobj->GetComponent<Damager>()->SetDamageAmount(1);
 		//bulletobj->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 	}
-	{	
+	{
 		GameObject* bulletobj = CreateGameObject(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
@@ -101,7 +111,7 @@ void GameScene::BuildObjects()
 
 		guardian->AddComponent<StarGuardian>();
 		scnmgr->playerprefab = guardian;
-	 }
+	}
 
 
 	// enemy
@@ -137,7 +147,6 @@ void GameScene::BuildObjects()
 	{
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.22.163";
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
-		//Recvthread->AddComponent<Thread>()->severip = "192.168.100.77";
 		Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
 		scnmgr->Sender = Recvthread->GetComponent<Thread>();
 	}

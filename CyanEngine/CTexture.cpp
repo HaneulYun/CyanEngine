@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CTexture.h"
 
-CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
+CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
 {
 	m_nTextureType = nTextureType;
 	m_nTextures = nTextures;
@@ -11,6 +11,8 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
 		m_ppd3dTextureUploadBuffers = new ID3D12Resource * [m_nTextures];
 		m_ppd3dTextures = new ID3D12Resource * [m_nTextures];
 	}
+	//m_nRootParameters = nRootParameters;
+	//if (nRootParameters > 0) m_pnRootParameterIndices = new UINT[nRootParameters];
 
 	m_nSamplers = nSamplers;
 	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
@@ -90,7 +92,6 @@ CMaterial::CMaterial()
 CMaterial::~CMaterial()
 {
 	if (m_pTexture) m_pTexture->Release();
-	if (m_pShader) m_pShader->Release();
 }
 
 void CMaterial::SetTexture(CTexture* pTexture)
@@ -102,9 +103,7 @@ void CMaterial::SetTexture(CTexture* pTexture)
 
 void CMaterial::SetShader(Shader* pShader)
 {
-	if (m_pShader) m_pShader->Release();
 	m_pShader = pShader;
-	if (m_pShader) m_pShader->AddRef();
 }
 
 void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -114,7 +113,6 @@ void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList
 
 void CMaterial::ReleaseShaderVariables()
 {
-	if (m_pShader) m_pShader->ReleaseShaderVariables();
 	if (m_pTexture) m_pTexture->ReleaseShaderVariables();
 }
 

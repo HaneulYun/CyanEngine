@@ -8,12 +8,6 @@ RendererManager::RendererManager()
 	for (int i = 0; i < m_nSwapChainBuffers; i++)
 		m_nFenceValues[i] = 0;
 
-	m_pCamera = new Camera;
-	m_pCamera->main = m_pCamera;
-	m_pCamera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
-	m_pCamera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
-	m_pCamera->GenerateProjectionMatrix(0.3f, 150000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
-	m_pCamera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -10.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	CreateDirect3DDevice();
 	CreateCommandQueueAndList();
@@ -22,6 +16,8 @@ RendererManager::RendererManager()
 
 	CreateRenderTargetView();
 	CreateDepthStencilView();
+
+	commandList->Reset(commandAllocator.Get(), NULL);
 }
 
 RendererManager::~RendererManager()
@@ -40,6 +36,7 @@ void RendererManager::UpdateManager()
 
 void RendererManager::Start()
 {
+
 	for (auto& d : instances)
 	{
 		if (!d.second.first)
@@ -49,7 +46,6 @@ void RendererManager::Start()
 
 			//Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
 			shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
-			shader->m_ppd3dPipelineStates = new ID3D12PipelineState * [1];
 			shader->CreateShader(device.Get(), shader->rootSignature);
 
 		}
@@ -59,7 +55,8 @@ void RendererManager::Start()
 
 		d.second.first->resource->Map(0, NULL, (void**)&d.second.first->memory);
 
-		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name())
+		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name() ||
+			typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
 		{
 			//d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
 		}
@@ -94,95 +91,123 @@ void RendererManager::Update()
 
 void RendererManager::PreRender()
 {
-	HRESULT hResult = commandAllocator->Reset();
-	hResult = commandList->Reset(commandAllocator.Get(), NULL);
+	commandAllocator->Reset();
+	commandList->Reset(commandAllocator.Get(), NULL);
 
-	// m_pd3dCommandList->RSSetViewports(1, &m_d3dViewport);
-	// m_pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
+	D3D12_RESOURCE_BARRIER resourceBarrier;
+	::ZeroMemory(&resourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	resourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
+	resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+	resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList->ResourceBarrier(1, &resourceBarrier);
 
-	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	d3dResourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
-	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	commandList->ResourceBarrier(1, &d3dResourceBarrier);
-
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
-
-
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
-	commandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, FALSE, &d3dDsvCPUDescriptorHandle);
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvCpuDescriptorHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	rtvCpuDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
 	//float pfClearColor[4] = { 0.0 / 256.0, 0.0 / 256.0, 50.0 / 256.0, 1.0f };
 	//float pfClearColor[4] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
 	float pfClearColor[4] = { 0, 0, 0, 1.0f };
-	commandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor, 0, NULL);
+	
 
-	commandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+	float clearColor[4] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
+	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 
-	m_pCamera->SetViewportsAndScissorRects(commandList.Get());
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvCpuDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
+	commandList->OMSetRenderTargets(1, &rtvCpuDescriptorHandle, FALSE, &dsvCpuDescriptorHandle);
+	commandList->ClearRenderTargetView(rtvCpuDescriptorHandle, clearColor, 0, NULL);
+	commandList->ClearDepthStencilView(dsvCpuDescriptorHandle, clearFlags, 1.0f, 0, 0, NULL);
 }
 
 void RendererManager::Render()
 {
 	PreRender();
 
+	Camera::main->SetViewportsAndScissorRects(commandList.Get());
+
 	for (auto& d : instances)
 	{
-		//Shader* shader = d.first.first;
-		Mesh* mesh = d.first.second;
-
-		commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
-		commandList->SetPipelineState(d.second.first->shader->m_ppd3dPipelineStates[0]);
-
-		m_pCamera->UpdateShaderVariables(commandList.Get());
-
-		int j = 0;
-		commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
-		for (auto& gameObject : d.second.second)
-		{
-			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-
-			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
-			++j;
-		}
-
-		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name())
-		{
-			TextureShader* shader = dynamic_cast<TextureShader*>(d.second.first->shader);
-			commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
-			for (int i = 0; i < TEXTURES; i++)
-			{
-				commandList->SetGraphicsRootDescriptorTable(shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_nRootParameterIndex, shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
-			}
-		}
-		
-		if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
-			((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0);
-		else
-			mesh->Render(d.second.second.size());
+		if (typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
+			InstancingRender(d);
+	}
+	for (auto& d : instances)
+	{
+		if (typeid(*d.second.first->shader).name() != typeid(CSkyBoxShader).name())
+			InstancingRender(d);
 	}
 
 	PostRender();
 }
 
+void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> d)
+{
+	//Shader* shader = d.first.first;
+	Mesh* mesh = d.first.second;
+
+	commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
+	commandList->SetPipelineState(d.second.first->shader->pipelineState.Get());
+
+	Camera::main->UpdateShaderVariables(commandList.Get());
+
+	int j = 0;
+	commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
+	if (typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
+		for (auto& gameObject : d.second.second)
+		{
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
+			XMFLOAT4X4 xmf4x4 = gameObject->transform->localToWorldMatrix;
+			xmf4x4._41 = Camera::main->_pos.x;
+			xmf4x4._42 = Camera::main->_pos.y;
+			xmf4x4._43 = Camera::main->_pos.z;
+			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&xmf4x4)));
+			++j;
+		}
+	else
+		for (auto& gameObject : d.second.second)
+		{
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
+			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
+			++j;
+		}
+
+	if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name() ||
+		typeid(*d.second.first->shader).name() == typeid(CBillboardObjectsShader).name() ||
+		typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name() ||
+		typeid(*d.second.first->shader).name() == typeid(CTerrainShader).name())
+	{
+		TextureShader* shader = dynamic_cast<TextureShader*>(d.second.first->shader);
+
+		if (typeid(*d.second.first->shader).name() == typeid(CBillboardObjectsShader).name())
+			int k = 0;
+
+		commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
+		for (int i = 0; i < TEXTURES; i++)
+		{
+			shader->ppMaterials[i]->m_pTexture->UpdateShaderVariables(commandList.Get());
+			//commandList->SetGraphicsRootDescriptorTable(shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_nRootParameterIndex, shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
+		}
+	}
+
+	if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
+		((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0);
+	else
+		mesh->Render(d.second.second.size());
+}
+
 void RendererManager::PostRender()
 {
-	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	d3dResourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
-	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	commandList->ResourceBarrier(1, &d3dResourceBarrier);
-
-	HRESULT hResult = commandList->Close();
+	D3D12_RESOURCE_BARRIER resourceBarrier;
+	::ZeroMemory(&resourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+	resourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
+	resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+	resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+	commandList->ResourceBarrier(1, &resourceBarrier);
+	commandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
 	commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
@@ -264,7 +289,6 @@ inline void RendererManager::CreateCommandQueueAndList()
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), NULL, IID_PPV_ARGS(&commandList));
 
 	commandList->Close();
-	commandList->Reset(commandAllocator.Get(), NULL);
 }
 
 inline void RendererManager::CreateRtvAndDsvDescriptorHeaps()

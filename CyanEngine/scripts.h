@@ -11,3 +11,6 @@
 #include "Bullet.h"
 #include "Thread.h"
 #include "SceneManager.h"
+#include "SceneManager.h"
+#include "RotorBehavior.h"
+#include "Controller.h"

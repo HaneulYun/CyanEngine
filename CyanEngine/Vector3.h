@@ -39,7 +39,7 @@ struct Vector3
 		return !((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
 	}
 
-	float Lengh() const
+	float Length() const
 	{
 		XMFLOAT3 xmf3Result;
 		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3)));
@@ -51,7 +51,12 @@ struct Vector3
 		XMStoreFloat3(&xmf3, XMVector3Normalize(XMLoadFloat3(&xmf3)));
 		return *this;
 	}
-
+	Vector3 Normalized() const
+	{
+		Vector3 result;
+		XMStoreFloat3(&result.xmf3, XMVector3Normalize(XMLoadFloat3(&xmf3)));
+		return result;
+	}
 	Vector3 operator-(const Vector3& rhs) const
 	{
 		Vector3 result;
@@ -87,6 +92,27 @@ struct Vector3
 		Vector3 result;
 		XMStoreFloat3(&result.xmf3, XMLoadFloat3(&xmf3) / rhs);
 		return result;
+	}
+
+	Vector3& operator+=(const Vector3& rhs)
+	{
+		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) + XMLoadFloat3(&rhs.xmf3));
+		return *this;
+	}
+	Vector3& operator-=(const Vector3& rhs)
+	{
+		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) - XMLoadFloat3(&rhs.xmf3));
+		return *this;
+	}
+	Vector3& operator*=(const Vector3& rhs)
+	{
+		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) * XMLoadFloat3(&rhs.xmf3));
+		return *this;
+	}
+	Vector3& operator/=(const Vector3& rhs)
+	{
+		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) / XMLoadFloat3(&rhs.xmf3));
+		return *this;
 	}
 };
 
