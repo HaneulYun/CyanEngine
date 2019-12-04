@@ -156,7 +156,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="Controller.h" />
     <ClInclude Include="CTexture.h" />
     <ClInclude Include="CyanEngine.h" />
     <ClInclude Include="CyanFW.h" />
@@ -168,6 +167,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="GuidedBehavior.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />

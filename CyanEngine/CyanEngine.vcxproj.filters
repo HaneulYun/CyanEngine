@@ -219,9 +219,6 @@
     <ClInclude Include="Material.h">
       <Filter>0_00_CyanEngine\10_CORE\11_Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Controller.h">
-      <Filter>1_00_Project\10_Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClInclude>
@@ -232,6 +229,9 @@
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Damager.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="GuidedBehavior.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
   </ItemGroup>

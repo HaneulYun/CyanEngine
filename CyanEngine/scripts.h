@@ -4,6 +4,7 @@
 #include "RotatingBehavior.h"
 #include "MovingBehavior.h"
 #include "RotorBehavior.h"
+#include "GuidedBehavior.h"
 #include "WhirlingBehavior.h"
 #include "StarGuardian.h"
 #include "Spawner.h"
