@@ -19,7 +19,7 @@ void GameScene::BuildObjects()
 		star->AddComponent<Damageable>()->SetHealth(5);
 		star->GetComponent<Damageable>()->isTeam = true;
 		star->AddComponent<BoxCollider>();
-		star->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		star->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 		scnmgr->star = star;
 	}
 
@@ -40,7 +40,7 @@ void GameScene::BuildObjects()
 		enemy->GetComponent<Damager>()->SetDamageAmount(1);
 		enemy->GetComponent<Damager>()->isTeam = false;
 		enemy->AddComponent<BoxCollider>();
-		enemy->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 	}
 
 	GameObject* spawner = CreateEmpty();
