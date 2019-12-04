@@ -121,7 +121,7 @@ void GameScene::BuildObjects()
 		enemy0->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy0->AddComponent<Damageable>()->SetHealth(2);
 		enemy0->GetComponent<Damageable>()->isTeam = false;
-		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 10.f,10.f,10.f };
+		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 	}
 
 	GameObject* enemy1 = CreateGameObject(object);
@@ -134,12 +134,12 @@ void GameScene::BuildObjects()
 	}
 
 	scnmgr->enemyprefab[0] = enemy0;
-	scnmgr->enemyprefab[1] = enemy1;
+	//scnmgr->enemyprefab[1] = enemy1;
 	
 
 	GameObject* spawner = CreateEmpty();
 	{
-		//spawner->AddComponent<Spawner>()->enemy = enemy1;
+		//spawner->AddComponent<Spawner>()->enemy = enemy0;
 	}
 
 
@@ -147,6 +147,7 @@ void GameScene::BuildObjects()
 	{
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.22.163";
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
+		//Recvthread->AddComponent<Thread>()->severip = "192.168.21.141";
 		Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
 		scnmgr->Sender = Recvthread->GetComponent<Thread>();
 	}

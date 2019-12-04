@@ -138,28 +138,27 @@ public:
 					damager->isTeam = true;
 					switch (i)
 					{
-					case 1:
+					case 0:
 						damager->SetDamageAmount(1);
 						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 						break;
-					case 2:
+					case 1:
 						damager->SetDamageAmount(3);
 						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<SphereCollider>()->radius = 4.f;
 						break;
-					case 3:
+					case 2:
 						damager->SetDamageAmount(0.5);
+						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						break;
+					case 3:
+						damager->SetDamageAmount(1);
 						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 						break;
 					case 4:
 						damager->SetDamageAmount(1);
 						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 						break;
-					case 5:
-						damager->SetDamageAmount(1);
-						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
-						break;
 					}
-					
 				}
 				break;
 				// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
