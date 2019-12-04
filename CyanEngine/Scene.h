@@ -6,6 +6,8 @@ protected:
 	std::deque<GameObject*> gameObjects;
 	RendererManager* rendererManager;
 
+	std::priority_queue<GameObject*> deletionQueue;
+
 public:
 	static Scene* scene;
 

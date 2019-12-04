@@ -24,25 +24,25 @@ void Scene::Start()
 void Scene::Update()
 {
 	// fixed update
-	//Collider *lhs_collider, *rhs_collider;
-	//for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)
-	//	if (lhs_collider = (*lhs_iter)->GetComponent<Collider>())
-	//		for (auto rhs_iter = gameObjects.begin(); rhs_iter != gameObjects.end(); ++rhs_iter)
-	//			if(lhs_iter != rhs_iter)
-	//				if (rhs_collider = (*rhs_iter)->GetComponent<Collider>())
-	//				{
-	//					auto iter = (*lhs_iter)->collisionType.find(*rhs_iter);
-	//
-	//					if (lhs_collider->Compare(rhs_collider))
-	//					{
-	//						if (iter == (*lhs_iter)->collisionType.end())
-	//							((*lhs_iter)->collisionType)[*rhs_iter] = CollisionType::eTriggerEnter;
-	//						else if (iter->second == CollisionType::eTriggerEnter)
-	//							iter->second = CollisionType::eTriggerStay;
-	//					}
-	//					else if (iter != (*lhs_iter)->collisionType.end())
-	//						iter->second = CollisionType::eTriggerExit;
-	//				}
+	Collider *lhs_collider, *rhs_collider;
+	for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)
+		if (lhs_collider = (*lhs_iter)->GetComponent<Collider>())
+			for (auto rhs_iter = gameObjects.begin(); rhs_iter != gameObjects.end(); ++rhs_iter)
+				if(lhs_iter != rhs_iter)
+					if (rhs_collider = (*rhs_iter)->GetComponent<Collider>())
+					{
+						auto iter = (*lhs_iter)->collisionType.find(*rhs_iter);
+	
+						if (lhs_collider->Compare(rhs_collider))
+						{
+							if (iter == (*lhs_iter)->collisionType.end())
+								((*lhs_iter)->collisionType)[*rhs_iter] = CollisionType::eTriggerEnter;
+							else if (iter->second == CollisionType::eTriggerEnter)
+								iter->second = CollisionType::eTriggerStay;
+						}
+						else if (iter != (*lhs_iter)->collisionType.end())
+							iter->second = CollisionType::eTriggerExit;
+					}
 
 	for (GameObject* gameObject : gameObjects)
 	{
@@ -70,6 +70,34 @@ void Scene::Update()
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Update();
 	rendererManager->UpdateManager();
+
+	while (!deletionQueue.empty())
+	{
+		GameObject* gameObject = deletionQueue.top();
+		for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
+			if (*iter == gameObject)
+			{
+				Renderer* renderer = gameObject->GetComponent<Renderer>();
+				MeshFilter* meshFilter = gameObject->GetComponent<MeshFilter>();
+		
+				if (!meshFilter)
+					meshFilter = gameObject->GetComponent<Terrain>();
+				auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
+				auto& list = rendererManager->instances[pair].second;
+				for (auto mgrIter = list.begin(); mgrIter != list.end(); ++mgrIter)
+					if (*mgrIter == gameObject)
+					{
+						list.erase(mgrIter);
+						break;
+					}
+		
+				delete (*iter);
+				gameObjects.erase(iter);
+				return;
+				//iter = gameObjects.erase(iter);
+			}
+		deletionQueue.pop();
+	}
 }
 
 void Scene::Render()
@@ -108,28 +136,7 @@ GameObject* Scene::Duplicate(GameObject* _gameObject)
 
 void Scene::Delete(GameObject* gameObject)
 {
-	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
-		if (*iter == gameObject)
-		{
-			Renderer* renderer = gameObject->GetComponent<Renderer>();
-			MeshFilter* meshFilter = gameObject->GetComponent<MeshFilter>();
-
-			if (!meshFilter)
-				meshFilter = gameObject->GetComponent<Terrain>();
-			auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
-			auto& list = rendererManager->instances[pair].second;
-			for (auto mgrIter = list.begin(); mgrIter != list.end(); ++mgrIter)
-				if (*mgrIter == gameObject)
-				{
-					list.erase(mgrIter);
-					break;
-				}
-
-			delete (*iter);
-			gameObjects.erase(iter);
-			return;
-			//iter = gameObjects.erase(iter);
-		}
+	deletionQueue.push(gameObject);
 }
 
 GameObject* Scene::CreateEmptyPrefab()

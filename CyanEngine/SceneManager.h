@@ -3,9 +3,6 @@
 
 class SceneManager : public MonoBehavior<SceneManager>
 {
-private:
-	TextureShader* shader;
-
 public:
 	GameObject* gameObject{ nullptr };
 
@@ -24,6 +21,35 @@ public:
 
 	void Update()
 	{
+		static bool instancing = true;
+		static float time = 0;
+		static const float boundary = 1.0;
+		time += Time::deltaTime;
+
+		if (Input::GetMouseButtonDown(0))
+			instancing = !instancing;
+
+		if (instancing)
+		{
+			if (time > boundary)
+			{
+				for (int i = 0; i < 1; ++i)
+				{
+					auto instance = Instantiate(gameObject);
+					float x = Random::Range(-15.f, 15.f);
+					float y = Random::Range(-15.f, 15.f);
+					instance->transform->position = Vector3{ x, y, 0 };
+
+					float r = Random::Range(0.0f, 1.0f);
+					float g = Random::Range(0.0f, 1.0f);
+					float b = Random::Range(0.0f, 1.0f);
+					instance->GetComponent<RotatingBehavior>()->speedRotating = Random::Range(-90.0f, 90.0f);
+
+					instance->AddComponent<MovingBehavior>();
+				}
+				time -= boundary;
+			}
+		}
 	}
 };
 
