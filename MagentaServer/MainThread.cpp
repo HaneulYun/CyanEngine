@@ -98,6 +98,15 @@ DWORD WINAPI Calculate(LPVOID arg)	// 임시 함수 이름
 				ThreadPool::sendQueue.push(result);
 				LeaveCriticalSection(&ThreadPool::sqcs);
 				break;
+			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
+				result.msgId = MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY;
+				result.lParam = curMessage.lParam;
+				result.mParam = curMessage.mParam;
+				result.rParam = curMessage.rParam;
+				EnterCriticalSection(&ThreadPool::sqcs);
+				ThreadPool::sendQueue.push(result);
+				LeaveCriticalSection(&ThreadPool::sqcs);
+				break;
 			}
 		}
 
