@@ -255,6 +255,9 @@
     <ClInclude Include="SceneManager.h">
       <Filter>1_00_YellowProject\14_Network</Filter>
     </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>1_00_YellowProject\13_Entity</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

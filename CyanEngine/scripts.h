@@ -13,6 +13,7 @@
 #include "Spawner.h"
 #include "Star.h"
 #include "Bullet.h"
+#include "Enemy.h"
 
 #include "Thread.h"
 #include "SceneManager.h"

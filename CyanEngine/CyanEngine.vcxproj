@@ -164,6 +164,7 @@
     <ClInclude Include="Damager.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="DefaultMaterial.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />

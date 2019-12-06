@@ -108,6 +108,7 @@ void GameScene::BuildObjects()
 	GameObject* enemy0 = DuplicatePrefab(object);
 	{
 		enemy0->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+		enemy0->AddComponent<Enemy>();
 		enemy0->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy0->AddComponent<Damageable>()->SetHealth(2);
 		enemy0->GetComponent<Damageable>()->isTeam = false;
@@ -117,6 +118,7 @@ void GameScene::BuildObjects()
 	GameObject* enemy1 = DuplicatePrefab(object);
 	{
 		enemy1->GetComponent<MeshFilter>()->mesh = pQuadMesh;
+		enemy1->AddComponent<Enemy>();
 		enemy1->AddComponent<WhirlingBehavior>()->target = star;
 		//enemy1->AddComponent<Damageable>()->SetHealth(4);
 		//enemy1->GetComponent<Damageable>()->isTeam = false;
@@ -138,7 +140,7 @@ void GameScene::BuildObjects()
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.22.163";
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.21.141";
-		//Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
+		Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
 		scnmgr->Sender = Recvthread->GetComponent<Thread>();
 	}
 
