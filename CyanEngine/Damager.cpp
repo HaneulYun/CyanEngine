@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Damager.h"
+#include "scripts.h"
 
 Damager::Damager()
 {

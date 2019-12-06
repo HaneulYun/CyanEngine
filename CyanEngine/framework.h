@@ -94,9 +94,6 @@ ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12
 #include "CyanWindow.h"
 #include "CyanFW.h"
 
-#include "Damager.h"
-#include "Damageable.h"
-
 #define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
 #define MAX_LIGHTS			8

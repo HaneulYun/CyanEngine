@@ -185,7 +185,6 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RevolvingBehavior.h" />
     <ClInclude Include="RotatingBehavior.h" />
-    <ClInclude Include="RotorBehavior.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="ScriptForm.h" />

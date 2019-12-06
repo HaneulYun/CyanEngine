@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Damageable.h"
+#include "scripts.h"
 #include "Message.h"
 
 Damageable::Damageable()

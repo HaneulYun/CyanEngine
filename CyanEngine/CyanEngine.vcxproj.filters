@@ -60,10 +60,6 @@
     <Filter Include="0_00_CyanEngine\12_Math">
       <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
     </Filter>
-    <Filter Include="1_00_YellowProject\리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="0_00_CyanEngine\80_API">
       <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
     </Filter>
@@ -84,6 +80,19 @@
     </Filter>
     <Filter Include="0_00_CyanEngine\44_Materials\80_API">
       <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\12_Behavior">
+      <UniqueIdentifier>{42015684-89e3-4e5f-88f1-66619e89d5c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\13_Entity">
+      <UniqueIdentifier>{6c6002b5-2377-4847-a452-755a780803b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\14_Network">
+      <UniqueIdentifier>{78601499-725d-4014-bbf5-40081c31d02b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -150,40 +159,16 @@
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="RotatingBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="GameScene.h">
       <Filter>1_00_YellowProject\00_Scene</Filter>
     </ClInclude>
-    <ClInclude Include="SceneManager.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptForm.h">
       <Filter>1_00_YellowProject\10_Scripts\11_Form</Filter>
-    </ClInclude>
-    <ClInclude Include="RevolvingBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Vector3.h">
       <Filter>0_00_CyanEngine\12_Math</Filter>
     </ClInclude>
     <ClInclude Include="Spawner.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="MovingBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="Star.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="Bullet.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="StarGuardian.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="Thread.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Message.h">
@@ -210,9 +195,6 @@
     <ClInclude Include="Time.h">
       <Filter>0_00_CyanEngine\11_Interface</Filter>
     </ClInclude>
-    <ClInclude Include="RotorBehavior.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Collider.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
@@ -237,17 +219,41 @@
     <ClInclude Include="Shader.h">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="WhirlingBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="Damageable.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Damager.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="RotatingBehavior.h">
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
     <ClInclude Include="GuidedBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingBehavior.h">
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="RevolvingBehavior.h">
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="WhirlingBehavior.h">
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="Star.h">
+      <Filter>1_00_YellowProject\13_Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="StarGuardian.h">
+      <Filter>1_00_YellowProject\13_Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>1_00_YellowProject\13_Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread.h">
+      <Filter>1_00_YellowProject\14_Network</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>1_00_YellowProject\14_Network</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -356,15 +362,15 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CyanEngine.rc">
-      <Filter>1_00_YellowProject\리소스 파일</Filter>
+      <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
-      <Filter>1_00_YellowProject\리소스 파일</Filter>
+      <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="CyanEngine.ico">
-      <Filter>1_00_YellowProject\리소스 파일</Filter>
+      <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
