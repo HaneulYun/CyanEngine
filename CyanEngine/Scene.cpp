@@ -134,11 +134,6 @@ GameObject* Scene::Duplicate(GameObject* _gameObject)
 	return gameObject;
 }
 
-void Scene::Delete(GameObject* gameObject)
-{
-	deletionQueue.push(gameObject);
-}
-
 GameObject* Scene::CreateEmptyPrefab()
 {
 	GameObject* gameObject = new GameObject();
@@ -153,4 +148,9 @@ GameObject* Scene::DuplicatePrefab(GameObject* _gameObject)
 	gameObject->scene = this;
 
 	return gameObject;
+}
+
+void Scene::Delete(GameObject* gameObject)
+{
+	deletionQueue.push(gameObject);
 }

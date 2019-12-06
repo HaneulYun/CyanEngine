@@ -22,15 +22,10 @@ public:
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();
 
-	//GameObject* CreateGameObject();
-	//GameObject* AddGameObject();
-	//GameObject* AddGameObject(GameObject* gameObject);
-	//void RemoveGameObject(GameObject* gameObject);
-
 	GameObject* CreateEmpty();
 	GameObject* Duplicate(GameObject*);
-	void Delete(GameObject*);
-
 	GameObject* CreateEmptyPrefab();
 	GameObject* DuplicatePrefab(GameObject*);
+
+	void Delete(GameObject*);
 };
