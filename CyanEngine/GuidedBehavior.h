@@ -30,26 +30,26 @@ public:
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
-		if (SceneManager::scenemanager->GetComponent<SceneManager>()->gameState == START) {
-			// 업데이트 코드를 작성하세요.
-
-			Vector3 v = (target->transform->position - gameObject->transform->position).Normalize();
-
-			auto t = NS_Vector3::Angle(v.xmf3, old.xmf3);
-			if (t > 30)
-			{
-				gameObject->transform->position = Vector3{ 0, 0, 0 };
-				speed = 0;
-
-			}
-
-			if (speed)
-			{
-				gameObject->transform->position = gameObject->transform->position + v * speed * Time::deltaTime;
-			}
-
-			old = v;
-		}
+		//if (SceneManager::scenemanager->GetComponent<SceneManager>()->gameState == START) {
+		//	// 업데이트 코드를 작성하세요.
+		//
+		//	Vector3 v = (target->transform->position - gameObject->transform->position).Normalize();
+		//
+		//	auto t = NS_Vector3::Angle(v.xmf3, old.xmf3);
+		//	if (t > 30)
+		//	{
+		//		gameObject->transform->position = Vector3{ 0, 0, 0 };
+		//		speed = 0;
+		//
+		//	}
+		//
+		//	if (speed)
+		//	{
+		//		gameObject->transform->position = gameObject->transform->position + v * speed * Time::deltaTime;
+		//	}
+		//
+		//	old = v;
+		//}
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.

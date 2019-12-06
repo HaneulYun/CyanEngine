@@ -29,7 +29,7 @@ void GameScene::BuildObjects()
 	Material* defaultMaterial = new DefaultMaterial();
 	defaultMaterial->shader = new StandardShader();
 
-	GameObject* object = CreateGameObject();
+	GameObject* object = CreateEmptyPrefab();
 	object->AddComponent<MeshFilter>();
 	object->AddComponent<Renderer>()->material = defaultMaterial;
 
@@ -46,7 +46,7 @@ void GameScene::BuildObjects()
 	
 	// 5 Bullet
 	{	
-		GameObject* bulletobj = CreateGameObject(object);
+		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 200.f;
@@ -57,7 +57,7 @@ void GameScene::BuildObjects()
 		//bulletobj->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 	}
 	{
-		GameObject* bulletobj = CreateGameObject(object);
+		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 100.f;
@@ -68,7 +68,7 @@ void GameScene::BuildObjects()
 		//bulletobj->AddComponent<SphereCollider>()->radius = 4.f;
 	} 
 	{	
-		GameObject* bulletobj = CreateGameObject(object);
+		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = SharpBulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 260.f;
@@ -79,7 +79,7 @@ void GameScene::BuildObjects()
 		//bulletobj->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 	} 
 	{	
-		GameObject* bulletobj = CreateGameObject(object);
+		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 0.f;
@@ -90,7 +90,7 @@ void GameScene::BuildObjects()
 		//bulletobj->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 	} 
 	{	
-		GameObject* bulletobj = CreateGameObject(object);
+		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		Bullet* bullet = bulletobj->AddComponent<Bullet>();
 		bullet->speed = 140.f;
@@ -101,7 +101,7 @@ void GameScene::BuildObjects()
 		//bulletobj->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 	}
 	
-	GameObject* guardian = CreateGameObject(object);
+	GameObject* guardian = DuplicatePrefab(object);
 	{
 		guardian->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 
@@ -115,7 +115,7 @@ void GameScene::BuildObjects()
 
 
 	// enemy
-	GameObject* enemy0 = CreateGameObject(object);
+	GameObject* enemy0 = DuplicatePrefab(object);
 	{
 		enemy0->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy0->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
@@ -124,7 +124,7 @@ void GameScene::BuildObjects()
 		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 	}
 
-	GameObject* enemy1 = CreateGameObject(object);
+	GameObject* enemy1 = DuplicatePrefab(object);
 	{
 		enemy1->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy1->AddComponent<WhirlingBehavior>()->target = star;
@@ -148,7 +148,7 @@ void GameScene::BuildObjects()
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.22.163";
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.35.35";
 		//Recvthread->AddComponent<Thread>()->severip = "192.168.21.141";
-		Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
+		//Recvthread->AddComponent<Thread>()->severip = "127.0.0.1";
 		scnmgr->Sender = Recvthread->GetComponent<Thread>();
 	}
 

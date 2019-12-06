@@ -89,7 +89,7 @@ public:
 		player[id]->GetComponent<Renderer>()->material->albedo = color[id];
 		for (int i = 0; i < 5; ++i)
 		{
-			GameObject* bullet = gameObject->scene->CreateGameObject(bulletprefab[i]);
+			GameObject* bullet = gameObject->scene->DuplicatePrefab(bulletprefab[i]);
 			bullet->GetComponent<Renderer>()->material->albedo = color[id];
 			player[id]->GetComponent<StarGuardian>()->bullet[i] = bullet;
 

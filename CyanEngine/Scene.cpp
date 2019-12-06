@@ -70,6 +70,34 @@ void Scene::Update()
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Update();
 	rendererManager->UpdateManager();
+
+	while (!deletionQueue.empty())
+	{
+		GameObject* gameObject = deletionQueue.top();
+		for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
+			if (*iter == gameObject)
+			{
+				Renderer* renderer = gameObject->GetComponent<Renderer>();
+				MeshFilter* meshFilter = gameObject->GetComponent<MeshFilter>();
+		
+				if (!meshFilter)
+					meshFilter = gameObject->GetComponent<Terrain>();
+				auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
+				auto& list = rendererManager->instances[pair].second;
+				for (auto mgrIter = list.begin(); mgrIter != list.end(); ++mgrIter)
+					if (*mgrIter == gameObject)
+					{
+						list.erase(mgrIter);
+						break;
+					}
+		
+				delete (*iter);
+				gameObjects.erase(iter);
+				return;
+				//iter = gameObjects.erase(iter);
+			}
+		deletionQueue.pop();
+	}
 }
 
 void Scene::Render()
@@ -86,22 +114,6 @@ void Scene::ReleaseObjects()
 	for (GameObject* object : gameObjects)
 		delete object;
 	gameObjects.clear();
-}
-
-GameObject* Scene::CreateGameObject()
-{
-	GameObject* gameObject = new GameObject();
-	gameObject->scene = this;
-
-	return gameObject;
-}
-
-GameObject* Scene::CreateGameObject(GameObject* _gameObject)
-{
-	GameObject* gameObject = new GameObject(_gameObject);
-	gameObject->scene = this;
-
-	return gameObject;
 }
 
 GameObject* Scene::CreateEmpty()
@@ -122,32 +134,6 @@ GameObject* Scene::Duplicate(GameObject* _gameObject)
 	return gameObject;
 }
 
-void Scene::Delete(GameObject* gameObject)
-{
-	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
-		if (*iter == gameObject)
-		{
-			Renderer* renderer = gameObject->GetComponent<Renderer>();
-			MeshFilter* meshFilter = gameObject->GetComponent<MeshFilter>();
-
-			if (!meshFilter)
-				meshFilter = gameObject->GetComponent<Terrain>();
-			auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
-			auto& list = rendererManager->instances[pair].second;
-			for (auto mgrIter = list.begin(); mgrIter != list.end(); ++mgrIter)
-				if (*mgrIter == gameObject)
-				{
-					list.erase(mgrIter);
-					break;
-				}
-
-			delete (*iter);
-			gameObjects.erase(iter);
-			return;
-			//iter = gameObjects.erase(iter);
-		}
-}
-
 GameObject* Scene::CreateEmptyPrefab()
 {
 	GameObject* gameObject = new GameObject();
@@ -162,4 +148,9 @@ GameObject* Scene::DuplicatePrefab(GameObject* _gameObject)
 	gameObject->scene = this;
 
 	return gameObject;
+}
+
+void Scene::Delete(GameObject* gameObject)
+{
+	deletionQueue.push(gameObject);
 }
