@@ -234,6 +234,12 @@
     <ClInclude Include="GuidedBehavior.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectID.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectIDManager.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

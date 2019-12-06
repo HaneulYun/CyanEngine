@@ -49,16 +49,21 @@ bool Damageable::isDead()
 
 void Damageable::OnTriggerEnter(GameObject* collision)
 {
-	if (collision->GetComponent<Damager>() != NULL)
-	{
-		// Bullet Disable
-		collision->GetComponent<Damager>()->DisableDamage();
+	Damager* damager = collision->GetComponent<Damager>();
 
-		// Push Msg Queue
-		Message message;
-		message.msgId = MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY;
-		message.rParam = collision->GetComponent<Damager>()->GetDamageAmount();
-		sendQueue.push(message);
+	if (damager != NULL)
+	{
+		if (damager->CanDamage())
+		{
+			// Bullet Disable
+			damager->DisableDamage();
+
+			// Push Msg Queue
+			Message message;
+			message.msgId = MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY;
+			message.rParam = damager->GetDamageAmount();
+			sendQueue.push(message);
+		}
 
 		// 서버에서 충돌 메시지가 다시 돌아오면 그 때 TakeDamage . 
 		//TakeDamage(*collision->GetComponent<Damager>());

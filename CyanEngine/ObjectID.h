@@ -1,32 +1,38 @@
 #pragma once
 #include "framework.h"
 
-class RotorBehavior : public Component
+class ObjectID : public MonoBehavior<ObjectID>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	GameObject* mainRotorFrame;
-	GameObject* tailRotorFrame;
-
+	int objectid;
 public  /*이 영역에 public 변수를 선언하세요.*/:
 
 private:
 	friend class GameObject;
-	friend class MonoBehavior<RotorBehavior>;
-	RotorBehavior() = default;
-	RotorBehavior(RotorBehavior&) = default;
+	friend class MonoBehavior<ObjectID>;
+	ObjectID() = default;
+	ObjectID(int id) : objectid(id) {};
+	ObjectID(ObjectID&) = default;
 
 public:
-	~RotorBehavior() {}
+	~ObjectID() {}
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
-
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
-
 	}
 
+	void SetObjectID(int id)
+	{
+		objectid = id;
+	}
+	int GetObjectID()
+	{
+		return objectid;
+	}
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };
+

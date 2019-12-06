@@ -36,6 +36,10 @@ void GameScene::BuildObjects()
 	GameObject* scenemanager = CreateEmpty();
 	SceneManager* scnmgr = scenemanager->AddComponent<SceneManager>();
 
+	GameObject* objectIDmanager = CreateEmpty();
+	scnmgr->objectIDmanager = objectIDmanager->AddComponent<ObjectIDManager>();
+	
+
 
 	GameObject* star = Instantiate(object);
 	{
@@ -52,9 +56,6 @@ void GameScene::BuildObjects()
 		bullet->speed = 200.f;
 		bullet->timeCycle = 0.25f;
 		scnmgr->bulletprefab[0] = bulletobj;
-		//bulletobj->AddComponent<Damager>()->isTeam = true;
-		//bulletobj->GetComponent<Damager>()->SetDamageAmount(1);
-		//bulletobj->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 	}
 	{
 		GameObject* bulletobj = CreateGameObject(object);
@@ -63,9 +64,6 @@ void GameScene::BuildObjects()
 		bullet->speed = 100.f;
 		bullet->timeCycle = 0.5f;
 		scnmgr->bulletprefab[1] = bulletobj;
-		//bulletobj->AddComponent<Damager>()->isTeam = true;
-		//bulletobj->GetComponent<Damager>()->SetDamageAmount(5);
-		//bulletobj->AddComponent<SphereCollider>()->radius = 4.f;
 	} 
 	{	
 		GameObject* bulletobj = CreateGameObject(object);
@@ -74,9 +72,6 @@ void GameScene::BuildObjects()
 		bullet->speed = 260.f;
 		bullet->timeCycle = 0.125f;
 		scnmgr->bulletprefab[2] = bulletobj;
-		//bulletobj->AddComponent<Damager>()->isTeam = true;
-		//bulletobj->GetComponent<Damager>()->SetDamageAmount(0.5);
-		//bulletobj->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 	} 
 	{	
 		GameObject* bulletobj = CreateGameObject(object);
@@ -85,9 +80,6 @@ void GameScene::BuildObjects()
 		bullet->speed = 0.f;
 		bullet->timeCycle = 0.0f;
 		scnmgr->bulletprefab[3] = bulletobj;
-		//bulletobj->AddComponent<Damager>()->isTeam = true;
-		//bulletobj->GetComponent<Damager>()->SetDamageAmount(1);
-		//bulletobj->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 	} 
 	{	
 		GameObject* bulletobj = CreateGameObject(object);
@@ -96,9 +88,6 @@ void GameScene::BuildObjects()
 		bullet->speed = 140.f;
 		bullet->timeCycle = 0.25f;
 		scnmgr->bulletprefab[4] = bulletobj;
-		//bulletobj->AddComponent<Damager>()->isTeam = true;
-		//bulletobj->GetComponent<Damager>()->SetDamageAmount(1);
-		//bulletobj->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 	}
 	
 	GameObject* guardian = CreateGameObject(object);

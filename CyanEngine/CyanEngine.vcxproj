@@ -177,6 +177,8 @@
     <ClInclude Include="Message.h" />
     <ClInclude Include="MovingBehavior.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjectID.h" />
+    <ClInclude Include="ObjectIDManager.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />

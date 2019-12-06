@@ -14,6 +14,7 @@ private:
 
 public:
 	static GameObject* scenemanager;
+	ObjectIDManager* objectIDmanager;
 	GameObject* playerprefab{ nullptr };
 	GameObject* enemyprefab[5]{ nullptr, };
 	GameObject* bulletprefab[5]{ nullptr, };
@@ -70,7 +71,6 @@ public:
 			revolvingBehavior->target = star;
 			revolvingBehavior->radius = 25.f;
 			revolvingBehavior->angle = 120.f * i;
-			//player[i]->GetComponent<RevolvingBehavior>()->angle = angle + 120 * i;
 		}
 	}
 
@@ -96,18 +96,22 @@ public:
 		}
 	}
 
-	void CreateBullet(int type, int id, float angle)
+	void CreateBullet(int type, int id, int playerid, float angle)
 	{
 		Vector3 direction = AngletoDir(angle);
-		player[id]->GetComponent<StarGuardian>()->Shoot(type, direction);
+		GameObject* bullet = player[playerid]->GetComponent<StarGuardian>()->Shoot(type, direction);
+		//objectIDmanager->CreateObjectID(id, bullet);
+		// Bullet 만들 때 ID 부여하기
 	}
 
-	void CreateEnemy(int type, float radian)
+	void CreateEnemy(int type, int id, float radian)
 	{
 		GameObject* object = Instantiate(enemyprefab[type]);
 		{
 			object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);
+			//objectIDmanager->CreateObjectID(id, object);
 		}
+		// Enemy 만들 때 ID 부여하기
 	}
 
 	void ChangeStarHealth(int health)
@@ -134,29 +138,30 @@ public:
 				CreatePlayer(curMsg.lParam);
 				for (int i = 0; i < 5; ++i)
 				{
-					Damager* damager = player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<Damager>();
+					StarGuardian* starguardian = player[myid]->GetComponent<StarGuardian>();
+					Damager* damager = starguardian->bullet[i]->AddComponent<Damager>();
 					damager->isTeam = true;
 					switch (i)
 					{
 					case 0:
 						damager->SetDamageAmount(1);
-						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						starguardian->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 						break;
 					case 1:
 						damager->SetDamageAmount(3);
-						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<SphereCollider>()->radius = 4.f;
+						starguardian->bullet[i]->AddComponent<SphereCollider>()->radius = 4.f;
 						break;
 					case 2:
 						damager->SetDamageAmount(0.5);
-						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						starguardian->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 						break;
 					case 3:
 						damager->SetDamageAmount(1);
-						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						starguardian->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 						break;
 					case 4:
 						damager->SetDamageAmount(1);
-						player[myid]->GetComponent<StarGuardian>()->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						starguardian->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 						break;
 					}
 				}
@@ -182,15 +187,22 @@ public:
 			case MESSAGE_CREATE_BULLET_SHARP:
 			case MESSAGE_CREATE_BULLET_LASER:
 			case MESSAGE_CREATE_BULLET_GUIDED:
-				CreateBullet(curMsg.msgId - MESSAGE_CREATE_BULLET_STRAIGHT, curMsg.mParam, curMsg.rParam);
+				CreateBullet(curMsg.msgId - MESSAGE_CREATE_BULLET_STRAIGHT, curMsg.lParam, curMsg.mParam, curMsg.rParam);
 				break;
 			// Enemy Creation
 			case MESSAGE_CREATE_ENEMY_COMINGRECT:
-				CreateEnemy(0, curMsg.rParam);
+			case MESSAGE_CREATE_ENEMY_ROTATINGRECT: 
+			case MESSAGE_CREATE_ENEMY_COMINGBIGRECT: 
+			case MESSAGE_CREATE_ENEMY_COMINGTWOTRIANGLE:
+			case MESSAGE_CREATE_ENEMY_WHIRLINGCOMINGRECT:
+				CreateEnemy(curMsg.msgId - MESSAGE_CREATE_ENEMY_COMINGRECT, curMsg.lParam, curMsg.rParam);
 				break;
 			// Collision
 			case MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY:
 				ChangeStarHealth(curMsg.mParam);
+				break;
+			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
+				// Damage Enemy and Delete Bullet
 				break;
 			}
 		}
@@ -206,7 +218,7 @@ public:
 			switch (curMsg.msgId)
 			{
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
-				curMsg.mParam = myid;
+				//curMsg.mParam = myid;
 				break;
 			}
 			int retval = Sender->SendMsg(curMsg);
@@ -225,8 +237,7 @@ public:
 		elapsedTime += Time::deltaTime;
 
 		UpdateRecvQueue();
-		if (Sender)
-			UpdateSendQueue();
+		if (Sender) UpdateSendQueue();
 
 		if (player[myid])
 		{
@@ -249,8 +260,6 @@ public:
 			message.msgId = MESSAGE_READY;
 			message.lParam = myid;
 			sendQueue.push(message);
-			//if (Sender)
-			//	int retval = Sender->SendMsg(message);
 		}
 		else if (Input::GetMouseButtonDown(0) && gameState == START) {
 			float timeCycle = bulletprefab[bulletType]->GetComponent<Bullet>()->timeCycle;
@@ -265,8 +274,6 @@ public:
 				message.mParam = myid;
 				message.rParam = DirtoAngle(direction);
 				sendQueue.push(message);
-				//if (Sender)
-				//	int retval = Sender->SendMsg(message);
 			}
 		}
 	}

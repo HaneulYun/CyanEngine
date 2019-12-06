@@ -27,5 +27,6 @@ public:
 	void AddDamageTo(Damageable damageable);
 	void EnableDamage();
 	void DisableDamage();
+	bool CanDamage() { return canDamage; }
 
 };
