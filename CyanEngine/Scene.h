@@ -6,6 +6,8 @@ protected:
 	std::deque<GameObject*> gameObjects;
 	RendererManager* rendererManager;
 
+	std::priority_queue<GameObject*> deletionQueue;
+
 public:
 	static Scene* scene;
 
@@ -20,16 +22,10 @@ public:
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();
 
-	GameObject* CreateGameObject();
-	GameObject* CreateGameObject(GameObject*);
-	//GameObject* AddGameObject();
-	//GameObject* AddGameObject(GameObject* gameObject);
-	//void RemoveGameObject(GameObject* gameObject);
-
 	GameObject* CreateEmpty();
 	GameObject* Duplicate(GameObject*);
-	void Delete(GameObject*);
-
 	GameObject* CreateEmptyPrefab();
 	GameObject* DuplicatePrefab(GameObject*);
+
+	void Delete(GameObject*);
 };
