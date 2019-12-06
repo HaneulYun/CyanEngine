@@ -34,7 +34,11 @@ public:
 		gameObject->transform->position = gameObject->transform->position + movevector;
 	}
 
-
-
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
+	void SetEntity(const float _timeCycle, const float _speed, const Vector3& _direction = {})
+	{
+		timeCycle = _timeCycle;
+		speed = _speed;
+		direction = _direction;
+	}
 };

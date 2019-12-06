@@ -16,6 +16,9 @@ void GameScene::BuildObjects()
 	TriangleMesh* SharpBulletMesh = new TriangleMesh(1.0f);
 	Circle* CannonMesh = new Circle(4, 48);
 
+	Material* defaultMaterial = new DefaultMaterial();
+	defaultMaterial->shader = new StandardShader();
+
 	GameObject* mainCamera = CreateEmpty();
 	{
 		Camera* camera = mainCamera->AddComponent<Camera>();
@@ -25,9 +28,6 @@ void GameScene::BuildObjects()
 		camera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -10.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 		camera->main = camera;
 	}
-
-	Material* defaultMaterial = new DefaultMaterial();
-	defaultMaterial->shader = new StandardShader();
 
 	GameObject* object = CreateEmptyPrefab();
 	object->AddComponent<MeshFilter>();
@@ -48,9 +48,7 @@ void GameScene::BuildObjects()
 	{	
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		Bullet* bullet = bulletobj->AddComponent<Bullet>();
-		bullet->speed = 200.f;
-		bullet->timeCycle = 0.25f;
+		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 200.f);
 		scnmgr->bulletprefab[0] = bulletobj;
 		//bulletobj->AddComponent<Damager>()->isTeam = true;
 		//bulletobj->GetComponent<Damager>()->SetDamageAmount(1);
@@ -59,9 +57,7 @@ void GameScene::BuildObjects()
 	{
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
-		Bullet* bullet = bulletobj->AddComponent<Bullet>();
-		bullet->speed = 100.f;
-		bullet->timeCycle = 0.5f;
+		bulletobj->AddComponent<Bullet>()->SetEntity(0.5f, 100.f);
 		scnmgr->bulletprefab[1] = bulletobj;
 		//bulletobj->AddComponent<Damager>()->isTeam = true;
 		//bulletobj->GetComponent<Damager>()->SetDamageAmount(5);
@@ -70,9 +66,7 @@ void GameScene::BuildObjects()
 	{	
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = SharpBulletMesh;
-		Bullet* bullet = bulletobj->AddComponent<Bullet>();
-		bullet->speed = 260.f;
-		bullet->timeCycle = 0.125f;
+		bulletobj->AddComponent<Bullet>()->SetEntity(0.125f, 260.0f);
 		scnmgr->bulletprefab[2] = bulletobj;
 		//bulletobj->AddComponent<Damager>()->isTeam = true;
 		//bulletobj->GetComponent<Damager>()->SetDamageAmount(0.5);
@@ -81,9 +75,7 @@ void GameScene::BuildObjects()
 	{	
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		Bullet* bullet = bulletobj->AddComponent<Bullet>();
-		bullet->speed = 0.f;
-		bullet->timeCycle = 0.0f;
+		bulletobj->AddComponent<Bullet>()->SetEntity(0.0f, 0.0f);
 		scnmgr->bulletprefab[3] = bulletobj;
 		//bulletobj->AddComponent<Damager>()->isTeam = true;
 		//bulletobj->GetComponent<Damager>()->SetDamageAmount(1);
@@ -92,9 +84,7 @@ void GameScene::BuildObjects()
 	{	
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		Bullet* bullet = bulletobj->AddComponent<Bullet>();
-		bullet->speed = 140.f;
-		bullet->timeCycle = 0.25f;
+		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 140.f);
 		scnmgr->bulletprefab[4] = bulletobj;
 		//bulletobj->AddComponent<Damager>()->isTeam = true;
 		//bulletobj->GetComponent<Damager>()->SetDamageAmount(1);
