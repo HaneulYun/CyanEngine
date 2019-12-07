@@ -8,7 +8,7 @@
 #include "MovingBehavior.h"
 #include "GuidedBehavior.h"
 #include "WhirlingBehavior.h"
-
+#include "ComingBehavior.h"
 #include "StarGuardian.h"
 #include "Spawner.h"
 #include "Star.h"
@@ -16,4 +16,6 @@
 #include "Enemy.h"
 
 #include "Thread.h"
+#include "ObjectID.h"
+#include "ObjectIDManager.h"
 #include "SceneManager.h"

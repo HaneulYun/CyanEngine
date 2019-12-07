@@ -155,6 +155,7 @@
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
+    <ClInclude Include="ComingBehavior.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="CTexture.h" />
     <ClInclude Include="CyanEngine.h" />
@@ -178,6 +179,8 @@
     <ClInclude Include="Message.h" />
     <ClInclude Include="MovingBehavior.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjectID.h" />
+    <ClInclude Include="ObjectIDManager.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />

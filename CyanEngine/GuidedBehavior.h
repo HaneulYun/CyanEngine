@@ -25,7 +25,7 @@ public:
 	{
 		// 초기화 코드를 작성하세요.
 		// 모든 enemy와 거리를 비교하여 가장 가까운 적을 타겟으로 삼는다!
-		old = (target->transform->position - gameObject->transform->position).Normalize();
+		//old = (target->transform->position - gameObject->transform->position).Normalize();
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)

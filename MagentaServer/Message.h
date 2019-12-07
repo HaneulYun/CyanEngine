@@ -19,7 +19,7 @@ struct Message
 // Client to Server
 #define MESSAGE_READY 0x90	// lParam = 보내는 클라의 아이디
 
-// lParam = ObjectID / mParam = 별 수호자 ID / rParam = 방향(radian)
+// mParam = 별 수호자 ID / rParam = 방향(radian)
 #define MESSAGE_REQUEST_BULLET_CREATION 0x80	
 #define MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT 0x81
 #define MESSAGE_REQUEST_BULLET_CREATION_CANNON 0x82
@@ -27,7 +27,7 @@ struct Message
 #define MESSAGE_REQUEST_BULLET_CREATION_LASER 0x84
 #define MESSAGE_REQUEST_BULLET_CREATION_GUIDED 0x85
 
-// lParam = ObjectID / mParam = 별 수호자 ID / rParam = Damage
+// mParam = 별 수호자 ID / rParam = Damage
 #define MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY 0x60
 
 

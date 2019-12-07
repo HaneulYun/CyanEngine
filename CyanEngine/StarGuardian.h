@@ -32,11 +32,13 @@ public:
 		
 	}
 
-	void Shoot(int type, Vector3 direction)
+	GameObject* Shoot(int type, Vector3 direction)
 	{
 		GameObject* object = Instantiate(bullet[type]);
 		object->transform->position = gameObject->transform->position;
 		object->GetComponent<Bullet>()->direction = direction;
+
+		return object;
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
