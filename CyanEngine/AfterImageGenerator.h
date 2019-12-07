@@ -7,6 +7,8 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 	float creationCycle{ 0.2f };
 	float currentCycle{ 0.0f };
 
+	float afterImageLifeTime{ 1.0f };
+
 public  /*이 영역에 public 변수를 선언하세요.*/:
 
 private:
@@ -32,11 +34,16 @@ public:
 			vfx->GetComponent<Transform>()->gameObject = vfx;
 			vfx->AddComponent<MeshFilter>(gameObject->GetComponent<MeshFilter>());
 			vfx->AddComponent<Renderer>(gameObject->GetComponent<Renderer>());
-			vfx->AddComponent<AfterImage>();
+			vfx->AddComponent<AfterImage>()->SetEntity(afterImageLifeTime);
 
 			currentCycle += creationCycle;
 		}
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
+	void SetEntity(float _creationCycle, float _lifeTime)
+	{
+		creationCycle = _creationCycle;
+		afterImageLifeTime = _lifeTime;
+	}
 };
