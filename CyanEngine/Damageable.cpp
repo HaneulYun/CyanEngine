@@ -60,8 +60,8 @@ void Damageable::OnTriggerEnter(GameObject* collision)
 			// Push Msg Queue
 			Message message;
 			message.msgId = MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY;
-			//message.lParam = collision->GetComponent<ObjectID>()->GetObjectID();
-			//message.mParam = gameObject->GetComponent<ObjectID>()->GetObjectID();
+			message.lParam = collision->GetComponent<ObjectID>()->GetObjectID();
+			message.mParam = gameObject->GetComponent<ObjectID>()->GetObjectID();
 			message.rParam = damager->GetDamageAmount();
 			sendQueue.push(message);
 		}

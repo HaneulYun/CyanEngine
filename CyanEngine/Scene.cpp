@@ -74,28 +74,9 @@ void Scene::Update()
 	while (!deletionQueue.empty())
 	{
 		GameObject* gameObject = deletionQueue.top();
-		for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
-			if (*iter == gameObject)
-			{
-				Renderer* renderer = gameObject->GetComponent<Renderer>();
-				MeshFilter* meshFilter = gameObject->GetComponent<MeshFilter>();
 		
-				if (!meshFilter)
-					meshFilter = gameObject->GetComponent<Terrain>();
-				auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
-				auto& list = rendererManager->instances[pair].second;
-				for (auto mgrIter = list.begin(); mgrIter != list.end(); ++mgrIter)
-					if (*mgrIter == gameObject)
-					{
-						list.erase(mgrIter);
-						break;
-					}
-		
-				delete (*iter);
-				gameObjects.erase(iter);
-				return;
-				//iter = gameObjects.erase(iter);
-			}
+		Delete(gameObject);
+
 		deletionQueue.pop();
 	}
 }
@@ -150,7 +131,32 @@ GameObject* Scene::DuplicatePrefab(GameObject* _gameObject)
 	return gameObject;
 }
 
-void Scene::Delete(GameObject* gameObject)
+void Scene::PushDelete(GameObject* gameObject)
 {
 	deletionQueue.push(gameObject);
+}
+
+void Scene::Delete(GameObject* gameObject)
+{
+	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
+		if (*iter == gameObject)
+		{
+			Renderer* renderer = gameObject->GetComponent<Renderer>();
+			MeshFilter* meshFilter = gameObject->GetComponent<MeshFilter>();
+
+			if (!meshFilter)
+				meshFilter = gameObject->GetComponent<Terrain>();
+			auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
+			auto& list = rendererManager->instances[pair].second;
+			for (auto mgrIter = list.begin(); mgrIter != list.end(); ++mgrIter)
+				if (*mgrIter == gameObject)
+				{
+					list.erase(mgrIter);
+					break;
+				}
+
+			delete (*iter);
+			gameObjects.erase(iter);
+			return;
+		}
 }
