@@ -110,12 +110,8 @@ void RendererManager::PreRender()
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvCpuDescriptorHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
 	rtvCpuDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
 
-	//float pfClearColor[4] = { 0.0 / 256.0, 0.0 / 256.0, 50.0 / 256.0, 1.0f };
-	//float pfClearColor[4] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
-	float pfClearColor[4] = { 0, 0, 0, 1.0f };
+	float clearColor[4] = { 0, 0, 0, 1.0f };
 	
-
-	float clearColor[4] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
 	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvCpuDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();

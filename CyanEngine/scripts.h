@@ -9,6 +9,10 @@
 #include "GuidedBehavior.h"
 #include "WhirlingBehavior.h"
 #include "ComingBehavior.h"
+
+#include "AfterImage.h"
+#include "AfterImageGenerator.h"
+
 #include "StarGuardian.h"
 #include "Spawner.h"
 #include "Star.h"

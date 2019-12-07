@@ -39,19 +39,15 @@ public:
 
 	void DeleteObjectID(int id)
 	{
-		for (auto iter = ObjectsID.begin(); iter != ObjectsID.end(); ++iter)
+		for (auto iter = ObjectsID.begin(); iter != ObjectsID.end();)
 		{
-			//if (iter->gameobject == nullptr)
-			//{
-			//	ObjectsID.erase(iter);
-			//	break;
-			//}
 			if (iter->id == id)
 			{
 				Destroy(iter->gameobject);
-				ObjectsID.erase(iter);
-				break;
+				iter = ObjectsID.erase(iter);
 			}
+			else
+				++iter;
 		}
 	}
 

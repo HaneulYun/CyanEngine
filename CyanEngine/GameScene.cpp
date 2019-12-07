@@ -21,8 +21,7 @@ void GameScene::BuildObjects()
 	TriangleMesh* SharpBulletMesh = new TriangleMesh(1.0f);
 	Circle* CannonMesh = new Circle(4, 48);
 
-	Material* defaultMaterial = new DefaultMaterial();
-	defaultMaterial->shader = new StandardShader();
+	Material* defaultMaterial = new Material();
 
 	GameObject* mainCamera = CreateEmpty();
 	{
@@ -44,8 +43,6 @@ void GameScene::BuildObjects()
 	GameObject* objectIDmanager = CreateEmpty();
 	scnmgr->objectIDmanager = objectIDmanager->AddComponent<ObjectIDManager>();
 	
-
-
 	GameObject* star = Instantiate(object);
 	{
 		star->GetComponent<MeshFilter>()->mesh = pCircleMesh;
@@ -58,6 +55,7 @@ void GameScene::BuildObjects()
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 200.f);
+		bulletobj->AddComponent<AfterImageGenerator>()->SetEntity(0.1f, 0.5f);
 		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[0] = bulletobj;
 	}
@@ -65,6 +63,7 @@ void GameScene::BuildObjects()
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.5f, 100.f);
+		bulletobj->AddComponent<AfterImageGenerator>();
 		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[1] = bulletobj;
 	} 
@@ -72,6 +71,7 @@ void GameScene::BuildObjects()
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = SharpBulletMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.125f, 260.0f);
+		bulletobj->AddComponent<AfterImageGenerator>();
 		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[2] = bulletobj;
 	} 
@@ -79,6 +79,7 @@ void GameScene::BuildObjects()
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.0f, 0.0f);
+		bulletobj->AddComponent<AfterImageGenerator>();
 		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[3] = bulletobj;
 	} 
@@ -86,6 +87,7 @@ void GameScene::BuildObjects()
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 140.f);
+		bulletobj->AddComponent<AfterImageGenerator>();
 		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[4] = bulletobj;
 	}
@@ -99,6 +101,7 @@ void GameScene::BuildObjects()
 		revolvingBehavior->radius = 25.f;*/
 
 		guardian->AddComponent<StarGuardian>();
+		guardian->AddComponent<AfterImageGenerator>();
 		scnmgr->playerprefab = guardian;
 	}
 
@@ -113,6 +116,7 @@ void GameScene::BuildObjects()
 		enemy0->AddComponent<Damageable>()->SetHealth(2);
 		enemy0->GetComponent<Damageable>()->isTeam = false;
 		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
+		enemy0->AddComponent<AfterImageGenerator>();
 		enemy0->AddComponent<ObjectID>();
 	}
 
@@ -120,12 +124,12 @@ void GameScene::BuildObjects()
 	{
 		enemy1->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy1->AddComponent<Enemy>();
-
 		enemy1->AddComponent<RotatingBehavior>();
 		enemy1->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy1->AddComponent<Damageable>()->SetHealth(4);
 		enemy1->GetComponent<Damageable>()->isTeam = false;
 		enemy1->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy1->AddComponent<AfterImageGenerator>();
 		enemy1->AddComponent<ObjectID>();
 	}
 
@@ -138,6 +142,7 @@ void GameScene::BuildObjects()
 		enemy2->AddComponent<Damageable>()->SetHealth(32);
 		enemy2->GetComponent<Damageable>()->isTeam = false;
 		enemy2->AddComponent<BoxCollider>()->extents = Vector3{ 17.5f,17.5f,17.5f };
+		enemy2->AddComponent<AfterImageGenerator>();
 		enemy2->AddComponent<ObjectID>();
 	}
 
@@ -149,6 +154,7 @@ void GameScene::BuildObjects()
 		enemy4->AddComponent<Damageable>()->SetHealth(8);
 		enemy4->GetComponent<Damageable>()->isTeam = false;
 		enemy4->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy4->AddComponent<AfterImageGenerator>();
 		enemy4->AddComponent<ObjectID>();
 	}
 

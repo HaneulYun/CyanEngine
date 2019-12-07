@@ -36,9 +36,6 @@
     <Filter Include="0_00_CyanEngine\44_Materials">
       <UniqueIdentifier>{4a8d17c5-8389-46f3-ae1d-c3f8c7abc368}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\15_Math">
-      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
-    </Filter>
     <Filter Include="1_00_YellowProject">
       <UniqueIdentifier>{6278fbf3-a6b9-4bd0-90e5-e0469395c962}</UniqueIdentifier>
     </Filter>
@@ -93,6 +90,12 @@
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="1_00_YellowProject\20_MeshPrefab">
+      <UniqueIdentifier>{dd1898b2-6c71-4341-b0e9-c3c192dbee45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\15_VFX">
+      <UniqueIdentifier>{8daf6d16-6b99-4942-b498-20367b9aabdd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -266,6 +269,12 @@
     </ClInclude>
     <ClInclude Include="ComingBehavior.h">
       <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="AfterImageGenerator.h">
+      <Filter>1_00_YellowProject\15_VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="AfterImage.h">
+      <Filter>1_00_YellowProject\15_VFX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
