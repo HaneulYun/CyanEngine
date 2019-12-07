@@ -120,7 +120,7 @@ public:
 		GameObject* object = Instantiate(enemyprefab[type]);
 		{
 			object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);
-			//objectIDmanager->CreateObjectID(id, object);
+			objectIDmanager->CreateObjectID(id, object);
 		}
 		// Enemy 만들 때 ID 부여하기
 	}
@@ -216,7 +216,7 @@ public:
 			// Collision
 			case MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY:
 				ChangeStarHealth(curMsg.mParam);
-				//DeleteObject(curMsg.lParam);
+				DeleteObject(curMsg.lParam);
 				break;
 				// lParam = BulletID / mParam = EnemyID / rParam = Damage
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:

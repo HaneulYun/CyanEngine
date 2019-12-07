@@ -131,6 +131,12 @@ void Scene::PushDelete(GameObject* gameObject)
 void Scene::Delete(GameObject* gameObject)
 {
 	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
+	{
+		if ((*iter)->collisionType.find(gameObject) != (*iter)->collisionType.end())
+			(*iter)->collisionType.erase(gameObject);
+	}
+
+	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
 		if (*iter == gameObject)
 		{
 			Renderer* renderer = gameObject->GetComponent<Renderer>();
