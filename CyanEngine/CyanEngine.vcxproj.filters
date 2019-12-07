@@ -265,7 +265,7 @@
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="ComingBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
