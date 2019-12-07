@@ -251,5 +251,8 @@
     <ClInclude Include="ObjectIDManager.h">
       <Filter>0_10_MagentaServer\Manager</Filter>
     </ClInclude>
+    <ClInclude Include="BulletGenerator.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -15,6 +15,9 @@ void GameScene::BuildObjects()
 	GameObject* objectIDmanager = CreateEmpty();
 	scnmgr->objectIDmanager = objectIDmanager->AddComponent<ObjectIDManager>();
 
+	GameObject* bulletGenerator = CreateEmpty();
+	scnmgr->bulletGenerator = bulletGenerator->AddComponent<BulletGenerator>();
+	spawner->GetComponent<Spawner>()->objIDmgr = scnmgr->objectIDmanager;
 	GameObject* object = CreateEmptyPrefab();
 	GameObject* star = Instantiate(object);
 	{
@@ -30,27 +33,27 @@ void GameScene::BuildObjects()
 	{
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 200.f);
-		scnmgr->bulletprefab[0] = bulletobj;
+		bulletGenerator->GetComponent<BulletGenerator>()->bullet[0] = bulletobj;
 	}
 	{
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.5f, 100.f);
-		scnmgr->bulletprefab[1] = bulletobj;
+		bulletGenerator->GetComponent<BulletGenerator>()->bullet[1] = bulletobj;
 	}
 	{
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.125f, 260.0f);
-		scnmgr->bulletprefab[2] = bulletobj;
+		bulletGenerator->GetComponent<BulletGenerator>()->bullet[2] = bulletobj;
 	}
 	{
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.0f, 0.0f);
-		scnmgr->bulletprefab[3] = bulletobj;
+		bulletGenerator->GetComponent<BulletGenerator>()->bullet[3] = bulletobj;
 	}
 	{
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 140.f);
-		scnmgr->bulletprefab[4] = bulletobj;
+		bulletGenerator->GetComponent<BulletGenerator>()->bullet[4] = bulletobj;
 	}
 
 	GameObject* guardian = DuplicatePrefab(object);

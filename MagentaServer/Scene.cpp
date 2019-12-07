@@ -67,13 +67,7 @@ void Scene::Update()
 	while (!deletionQueue.empty())
 	{
 		GameObject* gameObject = deletionQueue.top();
-		for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
-			if (*iter == gameObject)
-			{
-				delete (*iter);
-				gameObjects.erase(iter);
-				return;
-			}
+		Delete(gameObject);
 		deletionQueue.pop();
 	}
 }
@@ -123,7 +117,18 @@ GameObject* Scene::DuplicatePrefab(GameObject* _gameObject)
 	return gameObject;
 }
 
-void Scene::Delete(GameObject* gameObject)
+void Scene::PushDelete(GameObject* gameObject)
 {
 	deletionQueue.push(gameObject);
+}
+
+void Scene::Delete(GameObject* gameObject)
+{
+	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
+		if (*iter == gameObject)
+		{
+			delete (*iter);
+			gameObjects.erase(iter);
+			return;
+		}
 }

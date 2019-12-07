@@ -179,6 +179,7 @@
   <ItemGroup>
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="BulletGenerator.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="ComingBehavior.h" />
     <ClInclude Include="Component.h" />
