@@ -39,26 +39,29 @@ void RendererManager::Start()
 
 	for (auto& d : instances)
 	{
-		if (!d.second.first)
+		if (d.second.second.size())
 		{
-			d.second.first = new INSTANCING();
-			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
+			if (!d.second.first)
+			{
+				d.second.first = new INSTANCING();
+				Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
 
-			//Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
-			shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
-			shader->CreateShader(device.Get(), shader->rootSignature);
+				//Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
+				shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
+				shader->CreateShader(device.Get(), shader->rootSignature);
 
-		}
+			}
 
-		UINT ncbElementBytes = ((sizeof(MEMORY) + 255) & ~255);
-		d.second.first->resource = CreateBufferResource(NULL, ncbElementBytes * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
+			UINT ncbElementBytes = ((sizeof(MEMORY) + 255) & ~255);
+			d.second.first->resource = CreateBufferResource(NULL, ncbElementBytes * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
 
-		d.second.first->resource->Map(0, NULL, (void**)&d.second.first->memory);
+			d.second.first->resource->Map(0, NULL, (void**)& d.second.first->memory);
 
-		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name() ||
-			typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
-		{
-			//d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
+			if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name() ||
+				typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
+			{
+				//d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
+			}
 		}
 	}
 

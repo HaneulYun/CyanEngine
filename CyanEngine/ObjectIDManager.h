@@ -41,6 +41,11 @@ public:
 	{
 		for (auto iter = ObjectsID.begin(); iter != ObjectsID.end(); ++iter)
 		{
+			//if (iter->gameobject == nullptr)
+			//{
+			//	ObjectsID.erase(iter);
+			//	break;
+			//}
 			if (iter->id == id)
 			{
 				Destroy(iter->gameobject);
