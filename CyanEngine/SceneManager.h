@@ -9,9 +9,6 @@ enum {WAIT, START, END};
 
 class SceneManager : public MonoBehavior<SceneManager>
 {
-private:
-	TextureShader* shader;
-
 public:
 	static GameObject* scenemanager;
 	GameObject* playerprefab{ nullptr };
@@ -32,7 +29,6 @@ public:
 	int myid{ 0 };
 	int bulletType{ 1 };
 	float elapsedTime{ 0.f };
-
 
 private:
 	friend class GameObject;
@@ -92,7 +88,6 @@ public:
 			GameObject* bullet = gameObject->scene->DuplicatePrefab(bulletprefab[i]);
 			bullet->GetComponent<Renderer>()->material->albedo = color[id];
 			player[id]->GetComponent<StarGuardian>()->bullet[i] = bullet;
-
 		}
 	}
 
