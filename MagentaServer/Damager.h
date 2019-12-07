@@ -18,7 +18,6 @@ public:
 
 	void Start() override {}
 	void Update() override {}
-	void Destroy() override {}
 
 	virtual Component* Duplicate() { return new Damager; };
 	virtual Component* Duplicate(Component* component) { return new Damager(*(Damager*)component); }

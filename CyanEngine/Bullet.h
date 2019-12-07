@@ -32,6 +32,13 @@ public:
 	{
 		Vector3 movevector = direction * speed * Time::deltaTime;
 		gameObject->transform->position = gameObject->transform->position + movevector;
+
+		// Delete Bullet Out of Range
+		Vector3 distance = gameObject->transform->position - Vector3{ 0.0f,0.0f,0.0f };
+		if (distance.Length() >= 300.0f)
+		{
+			Destroy(gameObject);
+		}
 	}
 
 	void OnTriggerEnter(GameObject* collision)

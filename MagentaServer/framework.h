@@ -43,6 +43,7 @@ using namespace DirectX::PackedVector;
 #include "Component.h"
 #include "Transform.h"
 #include "Collider.h"
+#include "SphereCollider.h"
 #include "BoxCollider.h"
 #include "Damager.h"
 #include "Damageable.h"

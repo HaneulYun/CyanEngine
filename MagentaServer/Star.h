@@ -22,18 +22,19 @@ public:
 
 	void OnTriggerEnter(GameObject* collision)
 	{
-		if (collision->GetComponent<MovingBehavior>() != NULL)
+		if (collision->GetComponent<Enemy>() != NULL)
 		{
-			if (!collision->GetComponent<MovingBehavior>()->collision)
-			{
-				collision->GetComponent<MovingBehavior>()->collision = true;
-				Message sendMsg;
-				sendMsg.msgId = MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY;
-				sendMsg.mParam = gameObject->GetComponent<Damageable>()->GetCurHealth();
-				EnterCriticalSection(&ThreadPool::sqcs);
-				ThreadPool::sendQueue.push(sendMsg);
-				LeaveCriticalSection(&ThreadPool::sqcs);
-			}
+			int enemyID = collision->GetComponent<ObjectID>()->GetObjectID();
+			Message sendMsg;
+			sendMsg.msgId = MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY;
+			sendMsg.lParam = enemyID;
+			sendMsg.mParam = gameObject->GetComponent<Damageable>()->GetCurHealth();
+			SceneManager::scenemanager->GetComponent<SceneManager>()->objectIDmanager->GetComponent<ObjectIDManager>()->DeleteObjectID(enemyID);
+			printf("ªË¡¶ %d\n", enemyID);
+			
+			EnterCriticalSection(&ThreadPool::sqcs);
+			ThreadPool::sendQueue.push(sendMsg);
+			LeaveCriticalSection(&ThreadPool::sqcs);
 		}
 	}
 };

@@ -6,7 +6,7 @@ class ComingBehavior : public MonoBehavior<ComingBehavior>
 private /*이 영역에 private 변수를 선언하세요.*/:
 	float speed{ 100.f };
 	float maxSpeed{ 30.f };
-	
+
 	float creationCycle{ 1.0f };
 	float currentCycle{ 0.0f };
 

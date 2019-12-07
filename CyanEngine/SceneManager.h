@@ -108,8 +108,10 @@ public:
 	{
 		Vector3 direction = AngletoDir(angle);
 		if (player[playerid] != nullptr)
+		{
 			GameObject* bullet = player[playerid]->GetComponent<StarGuardian>()->Shoot(type, direction);
-		//objectIDmanager->CreateObjectID(id, bullet);
+			//objectIDmanager->CreateObjectID(id, bullet);
+		}
 		// Bullet 만들 때 ID 부여하기
 	}
 
@@ -121,6 +123,11 @@ public:
 			//objectIDmanager->CreateObjectID(id, object);
 		}
 		// Enemy 만들 때 ID 부여하기
+	}
+	
+	void DeleteObject(int id)
+	{
+		objectIDmanager->DeleteObjectID(id);
 	}
 
 	void ChangeStarHealth(int health)
@@ -209,9 +216,11 @@ public:
 			// Collision
 			case MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY:
 				ChangeStarHealth(curMsg.mParam);
+				//DeleteObject(curMsg.lParam);
 				break;
+				// lParam = BulletID / mParam = EnemyID / rParam = Damage
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
-				//objectIDmanager->CollideBulletandEnemy(curMsg.lParam, curMsg.mParam, curMsg.rParam);
+//				objectIDmanager->CollideBulletandEnemy(curMsg.lParam, curMsg.mParam, curMsg.rParam);
 				break;
 			}
 		}

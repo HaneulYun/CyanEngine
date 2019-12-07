@@ -7,8 +7,13 @@ private:
 
 public:
 	static GameObject* scenemanager;
+	GameObject* objectIDmanager;
+	GameObject* bulletGenerator;
+
 	GameObject* player[3];
 	GameObject* star;
+	GameObject* enemyprefab[5]{ nullptr };
+	GameObject* bulletprefab[5]{ nullptr };
 
 	//GameObject* gameObject{ nullptr };
 	float standardAngle{ 0.f };// 클라의 기준 위치

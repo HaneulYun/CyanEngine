@@ -8,13 +8,6 @@ struct Message
 	float rParam;
 };
 
-// 임시 메시지
-// Client to Server
-#define ADD 0x41
-#define SUB 0x42
-// Server to Clients
-#define EQUAL 0x45
-
 //////////////////////////////////////////////
 // Client to Server
 #define MESSAGE_READY 0x90	// lParam = 보내는 클라의 아이디

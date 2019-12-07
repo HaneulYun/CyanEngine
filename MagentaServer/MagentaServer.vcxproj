@@ -171,6 +171,7 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PrintErrors.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="Time.cpp" />
@@ -179,10 +180,13 @@
   <ItemGroup>
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="BulletGenerator.h" />
     <ClInclude Include="Collider.h" />
+    <ClInclude Include="ComingBehavior.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Damageable.h" />
     <ClInclude Include="Damager.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />
@@ -190,7 +194,10 @@
     <ClInclude Include="MonoBehavior.h" />
     <ClInclude Include="MovingBehavior.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjectID.h" />
+    <ClInclude Include="ObjectIDManager.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="RotatingBehavior.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="scripts.h" />
@@ -204,12 +211,14 @@
     <ClInclude Include="PrintErrors.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Spawner.h" />
+    <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Star.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vector3.h" />
+    <ClInclude Include="WhirlingBehavior.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

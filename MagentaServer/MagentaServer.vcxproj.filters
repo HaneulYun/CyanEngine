@@ -55,6 +55,9 @@
     <Filter Include="0_00_CyanEngine\12_Math">
       <UniqueIdentifier>{e7126b28-7eed-4ace-8747-c5ba2b695b23}</UniqueIdentifier>
     </Filter>
+    <Filter Include="1_00_YellowProject\12_Behavior">
+      <UniqueIdentifier>{e63e6a1d-6fae-414f-8df3-f6d55d42e779}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -128,6 +131,9 @@
     </ClCompile>
     <ClCompile Include="Singleton.cpp">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereCollider.cpp">
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -212,9 +218,6 @@
     <ClInclude Include="Damager.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="MovingBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -229,6 +232,33 @@
     </ClInclude>
     <ClInclude Include="Vector3.h">
       <Filter>0_00_CyanEngine\12_Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingBehavior.h">
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="RotatingBehavior.h">
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="ComingBehavior.h">
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="WhirlingBehavior.h">
+      <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectID.h">
+      <Filter>0_10_MagentaServer\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectIDManager.h">
+      <Filter>0_10_MagentaServer\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="BulletGenerator.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
