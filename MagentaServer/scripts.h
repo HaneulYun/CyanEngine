@@ -10,6 +10,8 @@
 #include "WhirlingBehavior.h"
 
 #include "Bullet.h"
-#include "Star.h"
-#include "Spawner.h"
 #include "Enemy.h"
+#include "Spawner.h"
+#include "Star.h"
+
+
