@@ -4,7 +4,7 @@
 class AfterImageGenerator : public MonoBehavior<AfterImageGenerator>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	float creationCycle{ 10.0f };
+	float creationCycle{ 0.3f };
 	float currentCycle{ 0.0f };
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
@@ -27,6 +27,13 @@ public:
 		currentCycle -= Time::deltaTime;
 		if (currentCycle < 0)
 		{
+			GameObject* vfx = new GameObject();
+			*vfx->GetComponent<Transform>() = *gameObject->GetComponent<Transform>();
+			vfx->GetComponent<Transform>()->gameObject = vfx;
+			vfx->AddComponent<MeshFilter>(gameObject->GetComponent<MeshFilter>());
+			vfx->AddComponent<Renderer>(gameObject->GetComponent<Renderer>());
+			vfx->AddComponent<AfterImage>();
+
 			currentCycle += creationCycle;
 		}
 	}

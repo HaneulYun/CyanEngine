@@ -100,18 +100,19 @@ void GameScene::BuildObjects()
 		enemy0->AddComponent<Damageable>()->SetHealth(2);
 		enemy0->GetComponent<Damageable>()->isTeam = false;
 		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
+		enemy0->AddComponent<AfterImageGenerator>();
 	}
 
 	GameObject* enemy1 = DuplicatePrefab(object);
 	{
 		enemy1->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy1->AddComponent<Enemy>();
-
 		enemy1->AddComponent<RotatingBehavior>();
 		enemy1->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy1->AddComponent<Damageable>()->SetHealth(4);
 		enemy1->GetComponent<Damageable>()->isTeam = false;
 		enemy1->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy1->AddComponent<AfterImageGenerator>();
 	}
 
 	GameObject* enemy2 = DuplicatePrefab(object);
@@ -123,6 +124,7 @@ void GameScene::BuildObjects()
 		enemy2->AddComponent<Damageable>()->SetHealth(32);
 		enemy2->GetComponent<Damageable>()->isTeam = false;
 		enemy2->AddComponent<BoxCollider>()->extents = Vector3{ 17.5f,17.5f,17.5f };
+		enemy2->AddComponent<AfterImageGenerator>();
 	}
 
 	GameObject* enemy4 = DuplicatePrefab(object);
@@ -133,6 +135,7 @@ void GameScene::BuildObjects()
 		enemy4->AddComponent<Damageable>()->SetHealth(8);
 		enemy4->GetComponent<Damageable>()->isTeam = false;
 		enemy4->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy4->AddComponent<AfterImageGenerator>();
 	}
 
 	scnmgr->enemyprefab[0] = enemy0;

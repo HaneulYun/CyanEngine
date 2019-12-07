@@ -26,8 +26,6 @@ public:
 	void Update() 
 	{
 		gameObject->transform ->Rotate(axis, speedRotating * Time::deltaTime);
-
-		gameObject->transform->position = Camera::main->ScreenToWorldPoint(Input::mousePosition);
 	}
 };
 

@@ -4,7 +4,7 @@
 class AfterImage : public MonoBehavior<AfterImage>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	float lifeTime{ 0.0f };
+	float lifeTime{ 3.0f };
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
 
@@ -24,6 +24,11 @@ public:
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
 		lifeTime -= Time::deltaTime;
+
+		float t = (lifeTime / 3.0f);
+
+		gameObject->GetComponent<Renderer>()->material->albedo = {t, t, t, 1};
+
 		if (lifeTime < 0.0f)
 			Destroy(gameObject);
 	}

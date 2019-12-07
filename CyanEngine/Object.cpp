@@ -9,5 +9,5 @@ GameObject* Object::Instantiate(GameObject* original)
 
 void Object::Destroy(GameObject* obj)
 {
-	obj->scene->Delete(obj);
+	obj->scene->PushDelete(obj);
 }
