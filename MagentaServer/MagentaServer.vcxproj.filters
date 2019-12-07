@@ -81,9 +81,6 @@
     <ClCompile Include="ThreadPool.cpp">
       <Filter>0_10_MagentaServer\Manager</Filter>
     </ClCompile>
-    <ClCompile Include="Message.cpp">
-      <Filter>0_10_MagentaServer\Message</Filter>
-    </ClCompile>
     <ClCompile Include="SendingThread.cpp">
       <Filter>0_10_MagentaServer\Thread</Filter>
     </ClCompile>
@@ -95,9 +92,6 @@
     </ClCompile>
     <ClCompile Include="Component.cpp">
       <Filter>0_00_CyanEngine\10_Core</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneManager.cpp">
-      <Filter>0_10_MagentaServer\Manager</Filter>
     </ClCompile>
     <ClCompile Include="MagentaFW.cpp">
       <Filter>0_10_MagentaServer</Filter>
