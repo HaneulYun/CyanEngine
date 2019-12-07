@@ -43,7 +43,7 @@ public:
 		{
 			if (iter->id == id)
 			{
-				iter->gameobject->Destroy(iter->gameobject);
+				Destroy(iter->gameobject);
 				ObjectsID.erase(iter);
 				break;
 			}

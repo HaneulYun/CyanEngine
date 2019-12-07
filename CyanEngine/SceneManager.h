@@ -19,7 +19,7 @@ public:
 	GameObject* star{ nullptr };
 	Thread* Sender{ nullptr };
 
-	float speedRotating{ 30.f };
+	float speedRotating{ 30.0f };
 	float angle{ 0.0f };
 	float spawnRadius{ 200 };
 
@@ -28,8 +28,8 @@ public:
 	int nplayer{ 0 };
 
 	int myid{ 0 };
-	int bulletType{ 1 };
-	float elapsedTime{ 0.f };
+	int bulletType{ 0 };
+	float elapsedTime{ 0.0f };
 
 private:
 	friend class GameObject;
@@ -62,11 +62,14 @@ public:
 	void StartGame() 
 	{
 		gameState = START;
-		for (int i = 0; i < nplayer; ++i) {
-			RevolvingBehavior* revolvingBehavior = player[i]->AddComponent<RevolvingBehavior>();
-			revolvingBehavior->target = star;
-			revolvingBehavior->radius = 25.f;
-			revolvingBehavior->angle = 120.f * i;
+		for (int i = 0; i < 3; ++i) {
+			if (player[i] != nullptr)
+			{
+				RevolvingBehavior* revolvingBehavior = player[i]->AddComponent<RevolvingBehavior>();
+				revolvingBehavior->target = star;
+				revolvingBehavior->radius = 25.0f;
+				revolvingBehavior->angle = 120.0f * i;
+			}
 		}
 	}
 
@@ -81,7 +84,7 @@ public:
 		XMFLOAT4 color[3] = { XMFLOAT4(1, 1, 0, 1), XMFLOAT4(0, 1, 1, 1), XMFLOAT4(1, 0, 1, 1) };
 
 		player[id] = Instantiate(playerprefab);
-		player[id]->transform->position.xmf3 = XMFLOAT3(25.f * cos(120 * id * PI / 180.0f), 25.f * sin(120 * id * PI / 180.0f), 0.0f);
+		player[id]->transform->position.xmf3 = XMFLOAT3(25.0f * cos(120 * id * PI / 180.0f), 25.0f * sin(120 * id * PI / 180.0f), 0.0f);
 		player[id]->GetComponent<Renderer>()->material->albedo = color[id];
 		for (int i = 0; i < 5; ++i)
 		{
@@ -91,10 +94,21 @@ public:
 		}
 	}
 
+	void DeletePlayer(int id)
+	{
+		--nplayer;
+		for (int i = 0; i < 5; ++i)
+		{
+			Destroy(player[id]->GetComponent<StarGuardian>()->bullet[i]);
+		}
+		Destroy(player[id]);
+	}
+
 	void CreateBullet(int type, int id, int playerid, float angle)
 	{
 		Vector3 direction = AngletoDir(angle);
-		GameObject* bullet = player[playerid]->GetComponent<StarGuardian>()->Shoot(type, direction);
+		if (player[playerid] != nullptr)
+			GameObject* bullet = player[playerid]->GetComponent<StarGuardian>()->Shoot(type, direction);
 		//objectIDmanager->CreateObjectID(id, bullet);
 		// Bullet 만들 때 ID 부여하기
 	}
@@ -144,7 +158,7 @@ public:
 						break;
 					case 1:
 						damager->SetDamageAmount(3);
-						starguardian->bullet[i]->AddComponent<SphereCollider>()->radius = 4.f;
+						starguardian->bullet[i]->AddComponent<SphereCollider>()->radius = 4.0f;
 						break;
 					case 2:
 						damager->SetDamageAmount(0.5);
@@ -163,12 +177,12 @@ public:
 				break;
 				// 플레이어 목록의 갱신. (타 플레이어의 접속/접속해제)
 			case MESSAGE_CONNECTED_IDS:
-				if (curMsg.lParam && player[0] == nullptr)
-					CreatePlayer(0);
-				if (curMsg.mParam && player[1] == nullptr)
-					CreatePlayer(1);
-				if (curMsg.rParam && player[2] == nullptr)
-					CreatePlayer(2);
+				if (curMsg.lParam && player[0] == nullptr) CreatePlayer(0);
+				if (curMsg.mParam && player[1] == nullptr) CreatePlayer(1);
+				if (curMsg.rParam && player[2] == nullptr) CreatePlayer(2);
+				if (!curMsg.lParam && player[0] != nullptr) DeletePlayer(0);
+				if (!curMsg.mParam && player[1] != nullptr) DeletePlayer(1);
+				if (!curMsg.rParam && player[2] != nullptr) DeletePlayer(2);
 				break;
 			case MESSAGE_GAME_START:
 				StartGame();
@@ -260,7 +274,7 @@ public:
 			float timeCycle = bulletprefab[bulletType]->GetComponent<Bullet>()->timeCycle;
 			if (timeCycle <= elapsedTime)
 			{
-				elapsedTime = 0.f;
+				elapsedTime = 0.0f;
 				Vector3 direction = NS_Vector3::Normalize((Camera::main->ScreenToWorldPoint(Input::mousePosition) - player[myid]->transform->position).xmf3);
 				direction.z = 0;
 
