@@ -108,8 +108,8 @@ void GameScene::BuildObjects()
 	{
 		enemy0->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy0->AddComponent<Enemy>();
-		//enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
-		enemy0->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
+		enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
+		//enemy0->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy0->AddComponent<Damageable>()->SetHealth(2);
 		enemy0->GetComponent<Damageable>()->isTeam = false;
 		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };

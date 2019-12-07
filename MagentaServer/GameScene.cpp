@@ -27,7 +27,7 @@ void GameScene::BuildObjects()
 		star->AddComponent<Damageable>()->SetHealth(5);
 		star->GetComponent<Damageable>()->isTeam = true;
 		star->AddComponent<BoxCollider>();
-		star->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		star->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 		//star->AddComponent<SphereCollider>();
 		//star->GetComponent<SphereCollider>()->radius = 10.f;
 		scnmgr->star = star;
@@ -72,7 +72,7 @@ void GameScene::BuildObjects()
 		enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy0->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy0->GetComponent<Damager>()->isTeam = false;
-		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 	}
 
 	GameObject* enemy1 = DuplicatePrefab(object);
@@ -82,7 +82,7 @@ void GameScene::BuildObjects()
 		enemy1->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy1->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy1->GetComponent<Damager>()->isTeam = false;
-		enemy1->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy1->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 	}
 
 	GameObject* enemy2 = DuplicatePrefab(object);
@@ -92,7 +92,7 @@ void GameScene::BuildObjects()
 		enemy2->GetComponent<MovingBehavior>()->speed = 5.f;
 		enemy2->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy2->GetComponent<Damager>()->isTeam = false;
-		enemy2->AddComponent<BoxCollider>()->extents = Vector3{ 17.5f,17.5f,17.5f };
+		enemy2->AddComponent<BoxCollider>()->extents = Vector3{ 17.5f,17.5f,1.f };
 	}
 
 	GameObject* enemy4 = DuplicatePrefab(object);
@@ -101,7 +101,7 @@ void GameScene::BuildObjects()
 		enemy4->AddComponent<WhirlingBehavior>()->target = star;
 		enemy4->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy4->GetComponent<Damager>()->isTeam = false;
-		enemy4->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy4->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 	}
 
 	scnmgr->enemyprefab[0] = enemy0;
