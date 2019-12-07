@@ -8,9 +8,9 @@ struct Message
 	float rParam;
 };
 
-static std::queue<Message> recvQueue;
-static std::queue<Message> sendQueue;
-static CRITICAL_SECTION rqcs;
+extern std::queue<Message> recvQueue;
+extern std::queue<Message> sendQueue;
+extern CRITICAL_SECTION rqcs;
 
 //////////////////////////////////////////////
 // Client to Server
@@ -24,7 +24,7 @@ static CRITICAL_SECTION rqcs;
 #define MESSAGE_REQUEST_BULLET_CREATION_LASER 0x84
 #define MESSAGE_REQUEST_BULLET_CREATION_GUIDED 0x85
 
-// mParam = 별 수호자 ID / rParam = Damage
+// lParam = BulletID / mParam = EnemyID / rParam = Damage
 #define MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY 0x60
 
 

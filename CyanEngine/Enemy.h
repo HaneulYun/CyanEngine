@@ -24,13 +24,12 @@ public:
 	{
 	}
 
-	void OnTriggerEnter(GameObject* collision)
-	{
-		if (!collision->GetComponent<Bullet>())
-			return;
-		Destroy(gameObject);
-	}
-
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
+	//void OnTriggerEnter(GameObject* collision)
+	//{
+	//	if (!collision->GetComponent<Bullet>())
+	//		return;
+	//	Destroy(gameObject);
+	//}
 };
 
