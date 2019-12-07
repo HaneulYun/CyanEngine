@@ -11,7 +11,7 @@ private:
 public:
 	// 이 영역에 public 변수를 선언하세요.
 	GameObject* enemy[5]{ nullptr };
-	ObjectIDManager* objIDmgr{ nullptr };
+	GameObject* objIDmgr{ nullptr };
 
 private:
 	friend class GameObject;
@@ -43,7 +43,8 @@ public:
 				{
 					float radian = Random::Range(0.0f, XM_2PI);
 					object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);
-					objIDmgr->CreateObjectID(object);
+					objIDmgr->GetComponent<ObjectIDManager>()->CreateObjectID(object);
+
 					Message result;
 					result.msgId = MESSAGE_CREATE_ENEMY_COMINGRECT;
 					result.lParam = object->GetComponent<ObjectID>()->GetObjectID();

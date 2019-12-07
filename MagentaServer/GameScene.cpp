@@ -13,11 +13,13 @@ void GameScene::BuildObjects()
 	SceneManager* scnmgr = scenemanager->AddComponent<SceneManager>();
 
 	GameObject* objectIDmanager = CreateEmpty();
-	scnmgr->objectIDmanager = objectIDmanager->AddComponent<ObjectIDManager>();
+	objectIDmanager->AddComponent<ObjectIDManager>();
+	scnmgr->objectIDmanager = objectIDmanager;
 
 	GameObject* bulletGenerator = CreateEmpty();
-	scnmgr->bulletGenerator = bulletGenerator->AddComponent<BulletGenerator>();
-	spawner->GetComponent<Spawner>()->objIDmgr = scnmgr->objectIDmanager;
+	bulletGenerator->AddComponent<BulletGenerator>()->objIDmgr = scnmgr->objectIDmanager;
+	scnmgr->bulletGenerator = bulletGenerator;
+	
 	GameObject* object = CreateEmptyPrefab();
 	GameObject* star = Instantiate(object);
 	{
@@ -25,7 +27,9 @@ void GameScene::BuildObjects()
 		star->AddComponent<Damageable>()->SetHealth(5);
 		star->GetComponent<Damageable>()->isTeam = true;
 		star->AddComponent<BoxCollider>();
-		star->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
+		star->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		//star->AddComponent<SphereCollider>();
+		//star->GetComponent<SphereCollider>()->radius = 10.f;
 		scnmgr->star = star;
 	}
 
@@ -68,7 +72,7 @@ void GameScene::BuildObjects()
 		enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy0->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy0->GetComponent<Damager>()->isTeam = false;
-		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
+		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
 	}
 
 	GameObject* enemy1 = DuplicatePrefab(object);
@@ -125,5 +129,4 @@ void GameScene::BuildObjects()
 		spawner->GetComponent<Spawner>()->enemy[4] = enemy4;
 		spawner->GetComponent<Spawner>()->objIDmgr = scnmgr->objectIDmanager;
 	}
-
 }

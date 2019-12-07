@@ -132,6 +132,9 @@
     <ClCompile Include="Singleton.cpp">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
     </ClCompile>
+    <ClCompile Include="SphereCollider.cpp">
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PrintErrors.h">
@@ -253,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="BulletGenerator.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>0_00_CyanEngine\20_CoreComponent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

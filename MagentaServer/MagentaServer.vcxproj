@@ -171,6 +171,7 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="PrintErrors.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="Time.cpp" />
@@ -210,6 +211,7 @@
     <ClInclude Include="PrintErrors.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Spawner.h" />
+    <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Star.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="ThreadPool.h" />
