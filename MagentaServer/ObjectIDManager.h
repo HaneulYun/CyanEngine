@@ -10,6 +10,7 @@ struct GameObjectID
 class ObjectIDManager : public MonoBehavior<ObjectIDManager>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
+	int curID;
 	std::vector<GameObjectID> ObjectsID;
 public  /*이 영역에 public 변수를 선언하세요.*/:
 
@@ -24,16 +25,25 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
+		curID = 0;
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
 	}
 
-	void CreateObjectID(int id, GameObject* obj)
+	//void CreateObjectID(int id, GameObject* obj)
+	//{
+	//	obj->GetComponent<ObjectID>()->SetObjectID(id);
+	//	ObjectsID.push_back(GameObjectID{ id, obj });
+	//	curID++;
+	//}
+
+	void CreateObjectID(GameObject* obj)
 	{
-		obj->GetComponent<ObjectID>()->SetObjectID(id);
-		ObjectsID.push_back(GameObjectID{ id, obj });
+		obj->AddComponent<ObjectID>()->SetObjectID(curID);
+		ObjectsID.push_back(GameObjectID{ curID, obj });
+		curID++;
 	}
 
 	void DeleteObjectID(int id)

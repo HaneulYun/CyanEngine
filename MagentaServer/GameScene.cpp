@@ -12,6 +12,9 @@ void GameScene::BuildObjects()
 	GameObject* scenemanager = CreateEmpty();
 	SceneManager* scnmgr = scenemanager->AddComponent<SceneManager>();
 
+	GameObject* objectIDmanager = CreateEmpty();
+	scnmgr->objectIDmanager = objectIDmanager->AddComponent<ObjectIDManager>();
+
 	GameObject* object = CreateEmptyPrefab();
 	GameObject* star = Instantiate(object);
 	{
@@ -117,6 +120,7 @@ void GameScene::BuildObjects()
 		spawner->GetComponent<Spawner>()->enemy[2] = enemy2;
 	//	spawner->GetComponent<Spawner>()->enemy[3] = enemy3;
 		spawner->GetComponent<Spawner>()->enemy[4] = enemy4;
+		spawner->GetComponent<Spawner>()->objIDmgr = scnmgr->objectIDmanager;
 	}
 
 }

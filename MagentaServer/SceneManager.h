@@ -7,6 +7,8 @@ private:
 
 public:
 	static GameObject* scenemanager;
+	ObjectIDManager* objectIDmanager;
+
 	GameObject* player[3];
 	GameObject* star;
 	GameObject* enemyprefab[5]{ nullptr };
