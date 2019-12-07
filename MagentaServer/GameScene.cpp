@@ -27,7 +27,9 @@ void GameScene::BuildObjects()
 		star->AddComponent<Damageable>()->SetHealth(5);
 		star->GetComponent<Damageable>()->isTeam = true;
 		star->AddComponent<BoxCollider>();
-		star->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
+		star->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		//star->AddComponent<SphereCollider>();
+		//star->GetComponent<SphereCollider>()->radius = 10.f;
 		scnmgr->star = star;
 	}
 
@@ -70,7 +72,7 @@ void GameScene::BuildObjects()
 		enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy0->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy0->GetComponent<Damager>()->isTeam = false;
-		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
+		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
 	}
 
 	GameObject* enemy1 = DuplicatePrefab(object);
