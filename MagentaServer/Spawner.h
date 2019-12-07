@@ -10,7 +10,7 @@ private:
 	float spawnRadius{ 200 };
 public:
 	// 이 영역에 public 변수를 선언하세요.
-	GameObject* enemy;
+	GameObject* enemy[5]{ nullptr };
 
 private:
 	friend class GameObject;
@@ -38,7 +38,7 @@ public:
 			{
 				elapsedTime -= spawnTime;
 
-				GameObject* object = Instantiate(enemy);
+				GameObject* object = Instantiate(enemy[0]);
 				{
 					float radian = Random::Range(0.0f, XM_2PI);
 					object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);

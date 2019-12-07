@@ -63,6 +63,19 @@ void Scene::Update()
 
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Update();
+
+	while (!deletionQueue.empty())
+	{
+		GameObject* gameObject = deletionQueue.top();
+		for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
+			if (*iter == gameObject)
+			{
+				delete (*iter);
+				gameObjects.erase(iter);
+				return;
+			}
+		deletionQueue.pop();
+	}
 }
 
 void Scene::BuildObjects()
@@ -74,22 +87,6 @@ void Scene::ReleaseObjects()
 	for (GameObject* object : gameObjects)
 		delete object;
 	gameObjects.clear();
-}
-
-GameObject* Scene::CreateGameObject()
-{
-	GameObject* gameObject = new GameObject();
-	gameObject->scene = this;
-
-	return gameObject;
-}
-
-GameObject* Scene::CreateGameObject(GameObject* _gameObject)
-{
-	GameObject* gameObject = new GameObject(_gameObject);
-	gameObject->scene = this;
-
-	return gameObject;
 }
 
 GameObject* Scene::CreateEmpty()
@@ -110,13 +107,23 @@ GameObject* Scene::Duplicate(GameObject* _gameObject)
 	return gameObject;
 }
 
+GameObject* Scene::CreateEmptyPrefab()
+{
+	GameObject* gameObject = new GameObject();
+	gameObject->scene = this;
+
+	return gameObject;
+}
+
+GameObject* Scene::DuplicatePrefab(GameObject* _gameObject)
+{
+	GameObject* gameObject = new GameObject(_gameObject);
+	gameObject->scene = this;
+
+	return gameObject;
+}
+
 void Scene::Delete(GameObject* gameObject)
 {
-	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
-		if (*iter == gameObject)
-		{
-			delete (*iter);
-			gameObjects.erase(iter);
-			return;
-		}
+	deletionQueue.push(gameObject);
 }

@@ -4,7 +4,7 @@ class Scene : public Object
 {
 protected:
 	std::deque<GameObject*> gameObjects;
-
+	std::priority_queue<GameObject*> deletionQueue;
 public:
 	static Scene* scene;
 
@@ -18,13 +18,10 @@ public:
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();
 
-	GameObject* CreateGameObject();
-	GameObject* CreateGameObject(GameObject*);
-	//GameObject* AddGameObject();
-	//GameObject* AddGameObject(GameObject* gameObject);
-	//void RemoveGameObject(GameObject* gameObject);
-
 	GameObject* CreateEmpty();
 	GameObject* Duplicate(GameObject*);
-	void Delete(GameObject* gameObject);
+	GameObject* CreateEmptyPrefab();
+	GameObject* DuplicatePrefab(GameObject*);
+
+	void Delete(GameObject*);
 };

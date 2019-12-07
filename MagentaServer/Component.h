@@ -19,7 +19,6 @@ public:
 
 	virtual void Start() {}
 	virtual void Update() {}
-	virtual void Destroy() {}
 
 	virtual void OnTriggerEnter(GameObject* collision) {}
 	virtual void OnTriggerStay(GameObject* collision) {}
