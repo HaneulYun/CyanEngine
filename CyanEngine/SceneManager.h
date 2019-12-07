@@ -211,7 +211,7 @@ public:
 				ChangeStarHealth(curMsg.mParam);
 				break;
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
-				// Damage Enemy and Delete Bullet
+				//objectIDmanager->CollideBulletandEnemy(curMsg.lParam, curMsg.mParam, curMsg.rParam);
 				break;
 			}
 		}

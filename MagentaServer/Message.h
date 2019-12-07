@@ -27,7 +27,7 @@ struct Message
 #define MESSAGE_REQUEST_BULLET_CREATION_LASER 0x84
 #define MESSAGE_REQUEST_BULLET_CREATION_GUIDED 0x85
 
-// mParam = 별 수호자 ID / rParam = Damage
+// lParam = BulletID / mParam = EnemyID / rParam = Damage
 #define MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY 0x60
 
 
