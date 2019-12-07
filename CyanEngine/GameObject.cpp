@@ -1,13 +1,18 @@
 #include "pch.h"
 #include "GameObject.h"
 
-GameObject::GameObject()
+GameObject::GameObject(bool addition)
 {
+	scene = Scene::scene;
+
 	transform = new Transform();
 	components.push_back(transform);
+
+	if (addition && scene)
+		scene->AddGameObject(this);
 }
 
-GameObject::GameObject(GameObject* original)
+GameObject::GameObject(GameObject* original, bool addition)
 {
 	scene = Scene::scene;
 
@@ -15,6 +20,9 @@ GameObject::GameObject(GameObject* original)
 		AddChild(new GameObject(child));
 	for (Component* component : original->components)
 		AddComponent(component);
+
+	if (addition && scene)
+		scene->AddGameObject(this);
 }
 
 GameObject::~GameObject()

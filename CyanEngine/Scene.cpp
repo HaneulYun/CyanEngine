@@ -116,38 +116,32 @@ void Scene::ReleaseObjects()
 	gameObjects.clear();
 }
 
-GameObject* Scene::CreateEmpty()
+
+GameObject* Scene::AddGameObject(GameObject* gameObject)
 {
-	GameObject* gameObject = new GameObject();
 	gameObject->scene = this;
 	gameObjects.push_back(gameObject);
-
 	return gameObject;
 }
 
-GameObject* Scene::Duplicate(GameObject* _gameObject)
+GameObject* Scene::CreateEmpty()
 {
-	GameObject* gameObject = new GameObject(_gameObject);
-	gameObject->scene = this;
-	gameObjects.push_back(gameObject);
+	return new GameObject();
+}
 
-	return gameObject;
+GameObject* Scene::Duplicate(GameObject* gameObject)
+{
+	return new GameObject(gameObject);
 }
 
 GameObject* Scene::CreateEmptyPrefab()
 {
-	GameObject* gameObject = new GameObject();
-	gameObject->scene = this;
-
-	return gameObject;
+	return new GameObject(false);
 }
 
-GameObject* Scene::DuplicatePrefab(GameObject* _gameObject)
+GameObject* Scene::DuplicatePrefab(GameObject* gameObject)
 {
-	GameObject* gameObject = new GameObject(_gameObject);
-	gameObject->scene = this;
-
-	return gameObject;
+	return new GameObject(gameObject, false);
 }
 
 void Scene::Delete(GameObject* gameObject)
