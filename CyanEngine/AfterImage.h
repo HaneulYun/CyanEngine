@@ -4,7 +4,7 @@
 class AfterImage : public MonoBehavior<AfterImage>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	float lifeTime{ 3.0f };
+	float lifeTime{ 1.0f };
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
 
@@ -27,6 +27,7 @@ public:
 
 		float t = (lifeTime / 3.0f);
 
+		gameObject->GetComponent<Transform>()->position.z = 1 - t;
 		gameObject->GetComponent<Renderer>()->material->albedo = {t, t, t, 1};
 
 		if (lifeTime < 0.0f)

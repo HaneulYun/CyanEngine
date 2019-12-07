@@ -36,9 +36,6 @@
     <Filter Include="0_00_CyanEngine\44_Materials">
       <UniqueIdentifier>{4a8d17c5-8389-46f3-ae1d-c3f8c7abc368}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\15_Math">
-      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
-    </Filter>
     <Filter Include="1_00_YellowProject">
       <UniqueIdentifier>{6278fbf3-a6b9-4bd0-90e5-e0469395c962}</UniqueIdentifier>
     </Filter>

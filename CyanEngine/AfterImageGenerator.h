@@ -4,7 +4,7 @@
 class AfterImageGenerator : public MonoBehavior<AfterImageGenerator>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	float creationCycle{ 0.3f };
+	float creationCycle{ 0.2f };
 	float currentCycle{ 0.0f };
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
