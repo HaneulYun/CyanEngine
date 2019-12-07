@@ -32,8 +32,8 @@ private:
 	friend class Object;
 	friend class ModelManager;
 
-	GameObject();
-	GameObject(GameObject* original);
+	GameObject(bool = true);
+	GameObject(GameObject* , bool = true);
 
 public:
 	~GameObject();

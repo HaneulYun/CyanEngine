@@ -22,6 +22,7 @@ public:
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();
 
+	GameObject* AddGameObject(GameObject*);
 	GameObject* CreateEmpty();
 	GameObject* Duplicate(GameObject*);
 	GameObject* CreateEmptyPrefab();
