@@ -13,18 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Thread">
-      <UniqueIdentifier>{b90e9537-1738-4931-8702-a94867c402b7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Message">
-      <UniqueIdentifier>{be4e7688-b419-49ff-96d3-dd6cf177a3c9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Manager">
-      <UniqueIdentifier>{c6c1867d-4fe7-4fcc-8fa5-d04ed65e37ab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MagentaServer">
-      <UniqueIdentifier>{4bd153a0-e5cf-42d0-bda4-b9bdda0f5e8f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine">
       <UniqueIdentifier>{a46419a3-6c42-44ce-9c6f-55abe5734441}</UniqueIdentifier>
     </Filter>
@@ -46,6 +34,27 @@
     <Filter Include="1_00_YellowProject\10_Scripts">
       <UniqueIdentifier>{ccee331c-b8f4-4774-b6c7-93a92a76c552}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_10_MagentaServer">
+      <UniqueIdentifier>{4bd153a0-e5cf-42d0-bda4-b9bdda0f5e8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_10_MagentaServer\Manager">
+      <UniqueIdentifier>{c6c1867d-4fe7-4fcc-8fa5-d04ed65e37ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_10_MagentaServer\Thread">
+      <UniqueIdentifier>{b90e9537-1738-4931-8702-a94867c402b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_10_MagentaServer\Message">
+      <UniqueIdentifier>{be4e7688-b419-49ff-96d3-dd6cf177a3c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\11_Interface">
+      <UniqueIdentifier>{105fbedb-c65e-4871-ad19-ed291bf12578}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\90_PATTERN">
+      <UniqueIdentifier>{40167f28-1178-4a8d-9fda-da3150694c3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\12_Math">
+      <UniqueIdentifier>{e7126b28-7eed-4ace-8747-c5ba2b695b23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -54,35 +63,29 @@
     <ClCompile Include="PrintErrors.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Singleton.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="MainThread.cpp">
-      <Filter>Thread</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClCompile>
     <ClCompile Include="MessagingThread.cpp">
-      <Filter>Thread</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClCompile>
     <ClCompile Include="Thread.cpp">
-      <Filter>Thread</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClCompile>
     <ClCompile Include="ConnectingThread.cpp">
-      <Filter>Thread</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClCompile>
     <ClCompile Include="ThreadPool.cpp">
-      <Filter>Manager</Filter>
+      <Filter>0_10_MagentaServer\Manager</Filter>
     </ClCompile>
     <ClCompile Include="Message.cpp">
-      <Filter>Message</Filter>
+      <Filter>0_10_MagentaServer\Message</Filter>
     </ClCompile>
     <ClCompile Include="SendingThread.cpp">
-      <Filter>Thread</Filter>
-    </ClCompile>
-    <ClCompile Include="Time.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
       <Filter>0_00_CyanEngine\10_Core</Filter>
@@ -94,13 +97,10 @@
       <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClCompile>
     <ClCompile Include="SceneManager.cpp">
-      <Filter>Manager</Filter>
+      <Filter>0_10_MagentaServer\Manager</Filter>
     </ClCompile>
     <ClCompile Include="MagentaFW.cpp">
-      <Filter>MagentaServer</Filter>
-    </ClCompile>
-    <ClCompile Include="Random.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>0_10_MagentaServer</Filter>
     </ClCompile>
     <ClCompile Include="MonoBehavior.cpp">
       <Filter>0_00_CyanEngine\10_Core</Filter>
@@ -126,6 +126,15 @@
     <ClCompile Include="Damager.cpp">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClCompile>
+    <ClCompile Include="Random.cpp">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton.cpp">
+      <Filter>0_00_CyanEngine\90_PATTERN</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PrintErrors.h">
@@ -134,35 +143,26 @@
     <ClInclude Include="Globals.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="MainThread.h">
-      <Filter>Thread</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClInclude>
     <ClInclude Include="MessagingThread.h">
-      <Filter>Thread</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Thread.h">
-      <Filter>Thread</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClInclude>
     <ClInclude Include="ConnectingThread.h">
-      <Filter>Thread</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Message.h">
-      <Filter>Message</Filter>
+      <Filter>0_10_MagentaServer\Message</Filter>
     </ClInclude>
     <ClInclude Include="SendingThread.h">
-      <Filter>Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="Time.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector3.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>0_10_MagentaServer\Thread</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>0_00_CyanEngine\10_Core</Filter>
@@ -177,16 +177,13 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ThreadPool.h">
-      <Filter>Manager</Filter>
+      <Filter>0_10_MagentaServer\Manager</Filter>
     </ClInclude>
     <ClInclude Include="MagentaFW.h">
-      <Filter>MagentaServer</Filter>
+      <Filter>0_10_MagentaServer</Filter>
     </ClInclude>
     <ClInclude Include="SceneManager.h">
-      <Filter>Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Random.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>0_10_MagentaServer\Manager</Filter>
     </ClInclude>
     <ClInclude Include="MonoBehavior.h">
       <Filter>0_00_CyanEngine\10_Core</Filter>
@@ -226,6 +223,18 @@
     </ClInclude>
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>0_00_CyanEngine\90_PATTERN</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>0_00_CyanEngine\12_Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
