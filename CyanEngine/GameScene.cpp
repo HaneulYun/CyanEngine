@@ -58,30 +58,35 @@ void GameScene::BuildObjects()
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 200.f);
+		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[0] = bulletobj;
 	}
 	{
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.5f, 100.f);
+		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[1] = bulletobj;
 	} 
 	{	
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = SharpBulletMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.125f, 260.0f);
+		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[2] = bulletobj;
 	} 
 	{	
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.0f, 0.0f);
+		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[3] = bulletobj;
 	} 
 	{	
 		GameObject* bulletobj = DuplicatePrefab(object);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
 		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 140.f);
+		bulletobj->AddComponent<ObjectID>();
 		scnmgr->bulletprefab[4] = bulletobj;
 	}
 	
@@ -103,10 +108,12 @@ void GameScene::BuildObjects()
 	{
 		enemy0->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy0->AddComponent<Enemy>();
-		enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
+		//enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
+		enemy0->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy0->AddComponent<Damageable>()->SetHealth(2);
 		enemy0->GetComponent<Damageable>()->isTeam = false;
 		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
+		enemy0->AddComponent<ObjectID>();
 	}
 
 	GameObject* enemy1 = DuplicatePrefab(object);
@@ -119,6 +126,7 @@ void GameScene::BuildObjects()
 		enemy1->AddComponent<Damageable>()->SetHealth(4);
 		enemy1->GetComponent<Damageable>()->isTeam = false;
 		enemy1->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy1->AddComponent<ObjectID>();
 	}
 
 	GameObject* enemy2 = DuplicatePrefab(object);
@@ -130,6 +138,7 @@ void GameScene::BuildObjects()
 		enemy2->AddComponent<Damageable>()->SetHealth(32);
 		enemy2->GetComponent<Damageable>()->isTeam = false;
 		enemy2->AddComponent<BoxCollider>()->extents = Vector3{ 17.5f,17.5f,17.5f };
+		enemy2->AddComponent<ObjectID>();
 	}
 
 	GameObject* enemy4 = DuplicatePrefab(object);
@@ -140,6 +149,7 @@ void GameScene::BuildObjects()
 		enemy4->AddComponent<Damageable>()->SetHealth(8);
 		enemy4->GetComponent<Damageable>()->isTeam = false;
 		enemy4->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
+		enemy4->AddComponent<ObjectID>();
 	}
 
 	scnmgr->enemyprefab[0] = enemy0;
