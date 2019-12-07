@@ -28,7 +28,7 @@ public:
 	int nplayer{ 0 };
 
 	int myid{ 0 };
-	int bulletType{ 1 };
+	int bulletType{ 0 };
 	float elapsedTime{ 0.f };
 
 private:

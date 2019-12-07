@@ -151,6 +151,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AfterImage.h" />
+    <ClInclude Include="AfterImageGenerator.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />

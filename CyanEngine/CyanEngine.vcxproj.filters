@@ -94,6 +94,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="1_00_YellowProject\20_MeshPrefab">
+      <UniqueIdentifier>{dd1898b2-6c71-4341-b0e9-c3c192dbee45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_00_YellowProject\15_VFX">
+      <UniqueIdentifier>{8daf6d16-6b99-4942-b498-20367b9aabdd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -266,6 +272,12 @@
     </ClInclude>
     <ClInclude Include="ComingBehavior.h">
       <Filter>1_00_YellowProject\12_Behavior</Filter>
+    </ClInclude>
+    <ClInclude Include="AfterImageGenerator.h">
+      <Filter>1_00_YellowProject\15_VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="AfterImage.h">
+      <Filter>1_00_YellowProject\15_VFX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

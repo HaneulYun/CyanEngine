@@ -17,8 +17,7 @@ void GameScene::BuildObjects()
 	TriangleMesh* SharpBulletMesh = new TriangleMesh(1.0f);
 	Circle* CannonMesh = new Circle(4, 48);
 
-	Material* defaultMaterial = new DefaultMaterial();
-	defaultMaterial->shader = new StandardShader();
+	Material* defaultMaterial = new Material();
 
 	GameObject* mainCamera = CreateEmpty();
 	{
@@ -40,8 +39,6 @@ void GameScene::BuildObjects()
 	GameObject* objectIDmanager = CreateEmpty();
 	scnmgr->objectIDmanager = objectIDmanager->AddComponent<ObjectIDManager>();
 	
-
-
 	GameObject* star = Instantiate(object);
 	{
 		star->GetComponent<MeshFilter>()->mesh = pCircleMesh;
