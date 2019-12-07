@@ -43,9 +43,31 @@ public:
 		{
 			if (iter->id == id)
 			{
-				iter->gameobject->Destroy(iter->gameobject);
+				Destroy(iter->gameobject);
 				ObjectsID.erase(iter);
 				break;
+			}
+		}
+	}
+
+	void CollideBulletandEnemy(int bulletID, int enemyID, int damage)
+	{
+		for (auto iter = ObjectsID.begin(); iter != ObjectsID.end(); ++iter)
+		{
+			if (iter->id == bulletID)
+			{
+				Destroy(iter->gameobject);
+				ObjectsID.erase(iter);
+			}
+			else if (iter->id == enemyID)
+			{
+				Damageable* damagealbe = iter->gameobject->GetComponent<Damageable>();
+				damagealbe->TakeDamage(damage);
+				if (damagealbe->isDead())
+				{
+					Destroy(iter->gameobject);
+					ObjectsID.erase(iter);
+				}
 			}
 		}
 	}

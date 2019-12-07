@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "scripts.h"
-#include "Message.h"
 
 Damageable::Damageable()
 {
@@ -61,11 +60,10 @@ void Damageable::OnTriggerEnter(GameObject* collision)
 			// Push Msg Queue
 			Message message;
 			message.msgId = MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY;
+			//message.lParam = collision->GetComponent<ObjectID>()->GetObjectID();
+			//message.mParam = gameObject->GetComponent<ObjectID>()->GetObjectID();
 			message.rParam = damager->GetDamageAmount();
 			sendQueue.push(message);
 		}
-
-		// 서버에서 충돌 메시지가 다시 돌아오면 그 때 TakeDamage . 
-		//TakeDamage(*collision->GetComponent<Damager>());
 	}
 }

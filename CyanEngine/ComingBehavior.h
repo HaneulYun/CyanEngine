@@ -4,11 +4,8 @@
 class ComingBehavior : public MonoBehavior<ComingBehavior>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	float elapsedTime{ 0.f };
-	float timeCycle{ 1.f };
-	float boostTime{ 0.1f };
-	bool boost{ false };
-	float speed{ 3.f };
+	float speed{ 100.f };
+	float maxSpeed{ 100.f };
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
 	Vector3 target;
@@ -32,20 +29,13 @@ public:
 
 		gameObject->transform->position += dir * speed * Time::deltaTime;
 
-		if (boost && elapsedTime > boostTime)
+		speed -= Time::deltaTime * maxSpeed * 1.5f;
+
+		if (speed <= 0.f)
 		{
-			elapsedTime -= boostTime;
-			boost = false;
-			speed = 10.f;
-		}
-		else if (!boost && elapsedTime > timeCycle)
-		{
-			elapsedTime -= timeCycle;
-			boost = true;
-			speed = 100.f;
+			speed = maxSpeed;
 		}
 
-		elapsedTime += Time::deltaTime;
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.

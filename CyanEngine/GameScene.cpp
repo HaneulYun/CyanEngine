@@ -5,6 +5,10 @@
 GameObject* SceneManager::scenemanager{ nullptr };
 Scene* Scene::scene{ nullptr };
 
+std::queue<Message> recvQueue;
+std::queue<Message> sendQueue;
+CRITICAL_SECTION rqcs;
+
 void GameScene::BuildObjects()
 {
 	scene = this;
