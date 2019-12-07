@@ -8,6 +8,7 @@ private:
 public:
 	static GameObject* scenemanager;
 	ObjectIDManager* objectIDmanager;
+	BulletGenerator* bulletGenerator;
 
 	GameObject* player[3];
 	GameObject* star;

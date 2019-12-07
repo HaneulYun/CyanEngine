@@ -24,4 +24,5 @@ public:
 	GameObject* DuplicatePrefab(GameObject*);
 
 	void Delete(GameObject*);
+	void PushDelete(GameObject*);
 };
