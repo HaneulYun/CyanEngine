@@ -13,6 +13,7 @@ void GameScene::BuildObjects()
 {
 	scene = this;
 
+	// preComponent
 	Quad* pQuadMesh = new Quad(10.0f, 10.0f);
 	Quad* BigMesh = new Quad(25.0f, 25.0f);
 	Circle* pCircleMesh = new Circle(10, 48);
@@ -23,6 +24,7 @@ void GameScene::BuildObjects()
 
 	Material* defaultMaterial = new Material();
 
+	// main camera
 	GameObject* mainCamera = CreateEmpty();
 	{
 		Camera* camera = mainCamera->AddComponent<Camera>();
@@ -33,6 +35,7 @@ void GameScene::BuildObjects()
 		camera->main = camera;
 	}
 
+	// defulat prefab
 	GameObject* object = CreateEmptyPrefab();
 	object->AddComponent<MeshFilter>();
 	object->AddComponent<Renderer>()->material = defaultMaterial;
@@ -51,44 +54,41 @@ void GameScene::BuildObjects()
 	}
 	
 	// 5 Bullet
+	GameObject* bulletPrefab = DuplicatePrefab(object);
+	{
+		bulletPrefab->AddComponent<Bullet>();
+		bulletPrefab->AddComponent<AfterImageGenerator>();
+		bulletPrefab->AddComponent<ObjectID>();
+	}
 	{	
-		GameObject* bulletobj = DuplicatePrefab(object);
+		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 200.f);
-		bulletobj->AddComponent<AfterImageGenerator>()->SetEntity(0.1f, 0.5f);
-		bulletobj->AddComponent<ObjectID>();
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.25f, 200.f);
+		bulletobj->GetComponent<AfterImageGenerator>()->SetEntity(0.1f, 0.5f);
 		scnmgr->bulletprefab[0] = bulletobj;
 	}
 	{
-		GameObject* bulletobj = DuplicatePrefab(object);
+		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
-		bulletobj->AddComponent<Bullet>()->SetEntity(0.5f, 100.f);
-		bulletobj->AddComponent<AfterImageGenerator>();
-		bulletobj->AddComponent<ObjectID>();
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.5f, 100.f);
 		scnmgr->bulletprefab[1] = bulletobj;
 	} 
 	{	
-		GameObject* bulletobj = DuplicatePrefab(object);
+		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = SharpBulletMesh;
-		bulletobj->AddComponent<Bullet>()->SetEntity(0.125f, 260.0f);
-		bulletobj->AddComponent<AfterImageGenerator>();
-		bulletobj->AddComponent<ObjectID>();
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.125f, 260.0f);
 		scnmgr->bulletprefab[2] = bulletobj;
 	} 
 	{	
-		GameObject* bulletobj = DuplicatePrefab(object);
+		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		bulletobj->AddComponent<Bullet>()->SetEntity(0.0f, 0.0f);
-		bulletobj->AddComponent<AfterImageGenerator>();
-		bulletobj->AddComponent<ObjectID>();
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.0f, 0.0f);
 		scnmgr->bulletprefab[3] = bulletobj;
 	} 
 	{	
-		GameObject* bulletobj = DuplicatePrefab(object);
+		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		bulletobj->AddComponent<Bullet>()->SetEntity(0.25f, 140.f);
-		bulletobj->AddComponent<AfterImageGenerator>();
-		bulletobj->AddComponent<ObjectID>();
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.25f, 140.f);
 		scnmgr->bulletprefab[4] = bulletobj;
 	}
 	
