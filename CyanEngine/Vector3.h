@@ -39,6 +39,13 @@ struct Vector3
 		return !((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
 	}
 
+	float Degree(const Vector3& rhs = Vector3(1, 0, 0)) const
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3AngleBetweenVectors(XMLoadFloat3(&xmf3), XMLoadFloat3(&rhs.xmf3)));
+		return XMConvertToDegrees(xmf3Result.x);
+	}
+
 	float Length() const
 	{
 		XMFLOAT3 xmf3Result;

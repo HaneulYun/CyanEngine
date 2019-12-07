@@ -24,6 +24,8 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
+		Vector3 dir = (target - gameObject->transform->position).Normalize();
+		gameObject->transform->Rotate({ 0, 0, 1 }, dir.Degree());
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)

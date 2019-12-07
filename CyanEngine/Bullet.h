@@ -25,6 +25,7 @@ public:
 	{
 		// 초기화 코드를 작성하세요.
 		direction = direction.Normalize();
+		gameObject->transform->Rotate({ 0, 0, 1 }, direction.Degree() - 90);
 	}
 
 	void Update()
