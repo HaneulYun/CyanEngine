@@ -155,6 +155,7 @@
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
+    <ClInclude Include="ComingBehavior.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="CTexture.h" />
     <ClInclude Include="CyanEngine.h" />

@@ -6,6 +6,7 @@
 #include "RotorBehavior.h"
 #include "GuidedBehavior.h"
 #include "WhirlingBehavior.h"
+#include "ComingBehavior.h"
 #include "StarGuardian.h"
 #include "Spawner.h"
 #include "Star.h"
