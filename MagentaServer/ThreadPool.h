@@ -17,6 +17,7 @@ public:
 	static CRITICAL_SECTION sqcs;
 	static queue<Message> sendQueue;
 
+	static GameObject* bulletGenerator;
 public:
 	ThreadPool();
 	~ThreadPool();

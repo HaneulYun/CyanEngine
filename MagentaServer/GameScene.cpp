@@ -13,11 +13,13 @@ void GameScene::BuildObjects()
 	SceneManager* scnmgr = scenemanager->AddComponent<SceneManager>();
 
 	GameObject* objectIDmanager = CreateEmpty();
-	scnmgr->objectIDmanager = objectIDmanager->AddComponent<ObjectIDManager>();
+	objectIDmanager->AddComponent<ObjectIDManager>();
+	scnmgr->objectIDmanager = objectIDmanager;
 
 	GameObject* bulletGenerator = CreateEmpty();
-	scnmgr->bulletGenerator = bulletGenerator->AddComponent<BulletGenerator>();
-	spawner->GetComponent<Spawner>()->objIDmgr = scnmgr->objectIDmanager;
+	bulletGenerator->AddComponent<BulletGenerator>()->objIDmgr = scnmgr->objectIDmanager;
+	scnmgr->bulletGenerator = bulletGenerator;
+	
 	GameObject* object = CreateEmptyPrefab();
 	GameObject* star = Instantiate(object);
 	{
@@ -125,5 +127,4 @@ void GameScene::BuildObjects()
 		spawner->GetComponent<Spawner>()->enemy[4] = enemy4;
 		spawner->GetComponent<Spawner>()->objIDmgr = scnmgr->objectIDmanager;
 	}
-
 }
