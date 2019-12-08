@@ -64,20 +64,20 @@ void GameScene::BuildObjects()
 	{	
 		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		bulletobj->GetComponent<Bullet>()->SetEntity(0.25f, 200.f);
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.2f, 200.f);
 		bulletobj->GetComponent<AfterImageGenerator>()->SetEntity(0.1f, 0.5f);
 		scnmgr->bulletprefab[0] = bulletobj;
 	}
 	{
 		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
-		bulletobj->GetComponent<Bullet>()->SetEntity(0.5f, 100.f);
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.3f, 100.f);
 		scnmgr->bulletprefab[1] = bulletobj;
 	} 
 	{	
 		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = SharpBulletMesh;
-		bulletobj->GetComponent<Bullet>()->SetEntity(0.125f, 260.0f);
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.1f, 260.0f);
 		scnmgr->bulletprefab[2] = bulletobj;
 	} 
 	{	

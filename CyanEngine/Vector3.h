@@ -134,6 +134,11 @@ struct Vector3
 		return !((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
 	}
 
+	XMFLOAT4 XMF4() const
+	{
+		return XMFLOAT4(x, y, z, 1);
+	}
+
 	float Degree(const Vector3& rhs = Vector3(1, 0, 0)) const
 	{
 		float angle = XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenNormals(XMLoadFloat3(&xmf3), XMLoadFloat3(&rhs.xmf3))));
