@@ -52,11 +52,13 @@ void SceneManager::DeleteObjectID(int id)
 	objectIDmanager->DeleteObjectID(id);
 }
 
-bool SceneManager::AddDamageToEnemy(int enemyID, int amount)
+int SceneManager::AddDamageToEnemy(int enemyID, int amount)
 {
-	Damageable* enemy = objectIDmanager->GetGameObject(enemyID)->GetComponent<Damageable>();
-	enemy->TakeDamage(amount);
-	if (enemy->isDead())
-		return true;
-	return false;
+	GameObject* enemy = objectIDmanager->GetGameObject(enemyID);
+	if (enemy == NULL)
+		return ERROR_ALREADY_DELETED_ENEMY;
+	enemy->GetComponent<Damageable>()->TakeDamage(amount);
+	if (enemy->GetComponent<Damageable>()->isDead())
+		return enemyID;
+	return ERROR_NOT_DEAD_YET;
 }

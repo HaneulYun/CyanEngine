@@ -50,5 +50,5 @@ public:
 
 	void DeleteObjectID(int id);
 
-	bool AddDamageToEnemy(int enemyID, int amount);
+	int AddDamageToEnemy(int enemyID, int amount);
 };

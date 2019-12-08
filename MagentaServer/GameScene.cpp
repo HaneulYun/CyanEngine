@@ -51,7 +51,7 @@ void GameScene::BuildObjects()
 	}
 	{
 		GameObject* bulletobj = DuplicatePrefab(object);
-		bulletobj->AddComponent<Bullet>()->SetEntity(0.0f, 0.0f);
+		bulletobj->AddComponent<Bullet>()->SetEntity(0.3f, 0.0f);
 		bulletGenerator->GetComponent<BulletGenerator>()->bullet[3] = bulletobj;
 	}
 	{
@@ -72,6 +72,8 @@ void GameScene::BuildObjects()
 		enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy0->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy0->GetComponent<Damager>()->isTeam = false;
+		enemy0->AddComponent<Damageable>()->SetHealth(4);
+		enemy0->GetComponent<Damageable>()->isTeam = false;
 		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 	}
 
@@ -82,6 +84,8 @@ void GameScene::BuildObjects()
 		enemy1->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy1->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy1->GetComponent<Damager>()->isTeam = false;
+		enemy1->AddComponent<Damageable>()->SetHealth(8);
+		enemy1->GetComponent<Damageable>()->isTeam = false;
 		enemy1->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 	}
 
@@ -92,6 +96,8 @@ void GameScene::BuildObjects()
 		enemy2->GetComponent<MovingBehavior>()->speed = 5.f;
 		enemy2->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy2->GetComponent<Damager>()->isTeam = false;
+		enemy2->AddComponent<Damageable>()->SetHealth(32);
+		enemy2->GetComponent<Damageable>()->isTeam = false;
 		enemy2->AddComponent<BoxCollider>()->extents = Vector3{ 17.5f,17.5f,1.f };
 	}
 
@@ -101,6 +107,8 @@ void GameScene::BuildObjects()
 		enemy4->AddComponent<WhirlingBehavior>()->target = star;
 		enemy4->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy4->GetComponent<Damager>()->isTeam = false;
+		enemy4->AddComponent<Damageable>()->SetHealth(16);
+		enemy4->GetComponent<Damageable>()->isTeam = false;
 		enemy4->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 	}
 

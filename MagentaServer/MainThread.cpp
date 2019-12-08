@@ -19,6 +19,7 @@ DWORD WINAPI MainThread::Calculate(LPVOID arg)	// 임시 함수 이름
 {
 	Message result;
 	int type;
+	int deleteEnemy;
 
 	while (1) {
 		gMagentaFW.FrameAdvance();
@@ -76,12 +77,19 @@ DWORD WINAPI MainThread::Calculate(LPVOID arg)	// 임시 함수 이름
 				break;
 
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
-				SceneManager::scenemanager->DeleteObjectID(curMessage.lParam);
-				PushToSendQueue(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
-				if (SceneManager::scenemanager->AddDamageToEnemy((int)curMessage.mParam, (int)curMessage.rParam))
+				deleteEnemy = SceneManager::scenemanager->AddDamageToEnemy((int)curMessage.mParam, (int)curMessage.rParam);
+				if (deleteEnemy == ERROR_ALREADY_DELETED_ENEMY)
+					;
+				else if (deleteEnemy == ERROR_NOT_DEAD_YET)
 				{
-					curMessage.lParam = curMessage.mParam;
 					SceneManager::scenemanager->DeleteObjectID(curMessage.lParam);
+					PushToSendQueue(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
+				}
+				else
+				{
+					SceneManager::scenemanager->DeleteObjectID(curMessage.lParam);
+					PushToSendQueue(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
+					SceneManager::scenemanager->DeleteObjectID(deleteEnemy);
 					PushToSendQueue(result, curMessage, MESSAGE_DELETE_ENEMY);
 				}
 				break;

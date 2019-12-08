@@ -50,5 +50,9 @@ struct Message
 // lParam = enemyID 
 #define MESSAGE_DELETE_ENEMY 0x30
 
+// NOT A MESSAGE
+#define ERROR_ALREADY_DELETED_ENEMY -1
+#define ERROR_NOT_DEAD_YET -2
+
 // Collision Message
 #define MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY 0x40	// lParam = enemy ID, mParam = Star HP

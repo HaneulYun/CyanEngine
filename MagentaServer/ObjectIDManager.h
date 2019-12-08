@@ -66,7 +66,8 @@ public:
 		{
 			if (iter->id == id)
 				return iter->gameobject;
-
+			else
+				++iter;
 		}
 		return nullptr;
 	}
