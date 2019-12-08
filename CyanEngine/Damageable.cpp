@@ -24,6 +24,11 @@ void Damageable::TakeDamage(Damager damager)
 	health -= damager.GetDamageAmount();
 }
 
+void Damageable::TakeDamage(int damage)
+{
+	health -= damage;
+}
+
 void Damageable::SetHealth(int amount)
 {
 	health = amount;

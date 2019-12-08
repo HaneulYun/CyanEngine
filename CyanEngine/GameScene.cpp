@@ -113,7 +113,7 @@ void GameScene::BuildObjects()
 		enemy0->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy0->AddComponent<Enemy>();
 		enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
-		enemy0->AddComponent<Damageable>()->SetHealth(2);
+		enemy0->AddComponent<Damageable>()->SetHealth(4);
 		enemy0->GetComponent<Damageable>()->isTeam = false;
 		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
 		enemy0->AddComponent<AfterImageGenerator>();
@@ -126,7 +126,7 @@ void GameScene::BuildObjects()
 		enemy1->AddComponent<Enemy>();
 		enemy1->AddComponent<RotatingBehavior>();
 		enemy1->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
-		enemy1->AddComponent<Damageable>()->SetHealth(4);
+		enemy1->AddComponent<Damageable>()->SetHealth(8);
 		enemy1->GetComponent<Damageable>()->isTeam = false;
 		enemy1->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
 		enemy1->AddComponent<AfterImageGenerator>();
@@ -151,7 +151,7 @@ void GameScene::BuildObjects()
 		enemy4->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy4->AddComponent<Enemy>();
 		enemy4->AddComponent<WhirlingBehavior>()->target = star;
-		enemy4->AddComponent<Damageable>()->SetHealth(8);
+		enemy4->AddComponent<Damageable>()->SetHealth(16);
 		enemy4->GetComponent<Damageable>()->isTeam = false;
 		enemy4->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
 		enemy4->AddComponent<AfterImageGenerator>();
