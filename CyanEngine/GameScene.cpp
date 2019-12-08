@@ -9,11 +9,15 @@ std::queue<Message> recvQueue;
 std::queue<Message> sendQueue;
 CRITICAL_SECTION rqcs;
 
+Mesh* Bullet::mesh{ nullptr };
+
 void GameScene::BuildObjects()
 {
 	scene = this;
 
 	// preComponent
+	Bullet::mesh = new Quad(2.0f, 3.0f);
+
 	Quad* pQuadMesh = new Quad(10.0f, 10.0f);
 	Quad* BigMesh = new Quad(25.0f, 25.0f);
 	Quad* LaserMesh = new Quad(2.0f, 360.0f);
@@ -64,20 +68,20 @@ void GameScene::BuildObjects()
 	{	
 		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		bulletobj->GetComponent<Bullet>()->SetEntity(0.25f, 200.f);
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.2f, 200.f);
 		bulletobj->GetComponent<AfterImageGenerator>()->SetEntity(0.1f, 0.5f);
 		scnmgr->bulletprefab[0] = bulletobj;
 	}
 	{
 		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = CannonMesh;
-		bulletobj->GetComponent<Bullet>()->SetEntity(0.5f, 100.f);
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.3f, 100.f);
 		scnmgr->bulletprefab[1] = bulletobj;
 	} 
 	{	
 		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = SharpBulletMesh;
-		bulletobj->GetComponent<Bullet>()->SetEntity(0.125f, 260.0f);
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.1f, 260.0f);
 		scnmgr->bulletprefab[2] = bulletobj;
 	} 
 	{	
@@ -138,7 +142,7 @@ void GameScene::BuildObjects()
 		enemy2->GetComponent<MeshFilter>()->mesh = BigMesh;
 		enemy2->AddComponent<Enemy>();
 		enemy2->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
-		enemy2->GetComponent<MovingBehavior>()->speed = 5.f;
+		enemy2->GetComponent<MovingBehavior>()->speed = 8.f;
 		enemy2->AddComponent<Damageable>()->SetHealth(32);
 		enemy2->GetComponent<Damageable>()->isTeam = false;
 		enemy2->AddComponent<BoxCollider>()->extents = Vector3{ 17.5f,17.5f,17.5f };

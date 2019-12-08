@@ -134,14 +134,27 @@ struct Vector3
 		return !((x == rhs.x) && (y == rhs.y) && (z == rhs.z));
 	}
 
+	XMFLOAT4 XMF4() const
+	{
+		return XMFLOAT4(x, y, z, 1);
+	}
+
 	float Degree(const Vector3& rhs = Vector3(1, 0, 0)) const
 	{
 		float angle = XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenNormals(XMLoadFloat3(&xmf3), XMLoadFloat3(&rhs.xmf3))));
-
 		if (NS_Vector3::CrossProduct(xmf3, rhs.xmf3).z > 0.f)
 			angle = -angle;
-
 		return angle;
+	}
+
+	Vector3& DegreeToVector3(float degree)
+	{
+		Vector3 axis{ 0.0f, 0.0f, 1.0f };
+		Vector3 v{ 1.0f, 0.0f, 0.0f };
+		XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&axis.xmf3), XMConvertToRadians(degree));
+
+		XMStoreFloat3(&xmf3, XMVector3TransformCoord(XMLoadFloat3(&v.xmf3), mtxRotate));
+		return *this;
 	}
 
 	float Length() const
