@@ -24,7 +24,7 @@ void GameScene::BuildObjects()
 	GameObject* star = Instantiate(object);
 	{
 		star->AddComponent<Star>();
-		star->AddComponent<Damageable>()->SetHealth(99999);
+		star->AddComponent<Damageable>()->SetHealth(999999);
 		star->GetComponent<Damageable>()->isTeam = true;
 		star->AddComponent<BoxCollider>();
 		star->GetComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };

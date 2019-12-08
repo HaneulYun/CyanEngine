@@ -21,6 +21,7 @@ public:
 	virtual Component* Duplicate(Component* component) { return new Damageable(*(Damageable*)component); }
 
 	void TakeDamage(Damager damager);
+	void TakeDamage(int damage);
 	void SetHealth(int amount);
 	int GetCurHealth();
 	void ResetHealth();

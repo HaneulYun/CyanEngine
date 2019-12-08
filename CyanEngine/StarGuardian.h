@@ -36,6 +36,8 @@ public:
 	{
 		GameObject* object = Instantiate(bullet[type]);
 		object->transform->position = gameObject->transform->position;
+		if (type == 3)
+			object->transform->position += direction.Normalize() * 180.0f;
 		object->GetComponent<Bullet>()->direction = direction;
 
 		return object;

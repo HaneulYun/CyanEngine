@@ -110,7 +110,7 @@ public:
 		if (player[playerid] != nullptr)
 		{
 			GameObject* bullet = player[playerid]->GetComponent<StarGuardian>()->Shoot(type, direction);
-			//objectIDmanager->CreateObjectID(id, bullet);
+			objectIDmanager->CreateObjectID(id, bullet);
 		}
 		// Bullet 만들 때 ID 부여하기
 	}
@@ -160,15 +160,15 @@ public:
 					switch (i)
 					{
 					case 0:
-						damager->SetDamageAmount(1);
+						damager->SetDamageAmount(2);
 						starguardian->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 						break;
 					case 1:
-						damager->SetDamageAmount(3);
+						damager->SetDamageAmount(5);
 						starguardian->bullet[i]->AddComponent<SphereCollider>()->radius = 4.0f;
 						break;
 					case 2:
-						damager->SetDamageAmount(0.5);
+						damager->SetDamageAmount(1);
 						starguardian->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
 						break;
 					case 3:
@@ -195,7 +195,7 @@ public:
 				StartGame();
 				break;
 			case MESSAGE_GAME_END:
-				EndGame();
+				//EndGame();
 				break;
 			// Bullet
 			case MESSAGE_CREATE_BULLET_STRAIGHT:
@@ -220,7 +220,10 @@ public:
 				break;
 				// lParam = BulletID / mParam = EnemyID / rParam = Damage
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
-//				objectIDmanager->CollideBulletandEnemy(curMsg.lParam, curMsg.mParam, curMsg.rParam);
+				objectIDmanager->CollideBulletandEnemy(curMsg.lParam, curMsg.mParam, curMsg.rParam);
+				break;
+			case MESSAGE_DELETE_BULLET:
+				DeleteObject(curMsg.lParam);
 				break;
 			}
 		}

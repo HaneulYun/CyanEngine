@@ -53,23 +53,26 @@ public:
 
 	void CollideBulletandEnemy(int bulletID, int enemyID, int damage)
 	{
-		for (auto iter = ObjectsID.begin(); iter != ObjectsID.end(); ++iter)
+		for (auto iter = ObjectsID.begin(); iter != ObjectsID.end();)
 		{
 			if (iter->id == bulletID)
 			{
 				Destroy(iter->gameobject);
-				ObjectsID.erase(iter);
+				iter = ObjectsID.erase(iter);
 			}
 			else if (iter->id == enemyID)
 			{
-				Damageable* damagealbe = iter->gameobject->GetComponent<Damageable>();
-				damagealbe->TakeDamage(damage);
-				if (damagealbe->isDead())
+				Damageable* damageable = iter->gameobject->GetComponent<Damageable>();
+				damageable->TakeDamage(damage);
+				if (damageable->isDead())
 				{
 					Destroy(iter->gameobject);
-					ObjectsID.erase(iter);
+					iter = ObjectsID.erase(iter);
 				}
+				else ++iter;
 			}
+			else 
+				++iter;
 		}
 	}
 
