@@ -3,19 +3,44 @@
 
 bool BoxCollider::Compare(Collider* _other)
 {
+	boundingBox.Center = gameObject->transform->position.xmf3;
+	BoundingOrientedBox obbBox{};
+	if (obb)
+	{
+		obbBox.Center = boundingBox.Center;
+		obbBox.Extents = boundingBox.Extents;
+		XMStoreFloat4(&obbBox.Orientation, XMQuaternionRotationMatrix(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
+	}
 	if (typeid(*_other).name() == typeid(BoxCollider).name())
 	{
 		BoxCollider* other = dynamic_cast<BoxCollider*>(_other);
-		boundingBox.Center = gameObject->transform->position.xmf3;
 		other->boundingBox.Center = other->gameObject->transform->position.xmf3;
 
+		BoundingOrientedBox obbOtherBox{};
+		if (other->obb)
+		{
+			obbOtherBox.Center = other->boundingBox.Center;
+			obbOtherBox.Extents = other->boundingBox.Extents;
+			XMStoreFloat4(&obbOtherBox.Orientation, XMQuaternionRotationMatrix(XMLoadFloat4x4(&other->gameObject->transform->localToWorldMatrix)));
+		}
+
+		if (obb)
+		{
+			if(other->obb)
+				return obbBox.Intersects(obbOtherBox);
+			return obbBox.Intersects(other->boundingBox);
+		}
+		if (other->obb)
+			return boundingBox.Intersects(obbOtherBox);
 		return boundingBox.Intersects(other->boundingBox);
 	}
 	else if (typeid(*_other).name() == typeid(SphereCollider).name())
 	{
 		SphereCollider* other = dynamic_cast<SphereCollider*>(_other);
-		boundingBox.Center = gameObject->transform->position.xmf3;
 		other->boundingSphere.Center = other->gameObject->transform->position.xmf3;
+
+		if (obb)
+			obbBox.Intersects(other->boundingSphere);
 		return boundingBox.Intersects(other->boundingSphere);
 	}
 }

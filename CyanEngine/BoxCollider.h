@@ -13,6 +13,7 @@ public:
 		};
 	};
 	Vector3 size{};
+	bool obb{ false };
 
 private:
 	friend class GameObject;
