@@ -11,7 +11,7 @@ private:
 public:
 	// 이 영역에 public 변수를 선언하세요.
 	GameObject* enemy[5]{ nullptr };
-	GameObject* objIDmgr{ nullptr };
+	ObjectIDManager* objIDmgr{ nullptr };
 
 private:
 	friend class GameObject;
@@ -31,7 +31,7 @@ public:
 	void Update()
 	{
 		// 업데이트 코드를 작성하세요.
-		if (SceneManager::scenemanager->GetComponent<SceneManager>()->gameState == START) {
+		if (SceneManager::scenemanager->gameState == START) {
 
 			elapsedTime += Time::deltaTime;
 
@@ -43,7 +43,7 @@ public:
 				{
 					float radian = Random::Range(0.0f, XM_2PI);
 					object->GetComponent<Transform>()->position = Vector3(cos(radian) * spawnRadius, sin(radian) * spawnRadius, 0);
-					objIDmgr->GetComponent<ObjectIDManager>()->CreateObjectID(object);
+					objIDmgr->CreateObjectID(object);
 
 					Message result;
 					result.msgId = MESSAGE_CREATE_ENEMY_COMINGRECT;

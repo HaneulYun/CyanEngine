@@ -29,7 +29,7 @@ public:
 			sendMsg.msgId = MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY;
 			sendMsg.lParam = enemyID;
 			sendMsg.mParam = gameObject->GetComponent<Damageable>()->GetCurHealth();
-			SceneManager::scenemanager->GetComponent<SceneManager>()->objectIDmanager->GetComponent<ObjectIDManager>()->DeleteObjectID(enemyID);
+			SceneManager::scenemanager->objectIDmanager->DeleteObjectID(enemyID);
 			printf("ªË¡¶ %d\n", enemyID);
 			
 			EnterCriticalSection(&ThreadPool::sqcs);
