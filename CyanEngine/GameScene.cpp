@@ -83,7 +83,7 @@ void GameScene::BuildObjects()
 	{	
 		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
 		bulletobj->GetComponent<MeshFilter>()->mesh = LaserMesh;
-		bulletobj->GetComponent<Bullet>()->SetEntity(0.3f, 0.0f);
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.3f, 0.0f, 0.3f);
 		scnmgr->bulletprefab[3] = bulletobj;
 	} 
 	{	
