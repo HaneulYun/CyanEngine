@@ -26,6 +26,15 @@ void Damageable::TakeDamage(Damager damager)
 	printf("아야!\n");
 }
 
+void Damageable::TakeDamage(int damageAmount)
+{
+	if (health <= 0)
+		return;
+
+	health -= damageAmount;
+	printf("아야!\n");
+}
+
 void Damageable::SetHealth(int amount)
 {
 	health = amount;

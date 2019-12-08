@@ -14,6 +14,8 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 
 	float timeCycle{ 0.5f };
 	float speed{ 200.f };
+	float lifeTime;
+	float curLifeTime;
 	Vector3 direction;
 
 private:
@@ -30,6 +32,20 @@ public:
 		// Delete Bullet Out of Range
 		Vector3 distance = gameObject->transform->position - Vector3{ 0.0f,0.0f,0.0f };
 		if (distance.Length() >= 200.0f)
+		{
+			Message message;
+			message.msgId = MESSAGE_DELETE_BULLET;
+			message.lParam = gameObject->GetComponent<ObjectID>()->GetObjectID();
+			EnterCriticalSection(&rqcs);
+			recvQueue.push(message);
+			LeaveCriticalSection(&rqcs);
+		}
+	}
+
+	void UpdateLifeTime()
+	{
+		curLifeTime -= Time::deltaTime;
+		if (curLifeTime <= 0.0f)
 		{
 			Message message;
 			message.msgId = MESSAGE_DELETE_BULLET;
@@ -65,6 +81,7 @@ public:
 		gameObject->transform->position = gameObject->transform->position + movevector;
 
 		CheckOutOfRange();
+		if (speed == 0) UpdateLifeTime();
 	}
 
 	void OnTriggerEnter(GameObject* collision)
@@ -75,10 +92,12 @@ public:
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
-	void SetEntity(const float _timeCycle, const float _speed, const Vector3& _direction = {})
+	void SetEntity(const float _timeCycle, const float _speed, const float _lifeTime = {}, const Vector3& _direction = {})
 	{
 		timeCycle = _timeCycle;
 		speed = _speed;
 		direction = _direction;
+		lifeTime = _lifeTime;
+		curLifeTime = lifeTime;
 	}
 };

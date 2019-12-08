@@ -60,17 +60,6 @@ public:
 				Destroy(iter->gameobject);
 				iter = ObjectsID.erase(iter);
 			}
-			else if (iter->id == enemyID)
-			{
-				Damageable* damageable = iter->gameobject->GetComponent<Damageable>();
-				damageable->TakeDamage(damage);
-				if (damageable->isDead())
-				{
-					Destroy(iter->gameobject);
-					iter = ObjectsID.erase(iter);
-				}
-				else ++iter;
-			}
 			else 
 				++iter;
 		}

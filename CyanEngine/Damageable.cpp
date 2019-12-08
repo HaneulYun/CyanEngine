@@ -60,7 +60,10 @@ void Damageable::OnTriggerEnter(GameObject* collision)
 		if (damager->CanDamage())
 		{
 			// Bullet Disable
-			damager->DisableDamage();
+			if (collision->GetComponent<Bullet>()->speed != 0)
+				damager->DisableDamage();
+
+			//Destroy(gameObject);
 
 			// Push Msg Queue
 			Message message;

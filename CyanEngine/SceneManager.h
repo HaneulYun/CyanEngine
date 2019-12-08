@@ -173,7 +173,7 @@ public:
 						break;
 					case 3:
 						damager->SetDamageAmount(1);
-						starguardian->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.5f,1.5f,1.5f };
+						starguardian->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.0f,180.0f,1.5f };
 						break;
 					case 4:
 						damager->SetDamageAmount(1);
@@ -220,9 +220,12 @@ public:
 				break;
 				// lParam = BulletID / mParam = EnemyID / rParam = Damage
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
-				objectIDmanager->CollideBulletandEnemy(curMsg.lParam, curMsg.mParam, curMsg.rParam);
+				DeleteObject(curMsg.lParam);
 				break;
 			case MESSAGE_DELETE_BULLET:
+				DeleteObject(curMsg.lParam);
+				break;
+			case MESSAGE_DELETE_ENEMY:
 				DeleteObject(curMsg.lParam);
 				break;
 			}

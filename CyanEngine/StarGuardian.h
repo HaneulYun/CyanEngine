@@ -34,6 +34,18 @@ public:
 
 	GameObject* Shoot(int type, Vector3 direction)
 	{
+		// Rotate StarGuardian
+		Vector3 axis{ 0.0f, 1.0f, 0.0f };
+		float angle = NS_Vector3::Angle(axis.xmf3, direction.xmf3);
+
+		if (NS_Vector3::CrossProduct(axis.xmf3, direction.xmf3).z < 0.f)
+			angle = -angle;
+
+		gameObject->transform->up = Vector3{ 0.0f,1.0f,0.0f };
+		gameObject->transform->right = Vector3{ 1.0f,0.0f,0.0f };
+		gameObject->transform->forward = Vector3{ 0.0f,0.0f,1.0f };
+		gameObject->transform->Rotate(Vector3{ 0.0f,0.0f,1.0f }.xmf3, angle);
+
 		GameObject* object = Instantiate(bullet[type]);
 		object->transform->position = gameObject->transform->position;
 		if (type == 3)
