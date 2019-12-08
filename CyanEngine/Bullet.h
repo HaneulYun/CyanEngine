@@ -1,15 +1,17 @@
 #pragma once
 #include "framework.h"
 #include "Message.h"
+#include "Mesh.h"
 
 class Enemy;
 
 class Bullet : public MonoBehavior<Bullet>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
+	static Mesh* mesh;
+
 	float timeCycle{ 0.5f };
 	float speed{ 200.f };
 	Vector3 direction;
@@ -41,6 +43,7 @@ public:
 	void Start()
 	{
 		// 초기화 코드를 작성하세요.
+
 		direction = direction.Normalize();
 		gameObject->transform->Rotate({ 0, 0, 1 }, direction.Degree() - 90);
 
@@ -49,7 +52,8 @@ public:
 			GameObject* vfx = new GameObject();
 			*vfx->GetComponent<Transform>() = *gameObject->GetComponent<Transform>();
 			vfx->GetComponent<Transform>()->gameObject = vfx;
-			vfx->AddComponent<MeshFilter>(gameObject->GetComponent<MeshFilter>());
+			//vfx->AddComponent<MeshFilter>(gameObject->GetComponent<MeshFilter>());
+			vfx->AddComponent<MeshFilter>()->mesh = mesh;
 			vfx->AddComponent<Renderer>(gameObject->GetComponent<Renderer>());
 			vfx->AddComponent<EmptyShell>()->SetEntity(-direction, 1);
 		}

@@ -9,11 +9,15 @@ std::queue<Message> recvQueue;
 std::queue<Message> sendQueue;
 CRITICAL_SECTION rqcs;
 
+Mesh* Bullet::mesh{ nullptr };
+
 void GameScene::BuildObjects()
 {
 	scene = this;
 
 	// preComponent
+	Bullet::mesh = new Quad(2.0f, 3.0f);
+
 	Quad* pQuadMesh = new Quad(10.0f, 10.0f);
 	Quad* BigMesh = new Quad(25.0f, 25.0f);
 	Quad* LaserMesh = new Quad(2.0f, 360.0f);
