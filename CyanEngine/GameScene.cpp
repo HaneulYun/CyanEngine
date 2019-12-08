@@ -120,6 +120,7 @@ void GameScene::BuildObjects()
 		enemy0->AddComponent<Damageable>()->SetHealth(4);
 		enemy0->GetComponent<Damageable>()->isTeam = false;
 		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };
+		enemy0->GetComponent<BoxCollider>()->obb = true;
 		enemy0->AddComponent<AfterImageGenerator>();
 		enemy0->AddComponent<ObjectID>();
 	}

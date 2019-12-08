@@ -174,6 +174,7 @@ public:
 					case 3:
 						damager->SetDamageAmount(1);
 						starguardian->bullet[i]->AddComponent<BoxCollider>()->extents = Vector3{ 1.0f,180.0f,1.5f };
+						starguardian->bullet[i]->GetComponent<BoxCollider>()->obb = true;
 						break;
 					case 4:
 						damager->SetDamageAmount(1);

@@ -63,8 +63,6 @@ void Damageable::OnTriggerEnter(GameObject* collision)
 			if (collision->GetComponent<Bullet>()->speed != 0)
 				damager->DisableDamage();
 
-			//Destroy(gameObject);
-
 			// Push Msg Queue
 			Message message;
 			message.msgId = MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY;
