@@ -34,7 +34,7 @@ public:
 		if (distance.Length() >= 200.0f)
 		{
 			Message message;
-			message.msgId = MESSAGE_DELETE_BULLET;
+			message.msgId = MESSAGE_DELETE_OBJECT;
 			message.lParam = gameObject->GetComponent<ObjectID>()->GetObjectID();
 			EnterCriticalSection(&rqcs);
 			recvQueue.push(message);
@@ -48,7 +48,7 @@ public:
 		if (curLifeTime <= 0.0f)
 		{
 			Message message;
-			message.msgId = MESSAGE_DELETE_BULLET;
+			message.msgId = MESSAGE_DELETE_OBJECT;
 			message.lParam = gameObject->GetComponent<ObjectID>()->GetObjectID();
 			EnterCriticalSection(&rqcs);
 			recvQueue.push(message);

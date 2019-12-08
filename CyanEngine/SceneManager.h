@@ -218,14 +218,7 @@ public:
 				ChangeStarHealth(curMsg.mParam);
 				DeleteObject(curMsg.lParam);
 				break;
-				// lParam = BulletID / mParam = EnemyID / rParam = Damage
-			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
-				DeleteObject(curMsg.lParam);
-				break;
-			case MESSAGE_DELETE_BULLET:
-				DeleteObject(curMsg.lParam);
-				break;
-			case MESSAGE_DELETE_ENEMY:
+			case MESSAGE_DELETE_OBJECT:
 				DeleteObject(curMsg.lParam);
 				break;
 			}
