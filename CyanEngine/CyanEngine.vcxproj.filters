@@ -276,6 +276,9 @@
     <ClInclude Include="AfterImage.h">
       <Filter>1_00_YellowProject\15_VFX</Filter>
     </ClInclude>
+    <ClInclude Include="EmptyShell.h">
+      <Filter>1_00_YellowProject\15_VFX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

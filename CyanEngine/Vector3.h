@@ -136,14 +136,7 @@ struct Vector3
 
 	float Degree(const Vector3& rhs = Vector3(1, 0, 0)) const
 	{
-		//XMVECTOR xmvAngle = XMVector3AngleBetweenNormals(xmvVector1, xmvVector2);
-		//return(XMConvertToDegrees(XMVectorGetX(xmvAngle)));
-
-		//XMFLOAT3 xmf3Result;
-		//XMStoreFloat3(&xmf3Result, XMVector3AngleBetweenNormals(XMLoadFloat3(&xmf3), XMLoadFloat3(&rhs.xmf3)));
-		//return XMConvertToDegrees(xmf3Result.x) * (CrossProduct(rhs) < 0.0f ? -1 : 1);
-		//Vector3 axis{ 1.0f, 0.0f, 0.0f };
-		float angle = NS_Vector3::Angle(xmf3, rhs.xmf3);
+		float angle = XMConvertToDegrees(XMVectorGetX(XMVector3AngleBetweenNormals(XMLoadFloat3(&xmf3), XMLoadFloat3(&rhs.xmf3))));
 
 		if (NS_Vector3::CrossProduct(xmf3, rhs.xmf3).z > 0.f)
 			angle = -angle;
@@ -158,12 +151,15 @@ struct Vector3
 		return(xmf3Result.x);
 	}
 
-	//float CrossProduct(const Vector3& rhs) const
-	//{
-	//	XMFLOAT3 xmf3Result;
-	//	XMStoreFloat3(&xmf3Result, XMVector3Cross(XMLoadFloat3(&xmf3), XMLoadFloat3(&rhs.xmf3)));
-	//	return xmf3Result.x;
-	//}
+	Vector3 CrossProduct(const Vector3& rhs, float normalize = true) const
+	{
+		Vector3 result;
+		if (normalize)
+			XMStoreFloat3(&result.xmf3, XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&xmf3), XMLoadFloat3(&rhs.xmf3))));
+		else
+			XMStoreFloat3(&result.xmf3, XMVector3Cross(XMLoadFloat3(&xmf3), XMLoadFloat3(&rhs.xmf3)));
+		return result;
+	}
 
 	Vector3& Normalize()
 	{
@@ -175,6 +171,10 @@ struct Vector3
 		Vector3 result;
 		XMStoreFloat3(&result.xmf3, XMVector3Normalize(XMLoadFloat3(&xmf3)));
 		return result;
+	}
+	Vector3 operator-() const
+	{
+		return {-x, -y, -z};
 	}
 	Vector3 operator-(const Vector3& rhs) const
 	{

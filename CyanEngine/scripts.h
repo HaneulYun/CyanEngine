@@ -12,6 +12,7 @@
 
 #include "AfterImage.h"
 #include "AfterImageGenerator.h"
+#include "EmptyShell.h"
 
 #include "StarGuardian.h"
 #include "Spawner.h"
