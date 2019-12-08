@@ -47,5 +47,8 @@ struct Message
 #define MESSAGE_CREATE_ENEMY_COMINGTWOTRIANGLE 0x23
 #define MESSAGE_CREATE_ENEMY_WHIRLINGCOMINGRECT 0x24
 
+// lParam = enemyID 
+#define MESSAGE_DELETE_ENEMY 0x30
+
 // Collision Message
 #define MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY 0x40	// lParam = enemy ID, mParam = Star HP
