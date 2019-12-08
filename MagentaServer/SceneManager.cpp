@@ -56,7 +56,7 @@ bool SceneManager::AddDamageToEnemy(int enemyID, int amount)
 {
 	Damageable* enemy = objectIDmanager->GetGameObject(enemyID)->GetComponent<Damageable>();
 	enemy->TakeDamage(amount);
-	if (enemy->isDead)
+	if (enemy->isDead())
 		return true;
 	return false;
 }
