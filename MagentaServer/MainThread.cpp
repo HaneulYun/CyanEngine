@@ -83,15 +83,15 @@ DWORD WINAPI MainThread::Calculate(LPVOID arg)	// 임시 함수 이름
 				else if (deleteEnemy == ERROR_NOT_DEAD_YET)
 				{
 					SceneManager::scenemanager->DeleteObjectID(curMessage.lParam);
-					PushToSendQueue(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
+					PushToSendQueue(result, curMessage, MESSAGE_DELETE_OBJECT);
 				}
 				else
 				{
 					SceneManager::scenemanager->DeleteObjectID(curMessage.lParam);
-					PushToSendQueue(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
+					PushToSendQueue(result, curMessage, MESSAGE_DELETE_OBJECT);
 					SceneManager::scenemanager->DeleteObjectID(deleteEnemy);
 					curMessage.lParam = deleteEnemy;
-					PushToSendQueue(result, curMessage, MESSAGE_DELETE_ENEMY);
+					PushToSendQueue(result, curMessage, MESSAGE_DELETE_OBJECT);
 				}
 				break;
 			}
