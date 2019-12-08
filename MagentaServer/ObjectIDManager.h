@@ -54,6 +54,7 @@ public:
 			{
 				Destroy(iter->gameobject);
 				iter = ObjectsID.erase(iter);
+				break;
 			}
 			else
 				++iter;

@@ -90,6 +90,7 @@ DWORD WINAPI MainThread::Calculate(LPVOID arg)	// 임시 함수 이름
 					SceneManager::scenemanager->DeleteObjectID(curMessage.lParam);
 					PushToSendQueue(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
 					SceneManager::scenemanager->DeleteObjectID(deleteEnemy);
+					curMessage.lParam = deleteEnemy;
 					PushToSendQueue(result, curMessage, MESSAGE_DELETE_ENEMY);
 				}
 				break;
