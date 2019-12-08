@@ -138,7 +138,7 @@ void GameScene::BuildObjects()
 		enemy2->GetComponent<MeshFilter>()->mesh = BigMesh;
 		enemy2->AddComponent<Enemy>();
 		enemy2->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
-		enemy2->GetComponent<MovingBehavior>()->speed = 5.f;
+		enemy2->GetComponent<MovingBehavior>()->speed = 8.f;
 		enemy2->AddComponent<Damageable>()->SetHealth(32);
 		enemy2->GetComponent<Damageable>()->isTeam = false;
 		enemy2->AddComponent<BoxCollider>()->extents = Vector3{ 17.5f,17.5f,17.5f };
