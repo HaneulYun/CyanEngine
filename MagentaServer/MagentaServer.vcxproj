@@ -163,6 +163,7 @@
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SendingThread.cpp" />
     <ClCompile Include="ConnectingThread.cpp" />
     <ClCompile Include="Main.cpp" />

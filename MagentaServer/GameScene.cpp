@@ -2,7 +2,7 @@
 #include "scripts.h"
 #include "GameScene.h"
 
-GameObject* SceneManager::scenemanager;
+SceneManager* SceneManager::scenemanager;
 Scene* Scene::scene = nullptr;
 
 void GameScene::BuildObjects()

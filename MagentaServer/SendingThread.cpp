@@ -36,7 +36,7 @@ DWORD WINAPI Sender(LPVOID arg)
 			}
 
 			if (curMessage.msgId == MESSAGE_GAME_START)
-				SceneManager::scenemanager->GetComponent<SceneManager>()->StartGame();
+				SceneManager::scenemanager->StartGame();
 
 			LeaveCriticalSection(&ThreadPool::sqcs);
 		}

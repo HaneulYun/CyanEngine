@@ -31,7 +31,7 @@ public:
 	void Update()
 	{
 		// 업데이트 코드를 작성하세요.
-		if (SceneManager::scenemanager->GetComponent<SceneManager>()->gameState == START) {
+		if (SceneManager::scenemanager->gameState == START) {
 
 			elapsedTime += Time::deltaTime;
 

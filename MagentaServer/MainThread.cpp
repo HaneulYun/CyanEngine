@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "MainThread.h"
+#include "SceneManager.h"
 
 extern MagentaFW gMagentaFW;
 
@@ -63,6 +64,7 @@ DWORD WINAPI MainThread::Calculate(LPVOID arg)	// 임시 함수 이름
 
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
 				RequestBulletCreation(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
+				SceneManager::scenemanager;
 				break;
 			}
 		}

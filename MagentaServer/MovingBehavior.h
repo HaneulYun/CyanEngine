@@ -28,7 +28,7 @@ public:
 
 	void Update()
 	{
-		if (SceneManager::scenemanager->GetComponent<SceneManager>()->gameState == START) {
+		if (SceneManager::scenemanager->gameState == START) {
 			// 업데이트 코드를 작성하세요.
 
 			Vector3 v = (target - gameObject->transform->position).Normalize();

@@ -28,7 +28,7 @@ public:
 
 	int CreateBulletAndGetObjID(int type)
 	{
-		if (SceneManager::scenemanager->GetComponent<SceneManager>()->gameState == START) 
+		if (SceneManager::scenemanager->gameState == START) 
 		{
 			GameObject* object = Instantiate(bullet[type]);
 			objIDmgr->GetComponent<ObjectIDManager>()->CreateObjectID(object);

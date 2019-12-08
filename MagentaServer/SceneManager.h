@@ -6,7 +6,7 @@ class SceneManager : public MonoBehavior<SceneManager>
 private:
 
 public:
-	static GameObject* scenemanager;
+	static SceneManager* scenemanager;
 	GameObject* objectIDmanager;
 	GameObject* bulletGenerator;
 
@@ -33,41 +33,13 @@ public:
 	virtual Component* Duplicate() { return new SceneManager; }
 	virtual Component* Duplicate(Component* component) { return new SceneManager(*(SceneManager*)component); }
 
-	void Start()
-	{
-		scenemanager = gameObject;
-	}
+	void Start();
 
-	void Update()
-	{
-		static float time = 0.f;
-		time += Time::deltaTime;
-		if (gameState == START)
-		{
-			standardAngle += speedRotating * Time::deltaTime;
-			if (star->GetComponent<Damageable>()->isDead())
-			{
-				gameState = END;
-				Message sendMsg;
-				sendMsg.msgId = MESSAGE_GAME_END;
-				EnterCriticalSection(&ThreadPool::sqcs);
-				ThreadPool::sendQueue.push(sendMsg);
-				LeaveCriticalSection(&ThreadPool::sqcs);
-				printf("³¡\n");
-			}
-		}
-	}
+	void Update();
 
-	void CreatePlayer(int id) {
-		
-	}
+	void CreatePlayer(int id);
 
-	void StartGame() {
-		gameState = START;
-	}
+	void StartGame();
 
-	float getStandardAngle()
-	{
-		return standardAngle;
-	}
+	float getStandardAngle();
 };
