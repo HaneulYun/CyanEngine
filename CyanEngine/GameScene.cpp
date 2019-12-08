@@ -16,6 +16,7 @@ void GameScene::BuildObjects()
 	// preComponent
 	Quad* pQuadMesh = new Quad(10.0f, 10.0f);
 	Quad* BigMesh = new Quad(25.0f, 25.0f);
+	Quad* LaserMesh = new Quad(2.0f, 360.0f);
 	Circle* pCircleMesh = new Circle(10, 48);
 	CircleLine* pCircleLineMesh = new CircleLine(25.f);
 	TriangleMesh* BulletMesh = new TriangleMesh(3.0f);
@@ -81,8 +82,8 @@ void GameScene::BuildObjects()
 	} 
 	{	
 		GameObject* bulletobj = DuplicatePrefab(bulletPrefab);
-		bulletobj->GetComponent<MeshFilter>()->mesh = BulletMesh;
-		bulletobj->GetComponent<Bullet>()->SetEntity(0.0f, 0.0f);
+		bulletobj->GetComponent<MeshFilter>()->mesh = LaserMesh;
+		bulletobj->GetComponent<Bullet>()->SetEntity(0.3f, 0.0f);
 		scnmgr->bulletprefab[3] = bulletobj;
 	} 
 	{	
@@ -112,7 +113,6 @@ void GameScene::BuildObjects()
 		enemy0->GetComponent<MeshFilter>()->mesh = pQuadMesh;
 		enemy0->AddComponent<Enemy>();
 		enemy0->AddComponent<ComingBehavior>()->target = star->GetComponent<Transform>()->position;
-		//enemy0->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
 		enemy0->AddComponent<Damageable>()->SetHealth(2);
 		enemy0->GetComponent<Damageable>()->isTeam = false;
 		enemy0->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,1.f };

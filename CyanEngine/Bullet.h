@@ -23,25 +23,8 @@ private:
 public:
 	~Bullet() {}
 
-	void Start()
+	void CheckOutOfRange()
 	{
-		// 초기화 코드를 작성하세요.
-		direction = direction.Normalize();
-		gameObject->transform->Rotate({ 0, 0, 1 }, direction.Degree() - 90);
-
-		GameObject* vfx = new GameObject();
-		*vfx->GetComponent<Transform>() = *gameObject->GetComponent<Transform>();
-		vfx->GetComponent<Transform>()->gameObject = vfx;
-		vfx->AddComponent<MeshFilter>(gameObject->GetComponent<MeshFilter>());
-		vfx->AddComponent<Renderer>(gameObject->GetComponent<Renderer>());
-		vfx->AddComponent<EmptyShell>()->SetEntity(-direction, 1);
-	}
-
-	void Update()
-	{
-		Vector3 movevector = direction * speed * Time::deltaTime;
-		gameObject->transform->position = gameObject->transform->position + movevector;
-
 		// Delete Bullet Out of Range
 		Vector3 distance = gameObject->transform->position - Vector3{ 0.0f,0.0f,0.0f };
 		if (distance.Length() >= 200.0f)
@@ -53,6 +36,31 @@ public:
 			recvQueue.push(message);
 			LeaveCriticalSection(&rqcs);
 		}
+	}
+
+	void Start()
+	{
+		// 초기화 코드를 작성하세요.
+		direction = direction.Normalize();
+		gameObject->transform->Rotate({ 0, 0, 1 }, direction.Degree() - 90);
+
+		if (speed != 0)
+		{
+			GameObject* vfx = new GameObject();
+			*vfx->GetComponent<Transform>() = *gameObject->GetComponent<Transform>();
+			vfx->GetComponent<Transform>()->gameObject = vfx;
+			vfx->AddComponent<MeshFilter>(gameObject->GetComponent<MeshFilter>());
+			vfx->AddComponent<Renderer>(gameObject->GetComponent<Renderer>());
+			vfx->AddComponent<EmptyShell>()->SetEntity(-direction, 1);
+		}
+	}
+
+	void Update()
+	{
+		Vector3 movevector = direction * speed * Time::deltaTime;
+		gameObject->transform->position = gameObject->transform->position + movevector;
+
+		CheckOutOfRange();
 	}
 
 	void OnTriggerEnter(GameObject* collision)
