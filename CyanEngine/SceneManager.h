@@ -220,9 +220,12 @@ public:
 				break;
 				// lParam = BulletID / mParam = EnemyID / rParam = Damage
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
-				objectIDmanager->CollideBulletandEnemy(curMsg.lParam, curMsg.mParam, curMsg.rParam);
+				DeleteObject(curMsg.lParam);
 				break;
 			case MESSAGE_DELETE_BULLET:
+				DeleteObject(curMsg.lParam);
+				break;
+			case MESSAGE_DELETE_ENEMY:
 				DeleteObject(curMsg.lParam);
 				break;
 			}
