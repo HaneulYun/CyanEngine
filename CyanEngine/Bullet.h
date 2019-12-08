@@ -1,5 +1,6 @@
 #pragma once
 #include "framework.h"
+#include "Message.h"
 
 class Enemy;
 
@@ -43,9 +44,14 @@ public:
 
 		// Delete Bullet Out of Range
 		Vector3 distance = gameObject->transform->position - Vector3{ 0.0f,0.0f,0.0f };
-		if (distance.Length() >= 300.0f)
+		if (distance.Length() >= 200.0f)
 		{
-			Destroy(gameObject);
+			Message message;
+			message.msgId = MESSAGE_DELETE_BULLET;
+			message.lParam = gameObject->GetComponent<ObjectID>()->GetObjectID();
+			EnterCriticalSection(&rqcs);
+			recvQueue.push(message);
+			LeaveCriticalSection(&rqcs);
 		}
 	}
 

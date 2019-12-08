@@ -14,6 +14,7 @@
 #include "AfterImageGenerator.h"
 #include "EmptyShell.h"
 
+#include "ObjectID.h"
 #include "StarGuardian.h"
 #include "Spawner.h"
 #include "Star.h"
@@ -21,6 +22,5 @@
 #include "Enemy.h"
 
 #include "Thread.h"
-#include "ObjectID.h"
 #include "ObjectIDManager.h"
 #include "SceneManager.h"

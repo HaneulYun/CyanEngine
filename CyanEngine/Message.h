@@ -13,6 +13,10 @@ extern std::queue<Message> sendQueue;
 extern CRITICAL_SECTION rqcs;
 
 //////////////////////////////////////////////
+// Client to Client
+#define MESSAGE_DELETE_BULLET 0x50
+
+//////////////////////////////////////////////
 // Client to Server
 #define MESSAGE_READY 0x90	// lParam = 보내는 클라의 아이디
 
