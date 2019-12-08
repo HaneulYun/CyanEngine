@@ -11,7 +11,10 @@ class Input : public Singleton<Input>
 public:
 	static Vector3 mousePosition;
 	static bool keys[256];
+	static bool keyUp[256];
 	static bool keyDown[256];
+	static bool mouses[3];
+	static bool mouseUp[3];
 	static bool mouseDown[3];
 
 public:
@@ -20,6 +23,9 @@ public:
 
 	static void Update();
 	static bool GetKey(KeyCode key);
+	static bool GetKeyUp(KeyCode key);
 	static bool GetKeyDown(KeyCode key);
+	static bool GetMouseButton(int button);
+	static bool GetMouseButtonUp(int button);
 	static bool GetMouseButtonDown(int button);
 };

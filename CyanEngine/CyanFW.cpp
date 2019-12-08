@@ -51,11 +51,29 @@ void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
+		Input::mouses[0] = true;
 		Input::mouseDown[0] = true;
 		break;
+	case WM_MBUTTONDOWN:
+		Input::mouses[1] = true;
+		Input::mouseDown[1] = true;
+		break;
 	case WM_RBUTTONDOWN:
+		Input::mouses[2] = true;
+		Input::mouseDown[2] = true;
+		break;
 	case WM_LBUTTONUP:
+		Input::mouses[0] = false;
+		Input::mouseUp[0] = true;
+		break;
+	case WM_MBUTTONUP:
+		Input::mouses[1] = false;
+		Input::mouseUp[1] = true;
+		break;
 	case WM_RBUTTONUP:
+		Input::mouses[2] = false;
+		Input::mouseUp[2] = true;
+		break;
 	case WM_MOUSEMOVE:
 		Input::mousePosition = Vector3(LOWORD(lParam), HIWORD(lParam), 0);
 		break;
@@ -91,6 +109,7 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 			break;
 		}
 		Input::keys[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = false;
+		Input::keyUp[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = true;
 		break;
 	case WM_KEYDOWN:
 		Input::keys[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = true;
