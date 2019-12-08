@@ -9,5 +9,5 @@ public:
 
 	static DWORD WINAPI Calculate(LPVOID arg);
 
-	static void RequestBulletCreation(Message& result, Message& msg, unsigned char id);
+	static void PushToSendQueue(Message& result, Message& msg, unsigned char id);
 };

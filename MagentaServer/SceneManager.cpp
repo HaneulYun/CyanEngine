@@ -46,3 +46,17 @@ int SceneManager::CreateBulletAndGetObjID(int type)
 {
 	return bulletGenerator->CreateBulletAndGetObjID(type);
 }
+
+void SceneManager::DeleteObjectID(int id)
+{
+	objectIDmanager->DeleteObjectID(id);
+}
+
+bool SceneManager::AddDamageToEnemy(int enemyID, int amount)
+{
+	Damageable* enemy = objectIDmanager->GetGameObject(enemyID)->GetComponent<Damageable>();
+	enemy->TakeDamage(amount);
+	if (enemy->isDead)
+		return true;
+	return false;
+}

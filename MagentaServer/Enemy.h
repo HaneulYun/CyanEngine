@@ -22,6 +22,11 @@ public:
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
+		if (gameObject->GetComponent<Damageable>())
+		{
+			if(gameObject->GetComponent<Damageable>())
+				DeleteObjectID()
+		}
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.

@@ -60,6 +60,16 @@ public:
 		}
 	}
 
+	GameObject* GetGameObject(int id)
+	{
+		for (auto iter = ObjectsID.begin(); iter != ObjectsID.end();)
+		{
+			if (iter->id == id)
+				return iter->gameobject;
+
+		}
+		return nullptr;
+	}
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };
 

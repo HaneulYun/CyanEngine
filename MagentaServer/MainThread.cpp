@@ -36,49 +36,54 @@ DWORD WINAPI MainThread::Calculate(LPVOID arg)	// 임시 함수 이름
 			case MESSAGE_READY:
 				ThreadPool::clients[curMessage.lParam]->isReady = true;
 				if (ThreadPool::isAllClientsReady())
-					RequestBulletCreation(result, curMessage, MESSAGE_GAME_START);
+					PushToSendQueue(result, curMessage, MESSAGE_GAME_START);
 				break;
 
 			case MESSAGE_REQUEST_BULLET_CREATION:
 				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
 				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
-				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET);
+				PushToSendQueue(result, curMessage, MESSAGE_CREATE_BULLET);
 				break;
 
 			case MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT:
 				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
 				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
-				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_STRAIGHT);
+				PushToSendQueue(result, curMessage, MESSAGE_CREATE_BULLET_STRAIGHT);
 				break;
 
 			case MESSAGE_REQUEST_BULLET_CREATION_CANNON:
 				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
 				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
-				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_CANNON);
+				PushToSendQueue(result, curMessage, MESSAGE_CREATE_BULLET_CANNON);
 				break;
 
 			case MESSAGE_REQUEST_BULLET_CREATION_SHARP:
 				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
 				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
-				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_SHARP);
+				PushToSendQueue(result, curMessage, MESSAGE_CREATE_BULLET_SHARP);
 				break;
 
 			case MESSAGE_REQUEST_BULLET_CREATION_LASER:
 				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
 				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
-				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_LASER);
+				PushToSendQueue(result, curMessage, MESSAGE_CREATE_BULLET_LASER);
 				break;
 
 			case MESSAGE_REQUEST_BULLET_CREATION_GUIDED:
 				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
 				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
-				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_GUIDED);
+				PushToSendQueue(result, curMessage, MESSAGE_CREATE_BULLET_GUIDED);
 				break;
 
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
-				//int type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
-				//curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
-				RequestBulletCreation(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
+				SceneManager::scenemanager->DeleteObjectID(curMessage.lParam);
+				PushToSendQueue(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
+				if (SceneManager::scenemanager->AddDamageToEnemy((int)curMessage.mParam, (int)curMessage.rParam))
+				{
+					curMessage.lParam = curMessage.mParam;
+					SceneManager::scenemanager->DeleteObjectID(curMessage.lParam);
+					PushToSendQueue(result, curMessage, MESSAGE_DELETE_ENEMY);
+				}
 				break;
 			}
 		}
@@ -86,7 +91,7 @@ DWORD WINAPI MainThread::Calculate(LPVOID arg)	// 임시 함수 이름
 	return 0;
 }
 
-void MainThread::RequestBulletCreation(Message& result, Message& msg, unsigned char id)
+void MainThread::PushToSendQueue(Message& result, Message& msg, unsigned char id)
 {
 	result.msgId = id;
 	result.lParam = msg.lParam;

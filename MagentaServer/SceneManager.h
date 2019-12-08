@@ -47,4 +47,8 @@ public:
 	float getStandardAngle();
 
 	int CreateBulletAndGetObjID(int type);
+
+	void DeleteObjectID(int id);
+
+	bool AddDamageToEnemy(int enemyID, int amount);
 };
