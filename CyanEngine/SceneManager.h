@@ -279,7 +279,7 @@ public:
 			message.lParam = myid;
 			sendQueue.push(message);
 		}
-		else if (Input::GetMouseButtonDown(0) && gameState == START) {
+		else if (Input::GetMouseButton(0) && gameState == START) {
 			float timeCycle = bulletprefab[bulletType]->GetComponent<Bullet>()->timeCycle;
 			if (timeCycle <= elapsedTime)
 			{
