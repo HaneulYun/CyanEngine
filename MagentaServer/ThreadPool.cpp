@@ -15,8 +15,6 @@ int ThreadPool::maxClients = 3;
 int ThreadPool::nClients = 0;
 SOCKET* ThreadPool::listenSock;
 
-GameObject* ThreadPool::bulletGenerator;
-
 ThreadPool::ThreadPool()
 {
 	InitializeCriticalSection(&rqcs);

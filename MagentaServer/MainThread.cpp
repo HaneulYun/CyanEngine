@@ -18,6 +18,7 @@ MainThread::~MainThread()
 DWORD WINAPI MainThread::Calculate(LPVOID arg)	// 임시 함수 이름
 {
 	Message result;
+	int type;
 
 	while (1) {
 		gMagentaFW.FrameAdvance();
@@ -37,34 +38,47 @@ DWORD WINAPI MainThread::Calculate(LPVOID arg)	// 임시 함수 이름
 				if (ThreadPool::isAllClientsReady())
 					RequestBulletCreation(result, curMessage, MESSAGE_GAME_START);
 				break;
+
 			case MESSAGE_REQUEST_BULLET_CREATION:
+				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
+				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
 				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET);
-				//ThreadPool::bulletGenerator->GetComponent<BulletGenerator>()->CreateBulletAndGetObjID(0);
 				break;
+
 			case MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT:
+				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
+				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
 				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_STRAIGHT);
-				//ThreadPool::bulletGenerator->GetComponent<BulletGenerator>()->CreateBulletAndGetObjID(0);
 				break;
+
 			case MESSAGE_REQUEST_BULLET_CREATION_CANNON:
+				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
+				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
 				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_CANNON);
-				//ThreadPool::bulletGenerator->GetComponent<BulletGenerator>()->CreateBulletAndGetObjID(1);
 				break;
+
 			case MESSAGE_REQUEST_BULLET_CREATION_SHARP:
+				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
+				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
 				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_SHARP);
-				//ThreadPool::bulletGenerator->GetComponent<BulletGenerator>()->CreateBulletAndGetObjID(2);
 				break;
+
 			case MESSAGE_REQUEST_BULLET_CREATION_LASER:
+				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
+				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
 				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_LASER);
-				//ThreadPool::bulletGenerator->GetComponent<BulletGenerator>()->CreateBulletAndGetObjID(3);
 				break;
+
 			case MESSAGE_REQUEST_BULLET_CREATION_GUIDED:
+				type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
+				curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
 				RequestBulletCreation(result, curMessage, MESSAGE_CREATE_BULLET_GUIDED);
-				//ThreadPool::bulletGenerator->GetComponent<BulletGenerator>()->CreateBulletAndGetObjID(4);
 				break;
 
 			case MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY:
+				//int type = curMessage.msgId - MESSAGE_REQUEST_BULLET_CREATION_STRAIGHT;
+				//curMessage.lParam = SceneManager::scenemanager->CreateBulletAndGetObjID(type);
 				RequestBulletCreation(result, curMessage, MESSAGE_NOTIFY_COLLISION_BULLET_AND_ENEMY);
-				SceneManager::scenemanager;
 				break;
 			}
 		}

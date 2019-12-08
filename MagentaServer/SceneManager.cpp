@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "scripts.h"
 #include "SceneManager.h"
 
 void SceneManager::Start()
@@ -39,4 +40,9 @@ void SceneManager::StartGame()
 float SceneManager::getStandardAngle()
 {
 	return standardAngle;
+}
+
+int SceneManager::CreateBulletAndGetObjID(int type)
+{
+	return bulletGenerator->CreateBulletAndGetObjID(type);
 }

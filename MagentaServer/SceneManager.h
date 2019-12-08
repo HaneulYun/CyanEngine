@@ -1,14 +1,17 @@
 #pragma once
 enum { WAIT, START, END };
 
+class ObjectIDManager;
+class BulletGenerator;
+
 class SceneManager : public MonoBehavior<SceneManager>
 {
 private:
 
 public:
 	static SceneManager* scenemanager;
-	GameObject* objectIDmanager;
-	GameObject* bulletGenerator;
+	ObjectIDManager* objectIDmanager;
+	BulletGenerator* bulletGenerator;
 
 	GameObject* player[3];
 	GameObject* star;
@@ -42,4 +45,6 @@ public:
 	void StartGame();
 
 	float getStandardAngle();
+
+	int CreateBulletAndGetObjID(int type);
 };

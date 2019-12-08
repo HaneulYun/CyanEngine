@@ -14,11 +14,11 @@ void GameScene::BuildObjects()
 
 	GameObject* objectIDmanager = CreateEmpty();
 	objectIDmanager->AddComponent<ObjectIDManager>();
-	scnmgr->objectIDmanager = objectIDmanager;
+	scnmgr->objectIDmanager = objectIDmanager->GetComponent<ObjectIDManager>();
 
 	GameObject* bulletGenerator = CreateEmpty();
 	bulletGenerator->AddComponent<BulletGenerator>()->objIDmgr = scnmgr->objectIDmanager;
-	scnmgr->bulletGenerator = bulletGenerator;
+	scnmgr->bulletGenerator = bulletGenerator->GetComponent<BulletGenerator>();
 	
 	GameObject* object = CreateEmptyPrefab();
 	GameObject* star = Instantiate(object);
