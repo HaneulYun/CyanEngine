@@ -133,6 +133,8 @@ public:
 	void ChangeStarHealth(int health)
 	{
 		star->GetComponent<Star>()->health = health;
+		float t = (float)health / star->GetComponent<Star>()->startHealth;
+		star->GetComponent<Renderer>()->material->albedo = {t, t, t, 1};
 	}
 
 	void UpdateRecvQueue()
