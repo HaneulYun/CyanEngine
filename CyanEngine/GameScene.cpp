@@ -159,11 +159,11 @@ void GameScene::BuildObjects()
 		enemy4->AddComponent<Damageable>()->SetHealth(16);
 		enemy4->GetComponent<Damageable>()->isTeam = false;
 		enemy4->AddComponent<BoxCollider>()->extents = Vector3{ 5.f,5.f,5.f };
-		//enemy4->AddComponent<AfterImageGenerator>();
+		enemy4->AddComponent<AfterImageGenerator>();
 		enemy4->AddComponent<ObjectID>();
 	}
 
-	scnmgr->enemyprefab[0] = enemy4;
+	scnmgr->enemyprefab[0] = enemy0;
 	scnmgr->enemyprefab[1] = enemy1;
 	scnmgr->enemyprefab[2] = enemy2;
 	//scnmgr->enemyprefab[3] = enemy3;

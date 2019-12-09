@@ -34,7 +34,7 @@ public:
 			angle += speedRotating * Time::deltaTime;
 			gameObject->transform->position.xmf3 = NS_Vector3::Add(target->transform->position.xmf3,
 				XMFLOAT3(radius * cos(angle * PI / 180.0f), radius * sin(angle * PI / 180.0f), 0.0f));
-			radius -= 0.01f;
+			radius -= 10.0f * Time::deltaTime;
 		}
 	}
 
