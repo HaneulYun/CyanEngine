@@ -54,7 +54,7 @@ void GameScene::BuildObjects()
 	GameObject* star = Instantiate(object);
 	{
 		star->GetComponent<MeshFilter>()->mesh = pCircleMesh;
-		star->AddComponent<Star>();
+		star->AddComponent<Star>()->startHealth = 10;
 		scnmgr->star = star;
 	}
 	
