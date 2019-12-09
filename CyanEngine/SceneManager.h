@@ -102,6 +102,7 @@ public:
 			Destroy(player[id]->GetComponent<StarGuardian>()->bullet[i]);
 		}
 		Destroy(player[id]);
+		player[id] = nullptr;
 	}
 
 	void CreateBullet(int type, int id, int playerid, float angle)
