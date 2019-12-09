@@ -23,7 +23,6 @@ void Damageable::TakeDamage(Damager damager)
 		return;
 
 	health -= damager.GetDamageAmount();
-	printf("아야!\n");
 }
 
 void Damageable::TakeDamage(int damageAmount)
@@ -32,7 +31,6 @@ void Damageable::TakeDamage(int damageAmount)
 		return;
 
 	health -= damageAmount;
-	printf("아야!\n");
 }
 
 void Damageable::SetHealth(int amount)

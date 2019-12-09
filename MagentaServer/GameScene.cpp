@@ -93,7 +93,7 @@ void GameScene::BuildObjects()
 	{
 		enemy2->AddComponent<Enemy>();
 		enemy2->AddComponent<MovingBehavior>()->target = star->GetComponent<Transform>()->position;
-		enemy2->GetComponent<MovingBehavior>()->speed = 5.f;
+		enemy2->GetComponent<MovingBehavior>()->speed = 8.f;
 		enemy2->AddComponent<Damager>()->SetDamageAmount(1);
 		enemy2->GetComponent<Damager>()->isTeam = false;
 		enemy2->AddComponent<Damageable>()->SetHealth(32);
