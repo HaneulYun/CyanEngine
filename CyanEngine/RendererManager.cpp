@@ -44,29 +44,20 @@ void RendererManager::Start()
 			d.second.first = new INSTANCING();
 			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
 
-			//Material* material = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material;
 			shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
 			shader->CreateShader(device.Get(), shader->rootSignature);
-
 		}
-
 		UINT ncbElementBytes = ((sizeof(MEMORY) + 255) & ~255);
+
+		if (d.second.first->resource)
+		{
+			d.second.first->resource->Unmap(0, NULL);
+			d.second.first->resource->Release();
+		}
 		d.second.first->resource = CreateBufferResource(NULL, ncbElementBytes * d.second.second.size(), D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
 
 		d.second.first->resource->Map(0, NULL, (void**)&d.second.first->memory);
-
-		if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name() ||
-			typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
-		{
-			//d.second.first->shader->CreateConstantBufferViews(d.second.second.size(), d.second.first->resource, ncbElementBytes);
-		}
 	}
-
-	//commandList->Close();
-	//ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
-	//commandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-
-	//WaitForGpuComplete();
 }
 
 void RendererManager::Update()
