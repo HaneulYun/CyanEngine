@@ -23,7 +23,7 @@ public:
 	{
 		static bool instancing = true;
 		static float time = 0;
-		static const float boundary = 1.0;
+		static const float boundary = 0.0;
 		time += Time::deltaTime;
 
 		if (Input::GetMouseButtonDown(0))

@@ -17,7 +17,7 @@ void GameScene::BuildObjects()
 		camera->main = camera;
 	}
 
-	GameObject* cube = CreateEmpty();
+	GameObject* cube = CreateEmptyPrefab();
 	{
 		cube->GetComponent<Transform>()->position = { 0,0,0 };
 		cube->AddComponent<MeshFilter>()->mesh = new CubeMeshIlluminated(1, 1, 0.2);
