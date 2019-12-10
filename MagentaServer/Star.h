@@ -24,6 +24,8 @@ public:
 	{
 		if (collision->GetComponent<Enemy>() != NULL)
 		{
+			gameObject->GetComponent<Damageable>()->TakeDamage(*collision->GetComponent<Damager>());
+			
 			int enemyID = collision->GetComponent<ObjectID>()->GetObjectID();
 			Message sendMsg;
 			sendMsg.msgId = MESSAGE_NOTIFY_COLLISION_STAR_AND_ENEMY;

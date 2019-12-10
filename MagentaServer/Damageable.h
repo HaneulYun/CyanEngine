@@ -27,6 +27,4 @@ public:
 	int GetCurHealth();
 	void ResetHealth();
 	bool isDead();
-
-	void OnTriggerEnter(GameObject* damager);
 };

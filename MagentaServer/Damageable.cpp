@@ -54,11 +54,3 @@ bool Damageable::isDead()
 		return true;
 	return false;
 }
-
-void Damageable::OnTriggerEnter(GameObject* collision)
-{
-	if (collision->GetComponent<Damager>() != NULL)
-	{
-		TakeDamage(*collision->GetComponent<Damager>());
-	}
-}
