@@ -58,6 +58,7 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 
 #include "Vector3.h"
 
+#include "Debug.h"
 #include "Time.h"
 #include "Input.h"
 #include "Random.h"

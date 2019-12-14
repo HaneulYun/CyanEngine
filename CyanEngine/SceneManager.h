@@ -4,7 +4,7 @@
 class SceneManager : public MonoBehavior<SceneManager>
 {
 public:
-	GameObject* gameObject{ nullptr };
+	GameObject* cube{ nullptr };
 
 private:
 	friend class GameObject;
@@ -35,7 +35,7 @@ public:
 			{
 				for (int i = 0; i < 1; ++i)
 				{
-					auto instance = Instantiate(gameObject);
+					auto instance = Instantiate(cube);
 					float x = Random::Range(-15.f, 15.f);
 					float y = Random::Range(-15.f, 15.f);
 					instance->transform->position = Vector3{ x, y, 0 };

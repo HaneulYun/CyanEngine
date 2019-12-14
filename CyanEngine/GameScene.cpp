@@ -27,6 +27,6 @@ void GameScene::BuildObjects()
 
 	GameObject* sceneManager = CreateEmpty();
 	{
-		sceneManager->AddComponent<SceneManager>()->gameObject = cube;
+		sceneManager->AddComponent<SceneManager>()->cube = cube;
 	}
 }
