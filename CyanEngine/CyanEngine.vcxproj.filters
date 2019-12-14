@@ -67,6 +67,9 @@
     <Filter Include="0_00_CyanEngine\44_Materials\80_API">
       <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{761e2aee-8ba3-4d70-ae2b-b8ae022c7bcf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -320,12 +323,26 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders.hlsl" />
-    <FxCompile Include="Standard.hlsl" />
-    <FxCompile Include="Lighting.hlsl" />
-    <FxCompile Include="Light.hlsl" />
-    <FxCompile Include="Texture.hlsl" />
-    <FxCompile Include="Terrain.hlsl" />
-    <FxCompile Include="Billboard.hlsl" />
+    <FxCompile Include="Billboard.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Light.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Lighting.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Standard.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Terrain.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Texture.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
