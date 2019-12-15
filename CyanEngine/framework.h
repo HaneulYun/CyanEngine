@@ -32,6 +32,12 @@ using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
+//#define _WITH_TERRAIN_TESSELATION
+
+#ifdef _WITH_TERRAIN_TESSELATION
+#define _WITH_TERRAIN_PARTITION
+#endif
+
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")

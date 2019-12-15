@@ -98,8 +98,13 @@ void GameScene::BuildObjects()
 	{
 		XMFLOAT3 scale = { 1000.f / 257.f, 200.f / 257.f, 1000.f / 257.f };
 		terrain->GetComponent<Transform>()->position = { -500, 0, -500 };
-		terrain->AddComponent<Terrain>()->LoadTerrain(L"heightMap.raw", 257, 257, 257, 257, scale, { 1, 1, 1, 1 });
 		terrain->AddComponent<Renderer>()->material = new Material(nullptr, ShaderMode::Terrain);
+		terrain->AddComponent<RotatingBehavior>();
+#ifdef _WITH_TERRAIN_PARTITION
+		terrain->AddComponent<Terrain>()->LoadTerrain(L"heightMap.raw", 257, 257, 9, 9, scale, { 1, 1, 1, 1 });
+#else
+		terrain->AddComponent<Terrain>()->LoadTerrain(L"heightMap.raw", 257, 257, 9, 9, scale, { 1, 1, 1, 1 });
+#endif
 
 		{
 			CRawFormatImage* pRawFormatImage = new CRawFormatImage(L"Texture/ObjectsMap.raw", 257, 257, true);
@@ -206,7 +211,7 @@ void GameScene::BuildObjects()
 		Camera* camera = player->AddComponent<Camera>();
 		camera->SetViewport(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, 0.0f, 1.0f);
 		camera->SetScissorRect(0, 0, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight);
-		camera->GenerateProjectionMatrix(0.3f, 1000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
+		camera->GenerateProjectionMatrix(0.3f, 10000.0f, float(CyanWindow::m_nWndClientWidth) / float(CyanWindow::m_nWndClientHeight), 90.0f);
 		camera->GenerateViewMatrix(XMFLOAT3(0.41f, 10.0f, -15.0f), XMFLOAT3(0.41f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 		camera->main = camera;
 
