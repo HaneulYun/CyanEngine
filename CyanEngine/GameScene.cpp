@@ -9,7 +9,6 @@ void GameScene::BuildObjects()
 
 	CubeMeshIlluminated* pCubeMesh = new CubeMeshIlluminated();
 	
-	/*
 	{
 		{
 			GameObject* test = CreateEmpty();
@@ -42,7 +41,6 @@ void GameScene::BuildObjects()
 			test->AddComponent<Renderer>()->material = new Material(L"Texture/SkyBox_Bottom_0.dds", ShaderMode::Skybox);
 		}
 	}
-	*/
 
 	{
 		GameObject* test = CreateEmpty();
@@ -51,7 +49,6 @@ void GameScene::BuildObjects()
 		test->AddComponent<Renderer>()->material = new Material(L"Texture/Water.dds");
 	}
 
-	/*
 	{
 		{
 			GameObject* test = CreateEmpty();
@@ -96,9 +93,7 @@ void GameScene::BuildObjects()
 			test->AddComponent<RotatingBehavior>();
 		}
 	}
-	*/
 
-	/*
 	GameObject* terrain = CreateEmpty();
 	{
 		XMFLOAT3 scale = { 1000.f / 257.f, 200.f / 257.f, 1000.f / 257.f };
@@ -196,7 +191,6 @@ void GameScene::BuildObjects()
 			}
 		}
 	}
-	*/
 
 	GameObject* player = CreateEmpty();
 	{
