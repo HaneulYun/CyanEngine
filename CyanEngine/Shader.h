@@ -7,8 +7,10 @@ public:
 	virtual ~Shader();
 
 public:
+	virtual void CreateShader();
+
 	ID3D12RootSignature* rootSignature{};
-	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* _device);
+	virtual ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* _device);
 	//D3D12_SHADER_BYTECODE VS;
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	//D3D12_SHADER_BYTECODE PS;
@@ -42,7 +44,6 @@ public:
 public:
 	ComPtr<ID3D12PipelineState> pipelineState;
 
-	virtual void CreateShader();
 	
 	void CreateCbvSrvDescriptorHeaps(int nConstantBufferViews, int nShaderResourceViews);
 	void CreateConstantBufferViews(int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);

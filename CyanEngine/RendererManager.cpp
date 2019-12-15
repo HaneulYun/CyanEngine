@@ -146,7 +146,7 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 	{
 		TextureShader* shader = dynamic_cast<TextureShader*>(d.second.first->shader);
 
-		if (typeid(*d.second.first->shader).name() == typeid(CBillboardObjectsShader).name())
+		if (typeid(*d.second.first->shader).name() == typeid(CTerrainShader).name())
 			int k = 0;
 
 		commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);

@@ -13,9 +13,14 @@ public:
 class CTerrainShader : public TextureShader
 {
 public:
+	virtual void CreateShader();
+	virtual ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* _device);
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob);
+	//virtual D3D12_SHADER_BYTECODE CreateHullShader(ID3DBlob** ppd3dShaderBlob);
+	//virtual D3D12_SHADER_BYTECODE CreateDomainShader(ID3DBlob** ppd3dShaderBlob);
 };
 
 class CSkyBoxShader : public TextureShader
