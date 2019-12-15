@@ -12,13 +12,19 @@ Scene::~Scene()
 
 void Scene::Start()
 {
+	RendererManager::Instance()->commandList->Reset(RendererManager::Instance()->commandAllocator.Get(), NULL);
 	BuildObjects();
 
-	//for (GameObject* gameObject : gameObjects)
-	//	gameObject->Start();
 	for (int i = 0; i < gameObjects.size(); ++i)
 		gameObjects[i]->Start();
 	rendererManager->UpdateManager();;
+
+	RendererManager::Instance()->commandList->Close();
+
+	ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->commandList.Get() };
+	RendererManager::Instance()->commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
+
+	RendererManager::Instance()->WaitForGpuComplete();
 }
 
 void Scene::Update()

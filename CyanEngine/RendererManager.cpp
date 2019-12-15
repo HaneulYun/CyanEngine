@@ -16,8 +16,6 @@ RendererManager::RendererManager()
 
 	CreateRenderTargetView();
 	CreateDepthStencilView();
-
-	commandList->Reset(commandAllocator.Get(), NULL);
 }
 
 RendererManager::~RendererManager()
@@ -36,7 +34,6 @@ void RendererManager::UpdateManager()
 
 void RendererManager::Start()
 {
-
 	for (auto& d : instances)
 	{
 		if (!d.second.first)
