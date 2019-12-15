@@ -48,6 +48,7 @@ class CTexturedVertex : public Vertex
 {
 public:
 	XMFLOAT2 uv{};
+	XMFLOAT3 normal{0, 1, 0};
 
 public:
 	CTexturedVertex() = default;
