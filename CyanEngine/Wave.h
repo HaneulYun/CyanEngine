@@ -10,7 +10,7 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 	float mK3 = 0.0f;
 
 	Mesh* mesh;
-
+	CTexturedVertex* pVertices;
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
 	int mNumRows = 0;
@@ -38,10 +38,58 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
+		for(int k = 0; k < 30; ++k)
+		{
+			int i = Random::Range(4, mNumRows - 5);
+			int j = Random::Range(4, mNumCols - 5);
+
+			float r = Random::Range(0.2f, 0.5f);
+
+			Disturb(i, j, r);
+		}
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
+		static float time{};
+		time -= Time::deltaTime;
+
+		static float t_base = 0.0f;
+		if (time < 0.0f)
+		{
+			time += 0.2f;
+			t_base += 0.03f;
+
+			int i = Random::Range(4, mNumRows - 5);
+			int j = Random::Range(4, mNumCols - 5);
+
+			float r = Random::Range(0.2f, 0.5f);
+
+			Disturb(i, j, r);
+		}
+
+		Update(Time::deltaTime);
+
+		RendererManager::Instance()->commandList->Reset(RendererManager::Instance()->commandAllocator.Get(), NULL);
+
+		pVertices = new CTexturedVertex[mVertexCount];
+		for (int i = 0; i < mVertexCount; ++i)
+		{
+			float x = (mPrevSolution[i].x + 500) / 1000;
+			float y = (mPrevSolution[i].z + 500) / 1000;
+			pVertices[i] = CTexturedVertex(mPrevSolution[i], XMFLOAT2(x, y));
+		}
+		mesh->vertexBuffer = CreateBufferResource(pVertices, mesh->m_nStride * mesh->m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &mesh->vertexUploadBuffer);
+		mesh->vertexBufferView.BufferLocation = mesh->vertexBuffer->GetGPUVirtualAddress();
+		mesh->vertexBufferView.StrideInBytes = mesh->m_nStride;
+		mesh->vertexBufferView.SizeInBytes = mesh->m_nStride * mesh->m_nVertices;
+
+		RendererManager::Instance()->commandList->Close();
+
+		ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->commandList.Get() };
+		RendererManager::Instance()->commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
+
+		RendererManager::Instance()->WaitForGpuComplete();
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
@@ -140,11 +188,11 @@ public:
 
 		float halfMag = 0.5f * magnitude;
 
-		mCurrSolution[i * mNumCols + j].y += magnitude;
-		mCurrSolution[i * mNumCols + j + 1].y += halfMag;
-		mCurrSolution[i * mNumCols + j - 1].y += halfMag;
-		mCurrSolution[(i + 1) * mNumCols + j].y += halfMag;
-		mCurrSolution[(i - 1) * mNumCols + j].y += halfMag;
+		pVertices[i * mNumCols + j].position.y = mCurrSolution[i * mNumCols + j].y += magnitude;
+		pVertices[i * mNumCols + j + 1].position.y = mCurrSolution[i * mNumCols + j + 1].y += halfMag;
+		pVertices[i * mNumCols + j - 1].position.y = mCurrSolution[i * mNumCols + j - 1].y += halfMag;
+		pVertices[(i + 1) * mNumCols + j].position.y = mCurrSolution[(i + 1) * mNumCols + j].y += halfMag;
+		pVertices[(i - 1) * mNumCols + j].position.y = mCurrSolution[(i - 1) * mNumCols + j].y += halfMag;
 	}
 
 	float Width()const
@@ -164,7 +212,7 @@ public:
 		mesh->m_nStride = sizeof(CTexturedVertex);
 		mesh->m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-		CTexturedVertex* pVertices = new CTexturedVertex[mVertexCount];
+		pVertices = new CTexturedVertex[mVertexCount];
 
 		for (int i = 0; i < mVertexCount; ++i)
 		{
@@ -178,8 +226,6 @@ public:
 		mesh->vertexBufferView.BufferLocation = mesh->vertexBuffer->GetGPUVirtualAddress();
 		mesh->vertexBufferView.StrideInBytes = mesh->m_nStride;
 		mesh->vertexBufferView.SizeInBytes = mesh->m_nStride * mesh->m_nVertices;
-
-
 
 		mesh->m_nIndices = 3 * mTriangleCount;
 		UINT* pnIndices = new UINT[mesh->m_nIndices];
