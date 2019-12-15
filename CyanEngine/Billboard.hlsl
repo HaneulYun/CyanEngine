@@ -1,5 +1,3 @@
-//#define _WITH_BILLBOARD_ANIMATION
-
 struct MEMORY
 {
 	matrix transform;

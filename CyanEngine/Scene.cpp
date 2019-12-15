@@ -109,9 +109,9 @@ GameObject* Scene::AddGameObject(GameObject* gameObject)
 	return gameObject;
 }
 
-GameObject* Scene::CreateEmpty()
+GameObject* Scene::CreateEmpty(bool addition)
 {
-	return new GameObject();
+	return new GameObject(addition);
 }
 
 GameObject* Scene::Duplicate(GameObject* gameObject)

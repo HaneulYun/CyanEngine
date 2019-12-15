@@ -59,22 +59,6 @@ void RendererManager::Start()
 
 void RendererManager::Update()
 {
-	for (auto& d : instances)
-	{
-		int j = 0;
-		commandList->SetGraphicsRootShaderResourceView(2, d.second.first->resource->GetGPUVirtualAddress());
-		for (auto& gameObject : d.second.second)
-		{
-			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;// XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-
-			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
-			++j;
-		}
-		//for (int i = 0; i < m_nTextures; i++)
-		//{
-		//	commandList->SetGraphicsRootDescriptorTable(m_pRootArgumentInfos[i].m_nRootParameterIndex, m_pRootArgumentInfos[i].m_d3dSrvGpuDescriptorHandle);
-		//}
-	}
 }
 
 void RendererManager::PreRender()
@@ -127,7 +111,6 @@ void RendererManager::Render()
 
 void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> d)
 {
-	//Shader* shader = d.first.first;
 	Mesh* mesh = d.first.second;
 
 	commandList->SetGraphicsRootSignature(d.second.first->shader->rootSignature);
@@ -173,7 +156,7 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 			//commandList->SetGraphicsRootDescriptorTable(shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_nRootParameterIndex, shader->ppMaterials[i]->m_pTexture->m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
 		}
 	}
-
+	
 	if (typeid(*mesh).name() == typeid(CMeshIlluminatedFromFile).name())
 		((CMeshIlluminatedFromFile*)mesh)->Render(d.second.second.size(), 0);
 	else

@@ -128,6 +128,7 @@ void GameScene::BuildObjects()
 			Mesh* mesh;
 			Material* material{ nullptr };
 			Vector3 vec;
+			static int t = 0;
 			for (int nObjects = 0, z = 2; z <= 254; z++)
 			{
 				for (int x = 2; x <= 254; x++)
@@ -178,17 +179,22 @@ void GameScene::BuildObjects()
 						continue;
 						break;
 					}
-					GameObject* test = CreateEmpty();
+					++t;
+					GameObject* test = CreateEmpty(false);
 					test->AddComponent<MeshFilter>()->mesh = mesh;
 					test->AddComponent<Renderer>()->material = material;
 					test->GetComponent<Renderer>()->material->albedo = { vec.x, vec.y, vec.z, 1 };
-
+					
 					test->GetComponent<Transform>()->position = {
 								x * xmf3TerrainScale.x - 500,
 								terrain->GetComponent<Terrain>()->GetHeight(xPosition, zPosition) + vec.y / 2,
 								z * xmf3TerrainScale.z - 500 };
+					test->Start();
 				}
 			}
+			char str[10];
+			sprintf(str, "%d\n", t);
+			Debug::Log(str);
 		}
 	}
 
