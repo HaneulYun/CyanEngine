@@ -70,7 +70,7 @@ void CTerrainShader::CreateShader()
 	pipelineStateDesc.DepthStencilState = CreateDepthStencilState();
 	pipelineStateDesc.InputLayout = CreateInputLayout();
 	pipelineStateDesc.SampleMask = UINT_MAX;
-	pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
 	pipelineStateDesc.NumRenderTargets = 1;
 	pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	pipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -232,23 +232,23 @@ D3D12_RASTERIZER_DESC CTerrainShader::CreateRasterizerState()
 
 D3D12_SHADER_BYTECODE CTerrainShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(ShaderManager::CompileShaderFromFile(L"Terrain.hlsl", "VSTerrain", "vs_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Terrain.hlsl", "VSTerrainTessellation", "vs_5_1", ppd3dShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE CTerrainShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(ShaderManager::CompileShaderFromFile(L"Terrain.hlsl", "PSTerrain", "ps_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"Terrain.hlsl", "PSTerrainTessellation", "ps_5_1", ppd3dShaderBlob));
 }
 
-//D3D12_SHADER_BYTECODE CTerrainShader::CreateHullShader(ID3DBlob** ppd3dShaderBlob)
-//{
-//	return(ShaderManager::CompileShaderFromFile(L"Terrain.hlsl", "HSTerrainTessellation", "hs_5_1", ppd3dShaderBlob));
-//}
-//
-//D3D12_SHADER_BYTECODE CTerrainShader::CreateDomainShader(ID3DBlob** ppd3dShaderBlob)
-//{
-//	return(ShaderManager::CompileShaderFromFile(L"Terrain.hlsl", "DSTerrainTessellation", "ds_5_1", ppd3dShaderBlob));
-//}
+D3D12_SHADER_BYTECODE CTerrainShader::CreateHullShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(ShaderManager::CompileShaderFromFile(L"Terrain.hlsl", "HSTerrainTessellation", "hs_5_1", ppd3dShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE CTerrainShader::CreateDomainShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(ShaderManager::CompileShaderFromFile(L"Terrain.hlsl", "DSTerrainTessellation", "ds_5_1", ppd3dShaderBlob));
+}
 
 D3D12_INPUT_LAYOUT_DESC CBillboardObjectsShader::CreateInputLayout()
 {

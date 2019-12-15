@@ -34,6 +34,7 @@ void RendererManager::UpdateManager()
 
 void RendererManager::Start()
 {
+	//static CTerrainShader tshader{ nullptr };
 	for (auto& d : instances)
 	{
 		if (!d.second.first)
@@ -41,8 +42,10 @@ void RendererManager::Start()
 			d.second.first = new INSTANCING();
 			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
 
-			shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
-			shader->CreateShader();
+			if (!shader->rootSignature)
+				shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
+			if (!shader->pipelineState)
+				shader->CreateShader();
 		}
 		UINT ncbElementBytes = ((sizeof(MEMORY) + 255) & ~255);
 

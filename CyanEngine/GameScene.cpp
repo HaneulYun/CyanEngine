@@ -99,7 +99,6 @@ void GameScene::BuildObjects()
 		XMFLOAT3 scale = { 1000.f / 257.f, 200.f / 257.f, 1000.f / 257.f };
 		terrain->GetComponent<Transform>()->position = { -500, 0, -500 };
 		terrain->AddComponent<Renderer>()->material = new Material(nullptr, ShaderMode::Terrain);
-		terrain->AddComponent<RotatingBehavior>();
 #ifdef _WITH_TERRAIN_PARTITION
 		terrain->AddComponent<Terrain>()->LoadTerrain(L"heightMap.raw", 257, 257, 9, 9, scale, { 1, 1, 1, 1 });
 #else

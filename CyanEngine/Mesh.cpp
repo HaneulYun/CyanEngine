@@ -396,8 +396,13 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 	m_nLength = nLength;
 	m_xmf3Scale = xmf3Scale;
 
+#ifdef _WITH_TERRAIN_TESSELATION
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST;
+	m_nVertices = 25;
+#else
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 	m_nVertices = nWidth * nLength;
+#endif
 
 	CDiffused2TexturedVertex* pVertices = new CDiffused2TexturedVertex[m_nVertices];
 
@@ -406,6 +411,21 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 	int czHeightMap = pHeightMapImage->GetHeightMapLength();
 
 	float fHeight = 0.0f, fMinHeight = +FLT_MAX, fMaxHeight = -FLT_MAX;
+#ifdef _WITH_TERRAIN_TESSELATION
+	for (int i = 0, z = (zStart + nLength - 1); z >= zStart; z -= 2)
+	{
+		for (int x = xStart; x < (xStart + nWidth); x += 2, i++)
+		{
+			fHeight = OnGetHeight(x, z, pContext);
+			pVertices[i].position = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
+			pVertices[i].color = NS_Vector4::Add(OnGetColor(x, z, pContext), xmf4Color);
+			pVertices[i].uv0 = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
+			pVertices[i].uv1 = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));
+			if (fHeight < fMinHeight) fMinHeight = fHeight;
+			if (fHeight > fMaxHeight) fMaxHeight = fHeight;
+		}
+	}
+#else
 	for (int i = 0, z = zStart; z < (zStart + nLength); z++)
 	{
 		for (int x = xStart; x < (xStart + nWidth); x++, i++)
@@ -419,6 +439,7 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 			if (fHeight > fMaxHeight) fMaxHeight = fHeight;
 		}
 	}
+#endif
 
 	vertexBuffer = ::CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
 	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
@@ -426,7 +447,7 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 	delete[] pVertices;
 
-
+#ifndef _WITH_TERRAIN_TESSELATION
 	m_nIndices = ((nWidth * 2) * (nLength - 1)) + ((nLength - 1) - 1);
 	UINT* pnIndices = new UINT[m_nIndices];
 	for (int j = 0, z = 0; z < nLength - 1; z++)
@@ -457,6 +478,7 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	indexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
 	delete[] pnIndices;
+#endif
 }
 
 CHeightMapGridMesh::~CHeightMapGridMesh()

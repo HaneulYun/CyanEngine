@@ -84,6 +84,7 @@ struct HS_TERRAIN_TESSELLATION_CONSTANT
 {
 	float fTessEdges[4] : SV_TessFactor;
 	float fTessInsides[2] : SV_InsideTessFactor;
+	uint id : ID;
 };
 
 struct HS_TERRAIN_TESSELLATION_OUTPUT
@@ -92,7 +93,6 @@ struct HS_TERRAIN_TESSELLATION_OUTPUT
 	float4 color : COLOR;
 	float2 uv0 : TEXCOORD0;
 	float2 uv1 : TEXCOORD1;
-	uint id : ID;
 };
 
 struct DS_TERRAIN_TESSELLATION_OUTPUT
@@ -138,7 +138,6 @@ HS_TERRAIN_TESSELLATION_OUTPUT HSTerrainTessellation(InputPatch<VS_TERRAIN_TESSE
 	output.color = input[i].color;
 	output.uv0 = input[i].uv0;
 	output.uv1 = input[i].uv1;
-	output.id = input[i].id;
 
 	return(output);
 }
@@ -153,6 +152,7 @@ HS_TERRAIN_TESSELLATION_CONSTANT VSTerrainTessellationConstant(InputPatch<VS_TER
 	output.fTessEdges[3] = 20.0f;
 	output.fTessInsides[0] = 20.0f;
 	output.fTessInsides[1] = 20.0f;
+	output.id = input[0].id;
 
 	return(output);
 }
@@ -171,7 +171,7 @@ DS_TERRAIN_TESSELLATION_OUTPUT DSTerrainTessellation(HS_TERRAIN_TESSELLATION_CON
 	output.uv1 = lerp(lerp(patch[0].uv1, patch[4].uv1, uv.x), lerp(patch[20].uv1, patch[24].uv1, uv.x), uv.y);
 
 	float3 position = CubicBezierSum5x5(patch, uB, vB);
-	matrix mtxWorldViewProjection = mul(mul(instance[patch[0].id].transform, gmtxView), gmtxProjection);
+	matrix mtxWorldViewProjection = mul(mul(instance[patchConstant.id].transform, gmtxView), gmtxProjection);
 	output.position = mul(float4(position, 1.0f), mtxWorldViewProjection);
 
 	return(output);
