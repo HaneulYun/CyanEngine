@@ -64,11 +64,11 @@
     <Filter Include="1_00_YellowProject\10_Scripts\11_Form">
       <UniqueIdentifier>{1acdfba3-2a73-4300-801d-621662c8d63e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\44_Materials\80_API">
-      <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
-    </Filter>
     <Filter Include="shaders">
       <UniqueIdentifier>{761e2aee-8ba3-4d70-ae2b-b8ae022c7bcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\80_API">
+      <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -184,7 +184,7 @@
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
     <ClInclude Include="DDSTextureLoader12.h">
-      <Filter>0_00_CyanEngine\44_Materials\80_API</Filter>
+      <Filter>0_00_CyanEngine\80_API</Filter>
     </ClInclude>
     <ClInclude Include="CTexture.h">
       <Filter>헤더 파일</Filter>
@@ -206,6 +206,12 @@
     </ClInclude>
     <ClInclude Include="Debug.h">
       <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="StandardShader.h">
+      <Filter>0_00_CyanEngine\42_Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureShader.h">
+      <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -288,7 +294,7 @@
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader12.cpp">
-      <Filter>0_00_CyanEngine\44_Materials\80_API</Filter>
+      <Filter>0_00_CyanEngine\80_API</Filter>
     </ClCompile>
     <ClCompile Include="CTexture.cpp">
       <Filter>소스 파일</Filter>
@@ -307,6 +313,12 @@
     </ClCompile>
     <ClCompile Include="Debug.cpp">
       <Filter>0_00_CyanEngine\11_Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="StandardShader.cpp">
+      <Filter>0_00_CyanEngine\42_Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureShader.cpp">
+      <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

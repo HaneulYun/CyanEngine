@@ -190,8 +190,10 @@
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SphereCollider.h" />
+    <ClInclude Include="StandardShader.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TextureShader.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Vector3.h" />
@@ -233,7 +235,9 @@
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
+    <ClCompile Include="StandardShader.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
