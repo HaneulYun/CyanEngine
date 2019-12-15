@@ -42,7 +42,7 @@ void RendererManager::Start()
 			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
 
 			shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
-			shader->CreateShader(device.Get(), shader->rootSignature);
+			shader->CreateShader();
 		}
 		UINT ncbElementBytes = ((sizeof(MEMORY) + 255) & ~255);
 

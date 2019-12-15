@@ -7,7 +7,7 @@ public:
 	virtual ~Shader();
 
 public:
-	ID3D12RootSignature* rootSignature;
+	ID3D12RootSignature* rootSignature{};
 	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* _device);
 	//D3D12_SHADER_BYTECODE VS;
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob);
@@ -39,7 +39,7 @@ public:
 public:
 	ComPtr<ID3D12PipelineState> pipelineState;
 
-	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dRootSignature);
+	virtual void CreateShader();
 	
 	void CreateCbvSrvDescriptorHeaps(int nConstantBufferViews, int nShaderResourceViews);
 	void CreateConstantBufferViews(int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
@@ -56,8 +56,8 @@ public:
 public:
 	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;
-	D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorStartHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorStartHandle;
+	D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle{};
+	D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle{};
+	D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorStartHandle{};
+	D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorStartHandle{};
 };
