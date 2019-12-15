@@ -10,12 +10,15 @@ Shader::~Shader()
 void Shader::CreateShader()
 {
 	ID3DBlob* pd3dVertexShaderBlob = NULL, * pd3dPixelShaderBlob = NULL;
-
+	ID3DBlob* pd3dDomainShaderBlob = NULL, * pd3dHullShaderBlob = NULL, * pd3dGeometryShaderBlob = NULL;
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc;
 	::ZeroMemory(&pipelineStateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	pipelineStateDesc.pRootSignature = rootSignature;
 	pipelineStateDesc.VS = CreateVertexShader(&pd3dVertexShaderBlob);
 	pipelineStateDesc.PS = CreatePixelShader(&pd3dPixelShaderBlob);
+	pipelineStateDesc.DS = CreateDomainShader(&pd3dDomainShaderBlob);
+	pipelineStateDesc.HS = CreateHullShader(&pd3dHullShaderBlob);
+	pipelineStateDesc.GS = CreateGeometryShader(&pd3dGeometryShaderBlob);
 	pipelineStateDesc.RasterizerState = CreateRasterizerState();
 	pipelineStateDesc.BlendState = CreateBlendState();
 	pipelineStateDesc.DepthStencilState = CreateDepthStencilState();
@@ -38,6 +41,12 @@ void Shader::CreateShader()
 		pd3dVertexShaderBlob->Release();
 	if (pd3dPixelShaderBlob)
 		pd3dPixelShaderBlob->Release();
+	if (pd3dDomainShaderBlob)
+		pd3dDomainShaderBlob->Release();
+	if (pd3dHullShaderBlob)
+		pd3dHullShaderBlob->Release();
+	if (pd3dGeometryShaderBlob)
+		pd3dGeometryShaderBlob->Release();
 	if (pipelineStateDesc.InputLayout.pInputElementDescs)
 		delete[] pipelineStateDesc.InputLayout.pInputElementDescs;
 }
@@ -218,6 +227,33 @@ D3D12_SHADER_BYTECODE Shader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 }
 
 D3D12_SHADER_BYTECODE Shader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
+{
+	D3D12_SHADER_BYTECODE d3dShaderByteCode;
+	d3dShaderByteCode.BytecodeLength = 0;
+	d3dShaderByteCode.pShaderBytecode = NULL;
+
+	return(d3dShaderByteCode);
+}
+
+D3D12_SHADER_BYTECODE Shader::CreateDomainShader(ID3DBlob** ppd3dShaderBlob)
+{
+	D3D12_SHADER_BYTECODE d3dShaderByteCode;
+	d3dShaderByteCode.BytecodeLength = 0;
+	d3dShaderByteCode.pShaderBytecode = NULL;
+
+	return(d3dShaderByteCode);
+}
+
+D3D12_SHADER_BYTECODE Shader::CreateHullShader(ID3DBlob** ppd3dShaderBlob)
+{
+	D3D12_SHADER_BYTECODE d3dShaderByteCode;
+	d3dShaderByteCode.BytecodeLength = 0;
+	d3dShaderByteCode.pShaderBytecode = NULL;
+
+	return(d3dShaderByteCode);
+}
+
+D3D12_SHADER_BYTECODE Shader::CreateGeometryShader(ID3DBlob** ppd3dShaderBlob)
 {
 	D3D12_SHADER_BYTECODE d3dShaderByteCode;
 	d3dShaderByteCode.BytecodeLength = 0;
