@@ -7,7 +7,7 @@ public:
 	Mesh() = default;
 	virtual ~Mesh() = default;
 
-protected:
+public:
 	ComPtr<ID3D12Resource> vertexBuffer{ nullptr };
 	ComPtr<ID3D12Resource> vertexUploadBuffer{ nullptr };
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
@@ -209,6 +209,13 @@ class CTexturedRectMesh : public Mesh
 public:
 	CTexturedRectMesh(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f, float fxPosition = 0.0f, float fyPosition = 0.0f, float fzPosition = 0.0f);
 	virtual ~CTexturedRectMesh();
+};
+
+class WaveMesh : public Mesh
+{
+public:
+	WaveMesh(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f, float fxPosition = 0.0f, float fyPosition = 0.0f, float fzPosition = 0.0f);
+	virtual ~WaveMesh() {}
 };
 
 class CRawFormatImage

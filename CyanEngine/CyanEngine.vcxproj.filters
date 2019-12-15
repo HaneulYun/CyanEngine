@@ -213,6 +213,9 @@
     <ClInclude Include="TextureShader.h">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="Wave.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

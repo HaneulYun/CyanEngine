@@ -5,3 +5,5 @@
 #include "SceneManager.h"
 #include "RotorBehavior.h"
 #include "Controller.h"
+
+#include "Wave.h"
