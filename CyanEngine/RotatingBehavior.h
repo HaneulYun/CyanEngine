@@ -4,7 +4,7 @@
 class RotatingBehavior : public MonoBehavior<RotatingBehavior>
 {
 public:
-	XMFLOAT3 axis{ 0.0f, 0.0f, 1.0f };
+	XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
 	float speedRotating{ 90.f };
 
 private:
