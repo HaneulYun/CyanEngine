@@ -27,6 +27,8 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 
+#include <fbxsdk.h>
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
@@ -37,6 +39,8 @@ using Microsoft::WRL::ComPtr;
 #ifdef _WITH_TERRAIN_TESSELATION
 #define _WITH_TERRAIN_PARTITION
 #endif
+
+#pragma comment(lib, "libfbxsdk.lib")
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")

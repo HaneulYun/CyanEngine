@@ -6,6 +6,7 @@ class FBX_TEST : public MonoBehavior<FBX_TEST>
 private /*이 영역에 private 변수를 선언하세요.*/:
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
+	
 
 private:
 	friend class GameObject;
