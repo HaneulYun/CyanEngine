@@ -16,4 +16,9 @@ void GameScene::BuildObjects()
 		camera->GenerateViewMatrix(XMFLOAT3(0.0f, 10.0f, -15.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 		camera->main = camera;
 	}
+
+	GameObject* object = CreateEmpty();
+	{
+		object->AddComponent<FBX_TEST>();
+	}
 }

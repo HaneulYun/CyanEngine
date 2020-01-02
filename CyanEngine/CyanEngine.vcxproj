@@ -175,6 +175,7 @@
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DefaultMaterial.h" />
+    <ClInclude Include="FBX_TEST.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />
