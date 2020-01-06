@@ -86,7 +86,7 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile, GameObject* 
 		::ReadStringFromFile(pInFile, pstrToken);
 		if (!strcmp(pstrToken, "<Frame>:"))
 		{
-			pGameObject = new GameObject();
+			pGameObject = new GameObject(false);
 
 			if (parent)
 				;//pGameObject->AddComponent<Renderer>()->material = parent->GetComponent<Renderer>()->material;
