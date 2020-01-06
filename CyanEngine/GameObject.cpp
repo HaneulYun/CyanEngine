@@ -16,10 +16,17 @@ GameObject::GameObject(GameObject* original, bool addition)
 {
 	scene = Scene::scene;
 
-	for (GameObject* child : original->children)
-		AddChild(new GameObject(child));
-	for (Component* component : original->components)
-		AddComponent(component);
+	if (original)
+		for (GameObject* child : original->children)
+			AddChild(new GameObject(child));
+	else
+		transform = new Transform();
+
+	if (original)
+		for (Component* component : original->components)
+			AddComponent(component);
+	else
+		components.push_back(transform);
 
 	if (addition && scene)
 		scene->AddGameObject(this);

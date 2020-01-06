@@ -54,10 +54,16 @@ class ModelManager : public Singleton<ModelManager>
 private:
 	std::map<std::string, GameObject*> database;
 
+	FbxManager* fbxManager{ nullptr };
+	FbxScene* fbxScene{ nullptr };
+	FbxImporter* fbxImporter{ nullptr };
+
 public:
 	GameObject* LoadGeometryFromFile(const char* pstrFileName);
 	GameObject* LoadFrameHierarchyFromFile(FILE* pInFile, GameObject* parent = nullptr);
 
 	CMeshLoadInfo* LoadMeshInfoFromFile(FILE* pInFile);
 	MATERIALSLOADINFO* LoadMaterialsInfoFromFile(FILE* pInFile);
+
+	GameObject* LoadGeometryFromFBX(const char* pstrFileName);
 };

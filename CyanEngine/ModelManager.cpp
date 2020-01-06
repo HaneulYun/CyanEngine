@@ -344,3 +344,24 @@ MATERIALSLOADINFO* ModelManager::LoadMaterialsInfoFromFile(FILE* pInFile)
 	}
 	return(pMaterialsInfo);
 }
+
+GameObject* ModelManager::LoadGeometryFromFBX(const char* pstrFileName)
+{
+	auto iter = database.find(pstrFileName);
+	if (iter != database.end())
+	{
+		GameObject* gameObject = new GameObject(iter->second);
+		gameObject->GetComponent<Renderer>()->material->albedo = RANDOM_COLOR;
+		for (auto iter : gameObject->children)
+			iter->GetComponent<Renderer>()->material = gameObject->GetComponent<Renderer>()->material;
+		return gameObject;
+	}
+
+	GameObject* pGameObject = nullptr;
+	
+
+
+	database[pstrFileName] = pGameObject;
+
+	return new GameObject(pGameObject);
+}

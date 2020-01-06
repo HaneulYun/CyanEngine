@@ -27,12 +27,9 @@ void GameScene::BuildObjects()
 		player->GetComponent<Transform>()->position = { 0, 0, 0 };
 		player->AddComponent<MeshFilter>();
 
-		GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
-		child->GetComponent<Transform>()->Scale({ 0.2f, 0.2f, 0.2f });
+		GameObject* child = ModelManager::Instance()->LoadGeometryFromFBX("Model/humanoid.fbx");
+		//child->GetComponent<Transform>()->Scale({ 0.2f, 0.2f, 0.2f });
 		player->AddChild(child);
-
-		child->children[27]->AddComponent<RotatingBehavior>()->speedRotating = 180;
-		child->children[7]->AddComponent<RotatingBehavior>()->speedRotating = -360;
 
 		player->AddComponent<Controller>()->gameObject = player;
 	}
