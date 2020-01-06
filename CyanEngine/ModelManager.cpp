@@ -359,59 +359,17 @@ GameObject* ModelManager::LoadGeometryFromFBX(const char* pstrFileName)
 
 	GameObject* pGameObject = nullptr;
 	
-	fbxManager = FbxManager::Create();
-	if (!fbxManager)
-	{
-		Debug::Log("Error: Unable to create FBX Manager!\n");
-	}
-	else
-	{
-		char str[100];
-		sprintf(str, "Autodesk FBX SDK version %s\n", fbxManager->GetVersion());
-		Debug::Log(str);
-	}
 
+	fbxManager = FbxManager::Create();
 	FbxIOSettings* ios = FbxIOSettings::Create(fbxManager, IOSROOT);
 	fbxManager->SetIOSettings(ios);
 
 	fbxScene = FbxScene::Create(fbxManager, "Scene");
-	if (!fbxScene)
-	{
-		Debug::Log("Error: Unable to create FBX scene!\n");
-	}
 
-	std::string message;
-	if (fbxManager)
-	{
-		fbxImporter = FbxImporter::Create(fbxManager, "");
-
-		if (fbxImporter->Initialize(pstrFileName, -1))
-		{
-			message = "Importing file ";
-			message += pstrFileName;
-			message += "\nPlease wait!";
-
-			// Set scene status flag to ready to load.
-			//mStatus = MUST_BE_LOADED;
-		}
-		else
-		{
-			message = "Unable to open file ";
-			message += pstrFileName;
-			message += "\nError reported: ";
-			message += fbxImporter->GetStatus().GetErrorString();
-			message += "\nEsc to exit";
-		}
-	}
-	else
-	{
-		message = "Unable to create the FBX SDK manager";
-		message += "\nEsc to exit";
-	}
-
-	Debug::Log(message.c_str());
-
+	fbxImporter = FbxImporter::Create(fbxManager, "");
+	fbxImporter->Initialize(pstrFileName, -1);
 	fbxImporter->Import(fbxScene);
+
 
 	database[pstrFileName] = pGameObject;
 
