@@ -164,7 +164,7 @@ public:
 		Mesh* meshFromFbx = new Mesh;
 		meshFromFbx->m_nVertices = nVertices;
 		meshFromFbx->m_nStride = sizeof(XMFLOAT3);
-		meshFromFbx->m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+		meshFromFbx->m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		meshFromFbx->m_nIndices = nIndices;
 
 
