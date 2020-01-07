@@ -17,23 +17,31 @@ void GameScene::BuildObjects()
 		camera->main = camera;
 	}
 
-	GameObject* object = CreateEmpty();
-	{
-		object->AddComponent<FBX_TEST>();
-	}
+	//GameObject* object = CreateEmpty();
+	//{
+	//	object->AddComponent<FBX_TEST>();
+	//}
+
+	//GameObject* player = CreateEmpty();
+	//{
+	//	player->GetComponent<Transform>()->position = { 0, 0, 0 };
+	//	player->AddComponent<MeshFilter>();
+	//
+	//	GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
+	//	child->GetComponent<Transform>()->Scale({ 0.2f, 0.2f, 0.2f });
+	//	player->AddChild(child);
+	//
+	//	child->children[27]->AddComponent<RotatingBehavior>()->speedRotating = 180;
+	//	child->children[7]->AddComponent<RotatingBehavior>()->speedRotating = -360;
+	//
+	//	player->AddComponent<Controller>()->gameObject = player;
+	//}
 
 	GameObject* player = CreateEmpty();
 	{
-		player->GetComponent<Transform>()->position = { 0, 0, 0 };
-		player->AddComponent<MeshFilter>();
-
-		GameObject* child = ModelManager::Instance()->LoadGeometryFromFile("Model/Apache.bin");
-		child->GetComponent<Transform>()->Scale({ 0.2f, 0.2f, 0.2f });
-		player->AddChild(child);
-
-		child->children[27]->AddComponent<RotatingBehavior>()->speedRotating = 180;
-		child->children[7]->AddComponent<RotatingBehavior>()->speedRotating = -360;
-
+		player->GetComponent<Transform>()->position = { 0, -200, 300 };
+		player->AddComponent<FBX_TEST>();
+	
 		player->AddComponent<Controller>()->gameObject = player;
 	}
 }
