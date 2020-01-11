@@ -247,4 +247,9 @@ class MeshFromFbx : public Mesh
 public:
 	MeshFromFbx(FbxMesh* fbxMesh);
 	virtual ~MeshFromFbx() {}
+
+protected:
+	ID3D12Resource* normalBuffer = NULL;
+	ID3D12Resource* normalUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		normalBufferView;
 };

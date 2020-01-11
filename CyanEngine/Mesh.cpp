@@ -932,6 +932,52 @@ WaveMesh::WaveMesh(float fWidth, float fHeight, float fDepth, float fxPosition, 
 
 MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh)
 {
+	// Vertex Data
+	int vertexCnt = fbxMesh->GetControlPointsCount();
+	m_nVertices = vertexCnt;
+	m_nStride = sizeof(DiffusedVertex);
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	DiffusedVertex* pVertices = new DiffusedVertex[m_nVertices];
+
+	for (int i = 0; i < vertexCnt; ++i)
+	{
+		XMFLOAT3 pos;
+		pos.x = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[0]);
+		pos.y = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[1]);
+		pos.z = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[2]);
+
+		pVertices[i] = DiffusedVertex(XMFLOAT3(pos.x, pos.y, pos.z), XMFLOAT4(Colors::White));
+	}
+
+	vertexBuffer = CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
+	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
+	vertexBufferView.StrideInBytes = m_nStride;
+	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+
+	// Index Data
+	int triangleCnt = fbxMesh->GetPolygonCount();
+	int vertexCount = 0;
+
+	m_nIndices = triangleCnt * 3; 
+	UINT* indices = new UINT[m_nIndices];
+
+
+	for (int i = 0; i < triangleCnt; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			int controlPointIndex = fbxMesh->GetPolygonVertex(i, j);
+			indices[vertexCount++] = controlPointIndex;
+		}
+	}
+
+	indexBuffer = CreateBufferResource(indices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &indexUploadBuffer);
+	indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
+	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	indexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
+
+	/*
 	int triangleCount = fbxMesh->GetPolygonCount();
 	m_nVertices = triangleCount * 3;
 	m_nStride = sizeof(DiffusedVertex);
@@ -960,4 +1006,6 @@ MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh)
 	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
 	vertexBufferView.StrideInBytes = m_nStride;
 	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+
+	*/
 }

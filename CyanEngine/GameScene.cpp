@@ -39,7 +39,7 @@ void GameScene::BuildObjects()
 
 	GameObject* player = CreateEmpty();
 	{
-		player->GetComponent<Transform>()->position = { 0, -200, 300 };
+		player->GetComponent<Transform>()->Scale({ 0.05f, 0.05f, 0.05f });
 		player->AddComponent<FBX_TEST>();
 	
 		player->AddComponent<Controller>()->gameObject = player;
