@@ -930,15 +930,81 @@ WaveMesh::WaveMesh(float fWidth, float fHeight, float fDepth, float fxPosition, 
 	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 }
 
+void ReadNormal(FbxMesh* inMesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& outNormal)
+{
+
+	//pMeshInfo->m_pxmf3Normals = new XMFLOAT3[nNormals];
+	//nReads = (UINT)::fread(pMeshInfo->m_pxmf3Normals, sizeof(XMFLOAT3), nNormals, pInFile);
+
+	if (inMesh->GetElementNormalCount() < 1)
+	{
+		throw std::exception("Invalid Normal Number");
+	}
+
+	FbxGeometryElementNormal* vertexNormal = inMesh->GetElementNormal(0);
+	switch (vertexNormal->GetMappingMode())
+	{
+	case FbxGeometryElement::eByControlPoint:
+		switch (vertexNormal->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			outNormal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
+			outNormal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
+			outNormal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
+		}
+		break;
+
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int index = vertexNormal->GetIndexArray().GetAt(inCtrlPointIndex);
+			outNormal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
+			outNormal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
+			outNormal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+		}
+		break;
+
+		default:
+			throw std::exception("Invalid Reference");
+		}
+		break;
+
+	case FbxGeometryElement::eByPolygonVertex:
+		switch (vertexNormal->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			outNormal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[0]);
+			outNormal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[1]);
+			outNormal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[2]);
+		}
+		break;
+
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int index = vertexNormal->GetIndexArray().GetAt(inVertexCounter);
+			outNormal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
+			outNormal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
+			outNormal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+		}
+		break;
+
+		default:
+			throw std::exception("Invalid Reference");
+		}
+		break;
+	}
+}
+
 MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh)
 {
 	// Vertex Data
 	int vertexCnt = fbxMesh->GetControlPointsCount();
 	m_nVertices = vertexCnt;
-	m_nStride = sizeof(DiffusedVertex);
+	m_nStride = sizeof(IlluminatedVertex);
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	DiffusedVertex* pVertices = new DiffusedVertex[m_nVertices];
+	vertices = new XMFLOAT3[m_nVertices];
 
 	for (int i = 0; i < vertexCnt; ++i)
 	{
@@ -947,65 +1013,41 @@ MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh)
 		pos.y = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[1]);
 		pos.z = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[2]);
 
-		pVertices[i] = DiffusedVertex(XMFLOAT3(pos.x, pos.y, pos.z), XMFLOAT4(Colors::White));
+		vertices[i] = pos;
 	}
-
-	vertexBuffer = CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
-	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = m_nStride;
-	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 
 	// Index Data
 	int triangleCnt = fbxMesh->GetPolygonCount();
 	int vertexCount = 0;
 
 	m_nIndices = triangleCnt * 3; 
-	UINT* indices = new UINT[m_nIndices];
-
+	indices = new UINT[m_nIndices];
+	normals = new XMFLOAT3[m_nVertices];
 
 	for (int i = 0; i < triangleCnt; ++i)
 	{
 		for (int j = 0; j < 3; ++j)
 		{
 			int controlPointIndex = fbxMesh->GetPolygonVertex(i, j);
-			indices[vertexCount++] = controlPointIndex;
+			indices[vertexCount] = controlPointIndex;
+			// Normal Data
+			ReadNormal(fbxMesh, controlPointIndex, vertexCount, normals[controlPointIndex]);
+			++vertexCount;
 		}
 	}
+
+	IlluminatedVertex* IlluminatedVetices = new IlluminatedVertex[m_nVertices];
+	for (int i = 0; i < m_nVertices; ++i)
+		IlluminatedVetices[i] = { vertices[i],normals[i] };
+
+	vertexBuffer = CreateBufferResource(IlluminatedVetices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
+	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
+	vertexBufferView.StrideInBytes = m_nStride;
+	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 
 	indexBuffer = CreateBufferResource(indices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &indexUploadBuffer);
 	indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
 	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
 	indexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
 
-	/*
-	int triangleCount = fbxMesh->GetPolygonCount();
-	m_nVertices = triangleCount * 3;
-	m_nStride = sizeof(DiffusedVertex);
-	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
-	DiffusedVertex* pVertices = new DiffusedVertex[m_nVertices];
-
-	FbxVector4* vertices = fbxMesh->GetControlPoints();
-
-	for (int i = 0; i < triangleCount; ++i)
-	{
-		for (int j = 0; j < 3; ++j)
-		{
-			int ctrlPointIndex = fbxMesh->GetPolygonVertex(i, j);
-
-			float x = vertices[ctrlPointIndex].mData[0];
-			float y = vertices[ctrlPointIndex].mData[1];
-			float z = vertices[ctrlPointIndex].mData[2];
-
-			pVertices[i * 3 + j] = DiffusedVertex(XMFLOAT3(x, y, z), XMFLOAT4(Colors::White));
-		}
-	}
-
-	vertexBuffer = CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
-
-	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = m_nStride;
-	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
-
-	*/
 }

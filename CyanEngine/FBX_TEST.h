@@ -10,6 +10,7 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	FbxScene* fbxScene{ nullptr };
 	FbxImporter* fbxImporter{ nullptr };
 	//FbxMesh* fbxMesh{ nullptr };
+	//MeshFromFbx* mesh;
 
 	XMFLOAT3* controlPoints = NULL;
 	XMFLOAT4* colors = NULL;

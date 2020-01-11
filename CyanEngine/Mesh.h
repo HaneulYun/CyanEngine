@@ -245,11 +245,12 @@ public:
 class MeshFromFbx : public Mesh
 {
 public:
+	XMFLOAT3* vertices = NULL;
+	//XMFLOAT4* m_pxmf4Colors = NULL;
+	XMFLOAT3* normals = NULL;
+	UINT* indices = NULL;
+
 	MeshFromFbx(FbxMesh* fbxMesh);
 	virtual ~MeshFromFbx() {}
 
-protected:
-	ID3D12Resource* normalBuffer = NULL;
-	ID3D12Resource* normalUploadBuffer = NULL;
-	D3D12_VERTEX_BUFFER_VIEW		normalBufferView;
 };
