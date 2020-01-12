@@ -43,7 +43,7 @@ public:
 		{
 			fbxImporter = FbxImporter::Create(fbxManager, "");
 
-			char url[20]{ "Model/ttt.FBX" };
+			char url[20]{ "Model/testmodel.FBX" };
 			if (fbxImporter->Initialize(url, -1))
 			{
 				message = "Importing file ";
@@ -78,19 +78,80 @@ public:
 
 	}
 
-	void ProcessNode(FbxNode* rootnode) {
+	//void ProcessNode(FbxNode* rootnode) {
+	//
+	//	if (rootnode)
+	//	{
+	//		int a = rootnode->GetChildCount();
+	//		for (int i = 0; i < rootnode->GetChildCount(); i++)
+	//		{
+	//			FbxNode* childNode = rootnode->GetChild(i);
+	//
+	//			if (childNode->GetNodeAttribute() == NULL)
+	//				continue;
+	//
+	//			FbxNodeAttribute::EType AttributeType = childNode->GetNodeAttribute()->GetAttributeType();
+	//
+	//			switch (AttributeType)
+	//			{
+	//			case FbxNodeAttribute::eUnknown:
+	//				break;
+	//			case FbxNodeAttribute::eNull:
+	//				break;
+	//			case FbxNodeAttribute::eMarker:
+	//				break;
+	//			case FbxNodeAttribute::eSkeleton:
+	//				break;
+	//			case FbxNodeAttribute::eMesh:
+	//				ReadMesh(childNode);
+	//				break;
+	//			case FbxNodeAttribute::eNurbs:
+	//				break;
+	//			case FbxNodeAttribute::ePatch:
+	//				break;
+	//			case FbxNodeAttribute::eCamera:
+	//				break;
+	//			case FbxNodeAttribute::eCameraStereo:
+	//				break;
+	//			case FbxNodeAttribute::eCameraSwitcher:
+	//				break;
+	//			case FbxNodeAttribute::eLight:
+	//				break;
+	//			case FbxNodeAttribute::eOpticalReference:
+	//				break;
+	//			case FbxNodeAttribute::eOpticalMarker:
+	//				break;
+	//			case FbxNodeAttribute::eNurbsCurve:
+	//				break;
+	//			case FbxNodeAttribute::eTrimNurbsSurface:
+	//				break;
+	//			case FbxNodeAttribute::eBoundary:
+	//				break;
+	//			case FbxNodeAttribute::eNurbsSurface:
+	//				break;
+	//			case FbxNodeAttribute::eShape:
+	//				break;
+	//			case FbxNodeAttribute::eLODGroup:
+	//				break;
+	//			case FbxNodeAttribute::eSubDiv:
+	//				break;
+	//			case FbxNodeAttribute::eCachedEffect:
+	//				break;
+	//			case FbxNodeAttribute::eLine:
+	//				break;
+	//			default:
+	//				break;
+	//			}
+	//		}
+	//	}
+	//}
 
-		if (rootnode)
+	void ProcessNode(FbxNode* node) {
+		if (node)
 		{
-			int a = rootnode->GetChildCount();
-			for (int i = 0; i < rootnode->GetChildCount(); i++)
+			if (node->GetNodeAttribute() != NULL)
 			{
-				FbxNode* childNode = rootnode->GetChild(i);
-
-				if (childNode->GetNodeAttribute() == NULL)
-					continue;
-
-				FbxNodeAttribute::EType AttributeType = childNode->GetNodeAttribute()->GetAttributeType();
+				FbxNodeAttribute::EType AttributeType = node->GetNodeAttribute()->GetAttributeType();
 
 				switch (AttributeType)
 				{
@@ -103,8 +164,8 @@ public:
 				case FbxNodeAttribute::eSkeleton:
 					break;
 				case FbxNodeAttribute::eMesh:
-					ReadMesh(childNode);
-					break;
+					ReadMesh(node);
+					return;
 				case FbxNodeAttribute::eNurbs:
 					break;
 				case FbxNodeAttribute::ePatch:
@@ -143,6 +204,11 @@ public:
 					break;
 				}
 			}
+
+			const int childCount = node->GetChildCount();
+
+			for (int i = 0; i < childCount; ++i)
+				ProcessNode(node->GetChild(i));
 		}
 	}
 
