@@ -43,7 +43,7 @@ public:
 		{
 			fbxImporter = FbxImporter::Create(fbxManager, "");
 
-			char url[20]{ "humanoid.fbx" };
+			char url[20]{ "Model/ttt.FBX" };
 			if (fbxImporter->Initialize(url, -1))
 			{
 				message = "Importing file ";
@@ -82,6 +82,7 @@ public:
 
 		if (rootnode)
 		{
+			int a = rootnode->GetChildCount();
 			for (int i = 0; i < rootnode->GetChildCount(); i++)
 			{
 				FbxNode* childNode = rootnode->GetChild(i);
