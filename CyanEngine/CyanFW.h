@@ -14,8 +14,7 @@ public:
 	~CyanFW();
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
-	void FrameAdvance();
-	void OnDestroy();
+	int Run();
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

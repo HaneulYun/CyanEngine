@@ -31,33 +31,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MyRegisterClass(hInstance);
 
     if (!InitInstance (hInstance, nCmdShow))
-    {
         return FALSE;
-    }
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CYANENGINE));
-
-    MSG msg;
-	while (true)
-	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			if (msg.message == WM_QUIT)
-				break;
-			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-		else
-		{
-			gCyanFW.FrameAdvance();
-		}
-	}
-	gCyanFW.OnDestroy();
-
-    return (int) msg.wParam;
+	return gCyanFW.Run();
 }
 
 ATOM MyRegisterClass(HINSTANCE hInstance)

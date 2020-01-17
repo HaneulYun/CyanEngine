@@ -27,22 +27,32 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	return true;
 }
 
-void CyanFW::OnDestroy()
+int CyanFW::Run()
 {
-}
+	MSG msg{};
 
-void CyanFW::FrameAdvance()
-{
-	Time::Instance()->Tick();
+	while (msg.message != WM_QUIT)
+	{
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+		{
+			Time::Instance()->Tick();
 
+			scene->Update();
+			scene->Render();
 
-	scene->Update();
-	scene->Render();
+			Input::Update();
 
-	Input::Update();
+			Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
+			SetWindowText(CyanWindow::m_hWnd, m_pszFrameRate);
+		}
+	}
 
-	Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
-	SetWindowText(CyanWindow::m_hWnd, m_pszFrameRate);
+	return (int)msg.wParam;
 }
 
 void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
