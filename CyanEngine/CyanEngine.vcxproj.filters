@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -70,20 +62,11 @@
     <Filter Include="0_00_CyanEngine\80_API">
       <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC">
+      <UniqueIdentifier>{19228a0b-f471-4577-8d86-4b14d63b2187}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClInclude>
@@ -132,9 +115,6 @@
     <ClInclude Include="Mesh.h">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="scripts.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="RotatingBehavior.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
@@ -174,9 +154,6 @@
     <ClInclude Include="Time.h">
       <Filter>0_00_CyanEngine\11_Interface</Filter>
     </ClInclude>
-    <ClInclude Include="RotorBehavior.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Collider.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
@@ -185,9 +162,6 @@
     </ClInclude>
     <ClInclude Include="DDSTextureLoader12.h">
       <Filter>0_00_CyanEngine\80_API</Filter>
-    </ClInclude>
-    <ClInclude Include="CTexture.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ObjectManager.h">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
@@ -219,16 +193,31 @@
     <ClInclude Include="FBX_TEST.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
+    </ClInclude>
+    <ClInclude Include="RotorBehavior.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
+    </ClInclude>
+    <ClInclude Include="CTexture.h">
+      <Filter>0_00_CyanEngine\44_Materials</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>0_00_CyanEngine\20_Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="framework.cpp">
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CyanEngine.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
@@ -302,9 +291,6 @@
     <ClCompile Include="DDSTextureLoader12.cpp">
       <Filter>0_00_CyanEngine\80_API</Filter>
     </ClCompile>
-    <ClCompile Include="CTexture.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectManager.cpp">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClCompile>
@@ -325,6 +311,15 @@
     </ClCompile>
     <ClCompile Include="TextureShader.cpp">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
+    </ClCompile>
+    <ClCompile Include="framework.cpp">
+      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
+    </ClCompile>
+    <ClCompile Include="CTexture.cpp">
+      <Filter>0_00_CyanEngine\44_Materials</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
