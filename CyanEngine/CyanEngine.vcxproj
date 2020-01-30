@@ -179,9 +179,11 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Meshs.h" />
     <ClInclude Include="MeshFilter.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="MonoBehavior.h" />
@@ -228,9 +230,11 @@
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Meshs.cpp" />
     <ClCompile Include="MeshFilter.cpp" />
     <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="Object.cpp" />

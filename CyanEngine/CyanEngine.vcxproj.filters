@@ -112,9 +112,6 @@
     <ClInclude Include="Camera.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>0_00_CyanEngine\43_Meshes</Filter>
-    </ClInclude>
     <ClInclude Include="RotatingBehavior.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
@@ -214,6 +211,15 @@
     <ClInclude Include="CTexture.h">
       <Filter>0_00_CyanEngine\44_Materials</Filter>
     </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Meshs.h">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -260,9 +266,6 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClCompile>
     <ClCompile Include="GameScene.cpp">
       <Filter>1_00_YellowProject\00_Scene</Filter>
@@ -320,6 +323,15 @@
     </ClCompile>
     <ClCompile Include="CTexture.cpp">
       <Filter>0_00_CyanEngine\44_Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Meshs.cpp">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

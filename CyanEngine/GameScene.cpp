@@ -17,55 +17,8 @@ void GameScene::BuildObjects()
 		camera->main = camera;
 	}
 
-	GameObject* object = CreateEmpty();
-	{
-		object->AddComponent<FBX_TEST>();
-	}
-
 	GameObject* player = CreateEmpty();
 	{
-		FbxManager* fbxManager{ nullptr };
-		FbxScene* fbxScene{ nullptr };
-		FbxImporter* fbxImporter{ nullptr };
-
-		fbxManager = FbxManager::Create();
-		FbxIOSettings* ios = FbxIOSettings::Create(fbxManager, IOSROOT);
-		fbxManager->SetIOSettings(ios);
-
-		fbxScene = FbxScene::Create(fbxManager, "Scene");
-
-		fbxImporter = FbxImporter::Create(fbxManager, "");
-		fbxImporter->Initialize("Model/humanoid.fbx", -1);
-		fbxImporter->Import(fbxScene);
-
-		FbxNode* rootNode = fbxScene->GetRootNode();
-
-		if (rootNode)
-		{
-			for (int i = 0; i < rootNode->GetChildCount(); ++i)
-			{
-				FbxNode* childNode = rootNode->GetChild(i);
-
-				if (!childNode->GetNodeAttribute())
-					continue;
-
-				FbxNodeAttribute::EType AttributeType = childNode->GetNodeAttribute()->GetAttributeType();
-
-				if (AttributeType != FbxNodeAttribute::eMesh)
-					continue;
-
-				FbxMesh* fbxMesh = (FbxMesh*)childNode->GetNodeAttribute();
-				player->AddComponent<MeshFilter>()->mesh = new MeshFromFbx(fbxMesh);
-			}
-		}
-		player->GetComponent<Transform>()->position = { 0, 0, 0 };
-		player->GetComponent<Transform>()->Scale({ 0.05f, 0.05f, 0.05f });
-		player->AddComponent<Renderer>()->material = new Material();
-
-		//GameObject* child = ModelManager::Instance()->LoadGeometryFromFBX("Model/humanoid.fbx");
-		//child->GetComponent<Transform>()->Scale({ 0.2f, 0.2f, 0.2f });
-		//player->AddChild(child);
-
 		player->AddComponent<Controller>()->gameObject = player;
 	}
 }

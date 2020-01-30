@@ -80,6 +80,8 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include "StandardShader.h"
 
 #include "Mesh.h"
+#include "Geometry.h"
+#include "Meshs.h"
 
 #include "Material.h"
 #include "DefaultMaterial.h"
