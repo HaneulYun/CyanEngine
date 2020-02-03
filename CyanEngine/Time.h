@@ -1,4 +1,5 @@
 #pragma once
+#include "Singleton.h"
 
 const ULONG MAX_SAMPLE_COUNT = 50;
 
