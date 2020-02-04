@@ -172,7 +172,6 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CTexture.h" />
-    <ClInclude Include="CyanEngine.h" />
     <ClInclude Include="CyanFW.h" />
     <ClInclude Include="CyanWindow.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
@@ -196,7 +195,6 @@
     <ClInclude Include="Random.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RendererManager.h" />
-    <ClInclude Include="Resource.h" />
     <ClInclude Include="RotatingBehavior.h" />
     <ClInclude Include="RotorBehavior.h" />
     <ClInclude Include="Scene.h" />
@@ -208,7 +206,6 @@
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="StandardShader.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TextureShader.h" />
     <ClInclude Include="Time.h" />
@@ -223,7 +220,6 @@
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CTexture.cpp" />
-    <ClCompile Include="CyanEngine.cpp" />
     <ClCompile Include="CyanFW.cpp" />
     <ClCompile Include="CyanWindow.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
@@ -259,13 +255,6 @@
     <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Transform.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="CyanEngine.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="CyanEngine.ico" />
-    <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Billboard.hlsl">
