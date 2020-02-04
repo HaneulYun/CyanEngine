@@ -36,7 +36,7 @@ class FBXSDK_DLL FbxMesh : public FbxGeometry
 public:
 	/** Return the type of node attribute.
 	* \return Return the type of this node attribute which is \e EType::eMesh. */
-	virtual FbxNodeAttribute::EType GetAttributeType() const;
+    FbxNodeAttribute::EType GetAttributeType() const override;
 
 	/** \name Polygon Management */
 	//@{
@@ -443,7 +443,20 @@ public:
 		/** Sets element in edge array to specific value.
 		* \param pEdgeIndex The edge index
 		* \param pValue The edge data */
-		inline void SetMeshEdge(int pEdgeIndex, int pValue){ if( pEdgeIndex >= 0 && pEdgeIndex < mEdgeArray.GetCount() ) mEdgeArray[pEdgeIndex] = pValue; }
+		inline void SetMeshEdge(int pEdgeIndex, int pValue)
+		{ 
+			if (pEdgeIndex >= 0 && pEdgeIndex < mEdgeArray.GetCount())
+			{
+				FBX_ASSERT(pValue >= 0 && pValue < mPolygonVertices.GetCount());
+
+				if (pValue < 0 || pValue >= mPolygonVertices.GetCount())
+				{
+					pValue = 0;
+				}
+
+				mEdgeArray[pEdgeIndex] = pValue;
+			}
+		}
 
 		/** Add an edge with the given start/end points. Note that the inserted edge
 		* may start at the given end point, and end at the given start point.
@@ -713,8 +726,8 @@ public:
 ** WARNING! Anything beyond these lines is for internal use, may not be documented and is subject to change without notice! **
 *****************************************************************************************************************************/
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    virtual FbxObject& Copy(const FbxObject& pObject);
-	virtual void Compact();
+    FbxObject& Copy(const FbxObject& pObject) override;
+    void Compact() override;
 
 	//Please use GetPolygonVertexIndex and GetPolygonVertices to access these arrays.
 	//DO NOT MODIFY them directly, otherwise unexpected behavior will occur.
@@ -770,9 +783,9 @@ public:
 	bool ConformNormalsTo(const FbxMesh* pMesh);
 
 protected:
-	virtual void Construct(const FbxObject* pFrom);
-	virtual void Destruct(bool pRecursive);
-	virtual void ContentClear();
+	void Construct(const FbxObject* pFrom) override;
+	void Destruct(bool pRecursive) override;
+	void ContentClear() override;
 
 	void InitTextureIndices(FbxLayerElementTexture* pLayerElementTexture, FbxLayerElement::EMappingMode pMappingMode);
 	void RemoveTextureIndex(FbxLayerElementTexture* pLayerElementTextures, int pPolygonIndex, int pOffset);
@@ -824,6 +837,8 @@ private:
     void ComputeNormalsPerCtrlPoint(FbxArray<VertexNormalInfo>& lNormalInfo, bool pCW=false);
     void ComputeNormalsPerPolygonVertex(FbxArray<VertexNormalInfo>& lNormalInfo, bool pCW=false);
     void GenerateNormalsByCtrlPoint(bool pCW);
+
+    int GetIndex(int index, int capacity) const;
 
 #endif /* !DOXYGEN_SHOULD_SKIP_THIS *****************************************************************************************/
 };
