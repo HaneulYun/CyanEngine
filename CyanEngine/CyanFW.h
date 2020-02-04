@@ -13,6 +13,7 @@ public:
 	~CyanFW();
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
+	void OnSetScene(Scene* newScene);
 	int Run();
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

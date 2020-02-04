@@ -15,16 +15,19 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CyanWindow::m_hInstance = hInstance;
 	CyanWindow::m_hWnd = hMainWnd;
 
-	scene = new GameScene();
-	if (scene)
-		scene->Start();
-
 	Time::Instance()->Reset();
 	Input::Instance();
 	Random::Instance();
 	Random::Start();
 
 	return true;
+}
+
+void CyanFW::OnSetScene(Scene* newScene)
+{
+	scene = newScene;
+	if (scene)
+		scene->Start();
 }
 
 int CyanFW::Run()

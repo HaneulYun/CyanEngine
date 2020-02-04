@@ -68,6 +68,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, dwStyle,  CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance, nullptr);
     
    gCyanFW.OnCreate(hInst, hWnd);
+   gCyanFW.OnSetScene(new GameScene());
 
    if (!hWnd)
    {
