@@ -115,9 +115,6 @@
     <ClInclude Include="RotatingBehavior.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="GameScene.h">
-      <Filter>1_00_YellowProject\00_Scene</Filter>
-    </ClInclude>
     <ClInclude Include="SceneManager.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
@@ -266,9 +263,6 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClCompile>
-    <ClCompile Include="GameScene.cpp">
-      <Filter>1_00_YellowProject\00_Scene</Filter>
     </ClCompile>
     <ClCompile Include="Terrain.cpp">
       <Filter>0_00_CyanEngine\41_Components</Filter>

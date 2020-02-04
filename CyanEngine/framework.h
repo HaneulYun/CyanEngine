@@ -108,7 +108,6 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include "GameObject.h"
 
 #include "Scene.h"
-#include "GameScene.h"
 
 #include "CyanWindow.h"
 #include "CyanFW.h"

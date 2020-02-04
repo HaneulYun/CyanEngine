@@ -1,9 +1,9 @@
 #include "pch.h"
-#include "GameScene.h"
+#include "SampleScene.h"
 
 Scene* Scene::scene{ nullptr };
 
-void GameScene::BuildObjects()
+void SampleScene::BuildObjects()
 {
 	scene = this;
 
