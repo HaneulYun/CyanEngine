@@ -16,14 +16,14 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 	windowClass.lpfnWndProc = WindowProc;
 	windowClass.hInstance = hInstance;
 	windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	windowClass.lpszClassName = L"DXSampleClass";
+	windowClass.lpszClassName = L"CyanEngine";
 	RegisterClassEx(&windowClass);
 
-	RECT windowRect = { 0, 0, 1600, 900 };
+	RECT windowRect = { 0, 0, static_cast<LONG>(cyanFW->GetWidth()), static_cast<LONG>(cyanFW->GetHeight()) };
 	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
 	AdjustWindowRect(&windowRect, dwStyle, FALSE);
 
-	HWND hwnd = CreateWindowW(windowClass.lpszClassName, L"CyanEngine", dwStyle, CW_USEDEFAULT, CW_USEDEFAULT,
+	HWND hwnd = CreateWindowW(windowClass.lpszClassName, cyanFW->GetTitle(), dwStyle, CW_USEDEFAULT, CW_USEDEFAULT,
 		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, nullptr);
 
 	//cyanFW->OnCreate(hInst, hWnd);
@@ -55,7 +55,7 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 
 LRESULT CALLBACK CyanApp::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	//CyanFW* cyanFW = reinterpret_cast<CyanFW*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+	CyanFW* cyanFW = reinterpret_cast<CyanFW*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
 	switch (message)
 	{
@@ -68,12 +68,10 @@ LRESULT CALLBACK CyanApp::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 		//cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
-		break;
+		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		return 0;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);

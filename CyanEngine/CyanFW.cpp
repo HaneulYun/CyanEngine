@@ -1,9 +1,12 @@
 #include "pch.h"
 #include "CyanFW.h"
 
-CyanFW::CyanFW()
+CyanFW::CyanFW(UINT width, UINT height, std::wstring name)
+	:width(width), height(height), title(name)
 {
 	_tcscpy_s(m_pszFrameRate, _T("CyanEngine ("));
+
+	aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 }
 
 CyanFW::~CyanFW()
@@ -26,8 +29,6 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 void CyanFW::OnSetScene(Scene* newScene)
 {
 	scene = newScene;
-	if (scene)
-		scene->Start();
 }
 
 int CyanFW::Run()

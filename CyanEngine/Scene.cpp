@@ -3,7 +3,6 @@
 
 Scene::Scene()
 {
-	rendererManager = RendererManager::Instance();
 }
 
 Scene::~Scene()
@@ -12,6 +11,9 @@ Scene::~Scene()
 
 void Scene::Start()
 {
+	if(!rendererManager)
+		rendererManager = RendererManager::Instance();
+
 	RendererManager::Instance()->commandList->Reset(RendererManager::Instance()->commandAllocator.Get(), NULL);
 	BuildObjects();
 
