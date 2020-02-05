@@ -26,8 +26,8 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 	HWND hwnd = CreateWindowW(windowClass.lpszClassName, cyanFW->GetTitle(), dwStyle, CW_USEDEFAULT, CW_USEDEFAULT,
 		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, nullptr);
 
-	//cyanFW->OnCreate(hInst, hWnd);
-	//cyanFW->OnSetScene(new SampleScene());
+	cyanFW->OnCreate(hInstance, hwnd);
+	cyanFW->scene->Start();
 
 	if (!hwnd)
 	{
@@ -46,6 +46,18 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+		}
+		else
+		{
+			Time::Instance()->Tick();
+
+			cyanFW->scene->Update();
+			cyanFW->scene->Render();
+
+			Input::Update();
+
+			Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
+			SetWindowText(CyanWindow::m_hWnd, cyanFW->m_pszFrameRate);
 		}
 	}
 
@@ -67,7 +79,7 @@ LRESULT CALLBACK CyanApp::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
-		//cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+		cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
 		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);

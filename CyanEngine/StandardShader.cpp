@@ -18,10 +18,10 @@ D3D12_INPUT_LAYOUT_DESC StandardShader::CreateInputLayout()
 
 D3D12_SHADER_BYTECODE StandardShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(ShaderManager::CompileShaderFromFile(L"Lighting.hlsl", "VSLighting", "vs_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"..\\CyanEngine\\Lighting.hlsl", "VSLighting", "vs_5_1", ppd3dShaderBlob));
 }
 
 D3D12_SHADER_BYTECODE StandardShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
 {
-	return(ShaderManager::CompileShaderFromFile(L"Lighting.hlsl", "PSLighting", "ps_5_1", ppd3dShaderBlob));
+	return(ShaderManager::CompileShaderFromFile(L"..\\CyanEngine\\Lighting.hlsl", "PSLighting", "ps_5_1", ppd3dShaderBlob));
 }

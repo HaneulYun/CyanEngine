@@ -4,7 +4,7 @@ class Scene
 {
 protected:
 	std::deque<GameObject*> gameObjects;
-	RendererManager* rendererManager;
+	RendererManager* rendererManager{ nullptr };
 
 	std::priority_queue<GameObject*> deletionQueue;
 

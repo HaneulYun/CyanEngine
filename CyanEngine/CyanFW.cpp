@@ -20,8 +20,7 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	Time::Instance()->Reset();
 	Input::Instance();
-	Random::Instance();
-	Random::Start();
+	Random::Instance()->Start();
 
 	return true;
 }

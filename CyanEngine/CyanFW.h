@@ -9,9 +9,9 @@ private:
 
 	std::wstring title;
 
-	Scene* scene{ nullptr };
 
-	// Time
+public:
+	Scene* scene{ nullptr };
 	_TCHAR m_pszFrameRate[50];
 
 public:
@@ -30,4 +30,3 @@ public:
 	UINT GetHeight() const { return height; }
 	const WCHAR* GetTitle() const { return title.c_str(); }
 };
-

@@ -21,4 +21,10 @@ void SampleScene::BuildObjects()
 	{
 		player->AddComponent<Controller>()->gameObject = player;
 	}
+
+	GameObject* cube = CreateEmpty();
+	{
+		cube->AddComponent<MeshFilter>()->mesh = new CubeMeshDiffused();
+		cube->AddComponent<Renderer>()->material = new DefaultMaterial();
+	}
 }
