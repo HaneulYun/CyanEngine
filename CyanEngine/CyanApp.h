@@ -6,7 +6,7 @@ private:
 	static HWND hwnd;
 
 public:
-	static int Run(HINSTANCE hInstance, int nCmdShow);
+	static int Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow);
 	static HWND GetHwnd() { return hwnd; }
 
 protected:
