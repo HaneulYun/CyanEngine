@@ -110,6 +110,7 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 
 #include "CyanWindow.h"
 #include "CyanFW.h"
+#include "CyanApp.h"
 
 
 #define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))

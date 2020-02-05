@@ -172,6 +172,7 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CTexture.h" />
+    <ClInclude Include="CyanApp.h" />
     <ClInclude Include="CyanFW.h" />
     <ClInclude Include="CyanWindow.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CTexture.cpp" />
+    <ClCompile Include="CyanApp.cpp" />
     <ClCompile Include="CyanFW.cpp" />
     <ClCompile Include="CyanWindow.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
