@@ -4,6 +4,7 @@
 CyanFW::CyanFW(UINT width, UINT height, std::wstring name)
 	:width(width), height(height), title(name)
 {
+	instance = this;
 	_tcscpy_s(m_pszFrameRate, _T("CyanEngine ("));
 
 	aspectRatio = static_cast<float>(width) / static_cast<float>(height);
@@ -15,9 +16,6 @@ CyanFW::~CyanFW()
 
 bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
-	CyanWindow::m_hInstance = hInstance;
-	CyanWindow::m_hWnd = hMainWnd;
-
 	Time::Instance()->Reset();
 	Input::Instance();
 	Random::Instance()->Start();
@@ -51,7 +49,7 @@ int CyanFW::Run()
 			Input::Update();
 
 			Time::Instance()->GetFrameRate(m_pszFrameRate + 12, 37);
-			SetWindowText(CyanWindow::m_hWnd, m_pszFrameRate);
+			//SetWindowText(CyanWindow::m_hWnd, m_pszFrameRate);
 		}
 	}
 
@@ -131,8 +129,8 @@ LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wPa
 	{
 	case WM_SIZE:
 	{
-		CyanWindow::m_nWndClientWidth = LOWORD(lParam);
-		CyanWindow::m_nWndClientHeight = HIWORD(lParam);
+		width = LOWORD(lParam);
+		height = HIWORD(lParam);
 		break;
 	}
 	case WM_LBUTTONDOWN:

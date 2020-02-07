@@ -69,9 +69,6 @@
     <ClInclude Include="CyanFW.h">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClInclude>
-    <ClInclude Include="CyanWindow.h">
-      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
-    </ClInclude>
     <ClInclude Include="Object.h">
       <Filter>0_00_CyanEngine\10_CORE</Filter>
     </ClInclude>
@@ -204,16 +201,15 @@
     <ClInclude Include="Mesh.h">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClInclude>
-    <ClInclude Include="CyanApp.h" />
+    <ClInclude Include="CyanApp.h">
+      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
       <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClCompile>
     <ClCompile Include="CyanFW.cpp">
-      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
-    </ClCompile>
-    <ClCompile Include="CyanWindow.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
@@ -312,7 +308,9 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClCompile>
-    <ClCompile Include="CyanApp.cpp" />
+    <ClCompile Include="CyanApp.cpp">
+      <Filter>0_00_CyanEngine\00_CyanFW</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Billboard.hlsl">

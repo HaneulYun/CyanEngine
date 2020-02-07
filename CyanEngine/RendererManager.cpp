@@ -282,22 +282,22 @@ inline void RendererManager::CreateRtvAndDsvDescriptorHeaps()
 
 inline void RendererManager::CreateSwapChain()
 {
-	RECT rcClient;
-	::GetClientRect(CyanWindow::m_hWnd, &rcClient);
-	CyanWindow::m_nWndClientWidth = rcClient.right - rcClient.left;
-	CyanWindow::m_nWndClientHeight = rcClient.bottom - rcClient.top;
+	//RECT rcClient;
+	//::GetClientRect(CyanWindow::m_hWnd, &rcClient);
+	//CyanWindow::m_nWndClientWidth = rcClient.right - rcClient.left;
+	//CyanWindow::m_nWndClientHeight = rcClient.bottom - rcClient.top;
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 	swapChainDesc.BufferCount = m_nSwapChainBuffers;
-	swapChainDesc.BufferDesc.Width = CyanWindow::m_nWndClientWidth;
-	swapChainDesc.BufferDesc.Height = CyanWindow::m_nWndClientHeight;
+	swapChainDesc.BufferDesc.Width = CyanFW::Instance()->GetWidth();
+	swapChainDesc.BufferDesc.Height = CyanFW::Instance()->GetWidth();
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	swapChainDesc.OutputWindow = CyanWindow::m_hWnd;
+	swapChainDesc.OutputWindow = CyanApp::GetHwnd();
 	swapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
 	swapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	swapChainDesc.Windowed = TRUE;
@@ -313,12 +313,12 @@ inline void RendererManager::CreateSwapChain()
 
 	//m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 * *)& m_pdxgiSwapChain);
 	factory->CreateSwapChain(commandQueue.Get(), &swapChainDesc, (IDXGISwapChain**)swapChain.GetAddressOf());
-	factory->MakeWindowAssociation(CyanWindow::m_hWnd, DXGI_MWA_NO_ALT_ENTER);
+	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
 
 	m_nSwapChainBufferIndex = swapChain->GetCurrentBackBufferIndex();
 
 	//HRESULT hResult;
-	factory->MakeWindowAssociation(CyanWindow::m_hWnd, DXGI_MWA_NO_ALT_ENTER);
+	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
 #ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
 	CreateRenderTargetView();
 #endif
@@ -342,8 +342,8 @@ inline void RendererManager::CreateDepthStencilView()
 	D3D12_RESOURCE_DESC d3dResourceDesc;
 	d3dResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	d3dResourceDesc.Alignment = 0;
-	d3dResourceDesc.Width = CyanWindow::m_nWndClientWidth;
-	d3dResourceDesc.Height = CyanWindow::m_nWndClientHeight;
+	d3dResourceDesc.Width = CyanFW::Instance()->GetWidth();
+	d3dResourceDesc.Height = CyanFW::Instance()->GetHeight();;
 	d3dResourceDesc.DepthOrArraySize = 1;
 	d3dResourceDesc.MipLevels = 1;
 	d3dResourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -380,8 +380,8 @@ void RendererManager::ChangeSwapChainState()
 
 	DXGI_MODE_DESC dxgiTargetParameters;
 	dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	dxgiTargetParameters.Width = CyanWindow::m_nWndClientWidth;
-	dxgiTargetParameters.Height = CyanWindow::m_nWndClientHeight;
+	dxgiTargetParameters.Width = CyanFW::Instance()->GetWidth();
+	dxgiTargetParameters.Height = CyanFW::Instance()->GetHeight();;
 	dxgiTargetParameters.RefreshRate.Numerator = 60;
 	dxgiTargetParameters.RefreshRate.Denominator = 1;
 	dxgiTargetParameters.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -393,7 +393,7 @@ void RendererManager::ChangeSwapChainState()
 	//		m_ppd3dSwapChainBackBuffers[i]->Release();
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	swapChain->GetDesc(&dxgiSwapChainDesc);
-	swapChain->ResizeBuffers(m_nSwapChainBuffers, CyanWindow::m_nWndClientWidth, CyanWindow::m_nWndClientHeight, dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+	swapChain->ResizeBuffers(m_nSwapChainBuffers, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight(), dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 
 	m_nSwapChainBufferIndex = swapChain->GetCurrentBackBufferIndex();
 

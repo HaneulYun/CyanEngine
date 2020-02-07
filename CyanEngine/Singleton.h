@@ -3,14 +3,15 @@
 template <typename T>
 class Singleton
 {
-private:
+protected:
 	static T* instance;
 
 protected:
 	Singleton() {}
 	virtual ~Singleton()
 	{
-		if (instance) delete instance;
+		if (instance)
+			delete instance;
 		instance = nullptr;
 	}
 

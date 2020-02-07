@@ -23,16 +23,11 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
 	AdjustWindowRect(&windowRect, dwStyle, FALSE);
 
-	HWND hwnd = CreateWindowW(windowClass.lpszClassName, cyanFW->GetTitle(), dwStyle, CW_USEDEFAULT, CW_USEDEFAULT,
-		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, nullptr);
+	hwnd = CreateWindowW(windowClass.lpszClassName, cyanFW->GetTitle(), dwStyle, CW_USEDEFAULT, CW_USEDEFAULT,
+		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, cyanFW);
 
 	cyanFW->OnCreate(hInstance, hwnd);
 	cyanFW->scene->Start();
-
-	if (!hwnd)
-	{
-		return FALSE;
-	}
 
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
@@ -57,7 +52,7 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 			Input::Update();
 
 			Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
-			SetWindowText(CyanWindow::m_hWnd, cyanFW->m_pszFrameRate);
+			SetWindowText(hwnd, cyanFW->m_pszFrameRate);
 		}
 	}
 
@@ -79,7 +74,8 @@ LRESULT CALLBACK CyanApp::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
-		cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+		if (cyanFW)
+			cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
 		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);

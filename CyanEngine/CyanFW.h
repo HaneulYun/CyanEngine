@@ -1,6 +1,6 @@
 #pragma once
 
-class CyanFW
+class CyanFW : public Singleton<CyanFW>
 {
 private:
 	UINT width;
@@ -15,8 +15,8 @@ public:
 	_TCHAR m_pszFrameRate[50];
 
 public:
-	CyanFW(UINT width, UINT height, std::wstring name);
-	~CyanFW();
+	CyanFW(UINT width = 1280, UINT height = 720, std::wstring name = L"default");
+	virtual ~CyanFW();
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
 	void OnSetScene(Scene* newScene);
@@ -28,5 +28,6 @@ public:
 
 	UINT GetWidth() const { return width; }
 	UINT GetHeight() const { return height; }
+	float GetAspectRatio() const { return aspectRatio; }
 	const WCHAR* GetTitle() const { return title.c_str(); }
 };
