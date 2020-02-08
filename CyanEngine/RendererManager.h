@@ -19,10 +19,14 @@ class RendererManager : public Singleton<RendererManager>
 public:
 	static const UINT FrameCount{ 2 };
 
+	static const UINT TextureWidth{ 256 };
+	static const UINT TextureHeight{ 256 };
+	static const UINT TexturePixelSize{ 4 };
+
 	struct Vertex
 	{
 		XMFLOAT3 position;
-		XMFLOAT4 color;
+		XMFLOAT2 uv;
 	};
 
 	ComPtr<IDXGISwapChain3> swapChain;
@@ -34,6 +38,7 @@ public:
 	ComPtr<ID3D12RootSignature> rootSignature;
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
+	ComPtr<ID3D12DescriptorHeap> srvHeap;
 	ComPtr<ID3D12PipelineState> pipelineState;
 	ComPtr<ID3D12GraphicsCommandList> commandList;
 	UINT rtvDescriptorSize{ 0 };
@@ -41,6 +46,8 @@ public:
 
 	ComPtr<ID3D12Resource> vertexBuffer;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+
+	ComPtr<ID3D12Resource> texture;
 
 	UINT frameIndex{ 0 };
 	HANDLE fenceEvent{ nullptr };
@@ -80,6 +87,8 @@ public:
 	//--------------//
 	void LoadPipeline();
 	void LoadAssets();
+
+	std::vector<UINT8> GenerateTextureData();
 
 	void CreateDepthStencilView();
 
