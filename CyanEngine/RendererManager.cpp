@@ -16,12 +16,7 @@ void RendererManager::Initialize()
 	LoadPipeline();
 	LoadAssets();
 
-	for (int i = 0; i < FrameCount; i++)
-		m_nFenceValues[i] = 0;
-
 	CreateDepthStencilView();
-
-	CreateCommandQueueAndList();
 }
 
 void RendererManager::UpdateManager()
@@ -71,8 +66,8 @@ void RendererManager::PreRender()
 	commandAllocator->Reset();
 	commandList->Reset(commandAllocator.Get(), NULL);
 
-	D3D12_RESOURCE_BARRIER resourceBarrier;
-	::ZeroMemory(&resourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+
+	D3D12_RESOURCE_BARRIER resourceBarrier{};
 	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	resourceBarrier.Transition.pResource = renderTargets[frameIndex].Get();
@@ -81,17 +76,17 @@ void RendererManager::PreRender()
 	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	commandList->ResourceBarrier(1, &resourceBarrier);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvCpuDescriptorHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	rtvCpuDescriptorHandle.ptr += (frameIndex * rtvDescriptorSize);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvCpuDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
-
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
+	rtvHandle.ptr += frameIndex * rtvDescriptorSize;
 	float clearColor[4] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
+
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 
-	commandList->OMSetRenderTargets(1, &rtvCpuDescriptorHandle, FALSE, &dsvCpuDescriptorHandle);
-	commandList->ClearRenderTargetView(rtvCpuDescriptorHandle, clearColor, 0, NULL);
-	commandList->ClearDepthStencilView(dsvCpuDescriptorHandle, clearFlags, 1.0f, 0, 0, NULL);
+	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, NULL);
+	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, NULL);
 }
 
 void RendererManager::Render()
@@ -184,20 +179,16 @@ void RendererManager::PostRender()
 	ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
 	commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
 
-	WaitForGpuComplete();
-
 	swapChain->Present(0, 0);
 
-	MoveToNextFrame();
+	WaitForPreviousFrame();
 }
 
 void RendererManager::Destroy()
 {
-	::CloseHandle(m_hFenceEvent);
+	WaitForPreviousFrame();
 
-	for (int i = 0; i < FrameCount; i++)
-		if (renderTargets[i])
-			renderTargets[i]->Release();
+	CloseHandle(fenceEvent);
 
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 
@@ -270,7 +261,6 @@ void RendererManager::LoadPipeline()
 
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
-
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
 		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
@@ -278,6 +268,21 @@ void RendererManager::LoadPipeline()
 		rtvHandle.ptr += rtvDescriptorSize;
 	}
 
+
+	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
+}
+
+void RendererManager::LoadAssets()
+{
+	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
+	commandList->Close();
+
+
+	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+	fenceValue = 1;
+	fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+	
+	
 	// D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
 	// d3dMsaaQualityLevels.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	// d3dMsaaQualityLevels.SampleCount = 4; //Msaa4x ´ÙÁß »ùÇÃ¸µ
@@ -287,28 +292,12 @@ void RendererManager::LoadPipeline()
 	// device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &d3dMsaaQualityLevels, sizeof(D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS));
 	// m_nMsaa4xQualityLevels = d3dMsaaQualityLevels.NumQualityLevels;
 	// m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
-	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)&fence);
-	
-	m_nFenceValues[0] = 0;
-	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-	
+
+
 	gnCbvSrvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
-void RendererManager::LoadAssets()
-{
-}
-
-
 //--------------//
-
-inline void RendererManager::CreateCommandQueueAndList()
-{
-	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
-	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), NULL, IID_PPV_ARGS(&commandList));
-
-	commandList->Close();
-}
 
 inline void RendererManager::CreateDepthStencilView()
 {
@@ -345,7 +334,7 @@ inline void RendererManager::CreateDepthStencilView()
 
 void RendererManager::ChangeSwapChainState()
 {
-	WaitForGpuComplete();
+	WaitForPreviousFrame();
 
 	BOOL bFullScreenState = FALSE;
 	swapChain->GetFullscreenState(&bFullScreenState, NULL);
@@ -371,26 +360,17 @@ void RendererManager::ChangeSwapChainState()
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
 }
 
-void RendererManager::WaitForGpuComplete()
+void RendererManager::WaitForPreviousFrame()
 {
-	UINT64 nFenceValue = ++m_nFenceValues[frameIndex];
-	HRESULT hResult = commandQueue->Signal(fence.Get(), nFenceValue);
-	if (fence->GetCompletedValue() < nFenceValue)
-	{
-		hResult = fence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
-		::WaitForSingleObject(m_hFenceEvent, INFINITE);
-	}
-}
+	const UINT64 _fence = fenceValue;
+	commandQueue->Signal(fence.Get(), _fence);
+	++fenceValue;
 
-void RendererManager::MoveToNextFrame()
-{
+	if (fence->GetCompletedValue() < _fence)
+	{
+		fence->SetEventOnCompletion(_fence, fenceEvent);
+		WaitForSingleObject(fenceEvent, INFINITE);
+	}
+
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
-
-	UINT64 nFenceValue = ++m_nFenceValues[frameIndex];
-	HRESULT hResult = commandQueue->Signal(fence.Get(), nFenceValue);
-	if (fence->GetCompletedValue() < nFenceValue)
-	{
-		hResult = fence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
-		::WaitForSingleObject(m_hFenceEvent, INFINITE);
-	}
 }

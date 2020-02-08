@@ -26,7 +26,7 @@ void Scene::Start()
 	ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->commandList.Get() };
 	RendererManager::Instance()->commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
 
-	RendererManager::Instance()->WaitForGpuComplete();
+	RendererManager::Instance()->WaitForPreviousFrame();
 }
 
 void Scene::Update()

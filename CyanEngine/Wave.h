@@ -89,7 +89,7 @@ public:
 		ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->commandList.Get() };
 		RendererManager::Instance()->commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
 
-		RendererManager::Instance()->WaitForGpuComplete();
+		RendererManager::Instance()->WaitForPreviousFrame();
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
