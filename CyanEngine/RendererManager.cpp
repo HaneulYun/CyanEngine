@@ -16,14 +16,12 @@ void RendererManager::Initialize()
 	LoadPipeline();
 	LoadAssets();
 
-	for (int i = 0; i < m_nSwapChainBuffers; i++)
+	for (int i = 0; i < FrameCount; i++)
 		m_nFenceValues[i] = 0;
 
-	CreateCommandQueueAndList();
-	CreateRtvAndDsvDescriptorHeaps();
-
-	CreateRenderTargetView();
 	CreateDepthStencilView();
+
+	CreateCommandQueueAndList();
 }
 
 void RendererManager::UpdateManager()
@@ -77,14 +75,14 @@ void RendererManager::PreRender()
 	::ZeroMemory(&resourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
 	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	resourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
+	resourceBarrier.Transition.pResource = renderTargets[frameIndex].Get();
 	resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 	resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	commandList->ResourceBarrier(1, &resourceBarrier);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvCpuDescriptorHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	rtvCpuDescriptorHandle.ptr += (m_nSwapChainBufferIndex * m_nRtvDescriptorIncrementSize);
+	rtvCpuDescriptorHandle.ptr += (frameIndex * rtvDescriptorSize);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvCpuDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -176,7 +174,7 @@ void RendererManager::PostRender()
 	::ZeroMemory(&resourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
 	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	resourceBarrier.Transition.pResource = m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex];
+	resourceBarrier.Transition.pResource = renderTargets[frameIndex].Get();
 	resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
@@ -197,9 +195,9 @@ void RendererManager::Destroy()
 {
 	::CloseHandle(m_hFenceEvent);
 
-	for (int i = 0; i < m_nSwapChainBuffers; i++)
-		if (m_ppd3dRenderTargetBuffers[i])
-			m_ppd3dRenderTargetBuffers[i]->Release();
+	for (int i = 0; i < FrameCount; i++)
+		if (renderTargets[i])
+			renderTargets[i]->Release();
 
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 
@@ -238,13 +236,15 @@ void RendererManager::LoadPipeline()
 		D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
 	}
 
+
 	D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
 	commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&commandQueue));
 
+
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-	swapChainDesc.BufferCount = frameCount;
+	swapChainDesc.BufferCount = FrameCount;
 	swapChainDesc.Width = CyanFW::Instance()->GetWidth();
 	swapChainDesc.Height = CyanFW::Instance()->GetHeight();
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -254,6 +254,29 @@ void RendererManager::LoadPipeline()
 	factory->CreateSwapChainForHwnd(commandQueue.Get(), CyanApp::GetHwnd(), &swapChainDesc, nullptr, nullptr, (IDXGISwapChain1**)swapChain.GetAddressOf() );
 	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
+
+
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
+	descriptorHeapDesc.NumDescriptors = FrameCount;
+	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&rtvHeap));
+	rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	descriptorHeapDesc.NumDescriptors = 1;
+	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
+	dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+
+
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
+
+	for (UINT i = 0; i < FrameCount; ++i)
+	{
+		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
+		device->CreateRenderTargetView(renderTargets[i].Get(), nullptr, rtvHandle);
+		rtvHandle.ptr += rtvDescriptorSize;
+	}
 
 	// D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
 	// d3dMsaaQualityLevels.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -285,38 +308,6 @@ inline void RendererManager::CreateCommandQueueAndList()
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), NULL, IID_PPV_ARGS(&commandList));
 
 	commandList->Close();
-}
-
-inline void RendererManager::CreateRtvAndDsvDescriptorHeaps()
-{
-	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc;
-	::ZeroMemory(&descriptorHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
-	descriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers;
-	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	descriptorHeapDesc.NodeMask = 0;
-	//HRESULT hResult;
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&rtvHeap));
-	m_nRtvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-	descriptorHeapDesc.NumDescriptors = 1;
-	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
-	m_nDsvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-}
-
-inline void RendererManager::CreateRenderTargetView()
-{
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-
-	HRESULT hResult;
-	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
-	{
-		hResult = swapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_ppd3dRenderTargetBuffers[i]);
-		device->CreateRenderTargetView(m_ppd3dRenderTargetBuffers[i], NULL, d3dRtvCPUDescriptorHandle);
-		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
-	}
 }
 
 inline void RendererManager::CreateDepthStencilView()
@@ -370,21 +361,19 @@ void RendererManager::ChangeSwapChainState()
 	dxgiTargetParameters.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChain->ResizeTarget(&dxgiTargetParameters);
 
-	for (int i = 0; i < m_nSwapChainBuffers; i++);
+	for (int i = 0; i < FrameCount; i++);
 	//	if (m_ppd3dSwapChainBackBuffers[i])
 	//		m_ppd3dSwapChainBackBuffers[i]->Release();
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	swapChain->GetDesc(&dxgiSwapChainDesc);
-	swapChain->ResizeBuffers(m_nSwapChainBuffers, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight(), dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
+	swapChain->ResizeBuffers(FrameCount, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight(), dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 
-	m_nSwapChainBufferIndex = swapChain->GetCurrentBackBufferIndex();
-
-	CreateRenderTargetView();
+	frameIndex = swapChain->GetCurrentBackBufferIndex();
 }
 
 void RendererManager::WaitForGpuComplete()
 {
-	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
+	UINT64 nFenceValue = ++m_nFenceValues[frameIndex];
 	HRESULT hResult = commandQueue->Signal(fence.Get(), nFenceValue);
 	if (fence->GetCompletedValue() < nFenceValue)
 	{
@@ -395,9 +384,9 @@ void RendererManager::WaitForGpuComplete()
 
 void RendererManager::MoveToNextFrame()
 {
-	m_nSwapChainBufferIndex = swapChain->GetCurrentBackBufferIndex();
+	frameIndex = swapChain->GetCurrentBackBufferIndex();
 
-	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
+	UINT64 nFenceValue = ++m_nFenceValues[frameIndex];
 	HRESULT hResult = commandQueue->Signal(fence.Get(), nFenceValue);
 	if (fence->GetCompletedValue() < nFenceValue)
 	{

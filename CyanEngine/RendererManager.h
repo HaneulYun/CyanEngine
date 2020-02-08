@@ -36,29 +36,26 @@ public:
 	 
 
 private:
+	static const UINT FrameCount{ 2 };
+
+	UINT frameIndex{ 0 };
+	HANDLE m_hFenceEvent{ nullptr };
+	ComPtr<ID3D12Fence> fence{ nullptr };
+	UINT64 m_nFenceValues[FrameCount];
+
 	bool m_bMsaa4xEnable{ false };
 	UINT m_nMsaa4xQualityLevels{ 0 };
 
-	static const UINT frameCount{ 2 };
-	UINT frameIndex{ 0 };
-
-	static const UINT m_nSwapChainBuffers{ 2 };
-	//m_ppd3dSwapChainBackBuffers;
-	UINT m_nSwapChainBufferIndex{ NULL };
-
-	ID3D12Resource* m_ppd3dRenderTargetBuffers[m_nSwapChainBuffers];
-	UINT m_nRtvDescriptorIncrementSize{ 0 };
+	ComPtr<ID3D12Resource> renderTargets[FrameCount];
+	UINT rtvDescriptorSize;
 
 	ID3D12Resource* m_pd3dDepthStencilBuffer{ nullptr };
-	UINT m_nDsvDescriptorIncrementSize{ 0 };
+	UINT dsvDescriptorSize;
 
 private:
 
 	ID3D12PipelineState* m_pd3dPipelineState{ nullptr };
 
-	ComPtr<ID3D12Fence> fence{ nullptr };
-	UINT64 m_nFenceValues[m_nSwapChainBuffers];
-	HANDLE m_hFenceEvent{ nullptr };
 
 	Camera* m_pCamera{ nullptr };
 
@@ -83,9 +80,7 @@ public:
 	void LoadAssets();
 
 	void CreateCommandQueueAndList();
-	void CreateRtvAndDsvDescriptorHeaps();
 
-	void CreateRenderTargetView();
 	void CreateDepthStencilView();
 
 	void ChangeSwapChainState();
