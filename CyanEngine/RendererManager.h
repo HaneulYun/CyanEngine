@@ -17,10 +17,6 @@ struct INSTANCING
 class RendererManager : public Singleton<RendererManager>
 {
 private:
-#if defined(_DEBUG)
-	ComPtr<ID3D12Debug> debug{ nullptr };
-#endif
-	ComPtr<IDXGIFactory4> factory{ nullptr };
 	ComPtr<IDXGISwapChain3> swapChain{ nullptr };
 public:
 	ComPtr<ID3D12Device> device{ nullptr };
@@ -43,9 +39,11 @@ private:
 	bool m_bMsaa4xEnable{ false };
 	UINT m_nMsaa4xQualityLevels{ 0 };
 
+	static const UINT frameCount{ 2 };
+	UINT frameIndex{ 0 };
+
 	static const UINT m_nSwapChainBuffers{ 2 };
 	//m_ppd3dSwapChainBackBuffers;
-
 	UINT m_nSwapChainBufferIndex{ NULL };
 
 	ID3D12Resource* m_ppd3dRenderTargetBuffers[m_nSwapChainBuffers];
@@ -69,8 +67,9 @@ public:
 	RendererManager();
 	virtual ~RendererManager();
 
-	void Start();
+	void Initialize();
 
+	void Start();
 	void Update();
 	void PreRender();
 	void Render();
@@ -80,10 +79,11 @@ public:
 	void Destroy();
 
 	//--------------//
-	void CreateDirect3DDevice();
+	void LoadPipeline();
+	void LoadAssets();
+
 	void CreateCommandQueueAndList();
 	void CreateRtvAndDsvDescriptorHeaps();
-	void CreateSwapChain();
 
 	void CreateRenderTargetView();
 	void CreateDepthStencilView();

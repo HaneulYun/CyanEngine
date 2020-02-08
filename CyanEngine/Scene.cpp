@@ -11,8 +11,8 @@ Scene::~Scene()
 
 void Scene::Start()
 {
-	if(!rendererManager)
-		rendererManager = RendererManager::Instance();
+	if (!rendererManager)
+		(rendererManager = RendererManager::Instance())->Initialize();
 
 	RendererManager::Instance()->commandList->Reset(RendererManager::Instance()->commandAllocator.Get(), NULL);
 	BuildObjects();

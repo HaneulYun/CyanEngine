@@ -5,21 +5,25 @@ extern UINT gnCbvSrvDescriptorIncrementSize;
 
 RendererManager::RendererManager()
 {
-	for (int i = 0; i < m_nSwapChainBuffers; i++)
-		m_nFenceValues[i] = 0;
-
-
-	CreateDirect3DDevice();
-	CreateCommandQueueAndList();
-	CreateRtvAndDsvDescriptorHeaps();
-	CreateSwapChain();
-
-	CreateRenderTargetView();
-	CreateDepthStencilView();
 }
 
 RendererManager::~RendererManager()
 {
+}
+
+void RendererManager::Initialize()
+{
+	LoadPipeline();
+	LoadAssets();
+
+	for (int i = 0; i < m_nSwapChainBuffers; i++)
+		m_nFenceValues[i] = 0;
+
+	CreateCommandQueueAndList();
+	CreateRtvAndDsvDescriptorHeaps();
+
+	CreateRenderTargetView();
+	CreateDepthStencilView();
 }
 
 void RendererManager::UpdateManager()
@@ -202,24 +206,28 @@ void RendererManager::Destroy()
 	swapChain->SetFullscreenState(FALSE, NULL);
 }
 
-
-//--------------//
-
-inline void RendererManager::CreateDirect3DDevice()
+void RendererManager::LoadPipeline()
 {
+	UINT dxgiFactoryFlags{ 0 };
+
 #if defined(_DEBUG)
+	ComPtr<ID3D12Debug> debug{ nullptr };
 	D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
 	debug->EnableDebugLayer();
+
+	dxgiFactoryFlags != DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-	CreateDXGIFactory1(IID_PPV_ARGS(&factory));
+	ComPtr<IDXGIFactory4> factory{ nullptr };
+	CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory));
 
 	ComPtr<IDXGIAdapter1> adapter{ nullptr };
-	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != factory->EnumAdapters1(i, &adapter); i++)
+	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != factory->EnumAdapters1(i, &adapter); ++i)
 	{
-		DXGI_ADAPTER_DESC1 adapterDesc;
-		adapter->GetDesc1(&adapterDesc);
-		if (adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+		DXGI_ADAPTER_DESC1 desc{};
+		adapter->GetDesc1(&desc);
+
+		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
 			continue;
 		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device))))
 			break;
@@ -230,31 +238,49 @@ inline void RendererManager::CreateDirect3DDevice()
 		D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
 	}
 
-	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
-	d3dMsaaQualityLevels.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	d3dMsaaQualityLevels.SampleCount = 4; //Msaa4x ´ÙÁß »ùÇÃ¸µ
-	d3dMsaaQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
-	d3dMsaaQualityLevels.NumQualityLevels = 0;
+	D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
+	commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&commandQueue));
 
-	device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &d3dMsaaQualityLevels, sizeof(D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS));
-	m_nMsaa4xQualityLevels = d3dMsaaQualityLevels.NumQualityLevels;
-	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
+	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
+	swapChainDesc.BufferCount = frameCount;
+	swapChainDesc.Width = CyanFW::Instance()->GetWidth();
+	swapChainDesc.Height = CyanFW::Instance()->GetHeight();
+	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.SampleDesc.Count = 1;
+	factory->CreateSwapChainForHwnd(commandQueue.Get(), CyanApp::GetHwnd(), &swapChainDesc, nullptr, nullptr, (IDXGISwapChain1**)swapChain.GetAddressOf() );
+	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
+	frameIndex = swapChain->GetCurrentBackBufferIndex();
+
+	// D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
+	// d3dMsaaQualityLevels.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	// d3dMsaaQualityLevels.SampleCount = 4; //Msaa4x ´ÙÁß »ùÇÃ¸µ
+	// d3dMsaaQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
+	// d3dMsaaQualityLevels.NumQualityLevels = 0;
+	// 
+	// device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &d3dMsaaQualityLevels, sizeof(D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS));
+	// m_nMsaa4xQualityLevels = d3dMsaaQualityLevels.NumQualityLevels;
+	// m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)&fence);
-
+	
 	m_nFenceValues[0] = 0;
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
-
+	
 	gnCbvSrvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
+void RendererManager::LoadAssets()
+{
+}
+
+
+//--------------//
+
 inline void RendererManager::CreateCommandQueueAndList()
 {
-	D3D12_COMMAND_QUEUE_DESC commandQueueDesc;
-	ZeroMemory(&commandQueueDesc, sizeof(D3D12_COMMAND_QUEUE_DESC));
-	commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-	device->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&commandQueue));
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), NULL, IID_PPV_ARGS(&commandList));
 
@@ -278,50 +304,6 @@ inline void RendererManager::CreateRtvAndDsvDescriptorHeaps()
 
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 	m_nDsvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-}
-
-inline void RendererManager::CreateSwapChain()
-{
-	//RECT rcClient;
-	//::GetClientRect(CyanWindow::m_hWnd, &rcClient);
-	//CyanWindow::m_nWndClientWidth = rcClient.right - rcClient.left;
-	//CyanWindow::m_nWndClientHeight = rcClient.bottom - rcClient.top;
-
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
-	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-	swapChainDesc.BufferCount = m_nSwapChainBuffers;
-	swapChainDesc.BufferDesc.Width = CyanFW::Instance()->GetWidth();
-	swapChainDesc.BufferDesc.Height = CyanFW::Instance()->GetWidth();
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	swapChainDesc.OutputWindow = CyanApp::GetHwnd();
-	swapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
-	swapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
-	swapChainDesc.Windowed = TRUE;
-	swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-	DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapChainFullScreenDesc;
-	ZeroMemory(&swapChainFullScreenDesc, sizeof(swapChainFullScreenDesc));
-	swapChainFullScreenDesc.RefreshRate.Numerator = 60;
-	swapChainFullScreenDesc.RefreshRate.Denominator = 1;
-	swapChainFullScreenDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	swapChainFullScreenDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	swapChainFullScreenDesc.Windowed = TRUE;
-
-	//m_pdxgiFactory->CreateSwapChainForHwnd(m_pd3dCommandQueue, m_hWnd, &dxgiSwapChainDesc, &dxgiSwapChainFullScreenDesc, NULL, (IDXGISwapChain1 * *)& m_pdxgiSwapChain);
-	factory->CreateSwapChain(commandQueue.Get(), &swapChainDesc, (IDXGISwapChain**)swapChain.GetAddressOf());
-	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
-
-	m_nSwapChainBufferIndex = swapChain->GetCurrentBackBufferIndex();
-
-	//HRESULT hResult;
-	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
-#ifndef _WITH_SWAPCHAIN_FULLSCREEN_STATE
-	CreateRenderTargetView();
-#endif
 }
 
 inline void RendererManager::CreateRenderTargetView()
