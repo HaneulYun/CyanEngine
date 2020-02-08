@@ -16,23 +16,17 @@ struct INSTANCING
 
 class RendererManager : public Singleton<RendererManager>
 {
-private:
+public:
 	static const UINT FrameCount{ 2 };
 
 	ComPtr<IDXGISwapChain3> swapChain{ nullptr };
-public:
 	ComPtr<ID3D12Device> device{ nullptr };
-private:
 	ComPtr<ID3D12Resource> renderTargets[FrameCount];
-public:
 	ComPtr<ID3D12CommandAllocator> commandAllocator{ nullptr };
 	ComPtr<ID3D12CommandQueue> commandQueue{ nullptr };
-private:
 	ComPtr<ID3D12DescriptorHeap> rtvHeap{ nullptr };
 	ComPtr<ID3D12DescriptorHeap> dsvHeap{ nullptr };
-public:
 	ComPtr<ID3D12GraphicsCommandList> commandList{ nullptr };
-private:
 	UINT rtvDescriptorSize{ 0 };
 	UINT dsvDescriptorSize{ 0 };
 

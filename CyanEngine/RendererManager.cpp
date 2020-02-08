@@ -263,7 +263,10 @@ void RendererManager::LoadAssets()
 
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
 	fenceValue = 1;
+
 	fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+
+	WaitForPreviousFrame();
 	
 	
 	// D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
