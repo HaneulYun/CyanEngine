@@ -64,20 +64,19 @@ void RendererManager::Update()
 void RendererManager::PreRender()
 {
 	commandAllocator->Reset();
-	commandList->Reset(commandAllocator.Get(), NULL);
+	commandList->Reset(commandAllocator.Get(), pipelineState.Get());
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), frameIndex, rtvDescriptorSize);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{ dsvHeap->GetCPUDescriptorHandleForHeapStart() };
+	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
-	const float clearColor[] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
+	const float clearColor[] { 0.1921569, 0.3019608, 0.4745098, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
-
-	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
 
 void RendererManager::Render()
@@ -85,6 +84,10 @@ void RendererManager::Render()
 	PreRender();
 
 	Camera::main->SetViewportsAndScissorRects(commandList.Get());
+
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+	commandList->DrawInstanced(3, 1, 0, 0);
 
 	for (auto& d : instances)
 	{
@@ -257,8 +260,72 @@ void RendererManager::LoadPipeline()
 
 void RendererManager::LoadAssets()
 {
+	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
+	rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	ComPtr<ID3DBlob> signature;
+	ComPtr<ID3DBlob> error;
+	D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
+	device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+
+	ComPtr<ID3DBlob> vertexShader;
+	ComPtr<ID3DBlob> pixelShader;
+#if defined(_DEBUG)
+	UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+	UINT compileFlags = 0;
+#endif
+	D3DCompileFromFile(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr);
+	D3DCompileFromFile(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr);
+
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
+	pipelineStateDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
+	pipelineStateDesc.pRootSignature = rootSignature.Get();
+	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
+	pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+	pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	pipelineStateDesc.DepthStencilState.DepthEnable = FALSE;
+	pipelineStateDesc.DepthStencilState.StencilEnable = FALSE;
+	pipelineStateDesc.SampleMask = UINT_MAX;
+	pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	pipelineStateDesc.NumRenderTargets = 1;
+	pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	pipelineStateDesc.SampleDesc.Count = 1;
+	device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineState));
+
+
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
 	commandList->Close();
+
+
+	float aspectRatio = CyanFW::Instance()->GetAspectRatio();
+	Vertex vertices[]
+	{
+		{ { 0.0f, 0.25f * aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+		{ { 0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+		{ { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+	};
+
+	const UINT vertexBufferSize = sizeof(vertices);
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
+		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&vertexBuffer));
+
+	UINT8* vertexDataBegin;
+	CD3DX12_RANGE readRange(0, 0);
+	vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&vertexDataBegin));
+	memcpy(vertexDataBegin, vertices, vertexBufferSize);
+	vertexBuffer->Unmap(0, nullptr);
+
+	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
+	vertexBufferView.StrideInBytes = sizeof(Vertex);
+	vertexBufferView.SizeInBytes = vertexBufferSize;
 
 
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));

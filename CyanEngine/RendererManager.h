@@ -25,26 +25,26 @@ public:
 		XMFLOAT4 color;
 	};
 
-	ComPtr<IDXGISwapChain3> swapChain{ nullptr };
-	ComPtr<ID3D12Device> device{ nullptr };
+	ComPtr<IDXGISwapChain3> swapChain;
+	ComPtr<ID3D12Device> device;
 	ComPtr<ID3D12Resource> renderTargets[FrameCount];
-	ComPtr<ID3D12CommandAllocator> commandAllocator{ nullptr };
-	ComPtr<ID3D12CommandQueue> commandQueue{ nullptr };
+	ComPtr<ID3D12CommandAllocator> commandAllocator;
+	ComPtr<ID3D12CommandQueue> commandQueue;
 	
-	ComPtr<ID3D12RootSignature> rootSignature{ nullptr };
-	ComPtr<ID3D12DescriptorHeap> rtvHeap{ nullptr };
-	ComPtr<ID3D12DescriptorHeap> dsvHeap{ nullptr };
-	ComPtr<ID3D12PipelineState> pipelineState{ nullptr };
-	ComPtr<ID3D12GraphicsCommandList> commandList{ nullptr };
+	ComPtr<ID3D12RootSignature> rootSignature;
+	ComPtr<ID3D12DescriptorHeap> rtvHeap;
+	ComPtr<ID3D12DescriptorHeap> dsvHeap;
+	ComPtr<ID3D12PipelineState> pipelineState;
+	ComPtr<ID3D12GraphicsCommandList> commandList;
 	UINT rtvDescriptorSize{ 0 };
 	UINT dsvDescriptorSize{ 0 };
 
-	ComPtr<ID3D12Resource> vertexBuffer{ nullptr };
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+	ComPtr<ID3D12Resource> vertexBuffer;
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
 
 	UINT frameIndex{ 0 };
 	HANDLE fenceEvent{ nullptr };
-	ComPtr<ID3D12Fence> fence{ nullptr };
+	ComPtr<ID3D12Fence> fence;
 	UINT64 fenceValue{ 0 };
 
 public:

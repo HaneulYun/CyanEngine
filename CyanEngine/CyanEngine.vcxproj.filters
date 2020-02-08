@@ -61,6 +61,9 @@
     <Filter Include="0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC">
       <UniqueIdentifier>{19228a0b-f471-4577-8d86-4b14d63b2187}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\older">
+      <UniqueIdentifier>{8c041714-154e-44f0-a198-dae01265649a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -313,25 +316,28 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Texture.hlsl">
+      <Filter>shaders\older</Filter>
+    </FxCompile>
     <FxCompile Include="Billboard.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>shaders\older</Filter>
     </FxCompile>
     <FxCompile Include="Light.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>shaders\older</Filter>
     </FxCompile>
     <FxCompile Include="Lighting.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>shaders\older</Filter>
     </FxCompile>
     <FxCompile Include="Shaders.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>shaders\older</Filter>
     </FxCompile>
     <FxCompile Include="Standard.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>shaders\older</Filter>
     </FxCompile>
     <FxCompile Include="Terrain.hlsl">
-      <Filter>shaders</Filter>
+      <Filter>shaders\older</Filter>
     </FxCompile>
-    <FxCompile Include="Texture.hlsl">
+    <FxCompile Include="Shaders\shaders.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
   </ItemGroup>
