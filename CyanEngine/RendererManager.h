@@ -33,8 +33,8 @@ private:
 public:
 	ComPtr<ID3D12GraphicsCommandList> commandList{ nullptr };
 private:
-	UINT rtvDescriptorSize;
-	UINT dsvDescriptorSize;
+	UINT rtvDescriptorSize{ 0 };
+	UINT dsvDescriptorSize{ 0 };
 
 	UINT frameIndex{ 0 };
 	HANDLE fenceEvent{ nullptr };

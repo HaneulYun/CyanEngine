@@ -66,27 +66,18 @@ void RendererManager::PreRender()
 	commandAllocator->Reset();
 	commandList->Reset(commandAllocator.Get(), NULL);
 
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	D3D12_RESOURCE_BARRIER resourceBarrier{};
-	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	resourceBarrier.Transition.pResource = renderTargets[frameIndex].Get();
-	resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	commandList->ResourceBarrier(1, &resourceBarrier);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(rtvHeap->GetCPUDescriptorHandleForHeapStart(), frameIndex, rtvDescriptorSize);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{ dsvHeap->GetCPUDescriptorHandleForHeapStart() };
 
+	const float clearColor[] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
+	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvHeap->GetCPUDescriptorHandleForHeapStart();
-	rtvHandle.ptr += frameIndex * rtvDescriptorSize;
-	float clearColor[4] = { 0.1921569, 0.3019608, 0.4745098, 1.0f };
-
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
+	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
 
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, NULL);
-	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, NULL);
 }
 
 void RendererManager::Render()
@@ -165,15 +156,7 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 
 void RendererManager::PostRender()
 {
-	D3D12_RESOURCE_BARRIER resourceBarrier;
-	::ZeroMemory(&resourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-	resourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	resourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	resourceBarrier.Transition.pResource = renderTargets[frameIndex].Get();
-	resourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	resourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	resourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	commandList->ResourceBarrier(1, &resourceBarrier);
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	commandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
@@ -260,12 +243,12 @@ void RendererManager::LoadPipeline()
 	dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
 
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
 		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
 		device->CreateRenderTargetView(renderTargets[i].Get(), nullptr, rtvHandle);
-		rtvHandle.ptr += rtvDescriptorSize;
+		rtvHandle.Offset(1, rtvDescriptorSize);
 	}
 
 
