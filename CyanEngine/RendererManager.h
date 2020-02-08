@@ -19,16 +19,28 @@ class RendererManager : public Singleton<RendererManager>
 public:
 	static const UINT FrameCount{ 2 };
 
+	struct Vertex
+	{
+		XMFLOAT3 position;
+		XMFLOAT4 color;
+	};
+
 	ComPtr<IDXGISwapChain3> swapChain{ nullptr };
 	ComPtr<ID3D12Device> device{ nullptr };
 	ComPtr<ID3D12Resource> renderTargets[FrameCount];
 	ComPtr<ID3D12CommandAllocator> commandAllocator{ nullptr };
 	ComPtr<ID3D12CommandQueue> commandQueue{ nullptr };
+	
+	ComPtr<ID3D12RootSignature> rootSignature{ nullptr };
 	ComPtr<ID3D12DescriptorHeap> rtvHeap{ nullptr };
 	ComPtr<ID3D12DescriptorHeap> dsvHeap{ nullptr };
+	ComPtr<ID3D12PipelineState> pipelineState{ nullptr };
 	ComPtr<ID3D12GraphicsCommandList> commandList{ nullptr };
 	UINT rtvDescriptorSize{ 0 };
 	UINT dsvDescriptorSize{ 0 };
+
+	ComPtr<ID3D12Resource> vertexBuffer{ nullptr };
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
 
 	UINT frameIndex{ 0 };
 	HANDLE fenceEvent{ nullptr };
