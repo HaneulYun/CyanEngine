@@ -25,12 +25,10 @@ public:
 		XMFLOAT4 color;
 	};
 
-	struct ObjectConstants
+	struct SceneConstantBuffer
 	{
-		XMFLOAT4X4 worldViewProj;
+		XMFLOAT4 offset{};
 	};
-
-	std::unique_ptr<UploadBuffer<ObjectConstants>> objectCB{ nullptr };
 
 	ComPtr<IDXGISwapChain3> swapChain;
 	ComPtr<ID3D12Device> device;
@@ -41,6 +39,7 @@ public:
 	ComPtr<ID3D12RootSignature> rootSignature;
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
+	ComPtr<ID3D12DescriptorHeap> cbvHeap;
 	ComPtr<ID3D12PipelineState> pipelineState;
 	ComPtr<ID3D12GraphicsCommandList> commandList;
 	UINT rtvDescriptorSize{ 0 };
@@ -48,6 +47,9 @@ public:
 
 	ComPtr<ID3D12Resource> vertexBuffer;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+	ComPtr<ID3D12Resource> constantBuffer;
+	SceneConstantBuffer constantBufferData;
+	UINT* cbvDataBegin;
 
 	UINT frameIndex{ 0 };
 	HANDLE fenceEvent{ nullptr };

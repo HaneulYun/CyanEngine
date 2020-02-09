@@ -27,6 +27,15 @@ void RendererManager::UpdateManager()
 		Start();
 	}
 	//Update();
+	const float translationSpeed = 0.5f;
+	const float offsetBounds = 1.25f;
+
+	constantBufferData.offset.x += translationSpeed * Time::deltaTime;
+	if (constantBufferData.offset.x > offsetBounds)
+	{
+		constantBufferData.offset.x = -offsetBounds;
+	}
+	memcpy(cbvDataBegin, &constantBufferData, sizeof(constantBufferData));
 }
 
 void RendererManager::Start()
@@ -84,6 +93,12 @@ void RendererManager::Render()
 	PreRender();
 
 	Camera::main->SetViewportsAndScissorRects(commandList.Get());
+
+	commandList->SetGraphicsRootSignature(rootSignature.Get());
+	commandList->SetPipelineState(pipelineState.Get());
+	ID3D12DescriptorHeap* heaps[]{ cbvHeap.Get() };
+	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
+	commandList->SetGraphicsRootDescriptorTable(0, cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
@@ -245,6 +260,10 @@ void RendererManager::LoadPipeline()
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 	dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
+	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&cbvHeap));
+
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
 	for (UINT i = 0; i < FrameCount; ++i)
@@ -260,11 +279,29 @@ void RendererManager::LoadPipeline()
 
 void RendererManager::LoadAssets()
 {
-	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-	rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{};
+	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+
+	CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
+	CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+
+	ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+	rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
+
+	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS
+	};
+
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc{};
+	rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
-	D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
+	D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error);
 	device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 
 	ComPtr<ID3DBlob> vertexShader;
@@ -326,6 +363,22 @@ void RendererManager::LoadAssets()
 	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
 	vertexBufferView.StrideInBytes = sizeof(Vertex);
 	vertexBufferView.SizeInBytes = vertexBufferSize;
+
+
+	{
+		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
+			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&constantBuffer));
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
+		cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes = (sizeof(SceneConstantBuffer) + 255) & ~255;
+		device->CreateConstantBufferView(&cbvDesc, cbvHeap->GetCPUDescriptorHandleForHeapStart());
+
+		CD3DX12_RANGE readRange(0, 0);
+		constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&cbvDataBegin));
+		memcpy(cbvDataBegin, &constantBufferData, sizeof(constantBufferData));
+	}
 
 
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
