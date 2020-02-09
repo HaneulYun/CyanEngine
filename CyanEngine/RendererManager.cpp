@@ -319,12 +319,15 @@ void RendererManager::LoadAssets()
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
+	CD3DX12_RASTERIZER_DESC raterizerDesc(D3D12_DEFAULT);
+	raterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
 	pipelineStateDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
 	pipelineStateDesc.pRootSignature = rootSignature.Get();
 	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
 	pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
-	pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	pipelineStateDesc.RasterizerState = raterizerDesc;
 	pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	pipelineStateDesc.DepthStencilState.DepthEnable = FALSE;
 	pipelineStateDesc.DepthStencilState.StencilEnable = FALSE;
