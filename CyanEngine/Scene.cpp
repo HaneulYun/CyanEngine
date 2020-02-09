@@ -14,7 +14,7 @@ void Scene::Start()
 	if (!rendererManager)
 		(rendererManager = RendererManager::Instance())->Initialize();
 
-	RendererManager::Instance()->commandList->Reset(RendererManager::Instance()->commandAllocator.Get(), NULL);
+	RendererManager::Instance()->commandList->Reset(RendererManager::Instance()->GetAllocator().Get(), NULL);
 	BuildObjects();
 
 	for (int i = 0; i < gameObjects.size(); ++i)
@@ -26,7 +26,7 @@ void Scene::Start()
 	ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->commandList.Get() };
 	RendererManager::Instance()->commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
 
-	RendererManager::Instance()->WaitForPreviousFrame();
+	RendererManager::Instance()->WaitForGpu();
 }
 
 void Scene::Update()

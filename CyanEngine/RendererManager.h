@@ -35,7 +35,7 @@ public:
 	ComPtr<IDXGISwapChain3> swapChain;
 	ComPtr<ID3D12Device> device;
 	ComPtr<ID3D12Resource> renderTargets[FrameCount];
-	ComPtr<ID3D12CommandAllocator> commandAllocator;
+	ComPtr<ID3D12CommandAllocator> commandAllocator[FrameCount];
 	ComPtr<ID3D12CommandQueue> commandQueue;
 	
 	ComPtr<ID3D12RootSignature> rootSignature;
@@ -52,7 +52,7 @@ public:
 	UINT frameIndex{ 0 };
 	HANDLE fenceEvent{ nullptr };
 	ComPtr<ID3D12Fence> fence;
-	UINT64 fenceValue{ 0 };
+	UINT64 fenceValues[FrameCount]{ 0, };
 
 public:
 	bool isRenewed{ false };
@@ -92,5 +92,11 @@ public:
 
 	void ChangeSwapChainState();
 
-	void WaitForPreviousFrame();
+	void MoveToNextFrame();
+	void WaitForGpu();
+
+	ComPtr<ID3D12CommandAllocator> GetAllocator()
+	{
+		return commandAllocator[frameIndex];
+	}
 };

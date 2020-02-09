@@ -63,8 +63,8 @@ void RendererManager::Update()
 
 void RendererManager::PreRender()
 {
-	commandAllocator->Reset();
-	commandList->Reset(commandAllocator.Get(), pipelineState.Get());
+	commandAllocator[frameIndex]->Reset();
+	commandList->Reset(commandAllocator[frameIndex].Get(), pipelineState.Get());
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -167,12 +167,12 @@ void RendererManager::PostRender()
 
 	swapChain->Present(0, 0);
 
-	WaitForPreviousFrame();
+	MoveToNextFrame();
 }
 
 void RendererManager::Destroy()
 {
-	WaitForPreviousFrame();
+	WaitForGpu();
 
 	CloseHandle(fenceEvent);
 
@@ -229,6 +229,7 @@ void RendererManager::LoadPipeline()
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.SampleDesc.Count = 1;
 	factory->CreateSwapChainForHwnd(commandQueue.Get(), CyanApp::GetHwnd(), &swapChainDesc, nullptr, nullptr, (IDXGISwapChain1**)swapChain.GetAddressOf() );
+	
 	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
 
@@ -252,20 +253,21 @@ void RendererManager::LoadPipeline()
 		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
 		device->CreateRenderTargetView(renderTargets[i].Get(), nullptr, rtvHandle);
 		rtvHandle.Offset(1, rtvDescriptorSize);
+		
+		device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator[i]));
 	}
-
-
-	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
 }
 
 void RendererManager::LoadAssets()
 {
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
 	rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
 	D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error);
 	device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+
 
 	ComPtr<ID3DBlob> vertexShader;
 	ComPtr<ID3DBlob> pixelShader;
@@ -282,6 +284,7 @@ void RendererManager::LoadAssets()
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
+
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
 	pipelineStateDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
@@ -300,7 +303,7 @@ void RendererManager::LoadAssets()
 	device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineState));
 
 
-	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
+	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator[frameIndex].Get(), nullptr, IID_PPV_ARGS(&commandList));
 	commandList->Close();
 
 
@@ -328,12 +331,12 @@ void RendererManager::LoadAssets()
 	vertexBufferView.SizeInBytes = vertexBufferSize;
 
 
-	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-	fenceValue = 1;
+	device->CreateFence(fenceValues[frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
+	++fenceValues[frameIndex];
 
 	fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
-	WaitForPreviousFrame();
+	WaitForGpu();
 	
 	
 	// D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
@@ -387,7 +390,7 @@ inline void RendererManager::CreateDepthStencilView()
 
 void RendererManager::ChangeSwapChainState()
 {
-	WaitForPreviousFrame();
+	WaitForGpu();
 
 	BOOL bFullScreenState = FALSE;
 	swapChain->GetFullscreenState(&bFullScreenState, NULL);
@@ -413,17 +416,27 @@ void RendererManager::ChangeSwapChainState()
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
 }
 
-void RendererManager::WaitForPreviousFrame()
+void RendererManager::MoveToNextFrame()
 {
-	const UINT64 _fence = fenceValue;
-	commandQueue->Signal(fence.Get(), _fence);
-	++fenceValue;
-
-	if (fence->GetCompletedValue() < _fence)
-	{
-		fence->SetEventOnCompletion(_fence, fenceEvent);
-		WaitForSingleObject(fenceEvent, INFINITE);
-	}
+	const UINT64 currentFenceValue = fenceValues[frameIndex];
+	commandQueue->Signal(fence.Get(), currentFenceValue);
 
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
+
+	if (fence->GetCompletedValue() < fenceValues[frameIndex])
+	{
+		fence->SetEventOnCompletion(fenceValues[frameIndex], fenceEvent);
+		WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
+	}
+
+	fenceValues[frameIndex] = currentFenceValue + 1;
+}
+
+void RendererManager::WaitForGpu()
+{
+	commandQueue->Signal(fence.Get(), fenceValues[frameIndex]);
+	fence->SetEventOnCompletion(fenceValues[frameIndex], fenceEvent);
+	WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
+
+	++fenceValues[frameIndex];
 }
