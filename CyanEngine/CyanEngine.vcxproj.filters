@@ -207,6 +207,7 @@
     <ClInclude Include="CyanApp.h">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClInclude>
+    <ClInclude Include="UploadBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">

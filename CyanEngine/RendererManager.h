@@ -25,6 +25,13 @@ public:
 		XMFLOAT4 color;
 	};
 
+	struct ObjectConstants
+	{
+		XMFLOAT4X4 worldViewProj;
+	};
+
+	std::unique_ptr<UploadBuffer<ObjectConstants>> objectCB{ nullptr };
+
 	ComPtr<IDXGISwapChain3> swapChain;
 	ComPtr<ID3D12Device> device;
 	ComPtr<ID3D12Resource> renderTargets[FrameCount];
