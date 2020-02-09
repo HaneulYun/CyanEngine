@@ -5,6 +5,7 @@ extern UINT gnCbvSrvDescriptorIncrementSize;
 
 RendererManager::RendererManager()
 {
+	constantBufferData.WorldViewProj = NS_Matrix4x4::Identity();
 }
 
 RendererManager::~RendererManager()
@@ -27,14 +28,12 @@ void RendererManager::UpdateManager()
 		Start();
 	}
 	//Update();
-	const float translationSpeed = 0.5f;
-	const float offsetBounds = 1.25f;
+	const XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
+	const float speedRotating{ 180.0f };
 
-	constantBufferData.offset.x += translationSpeed * Time::deltaTime;
-	if (constantBufferData.offset.x > offsetBounds)
-	{
-		constantBufferData.offset.x = -offsetBounds;
-	}
+	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&axis), XMConvertToRadians(speedRotating * Time::deltaTime));
+	constantBufferData.WorldViewProj = NS_Matrix4x4::Multiply(mtxRotate, constantBufferData.WorldViewProj);
+
 	memcpy(cbvDataBegin, &constantBufferData, sizeof(constantBufferData));
 }
 

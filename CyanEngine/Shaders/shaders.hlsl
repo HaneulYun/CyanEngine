@@ -1,6 +1,6 @@
 cbuffer SceneConstantBuffer : register(b0)
 {
-	float4 offset;
+	float4x4 mtx;
 }
 
 struct PSInput
@@ -13,7 +13,7 @@ PSInput VSMain(float4 position : POSITION, float4 color : COLOR)
 {
 	PSInput result;
 
-	result.position = position + offset;
+	result.position = mul(mtx, position);
 	result.color = color;
 
 	return result;

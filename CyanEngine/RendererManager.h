@@ -27,7 +27,7 @@ public:
 
 	struct SceneConstantBuffer
 	{
-		XMFLOAT4 offset{};
+		XMFLOAT4X4 WorldViewProj;
 	};
 
 	ComPtr<IDXGISwapChain3> swapChain;
