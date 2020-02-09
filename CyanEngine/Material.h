@@ -2,7 +2,7 @@
 
 enum class ShaderMode
 {
-	Standard, Skybox, Terrain, Billboard
+	Standard, Skybox, Terrain, Billboard, Skinned
 };
 
 class Material : public Object

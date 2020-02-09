@@ -216,7 +216,13 @@
     <ClInclude Include="Wave.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="FBX_TEST.h">
+    <ClInclude Include="LoadFbx.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationController.h">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedData.h">
       <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
   </ItemGroup>
@@ -326,6 +332,15 @@
     <ClCompile Include="TextureShader.cpp">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="LoadFbx.cpp">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationController.cpp">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedData.cpp">
+      <Filter>1_00_YellowProject\10_Scripts</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CyanEngine.rc">
@@ -360,6 +375,9 @@
       <Filter>shaders</Filter>
     </FxCompile>
     <FxCompile Include="Texture.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Skinned.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
   </ItemGroup>

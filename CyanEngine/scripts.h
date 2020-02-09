@@ -8,4 +8,6 @@
 
 #include "Wave.h"
 
-#include "FBX_TEST.h"
+#include "LoadFbx.h"
+#include "SkinnedData.h"
+#include "AnimationController.h"

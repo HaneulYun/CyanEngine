@@ -1,6 +1,13 @@
 #pragma once
 #include "Vertex.h"
 
+class Bone
+{
+public:
+	int parentIndex;
+	std::string name;
+};
+
 class Mesh
 {
 public:
@@ -250,7 +257,21 @@ public:
 	XMFLOAT3* normals = NULL;
 	UINT* indices = NULL;
 
-	MeshFromFbx(FbxMesh* fbxMesh);
+	// Animation
+	XMINT4* boneIndices = NULL;
+	XMFLOAT3* boneWeights = NULL;
+
+	ID3D12Resource* boneIndexBuffer = NULL;
+	ID3D12Resource* boneIndexUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		boneIndexBufferView;
+
+	ID3D12Resource* boneWeightBuffer = NULL;
+	ID3D12Resource* boneWeightUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		boneWeightBufferView;
+
+	MeshFromFbx(FbxMesh*, std::vector<Bone>);
+	void AddBoneWeight(int index, float boneWeight);
+	void AddBoneIndex(int index, int boneIndex);
 	virtual ~MeshFromFbx() {}
 
 };

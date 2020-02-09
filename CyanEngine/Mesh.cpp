@@ -932,7 +932,6 @@ WaveMesh::WaveMesh(float fWidth, float fHeight, float fDepth, float fxPosition, 
 
 void ReadNormal(FbxMesh* inMesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& outNormal)
 {
-
 	//pMeshInfo->m_pxmf3Normals = new XMFLOAT3[nNormals];
 	//nReads = (UINT)::fread(pMeshInfo->m_pxmf3Normals, sizeof(XMFLOAT3), nNormals, pInFile);
 
@@ -996,12 +995,12 @@ void ReadNormal(FbxMesh* inMesh, int inCtrlPointIndex, int inVertexCounter, XMFL
 	}
 }
 
-MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh)
+MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh, std::vector<Bone> skeleton)
 {
 	// Vertex Data
 	int vertexCnt = fbxMesh->GetControlPointsCount();
 	m_nVertices = vertexCnt;
-	m_nStride = sizeof(IlluminatedVertex);
+	m_nStride = sizeof(SkinnedVertex);
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	vertices = new XMFLOAT3[m_nVertices];
@@ -1036,18 +1035,83 @@ MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh)
 		}
 	}
 
-	IlluminatedVertex* IlluminatedVetices = new IlluminatedVertex[m_nVertices];
+	indexBuffer = CreateBufferResource(indices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &indexUploadBuffer);
+	indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
+	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	indexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
+
+
+	// Bone Weights/Indcies
+	int numOfDeformers = fbxMesh->GetDeformerCount();
+	FbxSkin* fbxSkin = reinterpret_cast<FbxSkin*>(fbxMesh->GetDeformer(0 /*Deformer Index*/, FbxDeformer::eSkin));
+
+	boneIndices = new XMINT4[vertexCnt]();
+	boneWeights = new XMFLOAT3[vertexCnt]();
+
+	// Cluster 
+	// 애니메이션 정보가 있는 뼈대 중 Skinning 데이터에 대한 정보만 가진다.
+	for (int i = 0; i < fbxSkin->GetClusterCount(); ++i)
+	{
+		FbxCluster* fbxCluster = fbxSkin->GetCluster(i);
+
+		// 이 Cluster에 상응하는 Skeleton 노드를 얻어온다.
+		std::string BoneName = fbxCluster->GetLink()->GetName();
+
+		// 해당 Skeleton의 index를 가져온다.
+		auto bone = std::find_if(skeleton.begin(), skeleton.end(), [BoneName](const Bone& a) { return a.name.compare(BoneName) == 0; });
+		int boneIndex = std::distance(skeleton.begin(), bone);
+
+		// 해당 뼈에 영향을 받는 컨트롤 포인트의 인덱스/ 컨트롤 포인트가 중복되어 있음... 
+		int* pCtrlPtIdx = fbxCluster->GetControlPointIndices();
+
+		// 해당 뼈에 영향을 받는 컨트롤 포인트의 인덱스 갯수.
+		int iCtrlPtCnt = fbxCluster->GetControlPointIndicesCount();
+		
+		// 정점마다 가중치에 대한 정보
+		double* pBoneWeights = fbxCluster->GetControlPointWeights();
+
+		// 각 버텍스마다 영향을 받는 뼈 인덱스 / 가중치를 넣어준다.
+		for (int i = 0; i < iCtrlPtCnt; ++i)
+		{
+			AddBoneWeight(pCtrlPtIdx[i], (float)pBoneWeights[i]);
+			AddBoneIndex(pCtrlPtIdx[i], boneIndex);
+		}
+	}
+
+	SkinnedVertex* IlluminatedVetices = new SkinnedVertex[m_nVertices];
 	for (int i = 0; i < m_nVertices; ++i)
-		IlluminatedVetices[i] = { vertices[i],normals[i] };
+		IlluminatedVetices[i] = { vertices[i],normals[i],boneWeights[i],boneIndices[i] };
 
 	vertexBuffer = CreateBufferResource(IlluminatedVetices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
 	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
 	vertexBufferView.StrideInBytes = m_nStride;
 	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 
-	indexBuffer = CreateBufferResource(indices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &indexUploadBuffer);
-	indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
-	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-	indexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
+}
 
+void MeshFromFbx::AddBoneWeight(int index, float boneWeight)
+{
+	if (boneWeights == NULL)
+		return;
+	
+	if (!boneWeights[index].x)
+		boneWeights[index].x = boneWeight;
+	else if (!boneWeights[index].y)
+		boneWeights[index].y = boneWeight;
+	else if (!boneWeights[index].z)
+		boneWeights[index].z = boneWeight;
+}
+void MeshFromFbx::AddBoneIndex(int index, int boneIndex)
+{
+	if (boneIndices == NULL)
+		return;
+
+	if (!boneIndices[index].x)
+		boneIndices[index].x = boneIndex;
+	else if (!boneIndices[index].y)
+		boneIndices[index].y = boneIndex;
+	else if (!boneIndices[index].z)
+		boneIndices[index].z = boneIndex;
+	else if (!boneIndices[index].w)
+		boneIndices[index].w = boneIndex;
 }

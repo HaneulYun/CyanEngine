@@ -21,6 +21,19 @@ Material::Material(const wchar_t* fileName, ShaderMode mode)
 			_shader->ppMaterials[0]->SetTexture(ppTextures);
 		}
 		break;
+	case ShaderMode::Skinned:
+		{
+		CTexture* ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+		ppTextures->LoadTextureFromFile(fileName, 0);
+
+		SkinnedObjectShader* _shader = new SkinnedObjectShader();
+		shader = _shader;
+		_shader->CreateCbvSrvDescriptorHeaps(0, TEXTURES);
+		_shader->CreateShaderResourceViews(ppTextures, 1, 3, false);
+		_shader->ppMaterials[0] = new CMaterial();
+		_shader->ppMaterials[0]->SetTexture(ppTextures);
+		}
+		break;
 	case ShaderMode::Skybox:
 		{
 			CTexture* ppTextures = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);

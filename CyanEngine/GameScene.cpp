@@ -37,7 +37,7 @@ void GameScene::BuildObjects()
 		player->GetComponent<Transform>()->Scale({ 0.1f, 0.1f, 0.1f });
 		//player->GetComponent<Transform>()->Rotate(XMFLOAT3{ 0.f,1.f,0.f }, 180);
 		player->GetComponent<Transform>()->position = { 0.f, 0.f, 0.f };
-		player->AddComponent<FBX_TEST>();
+		player->AddComponent<LoadFbx>()->LoadFbxFileName("Model/humanoid.FBX");
 		
 		//player->AddComponent<Controller>()->gameObject = player;
 

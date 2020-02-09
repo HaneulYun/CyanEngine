@@ -111,3 +111,12 @@ public:
 	}
 	~CDiffused2TexturedVertex() { }
 };
+
+class SkinnedVertex
+{
+public:
+	XMFLOAT3 position{};
+	XMFLOAT3 normal{};
+	XMFLOAT3 boneWeights{};
+	XMINT4 boneIndices{};
+};

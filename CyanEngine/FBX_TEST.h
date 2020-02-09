@@ -1,5 +1,7 @@
 #pragma once
 #include "framework.h"
+#include "SkinnedData.h"
+
 
 class FBX_TEST : public MonoBehavior<FBX_TEST>
 {
@@ -19,6 +21,7 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	UINT nVertices = 0;
 	UINT nIndices = 0;
 
+	std::vector<Bone> skeleton;
 
 private:
 	friend class GameObject;
@@ -43,7 +46,7 @@ public:
 		{
 			fbxImporter = FbxImporter::Create(fbxManager, "");
 
-			char url[20]{ "Model/testmodel.FBX" };
+			char url[20]{ "Model/humanoid.FBX" };
 			if (fbxImporter->Initialize(url, -1))
 			{
 				message = "Importing file ";
@@ -70,7 +73,13 @@ public:
 
 		FbxNode* rootnode = fbxScene->GetRootNode();
 
-		ProcessNode(rootnode);
+		ProcessNode(rootnode, FbxNodeAttribute::eSkeleton);
+		ProcessNode(rootnode, FbxNodeAttribute::eMesh);
+
+		// 스켈레톤 먼저 불러오고,
+		// 메쉬 불러오고,
+		// 스켈레톤에 애니메이션 정보 넣기
+
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
@@ -78,75 +87,7 @@ public:
 
 	}
 
-	//void ProcessNode(FbxNode* rootnode) {
-	//
-	//	if (rootnode)
-	//	{
-	//		int a = rootnode->GetChildCount();
-	//		for (int i = 0; i < rootnode->GetChildCount(); i++)
-	//		{
-	//			FbxNode* childNode = rootnode->GetChild(i);
-	//
-	//			if (childNode->GetNodeAttribute() == NULL)
-	//				continue;
-	//
-	//			FbxNodeAttribute::EType AttributeType = childNode->GetNodeAttribute()->GetAttributeType();
-	//
-	//			switch (AttributeType)
-	//			{
-	//			case FbxNodeAttribute::eUnknown:
-	//				break;
-	//			case FbxNodeAttribute::eNull:
-	//				break;
-	//			case FbxNodeAttribute::eMarker:
-	//				break;
-	//			case FbxNodeAttribute::eSkeleton:
-	//				break;
-	//			case FbxNodeAttribute::eMesh:
-	//				ReadMesh(childNode);
-	//				break;
-	//			case FbxNodeAttribute::eNurbs:
-	//				break;
-	//			case FbxNodeAttribute::ePatch:
-	//				break;
-	//			case FbxNodeAttribute::eCamera:
-	//				break;
-	//			case FbxNodeAttribute::eCameraStereo:
-	//				break;
-	//			case FbxNodeAttribute::eCameraSwitcher:
-	//				break;
-	//			case FbxNodeAttribute::eLight:
-	//				break;
-	//			case FbxNodeAttribute::eOpticalReference:
-	//				break;
-	//			case FbxNodeAttribute::eOpticalMarker:
-	//				break;
-	//			case FbxNodeAttribute::eNurbsCurve:
-	//				break;
-	//			case FbxNodeAttribute::eTrimNurbsSurface:
-	//				break;
-	//			case FbxNodeAttribute::eBoundary:
-	//				break;
-	//			case FbxNodeAttribute::eNurbsSurface:
-	//				break;
-	//			case FbxNodeAttribute::eShape:
-	//				break;
-	//			case FbxNodeAttribute::eLODGroup:
-	//				break;
-	//			case FbxNodeAttribute::eSubDiv:
-	//				break;
-	//			case FbxNodeAttribute::eCachedEffect:
-	//				break;
-	//			case FbxNodeAttribute::eLine:
-	//				break;
-	//			default:
-	//				break;
-	//			}
-	//		}
-	//	}
-	//}
-
-	void ProcessNode(FbxNode* node) {
+	void ProcessNode(FbxNode* node, FbxNodeAttribute::EType type) {
 		if (node)
 		{
 			if (node->GetNodeAttribute() != NULL)
@@ -162,9 +103,11 @@ public:
 				case FbxNodeAttribute::eMarker:
 					break;
 				case FbxNodeAttribute::eSkeleton:
+					if (skeleton.empty())
+						ProcessSkeletonHierarchy(node);
 					break;
 				case FbxNodeAttribute::eMesh:
-					ReadMesh(node);
+					ProcessMesh(node);
 					return;
 				case FbxNodeAttribute::eNurbs:
 					break;
@@ -208,55 +151,42 @@ public:
 			const int childCount = node->GetChildCount();
 
 			for (int i = 0; i < childCount; ++i)
-				ProcessNode(node->GetChild(i));
+ 				ProcessNode(node->GetChild(i), type);
 		}
 	}
 
-	void ReadMesh(FbxNode* node)
+	void ProcessMesh(FbxNode* node)
 	{
 		FbxMesh* fbxMesh = node->GetMesh();
-		MeshFromFbx* mesh = new MeshFromFbx(fbxMesh);
+		MeshFromFbx* mesh = new MeshFromFbx(fbxMesh, skeleton);
 
 		gameObject->AddComponent<MeshFilter>()->mesh = mesh;
 		gameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
+	}
 
-		/*
-
-		FbxMesh* fbxMesh = node->GetMesh();
-
-		// Vertex Data
-		int vertexCnt = fbxMesh->GetControlPointsCount();
-		nVertices = vertexCnt;
-
-		controlPoints = new XMFLOAT3[vertexCnt];
-
-		for (int i = 0; i < vertexCnt; ++i)
+	void ProcessSkeletonHierarchy(FbxNode* node)
+	{
+		for (int childIndex = 0; childIndex < node->GetChildCount(); ++childIndex)
 		{
-			XMFLOAT3 pos;
-			pos.x = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[0]);
-			pos.y = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[1]);
-			pos.z = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[2]);
-
-			controlPoints[i] = pos;
+			FbxNode* childNode = node->GetChild(childIndex);
+			ProcessSkeletonHierarchyRecursively(childNode, 0, -1);
 		}
+	}
 
-		// Index Data
-		int triangleCnt = fbxMesh->GetPolygonCount();
-		int vertexCount = 0;
-
-		UINT nIndices = triangleCnt * 3;
-		indices = new UINT[nIndices];
-
-		for (int i = 0; i < triangleCnt; ++i)
+	// inDepth is not needed here, I used it for debug but forgot to remove it
+	void ProcessSkeletonHierarchyRecursively(FbxNode* node, int myIndex, int parentIndex)
+	{
+		if (node->GetNodeAttribute() && node->GetNodeAttribute()->GetAttributeType() && node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
 		{
-			for (int j = 0; j < 3; ++j)
-			{
-				int controlPointIndex = fbxMesh->GetPolygonVertex(i, j);
-				indices[vertexCount++] = controlPointIndex;
-			}
+			Bone bone;
+			bone.parentIndex = parentIndex;
+			bone.name = node->GetName();
+			skeleton.push_back(bone);
 		}
-
-		*/
+		for (int i = 0; i < node->GetChildCount(); i++)
+		{
+			ProcessSkeletonHierarchyRecursively(node->GetChild(i), skeleton.size(), myIndex);
+		}
 
 	}
 
