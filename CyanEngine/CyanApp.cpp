@@ -23,8 +23,10 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
 	AdjustWindowRect(&windowRect, dwStyle, FALSE);
 
-	hwnd = CreateWindowW(windowClass.lpszClassName, cyanFW->GetTitle(), dwStyle, CW_USEDEFAULT, CW_USEDEFAULT,
+	hwnd = CreateWindow(windowClass.lpszClassName, cyanFW->GetTitle(), dwStyle, CW_USEDEFAULT, CW_USEDEFAULT,
 		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, cyanFW);
+
+	SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cyanFW);
 
 	cyanFW->OnCreate(hInstance, hwnd);
 	cyanFW->scene->Start();

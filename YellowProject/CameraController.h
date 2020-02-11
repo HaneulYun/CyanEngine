@@ -33,6 +33,8 @@ public:
 			Vector3 delta = lastMousePos - currMousePos;
 
 			Camera::main->gameObject->transform->Rotate(XMFLOAT3(0, 1, 0), delta.x);
+
+			lastMousePos = currMousePos;
 		}
 	}
 
