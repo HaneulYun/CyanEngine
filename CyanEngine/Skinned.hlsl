@@ -15,6 +15,11 @@ cbuffer cbCameraInfo : register(b1)
 	float3 gvCameraPosition : packoffset(c8);
 };
 
+cbuffer cbSkinned : register(b0)
+{
+	float4x4 gBoneTransforms[96];
+};
+
 #define _WITH_VERTEX_SKINNED
 
 struct VS_SKINNED_INPUT

@@ -145,7 +145,8 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 	if (typeid(*d.second.first->shader).name() == typeid(TextureShader).name() ||
 		typeid(*d.second.first->shader).name() == typeid(CBillboardObjectsShader).name() ||
 		typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name() ||
-		typeid(*d.second.first->shader).name() == typeid(CTerrainShader).name())
+		typeid(*d.second.first->shader).name() == typeid(CTerrainShader).name() || 
+		typeid(*d.second.first->shader).name() == typeid(SkinnedObjectShader).name())
 	{
 		TextureShader* shader = dynamic_cast<TextureShader*>(d.second.first->shader);
 

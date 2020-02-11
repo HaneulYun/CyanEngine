@@ -149,8 +149,8 @@ void LoadFbx::ProcessMesh(FbxNode* node)
 	MeshFromFbx* mesh = new MeshFromFbx(fbxMesh, skeleton);
 
 	gameObject->AddComponent<MeshFilter>()->mesh = mesh;
-	gameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
-	//gameObject->AddComponent<Renderer>()->material = new Material(L"Texture/Flower01.dds", ShaderMode::Skinned);
+	//gameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
+	gameObject->AddComponent<Renderer>()->material = new Material(L"Texture/Flower01.dds", ShaderMode::Skinned);
 
 	// Bone Matrix Load
 	// Offset Matrix와 Animation을 위한 LoaclMatrix를 구한다. (Hierarchy)
