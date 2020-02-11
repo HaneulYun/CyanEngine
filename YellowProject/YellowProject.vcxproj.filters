@@ -42,6 +42,12 @@
     <ClInclude Include="SampleScene.h">
       <Filter>Assets\Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="CameraController.h">
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
