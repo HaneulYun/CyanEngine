@@ -274,9 +274,11 @@ void RendererManager::LoadPipeline()
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 	dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
+	descriptorHeapDesc.NumDescriptors = 2;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&cbvHeap));
+	cbvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
@@ -397,11 +399,10 @@ void RendererManager::LoadAssets()
 	ID3D12CommandList* cmdsLists[] = { commandList.Get() };
 	commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-
+	
+	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	{
 		objectCB = std::make_unique<UploadBuffer<ObjectConstants>>(device.Get(), 1, true);
-
-		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
 		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->Resource()->GetGPUVirtualAddress();
 		int boxCBIndex = 0;
@@ -411,6 +412,21 @@ void RendererManager::LoadAssets()
 		cbvDesc.BufferLocation = cbAddress;
 		cbvDesc.SizeInBytes = objCBByteSize;
 		device->CreateConstantBufferView(&cbvDesc, cbvHeap->GetCPUDescriptorHandleForHeapStart());
+	}
+
+	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+	{
+		passCB = std::make_unique<UploadBuffer<PassConstants>>(device.Get(), 1, true);
+
+		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = passCB->Resource()->GetGPUVirtualAddress();
+		int heapIndex = 1;
+		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap->GetCPUDescriptorHandleForHeapStart());
+		handle.Offset(heapIndex, cbvDescriptorSize);
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
+		cbvDesc.BufferLocation = cbAddress;
+		cbvDesc.SizeInBytes = passCBByteSize;
+		device->CreateConstantBufferView(&cbvDesc, handle);
 	}
 
 

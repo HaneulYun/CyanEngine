@@ -25,6 +25,11 @@ public:
 		XMFLOAT4 color;
 	};
 
+	struct PassConstants
+	{
+		XMFLOAT4X4 WorldViewProj;
+	};
+
 	struct ObjectConstants
 	{
 		XMFLOAT4X4 WorldViewProj;
@@ -44,9 +49,17 @@ public:
 	ComPtr<ID3D12GraphicsCommandList> commandList;
 	UINT rtvDescriptorSize{ 0 };
 	UINT dsvDescriptorSize{ 0 };
+	union
+	{
+		UINT cbvDescriptorSize{ 0 };
+		UINT srvDescriptorSize;
+		UINT uavDescriptorSize;
+	};
 
 	MeshGeometry* box;
 
+	UINT passCbvOffset{ 0 };
+	std::unique_ptr<UploadBuffer<PassConstants>> passCB;
 	std::unique_ptr<UploadBuffer<ObjectConstants>> objectCB;
 
 	UINT frameIndex{ 0 };
