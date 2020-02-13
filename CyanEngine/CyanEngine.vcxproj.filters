@@ -208,6 +208,7 @@
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClInclude>
     <ClInclude Include="UploadBuffer.h" />
+    <ClInclude Include="d3dUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -315,6 +316,7 @@
     <ClCompile Include="CyanApp.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
+    <ClCompile Include="d3dUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">

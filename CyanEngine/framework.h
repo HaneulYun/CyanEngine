@@ -64,6 +64,7 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include <map>
 
 #include "d3dx12.h"
+#include "d3dUtil.h"
 #include "UploadBuffer.h"
 
 #include "Singleton.h"
