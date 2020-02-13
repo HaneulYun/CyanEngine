@@ -25,7 +25,7 @@ public:
 		XMFLOAT4 color;
 	};
 
-	struct SceneConstantBuffer
+	struct ObjectConstants
 	{
 		XMFLOAT4X4 WorldViewProj;
 	};
@@ -47,9 +47,7 @@ public:
 
 	MeshGeometry* box;
 
-	ComPtr<ID3D12Resource> constantBuffer;
-	SceneConstantBuffer constantBufferData;
-	UINT* cbvDataBegin;
+	std::unique_ptr<UploadBuffer<ObjectConstants>> objectCB;
 
 	UINT frameIndex{ 0 };
 	HANDLE fenceEvent{ nullptr };

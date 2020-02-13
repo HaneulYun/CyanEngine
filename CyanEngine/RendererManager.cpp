@@ -5,7 +5,6 @@ extern UINT gnCbvSrvDescriptorIncrementSize;
 
 RendererManager::RendererManager()
 {
-	constantBufferData.WorldViewProj = NS_Matrix4x4::Identity();
 }
 
 RendererManager::~RendererManager()
@@ -45,9 +44,11 @@ void RendererManager::UpdateManager()
 	XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
 	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
 	XMMATRIX worldViewProj = mWorld * view * proj;
-	XMStoreFloat4x4(&constantBufferData.WorldViewProj, XMMatrixTranspose(worldViewProj));
 
-	memcpy(cbvDataBegin, &constantBufferData, sizeof(constantBufferData));
+	ObjectConstants objConstants;
+	XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+
+	objectCB->CopyData(0, objConstants);
 }
 
 void RendererManager::Start()
@@ -398,18 +399,18 @@ void RendererManager::LoadAssets()
 
 
 	{
-		device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-			D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(1024 * 64),
-			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&constantBuffer));
+		objectCB = std::make_unique<UploadBuffer<ObjectConstants>>(device.Get(), 1, true);
+
+		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->Resource()->GetGPUVirtualAddress();
+		int boxCBIndex = 0;
+		cbAddress += boxCBIndex * objCBByteSize;
 
 		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
-		cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
-		cbvDesc.SizeInBytes = d3dUtil::CalcConstantBufferByteSize(sizeof(SceneConstantBuffer));
+		cbvDesc.BufferLocation = cbAddress;
+		cbvDesc.SizeInBytes = objCBByteSize;
 		device->CreateConstantBufferView(&cbvDesc, cbvHeap->GetCPUDescriptorHandleForHeapStart());
-
-		CD3DX12_RANGE readRange(0, 0);
-		constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&cbvDataBegin));
-		memcpy(cbvDataBegin, &constantBufferData, sizeof(constantBufferData));
 	}
 
 
