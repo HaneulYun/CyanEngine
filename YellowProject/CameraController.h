@@ -4,6 +4,10 @@
 class CameraController : public MonoBehavior<CameraController>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
+	float mTheta = 1.5f * XM_PI;
+	float mPhi = XM_PIDIV4;
+	float mRadius = 5.0f;
+
 	Vector3 lastMousePos;
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
@@ -23,6 +27,12 @@ public:
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
+		float x = mRadius * sinf(mPhi) * cosf(mTheta);
+		float z = mRadius * sinf(mPhi) * sinf(mTheta);
+		float y = mRadius * cosf(mPhi);
+
+		gameObject->GetComponent<Camera>()->pos = XMFLOAT3(x, y, z);
+
 		if (Input::GetMouseButtonDown(0))
 		{
 			lastMousePos = Input::mousePosition;
@@ -30,9 +40,12 @@ public:
 		else if (Input::GetMouseButton(0))
 		{
 			Vector3 currMousePos = Input::mousePosition;
-			Vector3 delta = lastMousePos - currMousePos;
+			Vector3 delta = (currMousePos - lastMousePos) * 0.25f * (XM_PI / 180.0f);
 
-			Camera::main->gameObject->transform->Rotate(XMFLOAT3(0, 1, 0), delta.x);
+			mTheta += delta.x;
+			mPhi += delta.y;
+
+			mPhi = FbxClamp(mPhi, 0.1f, PI - 0.1f);
 
 			lastMousePos = currMousePos;
 		}
