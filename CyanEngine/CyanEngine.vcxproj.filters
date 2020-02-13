@@ -210,6 +210,8 @@
     <ClInclude Include="UploadBuffer.h" />
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="FrameResource.h" />
+    <ClInclude Include="MathHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -319,6 +321,8 @@
     </ClCompile>
     <ClCompile Include="d3dUtil.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="FrameResource.cpp" />
+    <ClCompile Include="MathHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">
