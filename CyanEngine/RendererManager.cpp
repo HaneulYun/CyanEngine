@@ -31,8 +31,21 @@ void RendererManager::UpdateManager()
 	const XMFLOAT3 axis{ 0.0f, 1.0f, 0.0f };
 	const float speedRotating{ 180.0f };
 
-	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&axis), XMConvertToRadians(speedRotating * Time::deltaTime));
-	constantBufferData.WorldViewProj = NS_Matrix4x4::Multiply(mtxRotate, constantBufferData.WorldViewProj);
+	//XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&axis), XMConvertToRadians(speedRotating * Time::deltaTime));
+	//constantBufferData.WorldViewProj = NS_Matrix4x4::Multiply(mtxRotate, constantBufferData.WorldViewProj);
+
+	XMMATRIX mWorld = XMLoadFloat4x4(&NS_Matrix4x4::Identity());
+
+	XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
+
+	XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
+	XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
+	XMVECTOR up{ 0, 1, 0 };
+
+	XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
+	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
+	XMMATRIX worldViewProj = mWorld * view * proj;
+	XMStoreFloat4x4(&constantBufferData.WorldViewProj, XMMatrixTranspose(worldViewProj));
 
 	memcpy(cbvDataBegin, &constantBufferData, sizeof(constantBufferData));
 }
@@ -99,25 +112,25 @@ void RendererManager::Render()
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	commandList->SetGraphicsRootDescriptorTable(0, cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
-	//commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//commandList->IASetVertexBuffers(0, 1, &(triangle->VertexBufferView()));
-	//commandList->DrawInstanced(3, 1, 0, 0);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	commandList->IASetVertexBuffers(0, 1, &(triangle->VertexBufferView()));
+	commandList->DrawInstanced(3, 1, 0, 0);
 
 	commandList->IASetVertexBuffers(0, 1, &(box->VertexBufferView()));
 	commandList->DrawInstanced(3, 1, 0, 0);
 	commandList->IASetIndexBuffer(&box->IndexBufferView());
 	commandList->DrawIndexedInstanced(box->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
 
-	for (auto& d : instances)
-	{
-		if (typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
-			InstancingRender(d);
-	}
-	for (auto& d : instances)
-	{
-		if (typeid(*d.second.first->shader).name() != typeid(CSkyBoxShader).name())
-			InstancingRender(d);
-	}
+	//for (auto& d : instances)
+	//{
+	//	if (typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
+	//		InstancingRender(d);
+	//}
+	//for (auto& d : instances)
+	//{
+	//	if (typeid(*d.second.first->shader).name() != typeid(CSkyBoxShader).name())
+	//		InstancingRender(d);
+	//}
 
 	PostRender();
 }
@@ -325,7 +338,7 @@ void RendererManager::LoadAssets()
 	};
 
 	CD3DX12_RASTERIZER_DESC raterizerDesc(D3D12_DEFAULT);
-	raterizerDesc.CullMode = D3D12_CULL_MODE_NONE;
+	raterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
 	pipelineStateDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
@@ -351,9 +364,9 @@ void RendererManager::LoadAssets()
 	{
 		Vertex vertices[]
 		{
-			{ { 0.0f, 0.25f * aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-			{ { 0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-			{ { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+			{ { 0.0f, 2.0f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+			{ { 2.0f, -2.0f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+			{ { -2.0f, -2.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
 		};
 
 		const UINT vertexBufferSize = sizeof(vertices);
