@@ -46,6 +46,7 @@ public:
 	UINT dsvDescriptorSize{ 0 };
 
 	MeshGeometry* triangle;
+	MeshGeometry* box;
 
 	ComPtr<ID3D12Resource> constantBuffer;
 	SceneConstantBuffer constantBufferData;

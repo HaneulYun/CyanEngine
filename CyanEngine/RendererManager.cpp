@@ -99,9 +99,14 @@ void RendererManager::Render()
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	commandList->SetGraphicsRootDescriptorTable(0, cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandList->IASetVertexBuffers(0, 1, &(triangle->VertexBufferView()));
+	//commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//commandList->IASetVertexBuffers(0, 1, &(triangle->VertexBufferView()));
+	//commandList->DrawInstanced(3, 1, 0, 0);
+
+	commandList->IASetVertexBuffers(0, 1, &(box->VertexBufferView()));
 	commandList->DrawInstanced(3, 1, 0, 0);
+	commandList->IASetIndexBuffer(&box->IndexBufferView());
+	commandList->DrawIndexedInstanced(box->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
 
 	for (auto& d : instances)
 	{
@@ -343,24 +348,73 @@ void RendererManager::LoadAssets()
 
 
 	float aspectRatio = CyanFW::Instance()->GetAspectRatio();
-	Vertex vertices[]
 	{
-		{ { 0.0f, 0.25f * aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-		{ { 0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-		{ { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-	};
+		Vertex vertices[]
+		{
+			{ { 0.0f, 0.25f * aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+			{ { 0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+			{ { -0.25f, -0.25f * aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+		};
 
-	const UINT vertexBufferSize = sizeof(vertices);
+		const UINT vertexBufferSize = sizeof(vertices);
 
-	triangle = new MeshGeometry();
-	D3DCreateBlob(vertexBufferSize, &triangle->VertexBufferCPU);
-	CopyMemory(triangle->VertexBufferCPU->GetBufferPointer(), vertices, vertexBufferSize);
+		triangle = new MeshGeometry();
+		D3DCreateBlob(vertexBufferSize, &triangle->VertexBufferCPU);
+		CopyMemory(triangle->VertexBufferCPU->GetBufferPointer(), vertices, vertexBufferSize);
 
-	triangle->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
-		vertices, vertexBufferSize, triangle->VertexBufferUploader);
+		triangle->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
+			vertices, vertexBufferSize, triangle->VertexBufferUploader);
 
-	triangle->VertexByteStride = sizeof(Vertex);
-	triangle->VertexBufferByteSize = vertexBufferSize;
+		triangle->VertexByteStride = sizeof(Vertex);
+		triangle->VertexBufferByteSize = vertexBufferSize;
+	}
+
+	{
+		Vertex vertices[]
+		{
+			Vertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
+			Vertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
+			Vertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
+			Vertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green) }),
+			Vertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue) }),
+			Vertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
+			Vertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
+			Vertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
+		};
+		uint16_t indices[]
+		{
+			0, 1, 2, 0, 2, 3,	4, 6, 5, 4, 7, 6,
+			4, 5, 1, 4, 1, 0,	3, 2, 6, 3, 6, 7,
+			1, 5, 6, 1, 6, 2,	4, 0, 3, 4, 3, 7
+		};
+
+		const UINT vertexBufferSize = sizeof(vertices);
+		const UINT indexBufferSize = sizeof(indices);
+
+		box = new MeshGeometry();
+		D3DCreateBlob(vertexBufferSize, &box->VertexBufferCPU);
+		CopyMemory(box->VertexBufferCPU->GetBufferPointer(), vertices, vertexBufferSize);
+		D3DCreateBlob(indexBufferSize, &box->IndexBufferCPU);
+		CopyMemory(box->IndexBufferCPU->GetBufferPointer(), indices, indexBufferSize);
+
+		box->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
+			vertices, vertexBufferSize, box->VertexBufferUploader);
+		box->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
+			indices, indexBufferSize, box->IndexBufferUploader);
+
+		box->VertexByteStride = sizeof(Vertex);
+		box->VertexBufferByteSize = vertexBufferSize;
+		box->IndexFormat = DXGI_FORMAT_R16_UINT;
+		box->IndexBufferByteSize = indexBufferSize;
+
+		SubmeshGeometry submesh;
+		submesh.IndexCount = _countof(indices);
+		submesh.StartIndexLocation = 0;
+		submesh.BaseVertexLocation = 0;
+
+		box->DrawArgs["box"] = submesh;
+	}
+
 	commandList->Close();
 	ID3D12CommandList* cmdsLists[] = { commandList.Get() };
 	commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
