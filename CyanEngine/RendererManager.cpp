@@ -100,7 +100,10 @@ void RendererManager::Render()
 	commandList->SetGraphicsRootDescriptorTable(0, cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+	//commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+	//commandList->DrawInstanced(3, 1, 0, 0);
+
+	commandList->IASetVertexBuffers(0, 1, &(triangle->VertexBufferView()));
 	commandList->DrawInstanced(3, 1, 0, 0);
 
 	for (auto& d : instances)
@@ -340,7 +343,6 @@ void RendererManager::LoadAssets()
 
 
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
-	commandList->Close();
 
 
 	float aspectRatio = CyanFW::Instance()->GetAspectRatio();
@@ -365,6 +367,20 @@ void RendererManager::LoadAssets()
 	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
 	vertexBufferView.StrideInBytes = sizeof(Vertex);
 	vertexBufferView.SizeInBytes = vertexBufferSize;
+
+
+	triangle = new MeshGeometry();
+	D3DCreateBlob(vertexBufferSize, &triangle->VertexBufferCPU);
+	CopyMemory(triangle->VertexBufferCPU->GetBufferPointer(), vertices, vertexBufferSize);
+
+	triangle->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
+		vertices, vertexBufferSize, triangle->VertexBufferUploader);
+
+	triangle->VertexByteStride = sizeof(Vertex);
+	triangle->VertexBufferByteSize = vertexBufferSize;
+	commandList->Close();
+	ID3D12CommandList* cmdsLists[] = { commandList.Get() };
+	commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 
 	{

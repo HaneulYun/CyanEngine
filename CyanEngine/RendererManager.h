@@ -47,6 +47,8 @@ public:
 
 	ComPtr<ID3D12Resource> vertexBuffer;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
+	MeshGeometry* triangle;
+
 	ComPtr<ID3D12Resource> constantBuffer;
 	SceneConstantBuffer constantBufferData;
 	UINT* cbvDataBegin;
