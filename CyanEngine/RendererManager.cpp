@@ -100,9 +100,6 @@ void RendererManager::Render()
 	commandList->SetGraphicsRootDescriptorTable(0, cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
-	//commandList->DrawInstanced(3, 1, 0, 0);
-
 	commandList->IASetVertexBuffers(0, 1, &(triangle->VertexBufferView()));
 	commandList->DrawInstanced(3, 1, 0, 0);
 
@@ -354,20 +351,6 @@ void RendererManager::LoadAssets()
 	};
 
 	const UINT vertexBufferSize = sizeof(vertices);
-	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize),
-		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&vertexBuffer));
-
-	UINT8* vertexDataBegin;
-	CD3DX12_RANGE readRange(0, 0);
-	vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&vertexDataBegin));
-	memcpy(vertexDataBegin, vertices, vertexBufferSize);
-	vertexBuffer->Unmap(0, nullptr);
-
-	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = sizeof(Vertex);
-	vertexBufferView.SizeInBytes = vertexBufferSize;
-
 
 	triangle = new MeshGeometry();
 	D3DCreateBlob(vertexBufferSize, &triangle->VertexBufferCPU);

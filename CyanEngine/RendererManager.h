@@ -45,8 +45,6 @@ public:
 	UINT rtvDescriptorSize{ 0 };
 	UINT dsvDescriptorSize{ 0 };
 
-	ComPtr<ID3D12Resource> vertexBuffer;
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
 	MeshGeometry* triangle;
 
 	ComPtr<ID3D12Resource> constantBuffer;
