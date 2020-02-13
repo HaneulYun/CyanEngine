@@ -45,7 +45,6 @@ public:
 	UINT rtvDescriptorSize{ 0 };
 	UINT dsvDescriptorSize{ 0 };
 
-	MeshGeometry* triangle;
 	MeshGeometry* box;
 
 	ComPtr<ID3D12Resource> constantBuffer;
