@@ -112,8 +112,8 @@ void RendererManager::Render()
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	commandList->SetGraphicsRootDescriptorTable(0, cbvHeap->GetGPUDescriptorHandleForHeapStart());
 
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &(box->VertexBufferView()));
-	commandList->DrawInstanced(3, 1, 0, 0);
 	commandList->IASetIndexBuffer(&box->IndexBufferView());
 	commandList->DrawIndexedInstanced(box->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
 
