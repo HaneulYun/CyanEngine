@@ -182,6 +182,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
@@ -231,6 +232,7 @@
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />

@@ -209,6 +209,7 @@
     </ClInclude>
     <ClInclude Include="UploadBuffer.h" />
     <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="GeometryGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -317,6 +318,7 @@
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
     <ClCompile Include="d3dUtil.cpp" />
+    <ClCompile Include="GeometryGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">
