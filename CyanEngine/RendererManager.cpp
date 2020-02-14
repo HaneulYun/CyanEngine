@@ -397,41 +397,29 @@ void RendererManager::LoadAssets()
 		GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);;
 		GeometryGenerator::MeshData grid = geoGen.CreateGrid(160.0f, 160.0f, 50, 50);
 
-		UINT boxVertexOffset = 0;
-		UINT gridVertexOffset = (UINT)box.Vertices.size();
-
-		UINT boxIndexOffset = 0;
-		UINT gridIndexOffset = (UINT)box.Indices32.size();
-
-		SubmeshGeometry boxSubmesh;
-		boxSubmesh.IndexCount = (UINT)box.Indices32.size();
-		boxSubmesh.StartIndexLocation = boxIndexOffset;
-		boxSubmesh.BaseVertexLocation = boxVertexOffset;
+		std::vector<Vertex> vertices(grid.Vertices.size());
+		for (size_t i = 0; i < grid.Vertices.size(); ++i)
+		{
+			auto& p = grid.Vertices[i].Position;
+			vertices[i].position = p;
+			vertices[i].position.y = 0.3f * (p.z * sinf(0.1f * p.x) + p.x * cosf(0.1f * p.z));
+		}
 
 		SubmeshGeometry gridSubmesh;
 		gridSubmesh.IndexCount = (UINT)grid.Indices32.size();
-		gridSubmesh.StartIndexLocation = gridIndexOffset;
-		gridSubmesh.BaseVertexLocation = gridVertexOffset;
+		gridSubmesh.StartIndexLocation = 0;
+		gridSubmesh.BaseVertexLocation = 0;
 
-		auto totalVertexCount = box.Vertices.size() + grid.Vertices.size();
-
-		std::vector<Vertex> vertices(totalVertexCount);
+		auto totalVertexCount = grid.Vertices.size();
 
 		UINT k = 0;
-		for (size_t i = 0; i < box.Vertices.size(); ++i, ++k)
-		{
-			vertices[k].position = box.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::DarkGreen);
-		}
-
 		for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
 		{
-			vertices[k].position = grid.Vertices[i].Position;
+			//vertices[k].position = grid.Vertices[i].Position;
 			vertices[k].color = XMFLOAT4(DirectX::Colors::ForestGreen);
 		}
 
 		std::vector<std::uint16_t> indices;
-		indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
 		indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
 
 		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
@@ -455,26 +443,15 @@ void RendererManager::LoadAssets()
 		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 		geo->IndexBufferByteSize = ibByteSize;
 
-		geo->DrawArgs["box"] = boxSubmesh;
 		geo->DrawArgs["grid"] = gridSubmesh;
 
 		geometries[geo->Name] = std::move(geo);
 	}
 
 	{
-		auto boxRItem = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&boxRItem->world, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
-		boxRItem->objCBIndex = 0;
-		boxRItem->geo = geometries["shapeGeo"].get();
-		boxRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		boxRItem->indexCount = boxRItem->geo->DrawArgs["box"].IndexCount;
-		boxRItem->startIndexLocation = boxRItem->geo->DrawArgs["box"].StartIndexLocation;
-		boxRItem->baseVertexLocation = boxRItem->geo->DrawArgs["box"].BaseVertexLocation;
-		allRItems.push_back(std::move(boxRItem));
-
 		auto gridRItem = std::make_unique<RenderItem>();
 		gridRItem->world = MathHelper::Identity4x4();
-		gridRItem->objCBIndex = 1;
+		gridRItem->objCBIndex = 0;
 		gridRItem->geo = geometries["shapeGeo"].get();
 		gridRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		gridRItem->indexCount = gridRItem->geo->DrawArgs["grid"].IndexCount;
