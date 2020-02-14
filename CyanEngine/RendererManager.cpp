@@ -130,10 +130,10 @@ void RendererManager::Render()
 
 	Camera::main->SetViewportsAndScissorRects(commandList.Get());
 
-	commandList->SetGraphicsRootSignature(rootSignature.Get());
-	commandList->SetPipelineState(pipelineState.Get());
 	ID3D12DescriptorHeap* heaps[]{ cbvHeap.Get() };
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
+	commandList->SetGraphicsRootSignature(rootSignature.Get());
+	commandList->SetPipelineState(pipelineState.Get());
 
 	int passCbvIndex = passCbvOffset + currFrameResourceIndex;
 	auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
@@ -141,16 +141,14 @@ void RendererManager::Render()
 	commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-
 	auto objectCB = currFrameResource->ObjectCB->Resource();
-
 	for (int i = 0; i < opaqueRItems.size(); ++i)
 	{
 		auto ri = opaqueRItems[i];
 
-		commandList->IASetPrimitiveTopology(ri->primitiveType);
 		commandList->IASetVertexBuffers(0, 1, &ri->geo->VertexBufferView());
 		commandList->IASetIndexBuffer(&ri->geo->IndexBufferView());
+		commandList->IASetPrimitiveTopology(ri->primitiveType);
 
 		UINT cbvIndex = currFrameResourceIndex * (UINT)opaqueRItems.size() + ri->objCBIndex;
 		auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
@@ -158,8 +156,7 @@ void RendererManager::Render()
 
 		commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
 
-		commandList->DrawIndexedInstanced(ri->indexCount, 1,
-			ri->startIndexLocation, ri->baseVertexLocation, 0);
+		commandList->DrawIndexedInstanced(ri->indexCount, 1, ri->startIndexLocation, ri->baseVertexLocation, 0);
 	}
 
 	//for (auto& d : instances)
@@ -380,13 +377,14 @@ void RendererManager::LoadAssets()
 	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
 	pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
 	pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	pipelineStateDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	pipelineStateDesc.DepthStencilState.DepthEnable = FALSE;
-	pipelineStateDesc.DepthStencilState.StencilEnable = FALSE;
+	pipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	pipelineStateDesc.SampleMask = UINT_MAX;
 	pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	pipelineStateDesc.NumRenderTargets = 1;
 	pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	pipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	pipelineStateDesc.SampleDesc.Count = 1;
 	device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineState));
 

@@ -5,8 +5,8 @@ class CameraController : public MonoBehavior<CameraController>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
 	float mTheta = 1.5f * XM_PI;
-	float mPhi = XM_PIDIV4;
-	float mRadius = 5.0f;
+	float mPhi = 0.2f * XM_PI;
+	float mRadius = 15.0f;
 
 	Vector3 lastMousePos;
 
