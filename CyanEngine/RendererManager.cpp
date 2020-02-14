@@ -217,7 +217,10 @@ void RendererManager::PostRender()
 
 	swapChain->Present(0, 0);
 
-	WaitForPreviousFrame();
+	frameIndex = swapChain->GetCurrentBackBufferIndex();
+
+	currFrameResource->Fence = ++fenceValue;
+	commandQueue->Signal(fence.Get(), fenceValue);
 }
 
 void RendererManager::Destroy()
