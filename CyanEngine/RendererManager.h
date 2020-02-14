@@ -71,9 +71,11 @@ public:
 	FrameResource* currFrameResource{ nullptr };
 	int currFrameResourceIndex{ 0 };
 
-	MeshGeometry* box;
-	std::vector<std::unique_ptr<RenderItem>> allRItems;
+	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> geometries;
+	std::unordered_map<std::string, ComPtr<ID3DBlob>> shaders;
+	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> pipelineStates;
 
+	std::vector<std::unique_ptr<RenderItem>> allRItems;
 	std::vector<RenderItem*> opaqueRItems;
 
 	UINT passCbvOffset{ 0 };
