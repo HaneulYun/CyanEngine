@@ -140,7 +140,7 @@ void RendererManager::Render()
 	passCbvHandle.Offset(passCbvIndex, cbvDescriptorSize);
 	commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
 
-	UINT cbvIndex = currFrameResourceIndex * (UINT)1 + 0;
+	UINT cbvIndex = currFrameResourceIndex * (UINT)allRItems.size() + 0;
 	auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
 	cbvHandle.Offset(cbvIndex, cbvDescriptorSize);
 	commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
@@ -308,14 +308,6 @@ void RendererManager::LoadPipeline()
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 	dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-
-	UINT objCount = 1;
-	UINT numDescriptors = 2 * NumFrameResources;
-	passCbvOffset = objCount * NumFrameResources;
-	descriptorHeapDesc.NumDescriptors = numDescriptors;
-	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&cbvHeap));
 	cbvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 
@@ -391,50 +383,6 @@ void RendererManager::LoadAssets()
 
 
 	{
-		//Vertex vertices[]
-		//{
-		//	Vertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
-		//	Vertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
-		//	Vertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
-		//	Vertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green) }),
-		//	Vertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue) }),
-		//	Vertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
-		//	Vertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
-		//	Vertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
-		//};
-		//uint16_t indices[]
-		//{
-		//	0, 1, 2, 0, 2, 3,	4, 6, 5, 4, 7, 6,
-		//	4, 5, 1, 4, 1, 0,	3, 2, 6, 3, 6, 7,
-		//	1, 5, 6, 1, 6, 2,	4, 0, 3, 4, 3, 7
-		//};
-		//
-		//const UINT vertexBufferSize = sizeof(vertices);
-		//const UINT indexBufferSize = sizeof(indices);
-		//
-		//box = new MeshGeometry();
-		//D3DCreateBlob(vertexBufferSize, &box->VertexBufferCPU);
-		//CopyMemory(box->VertexBufferCPU->GetBufferPointer(), vertices, vertexBufferSize);
-		//D3DCreateBlob(indexBufferSize, &box->IndexBufferCPU);
-		//CopyMemory(box->IndexBufferCPU->GetBufferPointer(), indices, indexBufferSize);
-		//
-		//box->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
-		//	vertices, vertexBufferSize, box->VertexBufferUploader);
-		//box->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
-		//	indices, indexBufferSize, box->IndexBufferUploader);
-		//
-		//box->VertexByteStride = sizeof(Vertex);
-		//box->VertexBufferByteSize = vertexBufferSize;
-		//box->IndexFormat = DXGI_FORMAT_R16_UINT;
-		//box->IndexBufferByteSize = indexBufferSize;
-		//
-		//SubmeshGeometry submesh;
-		//submesh.IndexCount = _countof(indices);
-		//submesh.StartIndexLocation = 0;
-		//submesh.BaseVertexLocation = 0;
-		//
-		//box->DrawArgs["box"] = submesh;
-		
 		GeometryGenerator geoGen;
 		GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);;
 		GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
@@ -537,14 +485,75 @@ void RendererManager::LoadAssets()
 
 	{
 		auto boxRItem = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&boxRItem->world, XMLoadFloat4x4(&MathHelper::Identity4x4()));
+		boxRItem->world = MathHelper::Identity4x4();
 		boxRItem->objCBIndex = 0;
 		boxRItem->geo = geometries["shapeGeo"].get();
 		boxRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		boxRItem->indexCount = boxRItem->geo->DrawArgs["shapeGeo"].IndexCount;
-		boxRItem->startIndexLocation = boxRItem->geo->DrawArgs["shapeGeo"].StartIndexLocation;
-		boxRItem->baseVertexLocation = boxRItem->geo->DrawArgs["shapeGeo"].BaseVertexLocation;
+		boxRItem->indexCount = boxRItem->geo->DrawArgs["box"].IndexCount;
+		boxRItem->startIndexLocation = boxRItem->geo->DrawArgs["box"].StartIndexLocation;
+		boxRItem->baseVertexLocation = boxRItem->geo->DrawArgs["box"].BaseVertexLocation;
 		allRItems.push_back(std::move(boxRItem));
+
+		auto gridRItem = std::make_unique<RenderItem>();
+		gridRItem->world = MathHelper::Identity4x4();
+		gridRItem->objCBIndex = 1;
+		gridRItem->geo = geometries["shapeGeo"].get();
+		gridRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		gridRItem->indexCount = gridRItem->geo->DrawArgs["grid"].IndexCount;
+		gridRItem->startIndexLocation = gridRItem->geo->DrawArgs["grid"].StartIndexLocation;
+		gridRItem->baseVertexLocation = gridRItem->geo->DrawArgs["grid"].BaseVertexLocation;
+		allRItems.push_back(std::move(gridRItem));
+
+		UINT objCBIndex = 2;
+		for (int i = 0; i < 5; ++i)
+		{
+			auto leftCylRItem = std::make_unique<RenderItem>();
+			auto rightCylRItem = std::make_unique<RenderItem>();
+			auto leftSphereRItem = std::make_unique<RenderItem>();
+			auto rightSphereRItem = std::make_unique<RenderItem>();
+
+			XMMATRIX leftCylWorld = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + i * 5.0f);
+			XMMATRIX rightCylWorld = XMMatrixTranslation(+5.0f, 1.5f, -10.0f + i * 5.0f);
+			XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i * 5.0f);
+			XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
+
+			XMStoreFloat4x4(&leftCylRItem->world, leftCylWorld);
+			leftCylRItem->objCBIndex = objCBIndex++;
+			leftCylRItem->geo = geometries["shapeGeo"].get();
+			leftCylRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			leftCylRItem->indexCount = leftCylRItem->geo->DrawArgs["cylinder"].IndexCount;
+			leftCylRItem->startIndexLocation = leftCylRItem->geo->DrawArgs["cylinder"].StartIndexLocation;
+			leftCylRItem->baseVertexLocation = leftCylRItem->geo->DrawArgs["cylinder"].BaseVertexLocation;
+
+			XMStoreFloat4x4(&leftCylRItem->world, rightCylWorld);
+			rightCylRItem->objCBIndex = objCBIndex++;
+			rightCylRItem->geo = geometries["shapeGeo"].get();
+			rightCylRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			rightCylRItem->indexCount = rightCylRItem->geo->DrawArgs["cylinder"].IndexCount;
+			rightCylRItem->startIndexLocation = rightCylRItem->geo->DrawArgs["cylinder"].StartIndexLocation;
+			rightCylRItem->baseVertexLocation = rightCylRItem->geo->DrawArgs["cylinder"].BaseVertexLocation;
+
+			XMStoreFloat4x4(&leftCylRItem->world, leftSphereWorld);
+			leftSphereRItem->objCBIndex = objCBIndex++;
+			leftSphereRItem->geo = geometries["shapeGeo"].get();
+			leftSphereRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			leftSphereRItem->indexCount = leftSphereRItem->geo->DrawArgs["sphere"].IndexCount;
+			leftSphereRItem->startIndexLocation = leftSphereRItem->geo->DrawArgs["sphere"].StartIndexLocation;
+			leftSphereRItem->baseVertexLocation = leftSphereRItem->geo->DrawArgs["sphere"].BaseVertexLocation;
+
+			XMStoreFloat4x4(&leftCylRItem->world, rightSphereWorld);
+			rightSphereRItem->objCBIndex = objCBIndex++;
+			rightSphereRItem->geo = geometries["shapeGeo"].get();
+			rightSphereRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			rightSphereRItem->indexCount = rightSphereRItem->geo->DrawArgs["sphere"].IndexCount;
+			rightSphereRItem->startIndexLocation = rightSphereRItem->geo->DrawArgs["sphere"].StartIndexLocation;
+			rightSphereRItem->baseVertexLocation = rightSphereRItem->geo->DrawArgs["sphere"].BaseVertexLocation;
+
+			allRItems.push_back(std::move(leftCylRItem));
+			allRItems.push_back(std::move(rightCylRItem));
+			allRItems.push_back(std::move(leftSphereRItem));
+			allRItems.push_back(std::move(rightSphereRItem));
+		}
 	}
 
 	for (auto& e : allRItems)
@@ -557,21 +566,30 @@ void RendererManager::LoadAssets()
 
 	
 	for (int i = 0; i < NumFrameResources; ++i)
-	{
-		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)1));
-	}
+		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size()));
+
+
+	UINT objCount = (UINT)opaqueRItems.size();
+	UINT numDescriptors = (objCount + 1) * NumFrameResources;
+	passCbvOffset = objCount * NumFrameResources;
+
+	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
+	descriptorHeapDesc.NumDescriptors = numDescriptors;
+	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&cbvHeap));
+
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-	UINT objCount = 1;
 	for(int i = 0; i < NumFrameResources; ++i)
 	{
 		auto objectCB = frameResources[i]->ObjectCB->Resource();
-		for (UINT j = 0; j < 1; ++j)
+		for (UINT j = 0; j < objCount; ++j)
 		{
 			D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
 			cbAddress += j * objCBByteSize;
 
-			int heapIndex = i * 1 + j;
+			int heapIndex = i * objCount + j;
 			auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap->GetCPUDescriptorHandleForHeapStart());
 			handle.Offset(heapIndex, cbvDescriptorSize);
 
