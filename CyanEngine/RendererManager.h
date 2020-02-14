@@ -1,5 +1,7 @@
 #pragma once
 
+#include "FrameResource.h"
+
 struct MEMORY
 {
 	XMFLOAT4X4 transform;
@@ -68,6 +70,11 @@ public:
 		UINT srvDescriptorSize;
 		UINT uavDescriptorSize;
 	};
+
+	static const int NumFrameResources{ 3 };
+	std::vector<std::unique_ptr<FrameResource>> frameResources;
+	FrameResource* currFrameResource{ nullptr };
+	int currFrameResourceIndex;
 
 	MeshGeometry* box;
 
