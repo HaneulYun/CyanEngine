@@ -33,7 +33,7 @@ PSInput VSMain(float4 position : POSITION, float4 color : COLOR)
 {
 	PSInput result;
 
-	result.position = mul(position, gViewProj);
+	result.position = mul(mul(position, gViewProj), gWorld);
 	result.color = color;
 
 	return result;

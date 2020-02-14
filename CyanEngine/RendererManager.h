@@ -2,6 +2,8 @@
 
 #include "FrameResource.h"
 
+#define NUM_FRAME_RESOURCES 3
+
 struct MEMORY
 {
 	XMFLOAT4X4 transform;
@@ -14,6 +16,22 @@ struct INSTANCING
 	MEMORY* memory{ nullptr };
 
 	Shader* shader;
+};
+
+struct RenderItem
+{
+	RenderItem() = default;
+
+	XMFLOAT4X4 world = MathHelper::Identity4x4();
+	int numFramesDirty{ NUM_FRAME_RESOURCES };
+	UINT objCBIndex{ UINT(-1) };
+
+	MeshGeometry* geo{ nullptr };
+	D3D12_PRIMITIVE_TOPOLOGY primitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+
+	UINT indexCount{ 0 };
+	UINT startIndexLocation{ 0 };
+	int baseVertexLocation{ 0 };
 };
 
 class RendererManager : public Singleton<RendererManager>
@@ -48,12 +66,15 @@ public:
 		UINT uavDescriptorSize;
 	};
 
-	static const int NumFrameResources{ 3 };
+	static const int NumFrameResources{ NUM_FRAME_RESOURCES };
 	std::vector<std::unique_ptr<FrameResource>> frameResources;
 	FrameResource* currFrameResource{ nullptr };
 	int currFrameResourceIndex{ 0 };
 
 	MeshGeometry* box;
+	std::vector<std::unique_ptr<RenderItem>> allRItems;
+
+	std::vector<RenderItem*> opaqueRItems;
 
 	UINT passCbvOffset{ 0 };
 

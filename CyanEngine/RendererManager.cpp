@@ -53,14 +53,25 @@ void RendererManager::UpdateManager()
 	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
 	XMMATRIX worldViewProj = mWorld * view * proj;
 
-	ObjectConstants objConstants;
-	XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(XMLoadFloat4x4(&MathHelper::Identity4x4())));
-	currFrameResource->ObjectCB->CopyData(0, objConstants);
-	
-
 	PassConstants passConstants;
 	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
 	currFrameResource->PassCB->CopyData(0, passConstants);
+
+	auto currObjectCB = currFrameResource->ObjectCB.get();
+	for (auto& e : allRItems)
+	{
+		if (e->numFramesDirty > 0)
+		{
+			XMMATRIX world = XMLoadFloat4x4(&e->world);
+
+			ObjectConstants objConstants;
+			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+
+			currObjectCB->CopyData(e->objCBIndex, objConstants);
+
+			--e->numFramesDirty;
+		}
+	}
 }
 
 void RendererManager::Start()
@@ -424,6 +435,22 @@ void RendererManager::LoadAssets()
 
 		box->DrawArgs["box"] = submesh;
 	}
+
+	{
+		auto boxRItem = std::make_unique<RenderItem>();
+		XMStoreFloat4x4(&boxRItem->world, XMLoadFloat4x4(&MathHelper::Identity4x4()));
+		boxRItem->objCBIndex = 0;
+		boxRItem->geo = box;
+		boxRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		boxRItem->indexCount = boxRItem->geo->DrawArgs["box"].IndexCount;
+		boxRItem->startIndexLocation = boxRItem->geo->DrawArgs["box"].StartIndexLocation;
+		boxRItem->baseVertexLocation = boxRItem->geo->DrawArgs["box"].BaseVertexLocation;
+		allRItems.push_back(std::move(boxRItem));
+	}
+
+	for (auto& e : allRItems)
+		opaqueRItems.push_back(e.get());
+
 
 	commandList->Close();
 	ID3D12CommandList* cmdsLists[] = { commandList.Get() };
