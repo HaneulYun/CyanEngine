@@ -50,7 +50,7 @@ void RendererManager::UpdateManager()
 	objectCB->CopyData(0, objConstants);
 
 	PassConstants passConstants;
-	XMStoreFloat4x4(&passConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
 	passCB->CopyData(0, passConstants);
 }
 
