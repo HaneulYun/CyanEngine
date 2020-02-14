@@ -46,9 +46,12 @@ void RendererManager::UpdateManager()
 	XMMATRIX worldViewProj = mWorld * view * proj;
 
 	ObjectConstants objConstants;
-	XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
-
+	XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(XMLoadFloat4x4(&MathHelper::Identity4x4())));
 	objectCB->CopyData(0, objConstants);
+
+	PassConstants passConstants;
+	XMStoreFloat4x4(&passConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+	passCB->CopyData(0, passConstants);
 }
 
 void RendererManager::Start()
@@ -112,6 +115,11 @@ void RendererManager::Render()
 	ID3D12DescriptorHeap* heaps[]{ cbvHeap.Get() };
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	commandList->SetGraphicsRootDescriptorTable(0, cbvHeap->GetGPUDescriptorHandleForHeapStart());
+
+	int passCbvIndex =1;
+	auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
+	passCbvHandle.Offset(passCbvIndex, cbvDescriptorSize);
+	commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &(box->VertexBufferView()));
@@ -298,11 +306,14 @@ void RendererManager::LoadAssets()
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{};
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
 
-	CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
-	CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+	CD3DX12_DESCRIPTOR_RANGE1 ranges0[1];
+	CD3DX12_DESCRIPTOR_RANGE1 ranges1[1];
+	CD3DX12_ROOT_PARAMETER1 rootParameters[2];
 
-	ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-	rootParameters[0].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
+	ranges0[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+	ranges1[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+	rootParameters[0].InitAsDescriptorTable(1, &ranges0[0], D3D12_SHADER_VISIBILITY_VERTEX);
+	rootParameters[1].InitAsDescriptorTable(1, &ranges1[0], D3D12_SHADER_VISIBILITY_VERTEX);
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |

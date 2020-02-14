@@ -1,5 +1,10 @@
 cbuffer SceneConstantBuffer : register(b0)
 {
+	float4x4 world;
+}
+
+cbuffer cbPass : register(b1)
+{
 	float4x4 mtx;
 }
 
