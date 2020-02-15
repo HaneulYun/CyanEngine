@@ -38,12 +38,6 @@ class RendererManager : public Singleton<RendererManager>
 public:
 	static const UINT FrameCount{ 2 };
 
-	struct Vertex
-	{
-		XMFLOAT3 position;
-		XMFLOAT4 color;
-	};
-
 	ComPtr<IDXGISwapChain3> swapChain;
 	ComPtr<ID3D12Device> device;
 	ComPtr<ID3D12Resource> renderTargets[FrameCount];

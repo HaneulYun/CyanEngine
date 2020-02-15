@@ -418,30 +418,30 @@ void RendererManager::LoadAssets()
 		GeometryGenerator geoGen;
 		GeometryGenerator::MeshData grid = geoGen.CreateGrid(160.0f, 160.0f, 50, 50);
 
-		std::vector<Vertex> vertices(grid.Vertices.size());
+		std::vector<FrameResource::Vertex> vertices(grid.Vertices.size());
 		for (size_t i = 0; i < grid.Vertices.size(); ++i)
 		{
 			auto& p = grid.Vertices[i].Position;
-			vertices[i].position = p;
-			vertices[i].position.y = 0.3f * (p.z * sinf(0.1f * p.x) + p.x * cosf(0.1f * p.z));
+			vertices[i].Pos = p;
+			vertices[i].Pos.y = 0.3f * (p.z * sinf(0.1f * p.x) + p.x * cosf(0.1f * p.z));
 
 			XMFLOAT4 color;
-			if (vertices[i].position.y < -10.0f)
+			if (vertices[i].Pos.y < -10.0f)
 				color = XMFLOAT4(1.0f, 0.96f, 0.62f, 1.0f);
-			else if (vertices[i].position.y < 5.0f)
+			else if (vertices[i].Pos.y < 5.0f)
 				color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-			else if (vertices[i].position.y < 12.0f)
+			else if (vertices[i].Pos.y < 12.0f)
 				color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
-			else if (vertices[i].position.y < 20.0f)
+			else if (vertices[i].Pos.y < 20.0f)
 				color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
 			else
 				color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
-			vertices[i].color = color;
+			vertices[i].Color = color;
 		}
 		std::vector<std::uint16_t> indices = grid.GetIndices16();
 
-		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::Vertex);
 		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
 		auto geo = std::make_unique<MeshGeometry>();
@@ -455,7 +455,7 @@ void RendererManager::LoadAssets()
 		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
 		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
 
-		geo->VertexByteStride = sizeof(Vertex);
+		geo->VertexByteStride = sizeof(FrameResource::Vertex);
 		geo->VertexBufferByteSize = vbByteSize;
 		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 		geo->IndexBufferByteSize = ibByteSize;
@@ -491,7 +491,7 @@ void RendererManager::LoadAssets()
 				k += 6;
 			}
 		}
-		UINT vbByteSize = waves->VertexCount() * sizeof(Vertex);
+		UINT vbByteSize = waves->VertexCount() * sizeof(FrameResource::Vertex);
 		UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
 		auto geo = std::make_unique<MeshGeometry>();
@@ -506,7 +506,7 @@ void RendererManager::LoadAssets()
 		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
 			indices.data(), ibByteSize, geo->IndexBufferUploader);
 
-		geo->VertexByteStride = sizeof(Vertex);
+		geo->VertexByteStride = sizeof(FrameResource::Vertex);
 		geo->VertexBufferByteSize = vbByteSize;
 		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 		geo->IndexBufferByteSize = ibByteSize;
