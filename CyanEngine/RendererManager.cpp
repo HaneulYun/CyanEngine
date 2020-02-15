@@ -409,7 +409,7 @@ void RendererManager::LoadAssets()
 	rootParameters[2].InitAsConstantBufferView(1);
 	rootParameters[3].InitAsConstantBufferView(2);
 
-	CD3DX12_STATIC_SAMPLER_DESC samplers[]
+	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
 	{
 		{ 0, D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP },		// pointWrap
 		{ 1, D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP },	// pointClamp
@@ -426,7 +426,7 @@ void RendererManager::LoadAssets()
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
 	};
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, _countof(samplers), samplers, rootSignatureFlags);
+	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, _countof(staticSamplers), staticSamplers, rootSignatureFlags);
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
