@@ -470,6 +470,24 @@ void RendererManager::LoadAssets()
 		geometries[geo->Name] = std::move(geo);
 	}
 	{
+		auto grass = std::make_unique<Material>();
+		grass->Name = "grass";
+		grass->MatCBIndex = 0;
+		grass->DiffuseAlbedo = XMFLOAT4(0.2f, 0.6f, 0.6f, 1.0f);
+		grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+		grass->Roughness = 0.125f;
+
+		auto water = std::make_unique<Material>();
+		water->Name = "water";
+		water->MatCBIndex = 1;
+		water->DiffuseAlbedo = XMFLOAT4(0.0f, 0.2f, 0.6f, 1.0f);
+		water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+		water->Roughness = 0.f;
+
+		materials["grass"] = std::move(grass);
+		materials["water"] = std::move(water);
+	}
+	{
 		waves = std::make_unique<Waves>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
 		std::vector<std::uint16_t> indices(3 * waves->TriangleCount());
 
