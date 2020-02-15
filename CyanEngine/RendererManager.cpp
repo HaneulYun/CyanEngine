@@ -78,20 +78,28 @@ void RendererManager::UpdateManager()
 	}
 	
 	// UpdateMainPassCB
-	XMMATRIX mWorld = XMLoadFloat4x4(&NS_Matrix4x4::Identity());
+	PassConstants passConstants;
 
 	XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
-
 	XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
 	XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
 	XMVECTOR up{ 0, 1, 0 };
 
 	XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
 	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
-	XMMATRIX worldViewProj = mWorld * view * proj;
+	XMMATRIX worldViewProj = view * proj;
 
-	PassConstants passConstants;
 	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
+	
+	float mSunTheta = 1.25f * XM_PI;
+	float mSunPhi = XM_PIDIV4;
+	XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
+
+	XMStoreFloat3(&passConstants.EyePosW, pos);
+	XMStoreFloat3(&passConstants.Lights[0].Direction, lightDir);
+	passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	passConstants.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
+
 	currFrameResource->PassCB->CopyData(0, passConstants);
 
 	// UpdateWaves
@@ -206,7 +214,7 @@ void RendererManager::Render()
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->objCBIndex * objCBByteSize;
 		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->mat->MatCBIndex * matCBByteSize;
 		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-		//commandList->SetGraphicsRootConstantBufferView(0, matCBAddress);
+		commandList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
 		commandList->DrawIndexedInstanced(ri->indexCount, 1, ri->startIndexLocation, ri->baseVertexLocation, 0);
 	}
@@ -398,8 +406,7 @@ void RendererManager::LoadAssets()
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
 	};
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
@@ -492,7 +499,7 @@ void RendererManager::LoadAssets()
 		auto grass = std::make_unique<Material>();
 		grass->Name = "grass";
 		grass->MatCBIndex = 0;
-		grass->DiffuseAlbedo = XMFLOAT4(0.2f, 0.6f, 0.6f, 1.0f);
+		grass->DiffuseAlbedo = XMFLOAT4(0.2f, 0.6f, 0.2f, 1.0f);
 		grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 		grass->Roughness = 0.125f;
 

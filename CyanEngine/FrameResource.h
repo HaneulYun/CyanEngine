@@ -25,6 +25,10 @@ struct PassConstants
     float FarZ = 0.0f;
     float TotalTime = 0.0f;
     float DeltaTime = 0.0f;
+
+	DirectX::XMFLOAT4 AmbientLight = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+	Light Lights[MaxLights];
 };
 
 // Stores the resources needed for the CPU to build the command lists
