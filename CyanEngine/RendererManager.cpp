@@ -47,9 +47,11 @@ void RendererManager::UpdateManager()
 		if (e->numFramesDirty > 0)
 		{
 			XMMATRIX world = XMLoadFloat4x4(&e->world);
+			XMMATRIX texTransform = XMLoadFloat4x4(&e->texTransform);
 
 			ObjectConstants objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
 
 			currObjectCB->CopyData(e->objCBIndex, objConstants);
 
@@ -64,12 +66,13 @@ void RendererManager::UpdateManager()
 		Material* mat = e.second.get();
 		if (mat->NumFramesDirty > 0)
 		{
-			XMMATRIX matRansform = XMLoadFloat4x4(&mat->MatTransform);
+			XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
 
 			MaterialConstants matConstants;
 			matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
 			matConstants.FresnelR0 = mat->FresnelR0;
 			matConstants.Roughness = mat->Roughness;
+			XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
 
 			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
 
@@ -612,6 +615,7 @@ void RendererManager::LoadAssets()
 	{
 		auto wavesRItem = std::make_unique<RenderItem>();
 		wavesRItem->world = MathHelper::Identity4x4();
+		XMStoreFloat4x4(&wavesRItem->texTransform, XMMatrixScaling(5.0f, 5.0f, 1.0f));
 		wavesRItem->objCBIndex = 0;
 		wavesRItem->mat = materials["water"].get();
 		wavesRItem->geo = geometries["waterGeo"].get();
@@ -624,6 +628,7 @@ void RendererManager::LoadAssets()
 
 		auto gridRItem = std::make_unique<RenderItem>();
 		gridRItem->world = MathHelper::Identity4x4();
+		XMStoreFloat4x4(&gridRItem->texTransform, XMMatrixScaling(5.0f, 5.0f, 1.0f));
 		gridRItem->objCBIndex = 1;
 		gridRItem->mat = materials["grass"].get();
 		gridRItem->geo = geometries["landGeo"].get();

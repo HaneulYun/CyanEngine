@@ -80,7 +80,7 @@ PSInput VSMain(VSInput vin)
 	vout.PosW = mul(float4(vin.PosL, 1.0f), gWorld).xyz;
 	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj);
 	vout.NormalW = mul(vin.NormalL, (float3x3)gWorld);
-	vout.TexC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform).xy;
+	vout.TexC = mul(mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform), gMatTransform).xy;
 
 	return vout;
 }
