@@ -3,8 +3,6 @@
 #include "FrameResource.h"
 #include "Waves.h"
 
-#define NUM_FRAME_RESOURCES 3
-
 struct MEMORY
 {
 	XMFLOAT4X4 transform;

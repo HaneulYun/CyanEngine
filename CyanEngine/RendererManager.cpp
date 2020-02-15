@@ -115,7 +115,7 @@ void RendererManager::Start()
 		if (!d.second.first)
 		{
 			d.second.first = new INSTANCING();
-			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
+			Shader* shader = new StandardShader();// d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
 
 			if (!shader->rootSignature)
 				shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
@@ -216,7 +216,7 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 	if (typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->DiffuseAlbedo;
 			XMFLOAT4X4 xmf4x4 = gameObject->transform->localToWorldMatrix;
 			xmf4x4._41 = Camera::main->_pos.x;
 			xmf4x4._42 = Camera::main->_pos.y;
@@ -227,7 +227,7 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 	else
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->DiffuseAlbedo;
 			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
 			++j;
 		}
