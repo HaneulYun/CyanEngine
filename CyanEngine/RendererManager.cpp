@@ -400,7 +400,6 @@ void RendererManager::LoadAssets()
 	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
 	pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
 	pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	pipelineStateDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	pipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	pipelineStateDesc.SampleMask = UINT_MAX;
