@@ -212,6 +212,7 @@
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="Waves.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -323,6 +324,7 @@
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="MathHelper.cpp" />
+    <ClCompile Include="Waves.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FrameResource.h"
+#include "Waves.h"
 
 #define NUM_FRAME_RESOURCES 3
 
@@ -77,6 +78,9 @@ public:
 
 	std::vector<std::unique_ptr<RenderItem>> allRItems;
 	std::vector<RenderItem*> opaqueRItems;
+
+	RenderItem* wavesRItem;
+	std::unique_ptr<Waves> waves;
 
 	UINT passCbvOffset{ 0 };
 

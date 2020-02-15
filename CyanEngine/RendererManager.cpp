@@ -142,6 +142,8 @@ void RendererManager::Render()
 	auto objectCB = currFrameResource->ObjectCB->Resource();
 	for (int i = 0; i < opaqueRItems.size(); ++i)
 	{
+		if (!i)
+			continue;
 		auto ri = opaqueRItems[i];
 
 		commandList->IASetVertexBuffers(0, 1, &ri->geo->VertexBufferView());
@@ -407,10 +409,7 @@ void RendererManager::LoadAssets()
 
 			vertices[i].color = color;
 		}
-
-
-		std::vector<std::uint16_t> indices;
-		indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
+		std::vector<std::uint16_t> indices = grid.GetIndices16();
 
 		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
 		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
@@ -440,11 +439,72 @@ void RendererManager::LoadAssets()
 
 		geometries[geo->Name] = std::move(geo);
 	}
-
 	{
+		waves = std::make_unique<Waves>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
+		std::vector<std::uint16_t> indices(3 * waves->TriangleCount());
+
+		int m = waves->RowCount();
+		int n = waves->ColumnCount();
+		int k = 0;
+		for (int i = 0; i < m - 1; ++i)
+		{
+			for (int j = 0; j < n - 1; ++j)
+			{
+				indices[k] = i * n + j;
+				indices[k + 1] = i * n + j + 1;
+				indices[k + 2] = (i + 1) * n + j;
+
+				indices[k + 3] = (i + 1) * n + j;
+				indices[k + 4] = i * n + j + 1;
+				indices[k + 5] = (i + 1) * n + j + 1;
+
+				k += 6;
+			}
+		}
+		UINT vbByteSize = waves->VertexCount() * sizeof(Vertex);
+		UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+		auto geo = std::make_unique<MeshGeometry>();
+		geo->Name = "waterGeo";
+
+		geo->VertexBufferCPU = nullptr;
+		geo->VertexBufferGPU = nullptr;
+
+		D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU);
+		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
+			indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+		geo->VertexByteStride = sizeof(Vertex);
+		geo->VertexBufferByteSize = vbByteSize;
+		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+		geo->IndexBufferByteSize = ibByteSize;
+
+		SubmeshGeometry submesh;
+		submesh.IndexCount = (UINT)indices.size();
+		submesh.StartIndexLocation = 0;
+		submesh.BaseVertexLocation = 0;
+
+		geo->DrawArgs["grid"] = submesh;
+
+		geometries[geo->Name] = std::move(geo);
+	}
+	{
+		auto wavesRItem = std::make_unique<RenderItem>();
+		wavesRItem->world = MathHelper::Identity4x4();
+		wavesRItem->objCBIndex = 0;
+		wavesRItem->geo = geometries["waterGeo"].get();
+		wavesRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		wavesRItem->indexCount = wavesRItem->geo->DrawArgs["grid"].IndexCount;
+		wavesRItem->startIndexLocation = wavesRItem->geo->DrawArgs["grid"].StartIndexLocation;
+		wavesRItem->baseVertexLocation = wavesRItem->geo->DrawArgs["grid"].BaseVertexLocation;
+		this->wavesRItem = wavesRItem.get();
+		allRItems.push_back(std::move(wavesRItem));
+
 		auto gridRItem = std::make_unique<RenderItem>();
 		gridRItem->world = MathHelper::Identity4x4();
-		gridRItem->objCBIndex = 0;
+		gridRItem->objCBIndex = 1;
 		gridRItem->geo = geometries["landGeo"].get();
 		gridRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		gridRItem->indexCount = gridRItem->geo->DrawArgs["grid"].IndexCount;
@@ -463,7 +523,7 @@ void RendererManager::LoadAssets()
 
 	
 	for (int i = 0; i < NumFrameResources; ++i)
-		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size()));
+		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size(), waves->VertexCount()));
 
 
 	UINT objCount = (UINT)opaqueRItems.size();
