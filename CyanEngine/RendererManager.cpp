@@ -403,21 +403,26 @@ void RendererManager::LoadAssets()
 			auto& p = grid.Vertices[i].Position;
 			vertices[i].position = p;
 			vertices[i].position.y = 0.3f * (p.z * sinf(0.1f * p.x) + p.x * cosf(0.1f * p.z));
+
+			XMFLOAT4 color;
+			if (vertices[i].position.y < -10.0f)
+				color = XMFLOAT4(1.0f, 0.96f, 0.62f, 1.0f);
+			else if (vertices[i].position.y < 5.0f)
+				color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
+			else if (vertices[i].position.y < 12.0f)
+				color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
+			else if (vertices[i].position.y < 20.0f)
+				color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
+			else
+				color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
+			vertices[i].color = color;
 		}
 
 		SubmeshGeometry gridSubmesh;
 		gridSubmesh.IndexCount = (UINT)grid.Indices32.size();
 		gridSubmesh.StartIndexLocation = 0;
 		gridSubmesh.BaseVertexLocation = 0;
-
-		auto totalVertexCount = grid.Vertices.size();
-
-		UINT k = 0;
-		for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
-		{
-			//vertices[k].position = grid.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::ForestGreen);
-		}
 
 		std::vector<std::uint16_t> indices;
 		indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
