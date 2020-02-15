@@ -96,9 +96,13 @@ void RendererManager::UpdateManager()
 	XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 
 	XMStoreFloat3(&passConstants.EyePosW, pos);
-	XMStoreFloat3(&passConstants.Lights[0].Direction, lightDir);
 	passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
-	passConstants.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
+	passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+	passConstants.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+	passConstants.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+	passConstants.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
+	passConstants.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+	passConstants.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
 
 	currFrameResource->PassCB->CopyData(0, passConstants);
 }
