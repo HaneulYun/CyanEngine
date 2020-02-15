@@ -422,7 +422,8 @@ void RendererManager::LoadAssets()
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
@@ -612,6 +613,9 @@ void RendererManager::LoadAssets()
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&cbvHeap));
 
+	descriptorHeapDesc.NumDescriptors = 3;
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
+
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	for(int i = 0; i < NumFrameResources; ++i)
@@ -648,6 +652,40 @@ void RendererManager::LoadAssets()
 		cbvDesc.SizeInBytes = passCBByteSize;
 		device->CreateConstantBufferView(&cbvDesc, handle);
 	}
+
+	//{
+	//	auto grassTex = std::make_unique<Texture>();
+	//	grassTex->Name = "grassTex";
+	//	grassTex->Filename = L"../../Textures/grass.dds";
+	//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//		mCommandList.Get(), grassTex->Filename.c_str(),
+	//		grassTex->Resource, grassTex->UploadHeap));
+	//
+	//	auto waterTex = std::make_unique<Texture>();
+	//	waterTex->Name = "waterTex";
+	//	waterTex->Filename = L"../../Textures/water1.dds";
+	//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//		mCommandList.Get(), waterTex->Filename.c_str(),
+	//		waterTex->Resource, waterTex->UploadHeap));
+	//
+	//	auto fenceTex = std::make_unique<Texture>();
+	//	fenceTex->Name = "fenceTex";
+	//	fenceTex->Filename = L"../../Textures/WoodCrate01.dds";
+	//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+	//		mCommandList.Get(), fenceTex->Filename.c_str(),
+	//		fenceTex->Resource, fenceTex->UploadHeap));
+	//
+	//	mTextures[grassTex->Name] = std::move(grassTex);
+	//	mTextures[waterTex->Name] = std::move(waterTex);
+	//	mTextures[fenceTex->Name] = std::move(fenceTex);
+	//}
+	//{
+	//	auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());
+	//	auto grassTex = textures["grassTex"]->Resource;
+	//	auto waterTex = textures["waterTex"]->Resource;
+	//	auto fenceTex = textures["fenceTex"]->Resource;
+	//}
+
 
 
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));

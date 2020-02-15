@@ -175,6 +175,7 @@
     <ClInclude Include="CyanApp.h" />
     <ClInclude Include="CyanFW.h" />
     <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DefaultMaterial.h" />
@@ -229,6 +230,7 @@
     <ClCompile Include="CyanApp.cpp" />
     <ClCompile Include="CyanFW.cpp" />
     <ClCompile Include="d3dUtil.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DefaultMaterial.cpp" />
