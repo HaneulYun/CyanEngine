@@ -135,10 +135,8 @@ void RendererManager::Render()
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 	commandList->SetPipelineState(pipelineState.Get());
 
-	int passCbvIndex = passCbvOffset + currFrameResourceIndex;
-	auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
-	passCbvHandle.Offset(passCbvIndex, cbvDescriptorSize);
-	commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
+	auto passCB = currFrameResource->PassCB->Resource();
+	commandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
@@ -150,11 +148,9 @@ void RendererManager::Render()
 		commandList->IASetIndexBuffer(&ri->geo->IndexBufferView());
 		commandList->IASetPrimitiveTopology(ri->primitiveType);
 
-		UINT cbvIndex = currFrameResourceIndex * (UINT)opaqueRItems.size() + ri->objCBIndex;
-		auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
-		cbvHandle.Offset(cbvIndex, cbvDescriptorSize);
-
-		commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress();
+		objCBAddress += ri->objCBIndex * objCBByteSize;
+		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 
 		commandList->DrawIndexedInstanced(ri->indexCount, 1, ri->startIndexLocation, ri->baseVertexLocation, 0);
 	}
@@ -335,16 +331,11 @@ void RendererManager::LoadPipeline()
 void RendererManager::LoadAssets()
 {
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{};
-	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
-	CD3DX12_DESCRIPTOR_RANGE1 ranges0[1];
-	CD3DX12_DESCRIPTOR_RANGE1 ranges1[1];
-	CD3DX12_ROOT_PARAMETER1 rootParameters[2];
-
-	ranges0[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-	ranges1[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-	rootParameters[0].InitAsDescriptorTable(1, &ranges0[0], D3D12_SHADER_VISIBILITY_VERTEX);
-	rootParameters[1].InitAsDescriptorTable(1, &ranges1[0], D3D12_SHADER_VISIBILITY_VERTEX);
+	CD3DX12_ROOT_PARAMETER rootParameters[2];
+	rootParameters[0].InitAsConstantBufferView(0);
+	rootParameters[1].InitAsConstantBufferView(1);
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -354,12 +345,11 @@ void RendererManager::LoadAssets()
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS
 	};
 
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-	rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(2, rootParameters, 0, nullptr, rootSignatureFlags);
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
-	D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error);
+	D3D12SerializeRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error);
 	device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 
 	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_0");
