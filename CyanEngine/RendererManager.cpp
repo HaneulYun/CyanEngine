@@ -40,23 +40,6 @@ void RendererManager::UpdateManager()
 		CloseHandle(eventHandle);
 	}
 
-	// UpdateMainPassCB
-	XMMATRIX mWorld = XMLoadFloat4x4(&NS_Matrix4x4::Identity());
-
-	XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
-
-	XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
-	XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
-	XMVECTOR up{ 0, 1, 0 };
-
-	XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
-	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
-	XMMATRIX worldViewProj = mWorld * view * proj;
-
-	PassConstants passConstants;
-	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
-	currFrameResource->PassCB->CopyData(0, passConstants);
-
 	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : allRItems)
@@ -73,6 +56,43 @@ void RendererManager::UpdateManager()
 			--e->numFramesDirty;
 		}
 	}
+
+	// UpdateMaterialCBs
+	auto currMaterialCB = currFrameResource->MaterialCB.get();
+	for (auto& e : materials)
+	{
+		Material* mat = e.second.get();
+		if (mat->NumFramesDirty > 0)
+		{
+			XMMATRIX matRansform = XMLoadFloat4x4(&mat->MatTransform);
+
+			MaterialConstants matConstants;
+			matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
+			matConstants.FresnelR0 = mat->FresnelR0;
+			matConstants.Roughness = mat->Roughness;
+
+			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
+
+			--mat->NumFramesDirty;
+		}
+	}
+	
+	// UpdateMainPassCB
+	XMMATRIX mWorld = XMLoadFloat4x4(&NS_Matrix4x4::Identity());
+
+	XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
+
+	XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
+	XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
+	XMVECTOR up{ 0, 1, 0 };
+
+	XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
+	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
+	XMMATRIX worldViewProj = mWorld * view * proj;
+
+	PassConstants passConstants;
+	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
+	currFrameResource->PassCB->CopyData(0, passConstants);
 
 	// UpdateWaves
 	static float time = 0.0f;
@@ -172,7 +192,9 @@ void RendererManager::Render()
 	commandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
+	auto matCB = currFrameResource->MaterialCB->Resource();
 	for (int i = 0; i < opaqueRItems.size(); ++i)
 	{
 		auto ri = opaqueRItems[i];
@@ -181,9 +203,10 @@ void RendererManager::Render()
 		commandList->IASetIndexBuffer(&ri->geo->IndexBufferView());
 		commandList->IASetPrimitiveTopology(ri->primitiveType);
 
-		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress();
-		objCBAddress += ri->objCBIndex * objCBByteSize;
+		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->objCBIndex * objCBByteSize;
+		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->mat->MatCBIndex * matCBByteSize;
 		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+		//commandList->SetGraphicsRootConstantBufferView(0, matCBAddress);
 
 		commandList->DrawIndexedInstanced(ri->indexCount, 1, ri->startIndexLocation, ri->baseVertexLocation, 0);
 	}
@@ -366,9 +389,10 @@ void RendererManager::LoadAssets()
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{};
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
-	CD3DX12_ROOT_PARAMETER rootParameters[2];
+	CD3DX12_ROOT_PARAMETER rootParameters[3];
 	rootParameters[0].InitAsConstantBufferView(0);
 	rootParameters[1].InitAsConstantBufferView(1);
+	rootParameters[2].InitAsConstantBufferView(2);
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -542,6 +566,7 @@ void RendererManager::LoadAssets()
 		auto wavesRItem = std::make_unique<RenderItem>();
 		wavesRItem->world = MathHelper::Identity4x4();
 		wavesRItem->objCBIndex = 0;
+		wavesRItem->mat = materials["water"].get();
 		wavesRItem->geo = geometries["waterGeo"].get();
 		wavesRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		wavesRItem->indexCount = wavesRItem->geo->DrawArgs["grid"].IndexCount;
@@ -553,6 +578,7 @@ void RendererManager::LoadAssets()
 		auto gridRItem = std::make_unique<RenderItem>();
 		gridRItem->world = MathHelper::Identity4x4();
 		gridRItem->objCBIndex = 1;
+		gridRItem->mat = materials["grass"].get();
 		gridRItem->geo = geometries["landGeo"].get();
 		gridRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		gridRItem->indexCount = gridRItem->geo->DrawArgs["grid"].IndexCount;
@@ -571,7 +597,7 @@ void RendererManager::LoadAssets()
 
 	
 	for (int i = 0; i < NumFrameResources; ++i)
-		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size(), waves->VertexCount()));
+		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size(), (UINT)materials.size(), waves->VertexCount()));
 
 
 	UINT objCount = (UINT)opaqueRItems.size();
