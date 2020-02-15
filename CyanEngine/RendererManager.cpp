@@ -40,6 +40,25 @@ void RendererManager::UpdateManager()
 		CloseHandle(eventHandle);
 	}
 
+	// AnimateMaterials
+	auto waterMat = materials["water"].get();
+
+	float& tu = waterMat->MatTransform(3, 0);
+	float& tv = waterMat->MatTransform(3, 1);
+
+	tu += 0.1f * Time::deltaTime;
+	tu += 0.02f * Time::deltaTime;
+
+	if (tu >= 1.0f)
+		tu -= 1.0f;
+	if(tv >= 1.0f)
+		tv -= 1.0f;
+
+	waterMat->MatTransform(3, 0) = tu;
+	waterMat->MatTransform(3, 1) = tv;
+
+	waterMat->NumFramesDirty = NUM_FRAME_RESOURCES;
+
 	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : allRItems)
