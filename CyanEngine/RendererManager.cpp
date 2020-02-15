@@ -197,7 +197,7 @@ void RendererManager::Render()
 	commandList->SetPipelineState(pipelineState.Get());
 
 	auto passCB = currFrameResource->PassCB->Resource();
-	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(3, passCB->GetGPUVirtualAddress());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
@@ -216,8 +216,8 @@ void RendererManager::Render()
 
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->objCBIndex * objCBByteSize;
 		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->mat->MatCBIndex * matCBByteSize;
-		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-		commandList->SetGraphicsRootConstantBufferView(1, matCBAddress);
+		commandList->SetGraphicsRootConstantBufferView(1, objCBAddress);
+		commandList->SetGraphicsRootConstantBufferView(2, matCBAddress);
 
 		commandList->DrawIndexedInstanced(ri->indexCount, 1, ri->startIndexLocation, ri->baseVertexLocation, 0);
 	}
@@ -404,10 +404,10 @@ void RendererManager::LoadAssets()
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
 	CD3DX12_ROOT_PARAMETER rootParameters[4];
-	rootParameters[0].InitAsConstantBufferView(0);
-	rootParameters[1].InitAsConstantBufferView(1);
-	rootParameters[2].InitAsConstantBufferView(2);
-	rootParameters[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[1].InitAsConstantBufferView(0);
+	rootParameters[2].InitAsConstantBufferView(1);
+	rootParameters[3].InitAsConstantBufferView(2);
 
 	CD3DX12_STATIC_SAMPLER_DESC samplers[]
 	{
