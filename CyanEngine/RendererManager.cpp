@@ -394,7 +394,6 @@ void RendererManager::LoadAssets()
 
 	{
 		GeometryGenerator geoGen;
-		GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);;
 		GeometryGenerator::MeshData grid = geoGen.CreateGrid(160.0f, 160.0f, 50, 50);
 
 		std::vector<Vertex> vertices(grid.Vertices.size());
@@ -419,10 +418,6 @@ void RendererManager::LoadAssets()
 			vertices[i].color = color;
 		}
 
-		SubmeshGeometry gridSubmesh;
-		gridSubmesh.IndexCount = (UINT)grid.Indices32.size();
-		gridSubmesh.StartIndexLocation = 0;
-		gridSubmesh.BaseVertexLocation = 0;
 
 		std::vector<std::uint16_t> indices;
 		indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
@@ -431,24 +426,27 @@ void RendererManager::LoadAssets()
 		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
 		auto geo = std::make_unique<MeshGeometry>();
-		geo->Name = "shapeGeo";
+		geo->Name = "landGeo";
 
 		D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU);
 		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
 		D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU);
 		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
-			vertices.data(), vbByteSize, geo->VertexBufferUploader);
-		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
-			indices.data(), ibByteSize, geo->IndexBufferUploader);
+		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
 
 		geo->VertexByteStride = sizeof(Vertex);
 		geo->VertexBufferByteSize = vbByteSize;
 		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 		geo->IndexBufferByteSize = ibByteSize;
 
-		geo->DrawArgs["grid"] = gridSubmesh;
+		SubmeshGeometry submesh;
+		submesh.IndexCount = (UINT)grid.Indices32.size();
+		submesh.StartIndexLocation = 0;
+		submesh.BaseVertexLocation = 0;
+
+		geo->DrawArgs["grid"] = submesh;
 
 		geometries[geo->Name] = std::move(geo);
 	}
@@ -457,7 +455,7 @@ void RendererManager::LoadAssets()
 		auto gridRItem = std::make_unique<RenderItem>();
 		gridRItem->world = MathHelper::Identity4x4();
 		gridRItem->objCBIndex = 0;
-		gridRItem->geo = geometries["shapeGeo"].get();
+		gridRItem->geo = geometries["landGeo"].get();
 		gridRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		gridRItem->indexCount = gridRItem->geo->DrawArgs["grid"].IndexCount;
 		gridRItem->startIndexLocation = gridRItem->geo->DrawArgs["grid"].StartIndexLocation;
