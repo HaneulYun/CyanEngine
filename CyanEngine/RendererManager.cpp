@@ -40,23 +40,7 @@ void RendererManager::UpdateManager()
 		CloseHandle(eventHandle);
 	}
 
-
-	XMMATRIX mWorld = XMLoadFloat4x4(&NS_Matrix4x4::Identity());
-
-	XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
-
-	XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
-	XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
-	XMVECTOR up{ 0, 1, 0 };
-
-	XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
-	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
-	XMMATRIX worldViewProj = mWorld * view * proj;
-
-	PassConstants passConstants;
-	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
-	currFrameResource->PassCB->CopyData(0, passConstants);
-
+	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : allRItems)
 	{
@@ -72,6 +56,51 @@ void RendererManager::UpdateManager()
 			--e->numFramesDirty;
 		}
 	}
+
+	// UpdateMaterialCBs
+	auto currMaterialCB = currFrameResource->MaterialCB.get();
+	for (auto& e : materials)
+	{
+		Material* mat = e.second.get();
+		if (mat->NumFramesDirty > 0)
+		{
+			XMMATRIX matRansform = XMLoadFloat4x4(&mat->MatTransform);
+
+			MaterialConstants matConstants;
+			matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
+			matConstants.FresnelR0 = mat->FresnelR0;
+			matConstants.Roughness = mat->Roughness;
+
+			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
+
+			--mat->NumFramesDirty;
+		}
+	}
+	
+	// UpdateMainPassCB
+	PassConstants passConstants;
+
+	XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
+	XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
+	XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
+	XMVECTOR up{ 0, 1, 0 };
+
+	XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
+	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
+	XMMATRIX worldViewProj = view * proj;
+
+	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
+	
+	float mSunTheta = 1.25f * XM_PI;
+	float mSunPhi = XM_PIDIV4;
+	XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
+
+	XMStoreFloat3(&passConstants.EyePosW, pos);
+	XMStoreFloat3(&passConstants.Lights[0].Direction, lightDir);
+	passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	passConstants.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
+
+	currFrameResource->PassCB->CopyData(0, passConstants);
 }
 
 void RendererManager::Start()
@@ -82,7 +111,7 @@ void RendererManager::Start()
 		if (!d.second.first)
 		{
 			d.second.first = new INSTANCING();
-			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
+			Shader* shader = new StandardShader();// d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
 
 			if (!shader->rootSignature)
 				shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
@@ -135,13 +164,13 @@ void RendererManager::Render()
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 	commandList->SetPipelineState(pipelineState.Get());
 
-	int passCbvIndex = passCbvOffset + currFrameResourceIndex;
-	auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
-	passCbvHandle.Offset(passCbvIndex, cbvDescriptorSize);
-	commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
+	auto passCB = currFrameResource->PassCB->Resource();
+	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
+	auto matCB = currFrameResource->MaterialCB->Resource();
 	for (int i = 0; i < opaqueRItems.size(); ++i)
 	{
 		auto ri = opaqueRItems[i];
@@ -150,11 +179,10 @@ void RendererManager::Render()
 		commandList->IASetIndexBuffer(&ri->geo->IndexBufferView());
 		commandList->IASetPrimitiveTopology(ri->primitiveType);
 
-		UINT cbvIndex = currFrameResourceIndex * (UINT)opaqueRItems.size() + ri->objCBIndex;
-		auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
-		cbvHandle.Offset(cbvIndex, cbvDescriptorSize);
-
-		commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->objCBIndex * objCBByteSize;
+		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->mat->MatCBIndex * matCBByteSize;
+		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+		commandList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
 		commandList->DrawIndexedInstanced(ri->indexCount, 1, ri->startIndexLocation, ri->baseVertexLocation, 0);
 	}
@@ -187,7 +215,7 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 	if (typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->DiffuseAlbedo;
 			XMFLOAT4X4 xmf4x4 = gameObject->transform->localToWorldMatrix;
 			xmf4x4._41 = Camera::main->_pos.x;
 			xmf4x4._42 = Camera::main->_pos.y;
@@ -198,7 +226,7 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 	else
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->DiffuseAlbedo;
 			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
 			++j;
 		}
@@ -335,40 +363,34 @@ void RendererManager::LoadPipeline()
 void RendererManager::LoadAssets()
 {
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{};
-	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
-	CD3DX12_DESCRIPTOR_RANGE1 ranges0[1];
-	CD3DX12_DESCRIPTOR_RANGE1 ranges1[1];
-	CD3DX12_ROOT_PARAMETER1 rootParameters[2];
-
-	ranges0[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-	ranges1[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-	rootParameters[0].InitAsDescriptorTable(1, &ranges0[0], D3D12_SHADER_VISIBILITY_VERTEX);
-	rootParameters[1].InitAsDescriptorTable(1, &ranges1[0], D3D12_SHADER_VISIBILITY_VERTEX);
+	CD3DX12_ROOT_PARAMETER rootParameters[3];
+	rootParameters[0].InitAsConstantBufferView(0);
+	rootParameters[1].InitAsConstantBufferView(1);
+	rootParameters[2].InitAsConstantBufferView(2);
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
 	};
 
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-	rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
-	D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error);
+	D3D12SerializeRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error);
 	device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 
-	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_0");
-	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_0");
+	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
+	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_1");
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
@@ -377,7 +399,6 @@ void RendererManager::LoadAssets()
 	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
 	pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
 	pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	pipelineStateDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	pipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	pipelineStateDesc.SampleMask = UINT_MAX;
@@ -431,31 +452,31 @@ void RendererManager::LoadAssets()
 
 		auto totalVertexCount = box.Vertices.size() + grid.Vertices.size() + sphere.Vertices.size() + cylinder.Vertices.size();
 
-		std::vector<Vertex> vertices(totalVertexCount);
+		std::vector<FrameResource::Vertex> vertices(totalVertexCount);
 
 		UINT k = 0;
 		for (size_t i = 0; i < box.Vertices.size(); ++i, ++k)
 		{
-			vertices[k].position = box.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::DarkGreen);
+			vertices[k].Pos = box.Vertices[i].Position;
+			vertices[k].Normal = box.Vertices[i].Normal;
 		}
 
 		for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
 		{
-			vertices[k].position = grid.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::ForestGreen);
+			vertices[k].Pos = grid.Vertices[i].Position;
+			vertices[k].Normal = grid.Vertices[i].Normal;
 		}
 
 		for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
 		{
-			vertices[k].position = sphere.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::Crimson);
+			vertices[k].Pos = sphere.Vertices[i].Position;
+			vertices[k].Normal = sphere.Vertices[i].Normal;
 		}
 
 		for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
 		{
-			vertices[k].position = cylinder.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::SteelBlue);
+			vertices[k].Pos = cylinder.Vertices[i].Position;
+			vertices[k].Normal = cylinder.Vertices[i].Normal;
 		}
 
 		std::vector<std::uint16_t> indices;
@@ -464,7 +485,7 @@ void RendererManager::LoadAssets()
 		indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
 		indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
 
-		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::Vertex);
 		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
 		auto geo = std::make_unique<MeshGeometry>();
@@ -480,7 +501,7 @@ void RendererManager::LoadAssets()
 		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
 			indices.data(), ibByteSize, geo->IndexBufferUploader);
 
-		geo->VertexByteStride = sizeof(Vertex);
+		geo->VertexByteStride = sizeof(FrameResource::Vertex);
 		geo->VertexBufferByteSize = vbByteSize;
 		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 		geo->IndexBufferByteSize = ibByteSize;
@@ -492,11 +513,29 @@ void RendererManager::LoadAssets()
 
 		geometries[geo->Name] = std::move(geo);
 	}
+	{
+		auto grass = std::make_unique<Material>();
+		grass->Name = "grass";
+		grass->MatCBIndex = 0;
+		grass->DiffuseAlbedo = XMFLOAT4(0.2f, 0.6f, 0.2f, 1.0f);
+		grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+		grass->Roughness = 0.125f;
 
+		auto water = std::make_unique<Material>();
+		water->Name = "water";
+		water->MatCBIndex = 1;
+		water->DiffuseAlbedo = XMFLOAT4(0.0f, 0.2f, 0.6f, 1.0f);
+		water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+		water->Roughness = 0.f;
+
+		materials["grass"] = std::move(grass);
+		materials["water"] = std::move(water);
+	}
 	{
 		auto boxRItem = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&boxRItem->world, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+		XMStoreFloat4x4(&boxRItem->world, XMMatrixScaling(2.0f, 2.0f, 2.0f)* XMMatrixTranslation(0.0f, 0.5f, 0.0f));
 		boxRItem->objCBIndex = 0;
+		boxRItem->mat = materials["grass"].get();
 		boxRItem->geo = geometries["shapeGeo"].get();
 		boxRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		boxRItem->indexCount = boxRItem->geo->DrawArgs["box"].IndexCount;
@@ -507,6 +546,7 @@ void RendererManager::LoadAssets()
 		auto gridRItem = std::make_unique<RenderItem>();
 		gridRItem->world = MathHelper::Identity4x4();
 		gridRItem->objCBIndex = 1;
+		gridRItem->mat = materials["grass"].get();
 		gridRItem->geo = geometries["shapeGeo"].get();
 		gridRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		gridRItem->indexCount = gridRItem->geo->DrawArgs["grid"].IndexCount;
@@ -529,6 +569,7 @@ void RendererManager::LoadAssets()
 
 			XMStoreFloat4x4(&leftCylRItem->world, leftCylWorld);
 			leftCylRItem->objCBIndex = objCBIndex++;
+			leftCylRItem->mat = materials["grass"].get();
 			leftCylRItem->geo = geometries["shapeGeo"].get();
 			leftCylRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			leftCylRItem->indexCount = leftCylRItem->geo->DrawArgs["cylinder"].IndexCount;
@@ -537,6 +578,7 @@ void RendererManager::LoadAssets()
 
 			XMStoreFloat4x4(&rightCylRItem->world, rightCylWorld);
 			rightCylRItem->objCBIndex = objCBIndex++;
+			rightCylRItem->mat = materials["grass"].get();
 			rightCylRItem->geo = geometries["shapeGeo"].get();
 			rightCylRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			rightCylRItem->indexCount = rightCylRItem->geo->DrawArgs["cylinder"].IndexCount;
@@ -545,6 +587,7 @@ void RendererManager::LoadAssets()
 
 			XMStoreFloat4x4(&leftSphereRItem->world, leftSphereWorld);
 			leftSphereRItem->objCBIndex = objCBIndex++;
+			leftSphereRItem->mat = materials["grass"].get();
 			leftSphereRItem->geo = geometries["shapeGeo"].get();
 			leftSphereRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			leftSphereRItem->indexCount = leftSphereRItem->geo->DrawArgs["sphere"].IndexCount;
@@ -553,6 +596,7 @@ void RendererManager::LoadAssets()
 
 			XMStoreFloat4x4(&rightSphereRItem->world, rightSphereWorld);
 			rightSphereRItem->objCBIndex = objCBIndex++;
+			rightSphereRItem->mat = materials["grass"].get();
 			rightSphereRItem->geo = geometries["shapeGeo"].get();
 			rightSphereRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			rightSphereRItem->indexCount = rightSphereRItem->geo->DrawArgs["sphere"].IndexCount;
@@ -576,7 +620,7 @@ void RendererManager::LoadAssets()
 
 	
 	for (int i = 0; i < NumFrameResources; ++i)
-		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size()));
+		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size(), (UINT)materials.size()));
 
 
 	UINT objCount = (UINT)opaqueRItems.size();
