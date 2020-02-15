@@ -518,6 +518,76 @@ void RendererManager::LoadAssets()
 		geometries[geo->Name] = std::move(geo);
 	}
 	{
+		std::ifstream fin("..\\CyanEngine\\Models/skull.txt");
+
+		if (!fin)
+		{
+			MessageBox(0, L"..\\CyanEngine\\Models/skull.txt not found.", 0, 0);
+			return;
+		}
+
+		UINT vcount = 0;
+		UINT tcount = 0;
+		std::string ignore;
+
+		fin >> ignore >> vcount;
+		fin >> ignore >> tcount;
+		fin >> ignore >> ignore >> ignore >> ignore;
+
+		std::vector<FrameResource::Vertex> vertices(vcount);
+		for (UINT i = 0; i < vcount; ++i)
+		{
+			fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
+			fin >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
+		}
+
+		fin >> ignore;
+		fin >> ignore;
+		fin >> ignore;
+
+		std::vector<std::int32_t> indices(3 * tcount);
+		for (UINT i = 0; i < tcount; ++i)
+		{
+			fin >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
+		}
+
+		fin.close();
+
+		//
+		// Pack the indices of all the meshes into one index buffer.
+		//
+
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::Vertex);
+
+		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::int32_t);
+
+		auto geo = std::make_unique<MeshGeometry>();
+		geo->Name = "skullGeo";
+
+		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+		geo->VertexByteStride = sizeof(FrameResource::Vertex);
+		geo->VertexBufferByteSize = vbByteSize;
+		geo->IndexFormat = DXGI_FORMAT_R32_UINT;
+		geo->IndexBufferByteSize = ibByteSize;
+
+		SubmeshGeometry submesh;
+		submesh.IndexCount = (UINT)indices.size();
+		submesh.StartIndexLocation = 0;
+		submesh.BaseVertexLocation = 0;
+
+		geo->DrawArgs["skull"] = submesh;
+
+		geometries[geo->Name] = std::move(geo);
+	}
+	{
 		auto bricks0 = std::make_unique<Material>();
 		bricks0->Name = "bricks0";
 		bricks0->MatCBIndex = 0;
@@ -578,7 +648,19 @@ void RendererManager::LoadAssets()
 		gridRItem->baseVertexLocation = gridRItem->geo->DrawArgs["grid"].BaseVertexLocation;
 		allRItems.push_back(std::move(gridRItem));
 
-		UINT objCBIndex = 2;
+		auto skullRItem = std::make_unique<RenderItem>();
+		XMStoreFloat4x4(&skullRItem->world, XMMatrixScaling(0.5f, 0.5f, 0.5f)* XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+		skullRItem->texTransform = MathHelper::Identity4x4();
+		skullRItem->objCBIndex = 2;
+		skullRItem->mat = materials["skullMat"].get();
+		skullRItem->geo = geometries["skullGeo"].get();
+		skullRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		skullRItem->indexCount = skullRItem->geo->DrawArgs["skull"].IndexCount;
+		skullRItem->startIndexLocation = skullRItem->geo->DrawArgs["skull"].StartIndexLocation;
+		skullRItem->baseVertexLocation = skullRItem->geo->DrawArgs["skull"].BaseVertexLocation;
+		allRItems.push_back(std::move(skullRItem));
+
+		UINT objCBIndex = 3;
 		for (int i = 0; i < 5; ++i)
 		{
 			auto leftCylRItem = std::make_unique<RenderItem>();
