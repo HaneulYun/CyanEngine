@@ -75,30 +75,32 @@ struct PSInput
 
 PSInput VSMain(VSInput vin)
 {
-	PSInput result;
+	PSInput vout;
 
-	result.PosW = mul(float4(vin.PosL, 1.0f), gWorld).xyz;
-	result.PosH = mul(float4(result.PosW, 1.0f), gViewProj);
-	result.NormalW = mul(vin.NormalL, (float3x3)gWorld);
+	vout.PosW = mul(float4(vin.PosL, 1.0f), gWorld).xyz;
+	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj);
+	vout.NormalW = mul(vin.NormalL, (float3x3)gWorld);
+	vout.TexC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform).xy;
 
-	return result;
+	return vout;
 }
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
+	float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, input.TexC) * gDiffuseAlbedo; 
 	input.NormalW = normalize(input.NormalW);
 
 	float3 toEyeW = normalize(gEyePosW - input.PosW);
-	float4 ambient = gAmbientLight * gDiffuseAlbedo;
+	float4 ambient = gAmbientLight * diffuseAlbedo;
 
 	const float shininess = 1.0f - gRoughness;
-	Material mat = { gDiffuseAlbedo, gFresnelR0, shininess };
+	Material mat = { diffuseAlbedo, gFresnelR0, shininess };
 	float3 shadowFactor = 1.0f;
 	float4 directLight = ComputeLighting(gLights, mat, input.PosW, input.NormalW, toEyeW, shadowFactor);
 
 	float4 litColor = ambient + directLight;
 
-	litColor.a = gDiffuseAlbedo.a;
+	litColor.a = diffuseAlbedo.a;
 
 	return litColor;
 }

@@ -128,6 +128,8 @@ void RendererManager::UpdateManager()
 
 		v.Pos = waves->Position(i);
 		v.Normal = waves->Normal(i);
+		v.TexC.x = 0.5f + v.Pos.x / waves->Width();
+		v.TexC.y = 0.5f - v.Pos.z / waves->Depth();
 
 		currWavesVB->CopyData(i, v);
 	}
@@ -466,6 +468,46 @@ void RendererManager::LoadAssets()
 
 
 	{
+		auto grassTex = std::make_unique<Texture>();
+		grassTex->Name = "grassTex";
+		grassTex->Filename = L"..\\CyanEngine\\Textures\\grass.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), grassTex->Filename.c_str(), grassTex->Resource, grassTex->UploadHeap);
+
+		auto waterTex = std::make_unique<Texture>();
+		waterTex->Name = "waterTex";
+		waterTex->Filename = L"..\\CyanEngine\\Textures\\water1.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), waterTex->Filename.c_str(), waterTex->Resource, waterTex->UploadHeap);
+
+		auto fenceTex = std::make_unique<Texture>();
+		fenceTex->Name = "fenceTex";
+		fenceTex->Filename = L"..\\CyanEngine\\Textures\\WoodCrate01.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), fenceTex->Filename.c_str(), fenceTex->Resource, fenceTex->UploadHeap);
+
+		textures[grassTex->Name] = std::move(grassTex);
+		textures[waterTex->Name] = std::move(waterTex);
+		textures[fenceTex->Name] = std::move(fenceTex);
+	}
+	{
+		auto grass = std::make_unique<Material>();
+		grass->Name = "grass";
+		grass->MatCBIndex = 0;
+		grass->DiffuseSrvHeapIndex = 0;
+		grass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+		grass->Roughness = 0.125f;
+
+		auto water = std::make_unique<Material>();
+		water->Name = "water";
+		water->MatCBIndex = 1;
+		water->DiffuseSrvHeapIndex = 1;
+		water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		water->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
+		water->Roughness = 0.f;
+
+		materials["grass"] = std::move(grass);
+		materials["water"] = std::move(water);
+	}
+	{
 		GeometryGenerator geoGen;
 		GeometryGenerator::MeshData grid = geoGen.CreateGrid(160.0f, 160.0f, 50, 50);
 
@@ -484,6 +526,7 @@ void RendererManager::LoadAssets()
 			XMStoreFloat3(&n, unitNormal);
 
 			vertices[i].Normal = n;
+			vertices[i].TexC = grid.Vertices[i].TexC;
 		}
 		std::vector<std::uint16_t> indices = grid.GetIndices16();
 
@@ -514,46 +557,6 @@ void RendererManager::LoadAssets()
 		geo->DrawArgs["grid"] = submesh;
 
 		geometries[geo->Name] = std::move(geo);
-	}
-	{
-		auto grassTex = std::make_unique<Texture>();
-		grassTex->Name = "grassTex";
-		grassTex->Filename = L"..\\CyanEngine\\Textures\\grass.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), grassTex->Filename.c_str(), grassTex->Resource, grassTex->UploadHeap);
-
-		auto waterTex = std::make_unique<Texture>();
-		waterTex->Name = "waterTex";
-		waterTex->Filename = L"..\\CyanEngine\\Textures\\water1.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), waterTex->Filename.c_str(), waterTex->Resource, waterTex->UploadHeap);
-
-		auto fenceTex = std::make_unique<Texture>();
-		fenceTex->Name = "fenceTex";
-		fenceTex->Filename = L"..\\CyanEngine\\Textures\\WoodCrate01.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), fenceTex->Filename.c_str(), fenceTex->Resource, fenceTex->UploadHeap);
-
-		textures[grassTex->Name] = std::move(grassTex);
-		textures[waterTex->Name] = std::move(waterTex);
-		textures[fenceTex->Name] = std::move(fenceTex);
-	}
-	{
-		auto grass = std::make_unique<Material>();
-		grass->Name = "grass";
-		grass->MatCBIndex = 0;
-		grass->DiffuseSrvHeapIndex = 0;
-		grass->DiffuseAlbedo = XMFLOAT4(0.2f, 0.6f, 0.2f, 1.0f);
-		grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-		grass->Roughness = 0.125f;
-
-		auto water = std::make_unique<Material>();
-		water->Name = "water";
-		water->MatCBIndex = 1;
-		water->DiffuseSrvHeapIndex = 1;
-		water->DiffuseAlbedo = XMFLOAT4(0.0f, 0.2f, 0.6f, 1.0f);
-		water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-		water->Roughness = 0.f;
-
-		materials["grass"] = std::move(grass);
-		materials["water"] = std::move(water);
 	}
 	{
 		waves = std::make_unique<Waves>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
