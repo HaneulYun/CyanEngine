@@ -211,6 +211,9 @@ void RendererManager::Render()
 		commandList->IASetIndexBuffer(&ri->geo->IndexBufferView());
 		commandList->IASetPrimitiveTopology(ri->primitiveType);
 
+		CD3DX12_GPU_DESCRIPTOR_HANDLE tex{ srvHeap->GetGPUDescriptorHandleForHeapStart() };
+		tex.Offset(ri->mat->DiffuseSrvHeapIndex, srvDescriptorSize);
+
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->objCBIndex * objCBByteSize;
 		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->mat->MatCBIndex * matCBByteSize;
 		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
@@ -397,10 +400,24 @@ void RendererManager::LoadAssets()
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{};
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
-	CD3DX12_ROOT_PARAMETER rootParameters[3];
+	CD3DX12_DESCRIPTOR_RANGE texTable;
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+
+	CD3DX12_ROOT_PARAMETER rootParameters[4];
 	rootParameters[0].InitAsConstantBufferView(0);
 	rootParameters[1].InitAsConstantBufferView(1);
 	rootParameters[2].InitAsConstantBufferView(2);
+	rootParameters[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+
+	CD3DX12_STATIC_SAMPLER_DESC samplers[]
+	{
+		{ 0, D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP },		// pointWrap
+		{ 1, D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP },	// pointClamp
+		{ 2, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP },		// linearWrap
+		{ 3, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP },	// linearClamp
+		{ 4, D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 0.0f, 8 },	// anisotropicWrap
+		{ 5, D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 0.0f, 8 }	// anisotropicClamp
+	};
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
@@ -409,7 +426,7 @@ void RendererManager::LoadAssets()
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
 	};
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, _countof(samplers), samplers, rootSignatureFlags);
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
@@ -653,38 +670,48 @@ void RendererManager::LoadAssets()
 		device->CreateConstantBufferView(&cbvDesc, handle);
 	}
 
-	//{
-	//	auto grassTex = std::make_unique<Texture>();
-	//	grassTex->Name = "grassTex";
-	//	grassTex->Filename = L"../../Textures/grass.dds";
-	//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//		mCommandList.Get(), grassTex->Filename.c_str(),
-	//		grassTex->Resource, grassTex->UploadHeap));
-	//
-	//	auto waterTex = std::make_unique<Texture>();
-	//	waterTex->Name = "waterTex";
-	//	waterTex->Filename = L"../../Textures/water1.dds";
-	//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//		mCommandList.Get(), waterTex->Filename.c_str(),
-	//		waterTex->Resource, waterTex->UploadHeap));
-	//
-	//	auto fenceTex = std::make_unique<Texture>();
-	//	fenceTex->Name = "fenceTex";
-	//	fenceTex->Filename = L"../../Textures/WoodCrate01.dds";
-	//	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-	//		mCommandList.Get(), fenceTex->Filename.c_str(),
-	//		fenceTex->Resource, fenceTex->UploadHeap));
-	//
-	//	mTextures[grassTex->Name] = std::move(grassTex);
-	//	mTextures[waterTex->Name] = std::move(waterTex);
-	//	mTextures[fenceTex->Name] = std::move(fenceTex);
-	//}
-	//{
-	//	auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());
-	//	auto grassTex = textures["grassTex"]->Resource;
-	//	auto waterTex = textures["waterTex"]->Resource;
-	//	auto fenceTex = textures["fenceTex"]->Resource;
-	//}
+	{
+		auto grassTex = std::make_unique<Texture>();
+		grassTex->Name = "grassTex";
+		grassTex->Filename = L"..\\CyanEngine\\Textures\\grass.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), grassTex->Filename.c_str(), grassTex->Resource, grassTex->UploadHeap);
+	
+		auto waterTex = std::make_unique<Texture>();
+		waterTex->Name = "waterTex";
+		waterTex->Filename = L"..\\CyanEngine\\Textures\\water1.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), waterTex->Filename.c_str(), waterTex->Resource, waterTex->UploadHeap);
+	
+		auto fenceTex = std::make_unique<Texture>();
+		fenceTex->Name = "fenceTex";
+		fenceTex->Filename = L"..\\CyanEngine\\Textures\\WoodCrate01.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), fenceTex->Filename.c_str(), fenceTex->Resource, fenceTex->UploadHeap);
+	
+		textures[grassTex->Name] = std::move(grassTex);
+		textures[waterTex->Name] = std::move(waterTex);
+		textures[fenceTex->Name] = std::move(fenceTex);
+	}
+	{
+		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());
+		auto grassTex = textures["grassTex"]->Resource;
+		auto waterTex = textures["waterTex"]->Resource;
+		auto fenceTex = textures["fenceTex"]->Resource;
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format = grassTex->GetDesc().Format;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = -1;
+		device->CreateShaderResourceView(grassTex.Get(), &srvDesc, handle);
+
+		handle.Offset(1, srvDescriptorSize);
+		srvDesc.Format = waterTex->GetDesc().Format;
+		device->CreateShaderResourceView(waterTex.Get(), &srvDesc, handle);
+
+		handle.Offset(1, srvDescriptorSize);
+		srvDesc.Format = fenceTex->GetDesc().Format;
+		device->CreateShaderResourceView(fenceTex.Get(), &srvDesc, handle);
+	}
 
 
 
