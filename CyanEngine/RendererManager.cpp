@@ -119,7 +119,7 @@ void RendererManager::UpdateManager()
 		FrameResource::Vertex v;
 
 		v.Pos = waves->Position(i);
-		v.Color = XMFLOAT4(DirectX::Colors::Blue);
+		v.Normal = waves->Normal(i);
 
 		currWavesVB->CopyData(i, v);
 	}
@@ -415,7 +415,7 @@ void RendererManager::LoadAssets()
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
@@ -449,19 +449,14 @@ void RendererManager::LoadAssets()
 			vertices[i].Pos = p;
 			vertices[i].Pos.y = 0.3f * (p.z * sinf(0.1f * p.x) + p.x * cosf(0.1f * p.z));
 
-			XMFLOAT4 color;
-			if (vertices[i].Pos.y < -10.0f)
-				color = XMFLOAT4(1.0f, 0.96f, 0.62f, 1.0f);
-			else if (vertices[i].Pos.y < 5.0f)
-				color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-			else if (vertices[i].Pos.y < 12.0f)
-				color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
-			else if (vertices[i].Pos.y < 20.0f)
-				color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
-			else
-				color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			XMFLOAT3 n(
+				-0.03f * p.z * cosf(0.1f * p.x) - 0.3f * cosf(0.1f * p.z),
+				1.0f,
+				-0.3f * sinf(0.1f * p.x) + 0.03f * p.x * sinf(0.1f * p.z));
+			XMVECTOR unitNormal = XMVector3Normalize(XMLoadFloat3(&n));
+			XMStoreFloat3(&n, unitNormal);
 
-			vertices[i].Color = color;
+			vertices[i].Normal = n;
 		}
 		std::vector<std::uint16_t> indices = grid.GetIndices16();
 
