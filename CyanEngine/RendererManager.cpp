@@ -40,7 +40,7 @@ void RendererManager::UpdateManager()
 		CloseHandle(eventHandle);
 	}
 
-
+	// UpdateMainPassCB
 	XMMATRIX mWorld = XMLoadFloat4x4(&NS_Matrix4x4::Identity());
 
 	XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
@@ -57,6 +57,7 @@ void RendererManager::UpdateManager()
 	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
 	currFrameResource->PassCB->CopyData(0, passConstants);
 
+	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : allRItems)
 	{
@@ -72,6 +73,38 @@ void RendererManager::UpdateManager()
 			--e->numFramesDirty;
 		}
 	}
+
+	// UpdateWaves
+	static float time = 0.0f;
+	time += Time::deltaTime;
+
+	static float t_base = 0.0f;
+	if ((time - t_base) >= 0.25f)
+	{
+		t_base += 0.25f;
+
+		int i = MathHelper::Rand(4, waves->RowCount() - 5);
+		int j = MathHelper::Rand(4, waves->ColumnCount() - 5);
+
+		float r = MathHelper::RandF(0.2f, 0.5f);
+
+		waves->Disturb(i, j, r);
+	}
+
+	waves->Update(Time::deltaTime);
+
+	auto currWavesVB = currFrameResource->WavesVB.get();
+	for (int i = 0; i < waves->VertexCount(); ++i)
+	{
+		FrameResource::Vertex v;
+
+		v.Pos = waves->Position(i);
+		v.Color = XMFLOAT4(DirectX::Colors::Blue);
+
+		currWavesVB->CopyData(i, v);
+	}
+
+	wavesRItem->geo->VertexBufferGPU = currWavesVB->Resource();
 }
 
 void RendererManager::Start()
@@ -142,8 +175,6 @@ void RendererManager::Render()
 	auto objectCB = currFrameResource->ObjectCB->Resource();
 	for (int i = 0; i < opaqueRItems.size(); ++i)
 	{
-		if (!i)
-			continue;
 		auto ri = opaqueRItems[i];
 
 		commandList->IASetVertexBuffers(0, 1, &ri->geo->VertexBufferView());
