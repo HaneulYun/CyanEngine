@@ -191,7 +191,7 @@ void RendererManager::Render()
 
 	Camera::main->SetViewportsAndScissorRects(commandList.Get());
 
-	ID3D12DescriptorHeap* heaps[]{ cbvHeap.Get() };
+	ID3D12DescriptorHeap* heaps[]{ srvHeap.Get() };
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 	commandList->SetPipelineState(pipelineState.Get());
@@ -216,6 +216,8 @@ void RendererManager::Render()
 
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->objCBIndex * objCBByteSize;
 		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->mat->MatCBIndex * matCBByteSize;
+
+		commandList->SetGraphicsRootDescriptorTable(0, tex);
 		commandList->SetGraphicsRootConstantBufferView(1, objCBAddress);
 		commandList->SetGraphicsRootConstantBufferView(2, matCBAddress);
 
@@ -514,9 +516,30 @@ void RendererManager::LoadAssets()
 		geometries[geo->Name] = std::move(geo);
 	}
 	{
+		auto grassTex = std::make_unique<Texture>();
+		grassTex->Name = "grassTex";
+		grassTex->Filename = L"..\\CyanEngine\\Textures\\grass.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), grassTex->Filename.c_str(), grassTex->Resource, grassTex->UploadHeap);
+
+		auto waterTex = std::make_unique<Texture>();
+		waterTex->Name = "waterTex";
+		waterTex->Filename = L"..\\CyanEngine\\Textures\\water1.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), waterTex->Filename.c_str(), waterTex->Resource, waterTex->UploadHeap);
+
+		auto fenceTex = std::make_unique<Texture>();
+		fenceTex->Name = "fenceTex";
+		fenceTex->Filename = L"..\\CyanEngine\\Textures\\WoodCrate01.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), fenceTex->Filename.c_str(), fenceTex->Resource, fenceTex->UploadHeap);
+
+		textures[grassTex->Name] = std::move(grassTex);
+		textures[waterTex->Name] = std::move(waterTex);
+		textures[fenceTex->Name] = std::move(fenceTex);
+	}
+	{
 		auto grass = std::make_unique<Material>();
 		grass->Name = "grass";
 		grass->MatCBIndex = 0;
+		grass->DiffuseSrvHeapIndex = 0;
 		grass->DiffuseAlbedo = XMFLOAT4(0.2f, 0.6f, 0.2f, 1.0f);
 		grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 		grass->Roughness = 0.125f;
@@ -524,6 +547,7 @@ void RendererManager::LoadAssets()
 		auto water = std::make_unique<Material>();
 		water->Name = "water";
 		water->MatCBIndex = 1;
+		water->DiffuseSrvHeapIndex = 1;
 		water->DiffuseAlbedo = XMFLOAT4(0.0f, 0.2f, 0.6f, 1.0f);
 		water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 		water->Roughness = 0.f;
@@ -671,26 +695,6 @@ void RendererManager::LoadAssets()
 	}
 
 	{
-		auto grassTex = std::make_unique<Texture>();
-		grassTex->Name = "grassTex";
-		grassTex->Filename = L"..\\CyanEngine\\Textures\\grass.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), grassTex->Filename.c_str(), grassTex->Resource, grassTex->UploadHeap);
-	
-		auto waterTex = std::make_unique<Texture>();
-		waterTex->Name = "waterTex";
-		waterTex->Filename = L"..\\CyanEngine\\Textures\\water1.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), waterTex->Filename.c_str(), waterTex->Resource, waterTex->UploadHeap);
-	
-		auto fenceTex = std::make_unique<Texture>();
-		fenceTex->Name = "fenceTex";
-		fenceTex->Filename = L"..\\CyanEngine\\Textures\\WoodCrate01.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), fenceTex->Filename.c_str(), fenceTex->Resource, fenceTex->UploadHeap);
-	
-		textures[grassTex->Name] = std::move(grassTex);
-		textures[waterTex->Name] = std::move(waterTex);
-		textures[fenceTex->Name] = std::move(fenceTex);
-	}
-	{
 		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());
 		auto grassTex = textures["grassTex"]->Resource;
 		auto waterTex = textures["waterTex"]->Resource;
@@ -712,7 +716,6 @@ void RendererManager::LoadAssets()
 		srvDesc.Format = fenceTex->GetDesc().Format;
 		device->CreateShaderResourceView(fenceTex.Get(), &srvDesc, handle);
 	}
-
 
 
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
