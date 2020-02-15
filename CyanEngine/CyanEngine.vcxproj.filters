@@ -351,5 +351,8 @@
     <FxCompile Include="Shaders\shaders.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\LightingUtil.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

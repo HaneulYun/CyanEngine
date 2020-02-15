@@ -1,4 +1,18 @@
-cbuffer cbPass : register(b1)
+#ifndef NUM_DIR_LIGHTS
+#define NUM_DIR_LIGHTS 1
+#endif
+
+#ifndef NUM_POINT_LIGHTS
+#define NUM_POINT_LIGHTS 0
+#endif
+
+#ifndef NUM_SPOT_LIGHTS
+#define NUM_SPOT_LIGHTS 0
+#endif
+
+#include "..\\CyanEngine\\shaders\\LightingUtil.hlsl"
+
+cbuffer cbPass : register(b2)
 {
 	float4x4 gView;
 	float4x4 gInvView;
