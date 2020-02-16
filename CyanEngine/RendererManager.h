@@ -50,6 +50,7 @@ public:
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12DescriptorHeap> cbvHeap;
+	ComPtr<ID3D12DescriptorHeap> srvHeap;
 	ComPtr<ID3D12PipelineState> pipelineState;
 	ComPtr<ID3D12GraphicsCommandList> commandList;
 	UINT rtvDescriptorSize{ 0 };
