@@ -529,8 +529,17 @@ void RendererManager::LoadAssets()
 		water->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
 		water->Roughness = 0.f;
 
+		auto wirefence = std::make_unique<Material>();
+		wirefence->Name = "wirefence;"; 
+		wirefence->MatCBIndex = 2;
+		wirefence->DiffuseSrvHeapIndex = 2;
+		wirefence->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);;
+		wirefence->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+		wirefence->Roughness = 0.25f;
+
 		materials["grass"] = std::move(grass);
 		materials["water"] = std::move(water);
+		materials["wirefence"] = std::move(wirefence);
 	}
 	{
 		GeometryGenerator geoGen;
@@ -575,7 +584,7 @@ void RendererManager::LoadAssets()
 		geo->IndexBufferByteSize = ibByteSize;
 
 		SubmeshGeometry submesh;
-		submesh.IndexCount = (UINT)grid.Indices32.size();
+		submesh.IndexCount = (UINT)indices.size();
 		submesh.StartIndexLocation = 0;
 		submesh.BaseVertexLocation = 0;
 
@@ -635,6 +644,47 @@ void RendererManager::LoadAssets()
 		geometries[geo->Name] = std::move(geo);
 	}
 	{
+		GeometryGenerator geoGen;
+		GeometryGenerator::MeshData box = geoGen.CreateBox(8.0f, 8.0f, 8.0f, 3);
+
+		std::vector<FrameResource::Vertex> vertices(box.Vertices.size());
+		for (size_t i = 0; i < box.Vertices.size(); ++i)
+		{
+			vertices[i].Pos = box.Vertices[i].Position;
+			vertices[i].Normal = box.Vertices[i].Normal;
+			vertices[i].TexC = box.Vertices[i].TexC;
+		}
+		std::vector<std::uint16_t> indices = box.GetIndices16();
+
+		UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::Vertex);
+		UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+		auto geo = std::make_unique<MeshGeometry>();
+		geo->Name = "boxGeo";
+
+		D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU);
+		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+		D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU);
+		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+		geo->VertexByteStride = sizeof(FrameResource::Vertex);
+		geo->VertexBufferByteSize = vbByteSize;
+		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+		geo->IndexBufferByteSize = ibByteSize;
+
+		SubmeshGeometry submesh;
+		submesh.IndexCount = (UINT)indices.size();
+		submesh.StartIndexLocation = 0;
+		submesh.BaseVertexLocation = 0;
+
+		geo->DrawArgs["box"] = submesh;
+
+		geometries[geo->Name] = std::move(geo);
+	}
+	{
 		auto wavesRItem = std::make_unique<RenderItem>();
 		wavesRItem->world = MathHelper::Identity4x4();
 		XMStoreFloat4x4(&wavesRItem->texTransform, XMMatrixScaling(5.0f, 5.0f, 1.0f));
@@ -659,6 +709,17 @@ void RendererManager::LoadAssets()
 		gridRItem->startIndexLocation = gridRItem->geo->DrawArgs["grid"].StartIndexLocation;
 		gridRItem->baseVertexLocation = gridRItem->geo->DrawArgs["grid"].BaseVertexLocation;
 		allRItems.push_back(std::move(gridRItem));
+
+		auto boxRItem = std::make_unique<RenderItem>();
+		XMStoreFloat4x4(&boxRItem->world, XMMatrixTranslation(3.0f, 2.0f, -9.0f));
+		boxRItem->objCBIndex = 2;
+		boxRItem->mat = materials["wirefence"].get();
+		boxRItem->geo = geometries["boxGeo"].get();
+		boxRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		boxRItem->indexCount = boxRItem->geo->DrawArgs["box"].IndexCount;
+		boxRItem->startIndexLocation = boxRItem->geo->DrawArgs["box"].StartIndexLocation;
+		boxRItem->baseVertexLocation = boxRItem->geo->DrawArgs["box"].BaseVertexLocation;
+		allRItems.push_back(std::move(boxRItem));
 	}
 
 	for (auto& e : allRItems)
