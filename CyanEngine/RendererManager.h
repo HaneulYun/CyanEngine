@@ -2,8 +2,6 @@
 
 #include "FrameResource.h"
 
-#define NUM_FRAME_RESOURCES 3
-
 struct MEMORY
 {
 	XMFLOAT4X4 transform;
@@ -21,14 +19,18 @@ struct INSTANCING
 struct RenderItem
 {
 	RenderItem() = default;
+	RenderItem(const RenderItem& rhs) = delete;
 
 	XMFLOAT4X4 world = MathHelper::Identity4x4();
+	XMFLOAT4X4 texTransform = MathHelper::Identity4x4();
+
 	int numFramesDirty{ NUM_FRAME_RESOURCES };
 	UINT objCBIndex{ UINT(-1) };
 
+	Material* mat{ nullptr };
 	MeshGeometry* geo{ nullptr };
-	D3D12_PRIMITIVE_TOPOLOGY primitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
+	D3D12_PRIMITIVE_TOPOLOGY primitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 	UINT indexCount{ 0 };
 	UINT startIndexLocation{ 0 };
 	int baseVertexLocation{ 0 };
@@ -38,12 +40,6 @@ class RendererManager : public Singleton<RendererManager>
 {
 public:
 	static const UINT FrameCount{ 2 };
-
-	struct Vertex
-	{
-		XMFLOAT3 position;
-		XMFLOAT4 color;
-	};
 
 	ComPtr<IDXGISwapChain3> swapChain;
 	ComPtr<ID3D12Device> device;
@@ -55,6 +51,7 @@ public:
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12DescriptorHeap> cbvHeap;
+	ComPtr<ID3D12DescriptorHeap> srvHeap;
 	ComPtr<ID3D12PipelineState> pipelineState;
 	ComPtr<ID3D12GraphicsCommandList> commandList;
 	UINT rtvDescriptorSize{ 0 };
@@ -72,6 +69,8 @@ public:
 	int currFrameResourceIndex{ 0 };
 
 	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> geometries;
+	std::unordered_map<std::string, std::unique_ptr<Material>> materials;
+	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> shaders;
 	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> pipelineStates;
 

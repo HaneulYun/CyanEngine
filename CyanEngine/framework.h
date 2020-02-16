@@ -63,6 +63,8 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include <queue>
 #include <map>
 
+#define NUM_FRAME_RESOURCES 3
+
 #include "d3dx12.h"
 #include "d3dUtil.h"
 #include "MathHelper.h"

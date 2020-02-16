@@ -32,7 +32,7 @@ GameObject* ModelManager::LoadGeometryFromFile(const char* pstrFileName)
 	if (iter != database.end())
 	{
 		GameObject* gameObject = new GameObject(iter->second);
-		gameObject->GetComponent<Renderer>()->material->albedo = RANDOM_COLOR;
+		gameObject->GetComponent<Renderer>()->material->DiffuseAlbedo = RANDOM_COLOR;
 		for (auto iter : gameObject->children)
 			iter->GetComponent<Renderer>()->material = gameObject->GetComponent<Renderer>()->material;
 		return gameObject;
@@ -93,8 +93,8 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile, GameObject* 
 			else
 			{
 				Material* material = pGameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
-				material->albedo = RANDOM_COLOR;
-				material->shader = new StandardShader();
+				material->DiffuseAlbedo = RANDOM_COLOR;
+				//material->shader = new StandardShader();
 			}
 
 			//pGameObject->scene = scene;
@@ -152,8 +152,8 @@ GameObject* ModelManager::LoadFrameHierarchyFromFile(FILE* pInFile, GameObject* 
 					CMaterialColors* pMaterialColors = new CMaterialColors(&pMaterialsInfo->m_pMaterials[i]);
 
 					Material* material = pGameObject->AddComponent<Renderer>()->material = new DefaultMaterial();
-					material->albedo = pMaterialsInfo->m_pMaterials[i].m_xmf4AlbedoColor;
-					material->shader = new StandardShader();
+					material->DiffuseAlbedo = pMaterialsInfo->m_pMaterials[i].m_xmf4AlbedoColor;
+					//material->shader = new StandardShader();
 					//pMaterial->SetMaterialColors(pMaterialColors);
 
 					//if (pGameObject->GetMeshType() & VERTEXT_NORMAL) pMaterial->SetIlluminatedShader();
@@ -351,7 +351,7 @@ GameObject* ModelManager::LoadGeometryFromFBX(const char* pstrFileName)
 	if (iter != database.end())
 	{
 		GameObject* gameObject = new GameObject(iter->second);
-		gameObject->GetComponent<Renderer>()->material->albedo = RANDOM_COLOR;
+		gameObject->GetComponent<Renderer>()->material->DiffuseAlbedo = RANDOM_COLOR;
 		for (auto iter : gameObject->children)
 			iter->GetComponent<Renderer>()->material = gameObject->GetComponent<Renderer>()->material;
 		return gameObject;

@@ -40,38 +40,75 @@ void RendererManager::UpdateManager()
 		CloseHandle(eventHandle);
 	}
 
-
-	XMMATRIX mWorld = XMLoadFloat4x4(&NS_Matrix4x4::Identity());
-
-	XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
-
-	XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
-	XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
-	XMVECTOR up{ 0, 1, 0 };
-
-	XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
-	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
-	XMMATRIX worldViewProj = mWorld * view * proj;
-
-	PassConstants passConstants;
-	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
-	currFrameResource->PassCB->CopyData(0, passConstants);
-
+	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : allRItems)
 	{
 		if (e->numFramesDirty > 0)
 		{
 			XMMATRIX world = XMLoadFloat4x4(&e->world);
+			XMMATRIX texTransform = XMLoadFloat4x4(&e->texTransform);
 
 			ObjectConstants objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+			objConstants.MaterialIndex = e->mat->MatCBIndex;
 
 			currObjectCB->CopyData(e->objCBIndex, objConstants);
 
 			--e->numFramesDirty;
 		}
 	}
+
+	// UpdateMaterialBuffer
+	auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
+	for (auto& e : materials)
+	{
+		Material* mat = e.second.get();
+		if (mat->NumFramesDirty > 0)
+		{
+			XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
+
+			MaterialData matData;
+			matData.DiffuseAlbedo = mat->DiffuseAlbedo;
+			matData.FresnelR0 = mat->FresnelR0;
+			matData.Roughness = mat->Roughness;
+			XMStoreFloat4x4(&matData.MatTransform, XMMatrixTranspose(matTransform));
+			matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
+
+			currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
+
+			--mat->NumFramesDirty;
+		}
+	}
+	
+	// UpdateMainPassCB
+	PassConstants passConstants;
+
+	XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
+	XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
+	XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
+	XMVECTOR up{ 0, 1, 0 };
+
+	XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
+	XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
+	XMMATRIX worldViewProj = view * proj;
+
+	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
+	
+	float mSunTheta = 1.25f * XM_PI;
+	float mSunPhi = XM_PIDIV4;
+
+	XMStoreFloat3(&passConstants.EyePosW, pos);
+	passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+	passConstants.Lights[0].Strength = { 0.8f, 0.8f, 0.8f };
+	passConstants.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+	passConstants.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
+	passConstants.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+	passConstants.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
+
+	currFrameResource->PassCB->CopyData(0, passConstants);
 }
 
 void RendererManager::Start()
@@ -82,7 +119,7 @@ void RendererManager::Start()
 		if (!d.second.first)
 		{
 			d.second.first = new INSTANCING();
-			Shader* shader = d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
+			Shader* shader = new StandardShader();// d.second.first->shader = dynamic_cast<Renderer*>(d.second.second[0]->renderer)->material->shader;
 
 			if (!shader->rootSignature)
 				shader->rootSignature = shader->CreateGraphicsRootSignature(device.Get());
@@ -130,15 +167,17 @@ void RendererManager::Render()
 
 	Camera::main->SetViewportsAndScissorRects(commandList.Get());
 
-	ID3D12DescriptorHeap* heaps[]{ cbvHeap.Get() };
+	ID3D12DescriptorHeap* heaps[]{ srvHeap.Get() };
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 	commandList->SetPipelineState(pipelineState.Get());
 
-	int passCbvIndex = passCbvOffset + currFrameResourceIndex;
-	auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
-	passCbvHandle.Offset(passCbvIndex, cbvDescriptorSize);
-	commandList->SetGraphicsRootDescriptorTable(1, passCbvHandle);
+	auto passCB = currFrameResource->PassCB->Resource();
+	auto matBuffer = currFrameResource->MaterialBuffer->Resource();
+
+	commandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootDescriptorTable(3, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
@@ -150,11 +189,8 @@ void RendererManager::Render()
 		commandList->IASetIndexBuffer(&ri->geo->IndexBufferView());
 		commandList->IASetPrimitiveTopology(ri->primitiveType);
 
-		UINT cbvIndex = currFrameResourceIndex * (UINT)opaqueRItems.size() + ri->objCBIndex;
-		auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap->GetGPUDescriptorHandleForHeapStart());
-		cbvHandle.Offset(cbvIndex, cbvDescriptorSize);
-
-		commandList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->objCBIndex * objCBByteSize;
+		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 
 		commandList->DrawIndexedInstanced(ri->indexCount, 1, ri->startIndexLocation, ri->baseVertexLocation, 0);
 	}
@@ -187,7 +223,7 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 	if (typeid(*d.second.first->shader).name() == typeid(CSkyBoxShader).name())
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->DiffuseAlbedo;
 			XMFLOAT4X4 xmf4x4 = gameObject->transform->localToWorldMatrix;
 			xmf4x4._41 = Camera::main->_pos.x;
 			xmf4x4._42 = Camera::main->_pos.y;
@@ -198,7 +234,7 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 	else
 		for (auto& gameObject : d.second.second)
 		{
-			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->albedo;
+			d.second.first->memory[j].color = dynamic_cast<Renderer*>(gameObject->renderer)->material->DiffuseAlbedo;
 			XMStoreFloat4x4(&d.second.first->memory[j].transform, XMMatrixTranspose(XMLoadFloat4x4(&gameObject->GetMatrix())));
 			++j;
 		}
@@ -335,40 +371,49 @@ void RendererManager::LoadPipeline()
 void RendererManager::LoadAssets()
 {
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{};
-	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
-	CD3DX12_DESCRIPTOR_RANGE1 ranges0[1];
-	CD3DX12_DESCRIPTOR_RANGE1 ranges1[1];
-	CD3DX12_ROOT_PARAMETER1 rootParameters[2];
+	CD3DX12_DESCRIPTOR_RANGE texTable;
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0, 0, 0);
 
-	ranges0[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-	ranges1[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-	rootParameters[0].InitAsDescriptorTable(1, &ranges0[0], D3D12_SHADER_VISIBILITY_VERTEX);
-	rootParameters[1].InitAsDescriptorTable(1, &ranges1[0], D3D12_SHADER_VISIBILITY_VERTEX);
+	CD3DX12_ROOT_PARAMETER rootParameters[4];
+	rootParameters[0].InitAsConstantBufferView(0);
+	rootParameters[1].InitAsConstantBufferView(1);
+	rootParameters[2].InitAsShaderResourceView(0, 1);
+	rootParameters[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+
+	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
+	{
+		{ 0, D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP },		// pointWrap
+		{ 1, D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP },	// pointClamp
+		{ 2, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP },		// linearWrap
+		{ 3, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP },	// linearClamp
+		{ 4, D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 0.0f, 8 },	// anisotropicWrap
+		{ 5, D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 0.0f, 8 }	// anisotropicClamp
+	};
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
 	};
 
-	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-	rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, _countof(staticSamplers), staticSamplers, rootSignatureFlags);
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
-	D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error);
+	D3D12SerializeRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error);
 	device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 
-	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_0");
-	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_0");
+	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
+	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_1");
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
@@ -377,7 +422,6 @@ void RendererManager::LoadAssets()
 	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
 	pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
 	pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	pipelineStateDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	pipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	pipelineStateDesc.SampleMask = UINT_MAX;
@@ -393,8 +437,57 @@ void RendererManager::LoadAssets()
 
 
 	{
+		auto bricksTex = std::make_unique<Texture>();
+		bricksTex->Name = "bricksTex";
+		bricksTex->Filename = L"..\\CyanEngine\\Textures\\bricks.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), bricksTex->Filename.c_str(), bricksTex->Resource, bricksTex->UploadHeap);
+
+		auto stoneTex = std::make_unique<Texture>();
+		stoneTex->Name = "stoneTex";
+		stoneTex->Filename = L"..\\CyanEngine\\Textures\\stone.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), stoneTex->Filename.c_str(), stoneTex->Resource, stoneTex->UploadHeap);
+
+		auto tileTex = std::make_unique<Texture>();
+		tileTex->Name = "tileTex";
+		tileTex->Filename = L"..\\CyanEngine\\Textures\\tile.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), tileTex->Filename.c_str(), tileTex->Resource, tileTex->UploadHeap);
+
+		textures[bricksTex->Name] = std::move(bricksTex);
+		textures[stoneTex->Name] = std::move(stoneTex);
+		textures[tileTex->Name] = std::move(tileTex);
+	}
+	{
+		auto bricks0 = std::make_unique<Material>();
+		bricks0->Name = "bricks0";
+		bricks0->MatCBIndex = 0;
+		bricks0->DiffuseSrvHeapIndex = 0;
+		bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+		bricks0->Roughness = 0.1f;
+
+		auto stone0 = std::make_unique<Material>();
+		stone0->Name = "stone0";
+		stone0->MatCBIndex = 1;
+		stone0->DiffuseSrvHeapIndex = 1;
+		stone0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+		stone0->Roughness = 0.3f;
+
+		auto tile0 = std::make_unique<Material>();
+		tile0->Name = "tile0";
+		tile0->MatCBIndex = 2;
+		tile0->DiffuseSrvHeapIndex = 2;
+		tile0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+		tile0->Roughness = 0.2f;
+
+		materials["bricks0"] = std::move(bricks0);
+		materials["stone0"] = std::move(stone0);
+		materials["tile0"] = std::move(tile0);
+	}
+	{
 		GeometryGenerator geoGen;
-		GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);;
+		GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);;
 		GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
 		GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
 		GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20);
@@ -431,31 +524,35 @@ void RendererManager::LoadAssets()
 
 		auto totalVertexCount = box.Vertices.size() + grid.Vertices.size() + sphere.Vertices.size() + cylinder.Vertices.size();
 
-		std::vector<Vertex> vertices(totalVertexCount);
+		std::vector<FrameResource::Vertex> vertices(totalVertexCount);
 
 		UINT k = 0;
 		for (size_t i = 0; i < box.Vertices.size(); ++i, ++k)
 		{
-			vertices[k].position = box.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::DarkGreen);
+			vertices[k].Pos = box.Vertices[i].Position;
+			vertices[k].Normal = box.Vertices[i].Normal;
+			vertices[k].TexC = box.Vertices[i].TexC;
 		}
 
 		for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
 		{
-			vertices[k].position = grid.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::ForestGreen);
+			vertices[k].Pos = grid.Vertices[i].Position;
+			vertices[k].Normal = grid.Vertices[i].Normal;
+			vertices[k].TexC = grid.Vertices[i].TexC;
 		}
 
 		for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
 		{
-			vertices[k].position = sphere.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::Crimson);
+			vertices[k].Pos = sphere.Vertices[i].Position;
+			vertices[k].Normal = sphere.Vertices[i].Normal;
+			vertices[k].TexC = sphere.Vertices[i].TexC;
 		}
 
 		for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
 		{
-			vertices[k].position = cylinder.Vertices[i].Position;
-			vertices[k].color = XMFLOAT4(DirectX::Colors::SteelBlue);
+			vertices[k].Pos = cylinder.Vertices[i].Position;
+			vertices[k].Normal = cylinder.Vertices[i].Normal;
+			vertices[k].TexC = cylinder.Vertices[i].TexC;
 		}
 
 		std::vector<std::uint16_t> indices;
@@ -464,7 +561,7 @@ void RendererManager::LoadAssets()
 		indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
 		indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
 
-		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::Vertex);
 		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
 		auto geo = std::make_unique<MeshGeometry>();
@@ -475,12 +572,10 @@ void RendererManager::LoadAssets()
 		D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU);
 		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
-			vertices.data(), vbByteSize, geo->VertexBufferUploader);
-		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(),
-			indices.data(), ibByteSize, geo->IndexBufferUploader);
+		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
 
-		geo->VertexByteStride = sizeof(Vertex);
+		geo->VertexByteStride = sizeof(FrameResource::Vertex);
 		geo->VertexBufferByteSize = vbByteSize;
 		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 		geo->IndexBufferByteSize = ibByteSize;
@@ -492,11 +587,12 @@ void RendererManager::LoadAssets()
 
 		geometries[geo->Name] = std::move(geo);
 	}
-
 	{
 		auto boxRItem = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&boxRItem->world, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+		XMStoreFloat4x4(&boxRItem->world, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+		XMStoreFloat4x4(&boxRItem->texTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		boxRItem->objCBIndex = 0;
+		boxRItem->mat = materials["stone0"].get();
 		boxRItem->geo = geometries["shapeGeo"].get();
 		boxRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		boxRItem->indexCount = boxRItem->geo->DrawArgs["box"].IndexCount;
@@ -506,7 +602,9 @@ void RendererManager::LoadAssets()
 
 		auto gridRItem = std::make_unique<RenderItem>();
 		gridRItem->world = MathHelper::Identity4x4();
+		XMStoreFloat4x4(&gridRItem->texTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
 		gridRItem->objCBIndex = 1;
+		gridRItem->mat = materials["tile0"].get();
 		gridRItem->geo = geometries["shapeGeo"].get();
 		gridRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		gridRItem->indexCount = gridRItem->geo->DrawArgs["grid"].IndexCount;
@@ -514,6 +612,7 @@ void RendererManager::LoadAssets()
 		gridRItem->baseVertexLocation = gridRItem->geo->DrawArgs["grid"].BaseVertexLocation;
 		allRItems.push_back(std::move(gridRItem));
 
+		XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
 		UINT objCBIndex = 2;
 		for (int i = 0; i < 5; ++i)
 		{
@@ -528,7 +627,9 @@ void RendererManager::LoadAssets()
 			XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
 
 			XMStoreFloat4x4(&leftCylRItem->world, leftCylWorld);
+			XMStoreFloat4x4(&leftCylRItem->texTransform, brickTexTransform);
 			leftCylRItem->objCBIndex = objCBIndex++;
+			leftCylRItem->mat = materials["bricks0"].get();
 			leftCylRItem->geo = geometries["shapeGeo"].get();
 			leftCylRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			leftCylRItem->indexCount = leftCylRItem->geo->DrawArgs["cylinder"].IndexCount;
@@ -536,7 +637,9 @@ void RendererManager::LoadAssets()
 			leftCylRItem->baseVertexLocation = leftCylRItem->geo->DrawArgs["cylinder"].BaseVertexLocation;
 
 			XMStoreFloat4x4(&rightCylRItem->world, rightCylWorld);
+			XMStoreFloat4x4(&rightCylRItem->texTransform, brickTexTransform);
 			rightCylRItem->objCBIndex = objCBIndex++;
+			rightCylRItem->mat = materials["bricks0"].get();
 			rightCylRItem->geo = geometries["shapeGeo"].get();
 			rightCylRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			rightCylRItem->indexCount = rightCylRItem->geo->DrawArgs["cylinder"].IndexCount;
@@ -544,7 +647,9 @@ void RendererManager::LoadAssets()
 			rightCylRItem->baseVertexLocation = rightCylRItem->geo->DrawArgs["cylinder"].BaseVertexLocation;
 
 			XMStoreFloat4x4(&leftSphereRItem->world, leftSphereWorld);
+			XMStoreFloat4x4(&leftSphereRItem->texTransform, brickTexTransform);
 			leftSphereRItem->objCBIndex = objCBIndex++;
+			leftSphereRItem->mat = materials["stone0"].get();
 			leftSphereRItem->geo = geometries["shapeGeo"].get();
 			leftSphereRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			leftSphereRItem->indexCount = leftSphereRItem->geo->DrawArgs["sphere"].IndexCount;
@@ -552,7 +657,9 @@ void RendererManager::LoadAssets()
 			leftSphereRItem->baseVertexLocation = leftSphereRItem->geo->DrawArgs["sphere"].BaseVertexLocation;
 
 			XMStoreFloat4x4(&rightSphereRItem->world, rightSphereWorld);
+			XMStoreFloat4x4(&rightSphereRItem->texTransform, brickTexTransform);
 			rightSphereRItem->objCBIndex = objCBIndex++;
+			rightSphereRItem->mat = materials["stone0"].get();
 			rightSphereRItem->geo = geometries["shapeGeo"].get();
 			rightSphereRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 			rightSphereRItem->indexCount = rightSphereRItem->geo->DrawArgs["sphere"].IndexCount;
@@ -576,7 +683,7 @@ void RendererManager::LoadAssets()
 
 	
 	for (int i = 0; i < NumFrameResources; ++i)
-		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size()));
+		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size(), (UINT)materials.size()));
 
 
 	UINT objCount = (UINT)opaqueRItems.size();
@@ -588,6 +695,9 @@ void RendererManager::LoadAssets()
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&cbvHeap));
+
+	descriptorHeapDesc.NumDescriptors = 3;
+	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
 
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
@@ -624,6 +734,32 @@ void RendererManager::LoadAssets()
 		cbvDesc.BufferLocation = cbAddress;
 		cbvDesc.SizeInBytes = passCBByteSize;
 		device->CreateConstantBufferView(&cbvDesc, handle);
+	}
+
+	{
+		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());
+		auto bricksTex = textures["bricksTex"]->Resource;
+		auto stoneTex = textures["stoneTex"]->Resource;
+		auto tileTex = textures["tileTex"]->Resource;
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format = bricksTex->GetDesc().Format;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = bricksTex->GetDesc().MipLevels;
+		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+		device->CreateShaderResourceView(bricksTex.Get(), &srvDesc, handle);
+
+		handle.Offset(1, srvDescriptorSize);
+		srvDesc.Format = stoneTex->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = stoneTex->GetDesc().MipLevels;
+		device->CreateShaderResourceView(stoneTex.Get(), &srvDesc, handle);
+
+		handle.Offset(1, srvDescriptorSize);
+		srvDesc.Format = tileTex->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = tileTex->GetDesc().MipLevels;
+		device->CreateShaderResourceView(tileTex.Get(), &srvDesc, handle);
 	}
 
 
