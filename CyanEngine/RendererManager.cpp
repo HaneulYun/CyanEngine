@@ -100,11 +100,11 @@ void RendererManager::UpdateManager()
 	XMStoreFloat3(&passConstants.EyePosW, pos);
 	passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 	passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
-	passConstants.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+	passConstants.Lights[0].Strength = { 0.8f, 0.8f, 0.8f };
 	passConstants.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
-	passConstants.Lights[1].Strength = { 0.3f, 0.3f, 0.3f };
+	passConstants.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
 	passConstants.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
-	passConstants.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
+	passConstants.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
 
 	currFrameResource->PassCB->CopyData(0, passConstants);
 }
@@ -490,7 +490,7 @@ void RendererManager::LoadAssets()
 	}
 	{
 		GeometryGenerator geoGen;
-		GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);;
+		GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 3);;
 		GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
 		GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
 		GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20);
@@ -592,7 +592,8 @@ void RendererManager::LoadAssets()
 	}
 	{
 		auto boxRItem = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&boxRItem->world, XMMatrixScaling(2.0f, 2.0f, 2.0f)* XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+		XMStoreFloat4x4(&boxRItem->world, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+		XMStoreFloat4x4(&boxRItem->texTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		boxRItem->objCBIndex = 0;
 		boxRItem->mat = materials["stone0"].get();
 		boxRItem->geo = geometries["shapeGeo"].get();
@@ -604,7 +605,7 @@ void RendererManager::LoadAssets()
 
 		auto gridRItem = std::make_unique<RenderItem>();
 		gridRItem->world = MathHelper::Identity4x4();
-		XMStoreFloat4x4(&gridRItem->texTransform, XMMatrixScaling(5.0f, 5.0f, 1.0f));
+		XMStoreFloat4x4(&gridRItem->texTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
 		gridRItem->objCBIndex = 1;
 		gridRItem->mat = materials["tile0"].get();
 		gridRItem->geo = geometries["shapeGeo"].get();
@@ -614,6 +615,7 @@ void RendererManager::LoadAssets()
 		gridRItem->baseVertexLocation = gridRItem->geo->DrawArgs["grid"].BaseVertexLocation;
 		allRItems.push_back(std::move(gridRItem));
 
+		XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
 		UINT objCBIndex = 2;
 		for (int i = 0; i < 5; ++i)
 		{
@@ -628,6 +630,7 @@ void RendererManager::LoadAssets()
 			XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
 
 			XMStoreFloat4x4(&leftCylRItem->world, leftCylWorld);
+			XMStoreFloat4x4(&leftCylRItem->texTransform, brickTexTransform);
 			leftCylRItem->objCBIndex = objCBIndex++;
 			leftCylRItem->mat = materials["bricks0"].get();
 			leftCylRItem->geo = geometries["shapeGeo"].get();
@@ -637,6 +640,7 @@ void RendererManager::LoadAssets()
 			leftCylRItem->baseVertexLocation = leftCylRItem->geo->DrawArgs["cylinder"].BaseVertexLocation;
 
 			XMStoreFloat4x4(&rightCylRItem->world, rightCylWorld);
+			XMStoreFloat4x4(&rightCylRItem->texTransform, brickTexTransform);
 			rightCylRItem->objCBIndex = objCBIndex++;
 			rightCylRItem->mat = materials["bricks0"].get();
 			rightCylRItem->geo = geometries["shapeGeo"].get();
@@ -646,6 +650,7 @@ void RendererManager::LoadAssets()
 			rightCylRItem->baseVertexLocation = rightCylRItem->geo->DrawArgs["cylinder"].BaseVertexLocation;
 
 			XMStoreFloat4x4(&leftSphereRItem->world, leftSphereWorld);
+			XMStoreFloat4x4(&leftSphereRItem->texTransform, brickTexTransform);
 			leftSphereRItem->objCBIndex = objCBIndex++;
 			leftSphereRItem->mat = materials["stone0"].get();
 			leftSphereRItem->geo = geometries["shapeGeo"].get();
@@ -655,6 +660,7 @@ void RendererManager::LoadAssets()
 			leftSphereRItem->baseVertexLocation = leftSphereRItem->geo->DrawArgs["sphere"].BaseVertexLocation;
 
 			XMStoreFloat4x4(&rightSphereRItem->world, rightSphereWorld);
+			XMStoreFloat4x4(&rightSphereRItem->texTransform, brickTexTransform);
 			rightSphereRItem->objCBIndex = objCBIndex++;
 			rightSphereRItem->mat = materials["stone0"].get();
 			rightSphereRItem->geo = geometries["shapeGeo"].get();
