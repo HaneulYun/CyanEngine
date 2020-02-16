@@ -12,7 +12,21 @@
 
 #include "..\\CyanEngine\\shaders\\LightingUtil.hlsl"
 
-Texture2D gDiffuseMap : register(t0);
+struct MaterialData
+{
+	float4	 DiffuseAlbedo;
+	float3	 FresnelR0;
+	float	 Roughness;
+	float4x4 MatTransform;
+	uint	 DiffuseMapIndex;
+	uint	 MatPad0;
+	uint	 MatPad1;
+	uint	 MatPad2;
+};
+
+Texture2D gDiffuseMap[4] : register(t0);
+
+StructuredBuffer<MaterialData> gMaterialData : register(t0, space1);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
@@ -25,17 +39,13 @@ cbuffer cbPerObject : register(b0)
 {
 	float4x4 gWorld;
 	float4x4 gTexTransform;
-}
+	uint gMaterialIndex;
+	uint gObjPad0;
+	uint gObjPad1;
+	uint gObjPad2;
+};
 
-cbuffer cbMaterial : register(b1)
-{
-	float4 gDiffuseAlbedo;
-	float3 gFresnelR0;
-	float  gRoughness;
-	float4x4 gMatTransform;
-}
-
-cbuffer cbPass : register(b2)
+cbuffer cbPass : register(b1)
 {
 	float4x4 gView;
 	float4x4 gInvView;
@@ -56,7 +66,7 @@ cbuffer cbPass : register(b2)
 
 	float4 gAmbientLight;
 	Light gLights[MaxLights];
-}
+};
 
 struct VSInput
 {
@@ -77,24 +87,35 @@ PSInput VSMain(VSInput vin)
 {
 	PSInput vout;
 
+	MaterialData matData = gMaterialData[gMaterialIndex];
+
 	vout.PosW = mul(float4(vin.PosL, 1.0f), gWorld).xyz;
 	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj);
 	vout.NormalW = mul(vin.NormalL, (float3x3)gWorld);
-	vout.TexC = mul(mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform), gMatTransform).xy;
+	vout.TexC = mul(mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform), matData.MatTransform).xy;
 
 	return vout;
 }
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-	float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, input.TexC) * gDiffuseAlbedo; 
+	MaterialData matData = gMaterialData[gMaterialIndex];
+	float4 diffuseAlbedo = matData.DiffuseAlbedo;
+	float3 fresnelR0 = matData.FresnelR0;
+	float roughness = matData.Roughness;
+	uint diffuseTexIndex = matData.DiffuseMapIndex;
+
+
+	diffuseAlbedo *= gDiffuseMap[diffuseTexIndex].Sample(gsamAnisotropicWrap, input.TexC); 
+
 	input.NormalW = normalize(input.NormalW);
 
 	float3 toEyeW = normalize(gEyePosW - input.PosW);
+
 	float4 ambient = gAmbientLight * diffuseAlbedo;
 
-	const float shininess = 1.0f - gRoughness;
-	Material mat = { diffuseAlbedo, gFresnelR0, shininess };
+	const float shininess = 1.0f - roughness;
+	Material mat = { diffuseAlbedo, fresnelR0, shininess };
 	float3 shadowFactor = 1.0f;
 	float4 directLight = ComputeLighting(gLights, mat, input.PosW, input.NormalW, toEyeW, shadowFactor);
 

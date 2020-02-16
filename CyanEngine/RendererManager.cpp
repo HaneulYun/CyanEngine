@@ -52,6 +52,7 @@ void RendererManager::UpdateManager()
 			ObjectConstants objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+			objConstants.MaterialIndex = e->mat->MatCBIndex;
 
 			currObjectCB->CopyData(e->objCBIndex, objConstants);
 
@@ -59,8 +60,8 @@ void RendererManager::UpdateManager()
 		}
 	}
 
-	// UpdateMaterialCBs
-	auto currMaterialCB = currFrameResource->MaterialCB.get();
+	// UpdateMaterialBuffer
+	auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
 	for (auto& e : materials)
 	{
 		Material* mat = e.second.get();
@@ -68,13 +69,14 @@ void RendererManager::UpdateManager()
 		{
 			XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
 
-			MaterialConstants matConstants;
-			matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
-			matConstants.FresnelR0 = mat->FresnelR0;
-			matConstants.Roughness = mat->Roughness;
-			XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
+			MaterialData matData;
+			matData.DiffuseAlbedo = mat->DiffuseAlbedo;
+			matData.FresnelR0 = mat->FresnelR0;
+			matData.Roughness = mat->Roughness;
+			XMStoreFloat4x4(&matData.MatTransform, XMMatrixTranspose(matTransform));
+			matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
 
-			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
+			currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
 
 			--mat->NumFramesDirty;
 		}
@@ -171,12 +173,14 @@ void RendererManager::Render()
 	commandList->SetPipelineState(pipelineState.Get());
 
 	auto passCB = currFrameResource->PassCB->Resource();
-	commandList->SetGraphicsRootConstantBufferView(3, passCB->GetGPUVirtualAddress());
+	auto matBuffer = currFrameResource->MaterialBuffer->Resource();
+
+	commandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootDescriptorTable(3, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
-	auto matCB = currFrameResource->MaterialCB->Resource();
 	for (int i = 0; i < opaqueRItems.size(); ++i)
 	{
 		auto ri = opaqueRItems[i];
@@ -185,15 +189,8 @@ void RendererManager::Render()
 		commandList->IASetIndexBuffer(&ri->geo->IndexBufferView());
 		commandList->IASetPrimitiveTopology(ri->primitiveType);
 
-		CD3DX12_GPU_DESCRIPTOR_HANDLE tex{ srvHeap->GetGPUDescriptorHandleForHeapStart() };
-		tex.Offset(ri->mat->DiffuseSrvHeapIndex, srvDescriptorSize);
-
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->objCBIndex * objCBByteSize;
-		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->mat->MatCBIndex * matCBByteSize;
-
-		commandList->SetGraphicsRootDescriptorTable(0, tex);
-		commandList->SetGraphicsRootConstantBufferView(1, objCBAddress);
-		commandList->SetGraphicsRootConstantBufferView(2, matCBAddress);
+		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 
 		commandList->DrawIndexedInstanced(ri->indexCount, 1, ri->startIndexLocation, ri->baseVertexLocation, 0);
 	}
@@ -377,13 +374,13 @@ void RendererManager::LoadAssets()
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
 	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0, 0, 0);
 
 	CD3DX12_ROOT_PARAMETER rootParameters[4];
-	rootParameters[0].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootParameters[1].InitAsConstantBufferView(0);
-	rootParameters[2].InitAsConstantBufferView(1);
-	rootParameters[3].InitAsConstantBufferView(2);
+	rootParameters[0].InitAsConstantBufferView(0);
+	rootParameters[1].InitAsConstantBufferView(1);
+	rootParameters[2].InitAsShaderResourceView(0, 1);
+	rootParameters[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
 	{
@@ -750,15 +747,18 @@ void RendererManager::LoadAssets()
 		srvDesc.Format = bricksTex->GetDesc().Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		srvDesc.Texture2D.MipLevels = -1;
+		srvDesc.Texture2D.MipLevels = bricksTex->GetDesc().MipLevels;
+		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 		device->CreateShaderResourceView(bricksTex.Get(), &srvDesc, handle);
 
 		handle.Offset(1, srvDescriptorSize);
 		srvDesc.Format = stoneTex->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = stoneTex->GetDesc().MipLevels;
 		device->CreateShaderResourceView(stoneTex.Get(), &srvDesc, handle);
 
 		handle.Offset(1, srvDescriptorSize);
 		srvDesc.Format = tileTex->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = tileTex->GetDesc().MipLevels;
 		device->CreateShaderResourceView(tileTex.Get(), &srvDesc, handle);
 	}
 

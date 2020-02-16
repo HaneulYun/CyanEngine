@@ -19,6 +19,7 @@ struct INSTANCING
 struct RenderItem
 {
 	RenderItem() = default;
+	RenderItem(const RenderItem& rhs) = delete;
 
 	XMFLOAT4X4 world = MathHelper::Identity4x4();
 	XMFLOAT4X4 texTransform = MathHelper::Identity4x4();
