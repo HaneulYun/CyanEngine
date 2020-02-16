@@ -440,24 +440,24 @@ void RendererManager::LoadAssets()
 
 
 	{
-		auto grassTex = std::make_unique<Texture>();
-		grassTex->Name = "grassTex";
-		grassTex->Filename = L"..\\CyanEngine\\Textures\\grass.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), grassTex->Filename.c_str(), grassTex->Resource, grassTex->UploadHeap);
+		auto bricksTex = std::make_unique<Texture>();
+		bricksTex->Name = "bricksTex";
+		bricksTex->Filename = L"..\\CyanEngine\\Textures\\bricks.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), bricksTex->Filename.c_str(), bricksTex->Resource, bricksTex->UploadHeap);
 
-		auto waterTex = std::make_unique<Texture>();
-		waterTex->Name = "waterTex";
-		waterTex->Filename = L"..\\CyanEngine\\Textures\\water1.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), waterTex->Filename.c_str(), waterTex->Resource, waterTex->UploadHeap);
+		auto stoneTex = std::make_unique<Texture>();
+		stoneTex->Name = "stoneTex";
+		stoneTex->Filename = L"..\\CyanEngine\\Textures\\stone.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), stoneTex->Filename.c_str(), stoneTex->Resource, stoneTex->UploadHeap);
 
-		auto fenceTex = std::make_unique<Texture>();
-		fenceTex->Name = "fenceTex";
-		fenceTex->Filename = L"..\\CyanEngine\\Textures\\WoodCrate01.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), fenceTex->Filename.c_str(), fenceTex->Resource, fenceTex->UploadHeap);
+		auto tileTex = std::make_unique<Texture>();
+		tileTex->Name = "tileTex";
+		tileTex->Filename = L"..\\CyanEngine\\Textures\\tile.dds";
+		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), tileTex->Filename.c_str(), tileTex->Resource, tileTex->UploadHeap);
 
-		textures[grassTex->Name] = std::move(grassTex);
-		textures[waterTex->Name] = std::move(waterTex);
-		textures[fenceTex->Name] = std::move(fenceTex);
+		textures[bricksTex->Name] = std::move(bricksTex);
+		textures[stoneTex->Name] = std::move(stoneTex);
+		textures[tileTex->Name] = std::move(tileTex);
 	}
 	{
 		auto bricks0 = std::make_unique<Material>();
@@ -735,25 +735,25 @@ void RendererManager::LoadAssets()
 
 	{
 		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());
-		auto grassTex = textures["grassTex"]->Resource;
-		auto waterTex = textures["waterTex"]->Resource;
-		auto fenceTex = textures["fenceTex"]->Resource;
+		auto bricksTex = textures["bricksTex"]->Resource;
+		auto stoneTex = textures["stoneTex"]->Resource;
+		auto tileTex = textures["tileTex"]->Resource;
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.Format = grassTex->GetDesc().Format;
+		srvDesc.Format = bricksTex->GetDesc().Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.MipLevels = -1;
-		device->CreateShaderResourceView(grassTex.Get(), &srvDesc, handle);
+		device->CreateShaderResourceView(bricksTex.Get(), &srvDesc, handle);
 
 		handle.Offset(1, srvDescriptorSize);
-		srvDesc.Format = waterTex->GetDesc().Format;
-		device->CreateShaderResourceView(waterTex.Get(), &srvDesc, handle);
+		srvDesc.Format = stoneTex->GetDesc().Format;
+		device->CreateShaderResourceView(stoneTex.Get(), &srvDesc, handle);
 
 		handle.Offset(1, srvDescriptorSize);
-		srvDesc.Format = fenceTex->GetDesc().Format;
-		device->CreateShaderResourceView(fenceTex.Get(), &srvDesc, handle);
+		srvDesc.Format = tileTex->GetDesc().Format;
+		device->CreateShaderResourceView(tileTex.Get(), &srvDesc, handle);
 	}
 
 
