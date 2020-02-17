@@ -34,13 +34,15 @@ void GameScene::BuildObjects()
 
 	GameObject* player = CreateEmpty();
 	{
-		player->GetComponent<Transform>()->Scale({ 0.1f, 0.1f, 0.1f });
-		//player->GetComponent<Transform>()->Rotate(XMFLOAT3{ 0.f,1.f,0.f }, 180);
+		player->GetComponent<Transform>()->Scale({ 0.05f, 0.05f, 0.05f });
+		player->GetComponent<Transform>()->Rotate(XMFLOAT3{ 1.f,0.f,0.f }, 270);
 		player->GetComponent<Transform>()->position = { 0.f, 0.f, 0.f };
-		player->AddComponent<LoadFbx>()->LoadFbxFileName("Model/humanoid.FBX");
+		player->AddComponent<LoadFbx>()->LoadFbxFileName("Model/testmodel.FBX");
+		player->GetComponent<LoadFbx>()->LoadAniFileName("Model/testmodel.FBX");
+		//player->GetComponent<LoadFbx>()->LoadAniFileName("Model/testani1.FBX");
 		
-		//player->AddComponent<Controller>()->gameObject = player;
+		player->AddComponent<Controller>()->gameObject = player;
 
-		player->AddComponent<RotatingBehavior>()->speedRotating = 60.f;
+		//player->AddComponent<RotatingBehavior>()->speedRotating = 60.f;
 	}
 }

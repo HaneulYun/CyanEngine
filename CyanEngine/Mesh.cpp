@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Mesh.h"
+#include <fstream>
 
 void Mesh::Render(UINT nInstances)
 {
@@ -1007,12 +1008,12 @@ MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh, std::vector<Bone> skeleton)
 
 	for (int i = 0; i < vertexCnt; ++i)
 	{
-		XMFLOAT3 pos;
+		Vector3 pos;
 		pos.x = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[0]);
 		pos.y = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[1]);
 		pos.z = static_cast<float>(fbxMesh->GetControlPointAt(i).mData[2]);
-
-		vertices[i] = pos;
+		//pos.Normalize();
+		vertices[i] = pos.xmf3;
 	}
 
 	// Index Data
@@ -1076,6 +1077,18 @@ MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh, std::vector<Bone> skeleton)
 			AddBoneWeight(pCtrlPtIdx[i], (float)pBoneWeights[i]);
 			AddBoneIndex(pCtrlPtIdx[i], boneIndex);
 		}
+	}
+
+
+
+	
+	std::ofstream out;
+	out.open("fff.txt");
+
+	for (int i = 0; i < vertexCnt; ++i)
+	{
+		out << i << std::endl << "weight : " << boneWeights[i].x << ", " << boneWeights[i].y << ", " << boneWeights[i].z << ", " << 1.0f - boneWeights[i].x - boneWeights[i].y - boneWeights[i].z << "\n";
+		out << "index : " << boneIndices[i].x << ", " << boneIndices[i].y << ", " << boneIndices[i].z << ", " << boneIndices[i].w << std::endl << std::endl;
 	}
 
 	SkinnedVertex* IlluminatedVetices = new SkinnedVertex[m_nVertices];

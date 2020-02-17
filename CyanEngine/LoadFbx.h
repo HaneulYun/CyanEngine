@@ -29,6 +29,8 @@ public:
 
 	void LoadFbxFileName(const char* fileName);
 
+	void LoadAniFileName(const char* fileName);
+
 	void ProcessNode(FbxNode* node, FbxNodeAttribute::EType type);
 
 	void ProcessSkeleton(FbxNode* node);

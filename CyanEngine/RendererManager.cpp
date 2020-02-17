@@ -153,6 +153,14 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 		if (typeid(*d.second.first->shader).name() == typeid(CTerrainShader).name())
 			int k = 0;
 
+		if (typeid(*d.second.first->shader).name() == typeid(SkinnedObjectShader).name())
+		{
+			//std::vector<DirectX::XMFLOAT4X4> finalTransforms = d.second.second.front()->GetComponent<AnimationController>()->FinalTransforms;
+			D3D12_GPU_VIRTUAL_ADDRESS BoneTransformsGpuVirtualAddress = d.second.second.front()->GetComponent<AnimationController>()->finalTransformsResource->GetGPUVirtualAddress();
+			commandList->SetGraphicsRootConstantBufferView(0, BoneTransformsGpuVirtualAddress);
+		}
+			
+
 		commandList->SetDescriptorHeaps(1, &d.second.first->shader->m_pd3dCbvSrvDescriptorHeap);
 		for (int i = 0; i < TEXTURES; i++)
 		{

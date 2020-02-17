@@ -11,6 +11,7 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	std::vector<DirectX::XMFLOAT4X4> FinalTransforms;
 	std::string ClipName;
 	float TimePos = 0.0f;
+	ID3D12Resource* finalTransformsResource;
 
 private:
 	friend class GameObject;
@@ -23,6 +24,10 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
+		FinalTransforms.resize(SkinnedInfo->BoneCount());
+		UINT ncbElementBytes = (((sizeof(XMFLOAT4X4) * 96) + 255) & ~255);
+		finalTransformsResource = CreateBufferResource(NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
+		finalTransformsResource->Map(0, NULL, (void**)&FinalTransforms);
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)

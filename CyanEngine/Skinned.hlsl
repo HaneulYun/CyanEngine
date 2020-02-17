@@ -57,7 +57,8 @@ VS_SKINNED_OUTPUT VSTextured(VS_SKINNED_INPUT input, uint nInstanceID : SV_Insta
 	weights[1] = input.BoneWeights.y;
 	weights[2] = input.BoneWeights.z;
 	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
-
+	if (input.BoneIndices[3] == 0)
+		weights[3] = 0;
 	float3 posL = float3(0.0f, 0.0f, 0.0f);
 	float3 normalL = float3(0.0f, 0.0f, 0.0f);
 	float3 tangentL = float3(0.0f, 0.0f, 0.0f);
