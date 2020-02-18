@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FrameResource.h"
+#include "AnimationHelper.h"
 
 struct MEMORY
 {
@@ -75,6 +76,11 @@ public:
 
 	std::vector<std::unique_ptr<RenderItem>> allRItems;
 	std::vector<RenderItem*> opaqueRItems;
+
+	RenderItem* mSkullRitem = nullptr;
+	XMFLOAT4X4 mSkullWorld = MathHelper::Identity4x4();
+	float mAnimTimePos = 0.0f;
+	BoneAnimation mSkullAnimation;
 
 	UINT frameIndex{ 0 };
 	ComPtr<ID3D12Fence> fence;

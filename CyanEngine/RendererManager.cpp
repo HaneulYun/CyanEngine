@@ -5,6 +5,36 @@ extern UINT gnCbvSrvDescriptorIncrementSize;
 
 RendererManager::RendererManager()
 {
+	XMVECTOR q0 = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMConvertToRadians(30.0f));
+	XMVECTOR q1 = XMQuaternionRotationAxis(XMVectorSet(1.0f, 1.0f, 2.0f, 0.0f), XMConvertToRadians(45.0f));
+	XMVECTOR q2 = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMConvertToRadians(-30.0f));
+	XMVECTOR q3 = XMQuaternionRotationAxis(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), XMConvertToRadians(70.0f));
+
+	mSkullAnimation.Keyframes.resize(5);
+	mSkullAnimation.Keyframes[0].TimePos = 0.0f;
+	mSkullAnimation.Keyframes[0].Translation = XMFLOAT3(-7.0f, 0.0f, 0.0f);
+	mSkullAnimation.Keyframes[0].Scale = XMFLOAT3(0.25f, 0.25f, 0.25f);
+	XMStoreFloat4(&mSkullAnimation.Keyframes[0].RotationQuat, q0);
+
+	mSkullAnimation.Keyframes[1].TimePos = 2.0f;
+	mSkullAnimation.Keyframes[1].Translation = XMFLOAT3(0.0f, 2.0f, 10.0f);
+	mSkullAnimation.Keyframes[1].Scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	XMStoreFloat4(&mSkullAnimation.Keyframes[1].RotationQuat, q1);
+
+	mSkullAnimation.Keyframes[2].TimePos = 4.0f;
+	mSkullAnimation.Keyframes[2].Translation = XMFLOAT3(7.0f, 0.0f, 0.0f);
+	mSkullAnimation.Keyframes[2].Scale = XMFLOAT3(0.25f, 0.25f, 0.25f);
+	XMStoreFloat4(&mSkullAnimation.Keyframes[2].RotationQuat, q2);
+
+	mSkullAnimation.Keyframes[3].TimePos = 6.0f;
+	mSkullAnimation.Keyframes[3].Translation = XMFLOAT3(0.0f, 1.0f, -10.0f);
+	mSkullAnimation.Keyframes[3].Scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	XMStoreFloat4(&mSkullAnimation.Keyframes[3].RotationQuat, q3);
+
+	mSkullAnimation.Keyframes[4].TimePos = 8.0f;
+	mSkullAnimation.Keyframes[4].Translation = XMFLOAT3(-7.0f, 0.0f, 0.0f);
+	mSkullAnimation.Keyframes[4].Scale = XMFLOAT3(0.25f, 0.25f, 0.25f);
+	XMStoreFloat4(&mSkullAnimation.Keyframes[4].RotationQuat, q0);
 }
 
 RendererManager::~RendererManager()
@@ -31,6 +61,17 @@ void RendererManager::UpdateManager()
 
 	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
 	currFrameResource = frameResources[currFrameResourceIndex].get();
+
+	mAnimTimePos += Time::deltaTime;
+	if (mAnimTimePos >= mSkullAnimation.GetEndTime())
+	{
+		// Loop animation back to beginning.
+		mAnimTimePos = 0.0f;
+	}
+
+	mSkullAnimation.Interpolate(mAnimTimePos, mSkullWorld);
+	mSkullRitem->world = mSkullWorld;
+	mSkullRitem->numFramesDirty = NUM_FRAME_RESOURCES;
 
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
@@ -699,6 +740,7 @@ void RendererManager::LoadAssets()
 		skullRItem->indexCount = skullRItem->geo->DrawArgs["skull"].IndexCount;
 		skullRItem->startIndexLocation = skullRItem->geo->DrawArgs["skull"].StartIndexLocation;
 		skullRItem->baseVertexLocation = skullRItem->geo->DrawArgs["skull"].BaseVertexLocation;
+		mSkullRitem = skullRItem.get();
 		allRItems.push_back(std::move(skullRItem));
 
 		XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
