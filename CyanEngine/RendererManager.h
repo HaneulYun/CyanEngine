@@ -77,7 +77,6 @@ public:
 	std::vector<RenderItem*> opaqueRItems;
 
 	UINT frameIndex{ 0 };
-	HANDLE fenceEvent{ nullptr };
 	ComPtr<ID3D12Fence> fence;
 	UINT64 fenceValue{ 0 };
 

@@ -283,8 +283,6 @@ void RendererManager::Destroy()
 {
 	WaitForPreviousFrame();
 
-	CloseHandle(fenceEvent);
-
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 
 	swapChain->SetFullscreenState(FALSE, NULL);
@@ -720,9 +718,7 @@ void RendererManager::LoadAssets()
 
 
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-	fenceValue = 1;
 
-	fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
 	WaitForPreviousFrame();
 	
@@ -812,8 +808,10 @@ void RendererManager::WaitForPreviousFrame()
 
 	if (fence->GetCompletedValue() < _fence)
 	{
+		HANDLE fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		fence->SetEventOnCompletion(_fence, fenceEvent);
 		WaitForSingleObject(fenceEvent, INFINITE);
+		CloseHandle(fenceEvent);
 	}
 
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
