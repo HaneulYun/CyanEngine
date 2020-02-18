@@ -686,55 +686,11 @@ void RendererManager::LoadAssets()
 		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size(), (UINT)materials.size()));
 
 
-	UINT objCount = (UINT)opaqueRItems.size();
-	UINT numDescriptors = (objCount + 1) * NumFrameResources;
-	passCbvOffset = objCount * NumFrameResources;
-
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = numDescriptors;
+	descriptorHeapDesc.NumDescriptors = 3;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&cbvHeap));
-
-	descriptorHeapDesc.NumDescriptors = 3;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
-
-
-	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-	for(int i = 0; i < NumFrameResources; ++i)
-	{
-		auto objectCB = frameResources[i]->ObjectCB->Resource();
-		for (UINT j = 0; j < objCount; ++j)
-		{
-			D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
-			cbAddress += j * objCBByteSize;
-
-			int heapIndex = i * objCount + j;
-			auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap->GetCPUDescriptorHandleForHeapStart());
-			handle.Offset(heapIndex, cbvDescriptorSize);
-
-			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
-			cbvDesc.BufferLocation = cbAddress;
-			cbvDesc.SizeInBytes = objCBByteSize;
-			device->CreateConstantBufferView(&cbvDesc, handle);
-		}
-	}
-
-	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
-	for(int i = 0; i < NumFrameResources; ++i)
-	{
-		auto passCB = frameResources[i]->PassCB->Resource();
-		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = passCB->GetGPUVirtualAddress();
-
-		int heapIndex = passCbvOffset + i;
-		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap->GetCPUDescriptorHandleForHeapStart());
-		handle.Offset(heapIndex, cbvDescriptorSize);
-
-		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
-		cbvDesc.BufferLocation = cbAddress;
-		cbvDesc.SizeInBytes = passCBByteSize;
-		device->CreateConstantBufferView(&cbvDesc, handle);
-	}
 
 	{
 		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());

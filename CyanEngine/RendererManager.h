@@ -50,7 +50,6 @@ public:
 	ComPtr<ID3D12RootSignature> rootSignature;
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
-	ComPtr<ID3D12DescriptorHeap> cbvHeap;
 	ComPtr<ID3D12DescriptorHeap> srvHeap;
 	ComPtr<ID3D12PipelineState> pipelineState;
 	ComPtr<ID3D12GraphicsCommandList> commandList;
@@ -76,8 +75,6 @@ public:
 
 	std::vector<std::unique_ptr<RenderItem>> allRItems;
 	std::vector<RenderItem*> opaqueRItems;
-
-	UINT passCbvOffset{ 0 };
 
 	UINT frameIndex{ 0 };
 	HANDLE fenceEvent{ nullptr };
