@@ -435,24 +435,24 @@ void RendererManager::LoadAssets()
 
 
 	{
-		auto bricksTex = std::make_unique<Texture>();
-		bricksTex->Name = "bricksTex";
-		bricksTex->Filename = L"..\\CyanEngine\\Textures\\bricks.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), bricksTex->Filename.c_str(), bricksTex->Resource, bricksTex->UploadHeap);
+		struct NameFileName { std::string Name; std::wstring FileName; } nfn[5]
+		{
+			{"bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds"},
+			{"stoneTex", L"..\\CyanEngine\\Textures\\stone.dds"},
+			{"tileTex", L"..\\CyanEngine\\Textures\\tile.dds"},
+			{"crateTex", L"..\\CyanEngine\\Textures\\WoodCrate01.dds"},
+			{"defaultTex", L"..\\CyanEngine\\Textures\\white1x1.dds"}
+		};
 
-		auto stoneTex = std::make_unique<Texture>();
-		stoneTex->Name = "stoneTex";
-		stoneTex->Filename = L"..\\CyanEngine\\Textures\\stone.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), stoneTex->Filename.c_str(), stoneTex->Resource, stoneTex->UploadHeap);
+		for (auto& d : nfn)
+		{
+			auto texture = std::make_unique<Texture>();
+			texture->Name = d.Name;
+			texture->Filename = d.FileName;
 
-		auto tileTex = std::make_unique<Texture>();
-		tileTex->Name = "tileTex";
-		tileTex->Filename = L"..\\CyanEngine\\Textures\\tile.dds";
-		CreateDDSTextureFromFile12(device.Get(), commandList.Get(), tileTex->Filename.c_str(), tileTex->Resource, tileTex->UploadHeap);
-
-		textures[bricksTex->Name] = std::move(bricksTex);
-		textures[stoneTex->Name] = std::move(stoneTex);
-		textures[tileTex->Name] = std::move(tileTex);
+			CreateDDSTextureFromFile12(device.Get(), commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+			textures[texture->Name] = std::move(texture);
+		}
 	}
 	{
 		auto bricks0 = std::make_unique<Material>();
@@ -479,9 +479,18 @@ void RendererManager::LoadAssets()
 		tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 		tile0->Roughness = 0.2f;
 
+		auto skullMat = std::make_unique<Material>();
+		skullMat->Name = "skullMat";
+		skullMat->MatCBIndex = 4;
+		skullMat->DiffuseSrvHeapIndex = 4;
+		skullMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		skullMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
+		skullMat->Roughness = 0.3f;
+
 		materials["bricks0"] = std::move(bricks0);
 		materials["stone0"] = std::move(stone0);
 		materials["tile0"] = std::move(tile0);
+		materials["skullMat"] = std::move(skullMat);
 	}
 	{
 		GeometryGenerator geoGen;
@@ -586,6 +595,76 @@ void RendererManager::LoadAssets()
 		geometries[geo->Name] = std::move(geo);
 	}
 	{
+		std::ifstream fin("..\\CyanEngine\\Models/skull.txt");
+
+		if (!fin)
+		{
+			MessageBox(0, L"..\\CyanEngine\\Models/skull.txt not found.", 0, 0);
+			return;
+		}
+
+		UINT vcount = 0;
+		UINT tcount = 0;
+		std::string ignore;
+
+		fin >> ignore >> vcount;
+		fin >> ignore >> tcount;
+		fin >> ignore >> ignore >> ignore >> ignore;
+
+		std::vector<FrameResource::Vertex> vertices(vcount);
+		for (UINT i = 0; i < vcount; ++i)
+		{
+			fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
+			fin >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
+		}
+
+		fin >> ignore;
+		fin >> ignore;
+		fin >> ignore;
+
+		std::vector<std::int32_t> indices(3 * tcount);
+		for (UINT i = 0; i < tcount; ++i)
+		{
+			fin >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
+		}
+
+		fin.close();
+
+		//
+		// Pack the indices of all the meshes into one index buffer.
+		//
+
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::Vertex);
+
+		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::int32_t);
+
+		auto geo = std::make_unique<MeshGeometry>();
+		geo->Name = "skullGeo";
+
+		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+		geo->VertexByteStride = sizeof(FrameResource::Vertex);
+		geo->VertexBufferByteSize = vbByteSize;
+		geo->IndexFormat = DXGI_FORMAT_R32_UINT;
+		geo->IndexBufferByteSize = ibByteSize;
+
+		SubmeshGeometry submesh;
+		submesh.IndexCount = (UINT)indices.size();
+		submesh.StartIndexLocation = 0;
+		submesh.BaseVertexLocation = 0;
+
+		geo->DrawArgs["skull"] = submesh;
+
+		geometries[geo->Name] = std::move(geo);
+	}
+	{
 		auto boxRItem = std::make_unique<RenderItem>();
 		XMStoreFloat4x4(&boxRItem->world, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 1.0f, 0.0f));
 		XMStoreFloat4x4(&boxRItem->texTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
@@ -610,8 +689,20 @@ void RendererManager::LoadAssets()
 		gridRItem->baseVertexLocation = gridRItem->geo->DrawArgs["grid"].BaseVertexLocation;
 		allRItems.push_back(std::move(gridRItem));
 
+		auto skullRItem = std::make_unique<RenderItem>();
+		XMStoreFloat4x4(&skullRItem->world, XMMatrixScaling(0.5f, 0.5f, 0.5f)* XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+		skullRItem->texTransform = MathHelper::Identity4x4();
+		skullRItem->objCBIndex = 2;
+		skullRItem->mat = materials["skullMat"].get();
+		skullRItem->geo = geometries["skullGeo"].get();
+		skullRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		skullRItem->indexCount = skullRItem->geo->DrawArgs["skull"].IndexCount;
+		skullRItem->startIndexLocation = skullRItem->geo->DrawArgs["skull"].StartIndexLocation;
+		skullRItem->baseVertexLocation = skullRItem->geo->DrawArgs["skull"].BaseVertexLocation;
+		allRItems.push_back(std::move(skullRItem));
+
 		XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-		UINT objCBIndex = 2;
+		UINT objCBIndex = 3;
 		for (int i = 0; i < 5; ++i)
 		{
 			auto leftCylRItem = std::make_unique<RenderItem>();
@@ -685,7 +776,7 @@ void RendererManager::LoadAssets()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 3;
+	descriptorHeapDesc.NumDescriptors = 5;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
@@ -695,6 +786,8 @@ void RendererManager::LoadAssets()
 		auto bricksTex = textures["bricksTex"]->Resource;
 		auto stoneTex = textures["stoneTex"]->Resource;
 		auto tileTex = textures["tileTex"]->Resource;
+		auto crateTex = textures["crateTex"]->Resource;
+		auto defaultTex = textures["defaultTex"]->Resource;
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -714,6 +807,16 @@ void RendererManager::LoadAssets()
 		srvDesc.Format = tileTex->GetDesc().Format;
 		srvDesc.Texture2D.MipLevels = tileTex->GetDesc().MipLevels;
 		device->CreateShaderResourceView(tileTex.Get(), &srvDesc, handle);
+
+		handle.Offset(1, srvDescriptorSize);
+		srvDesc.Format = crateTex->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = crateTex->GetDesc().MipLevels;
+		device->CreateShaderResourceView(crateTex.Get(), &srvDesc, handle);
+
+		handle.Offset(1, srvDescriptorSize);
+		srvDesc.Format = defaultTex->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = defaultTex->GetDesc().MipLevels;
+		device->CreateShaderResourceView(defaultTex.Get(), &srvDesc, handle);
 	}
 
 
