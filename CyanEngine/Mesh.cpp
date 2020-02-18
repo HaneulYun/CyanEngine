@@ -1051,36 +1051,36 @@ MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh, std::vector<Bone> skeleton)
 
 	// Cluster 
 	// 애니메이션 정보가 있는 뼈대 중 Skinning 데이터에 대한 정보만 가진다.
-	for (int i = 0; i < fbxSkin->GetClusterCount(); ++i)
+	if (fbxSkin != NULL)
 	{
-		FbxCluster* fbxCluster = fbxSkin->GetCluster(i);
-
-		// 이 Cluster에 상응하는 Skeleton 노드를 얻어온다.
-		std::string BoneName = fbxCluster->GetLink()->GetName();
-
-		// 해당 Skeleton의 index를 가져온다.
-		auto bone = std::find_if(skeleton.begin(), skeleton.end(), [BoneName](const Bone& a) { return a.name.compare(BoneName) == 0; });
-		int boneIndex = std::distance(skeleton.begin(), bone);
-
-		// 해당 뼈에 영향을 받는 컨트롤 포인트의 인덱스/ 컨트롤 포인트가 중복되어 있음... 
-		int* pCtrlPtIdx = fbxCluster->GetControlPointIndices();
-
-		// 해당 뼈에 영향을 받는 컨트롤 포인트의 인덱스 갯수.
-		int iCtrlPtCnt = fbxCluster->GetControlPointIndicesCount();
-		
-		// 정점마다 가중치에 대한 정보
-		double* pBoneWeights = fbxCluster->GetControlPointWeights();
-
-		// 각 버텍스마다 영향을 받는 뼈 인덱스 / 가중치를 넣어준다.
-		for (int i = 0; i < iCtrlPtCnt; ++i)
+		for (int i = 0; i < fbxSkin->GetClusterCount(); ++i)
 		{
-			AddBoneWeight(pCtrlPtIdx[i], (float)pBoneWeights[i]);
-			AddBoneIndex(pCtrlPtIdx[i], boneIndex);
+			FbxCluster* fbxCluster = fbxSkin->GetCluster(i);
+
+			// 이 Cluster에 상응하는 Skeleton 노드를 얻어온다.
+			std::string BoneName = fbxCluster->GetLink()->GetName();
+
+			// 해당 Skeleton의 index를 가져온다.
+			auto bone = std::find_if(skeleton.begin(), skeleton.end(), [BoneName](const Bone& a) { return a.name.compare(BoneName) == 0; });
+			int boneIndex = std::distance(skeleton.begin(), bone);
+
+			// 해당 뼈에 영향을 받는 컨트롤 포인트의 인덱스/ 컨트롤 포인트가 중복되어 있음... 
+			int* pCtrlPtIdx = fbxCluster->GetControlPointIndices();
+
+			// 해당 뼈에 영향을 받는 컨트롤 포인트의 인덱스 갯수.
+			int iCtrlPtCnt = fbxCluster->GetControlPointIndicesCount();
+
+			// 정점마다 가중치에 대한 정보
+			double* pBoneWeights = fbxCluster->GetControlPointWeights();
+
+			// 각 버텍스마다 영향을 받는 뼈 인덱스 / 가중치를 넣어준다.
+			for (int i = 0; i < iCtrlPtCnt; ++i)
+			{
+				AddBoneWeight(pCtrlPtIdx[i], (float)pBoneWeights[i]);
+				AddBoneIndex(pCtrlPtIdx[i], boneIndex);
+			}
 		}
 	}
-
-
-
 	
 	std::ofstream out;
 	out.open("fff.txt");

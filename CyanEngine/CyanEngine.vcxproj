@@ -170,6 +170,7 @@
     <ClInclude Include="AnimationController.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CameraController.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Controller.h" />

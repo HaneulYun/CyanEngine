@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CameraController.h"
 #include "RotatingBehavior.h"
 #include "MovingBehavior.h"
 #include "SceneManager.h"

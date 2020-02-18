@@ -244,35 +244,35 @@ void LoadFbx::ProcessMesh(FbxNode* node)
 	FbxAMatrix geometryTransform = FbxAMatrix(lT, lR, lS);
 
 	// Cluster 
-	for (int i = 0; i < fbxSkin->GetClusterCount(); ++i)
+	if (fbxSkin != NULL)
 	{
-		FbxCluster* fbxCluster = fbxSkin->GetCluster(i);
+		for (int i = 0; i < fbxSkin->GetClusterCount(); ++i)
+		{
+			FbxCluster* fbxCluster = fbxSkin->GetCluster(i);
 
-		// 이 Cluster에 상응하는 Skeleton 노드를 얻어온다.
-		std::string BoneName = fbxCluster->GetLink()->GetName();
+			// 이 Cluster에 상응하는 Skeleton 노드를 얻어온다.
+			std::string BoneName = fbxCluster->GetLink()->GetName();
 
-		// 해당 Skeleton의 index를 가져온다.
-		auto bone = std::find_if(skeleton.begin(), skeleton.end(), [BoneName](const Bone& a) { return a.name.compare(BoneName) == 0; });
-		int boneIndex = std::distance(skeleton.begin(), bone);
+			// 해당 Skeleton의 index를 가져온다.
+			auto bone = std::find_if(skeleton.begin(), skeleton.end(), [BoneName](const Bone& a) { return a.name.compare(BoneName) == 0; });
+			int boneIndex = std::distance(skeleton.begin(), bone);
 
-		// Bone Offset
-		FbxAMatrix matTransform;
-		FbxAMatrix matLinkTransform;
-		FbxAMatrix matBoneOffsetMatrix;
+			// Bone Offset
+			FbxAMatrix matTransform;
+			FbxAMatrix matLinkTransform;
+			FbxAMatrix matBoneOffsetMatrix;
 
-		// Frame-Space의 Local 매트릭스
-		fbxCluster->GetTransformMatrix(matTransform);
-		// Frame-Space에서 World-Space으로 변환하는 매트릭스
-		fbxCluster->GetTransformLinkMatrix(matLinkTransform);
-		// World-Space에서 Frame-Space로 변환하는 매트릭스 (Offset)
-		matBoneOffsetMatrix = matLinkTransform.Inverse() * matTransform * geometryTransform;
-		FbxAMatrix m = matBoneOffsetMatrix.Inverse();
-		boneOffsets[boneIndex] = ToXMfloat4x4(m);
-		//boneOffsets[boneIndex] = ToXMfloat4x4(matTransform);
-		//boneOffsets[boneIndex] = ToXMfloat4x4(matLinkTransform);
+			// Frame-Space의 Local 매트릭스
+			fbxCluster->GetTransformMatrix(matTransform);
+			// Frame-Space에서 World-Space으로 변환하는 매트릭스 show me how
+			fbxCluster->GetTransformLinkMatrix(matLinkTransform);
+			// World-Space에서 Frame-Space로 변환하는 매트릭스 (Offset)
+			matBoneOffsetMatrix = matLinkTransform.Inverse() * matTransform * geometryTransform;
+			FbxAMatrix m = matBoneOffsetMatrix.Inverse();
+			boneOffsets[boneIndex] = ToXMfloat4x4(m);
+		}
+		int a = 0;
 	}
-	int a = 0;
-
 	//@@ Cluster에 없는 Bone Offset도 구해주어야 할듯??? @@
 }
 

@@ -156,7 +156,8 @@ void RendererManager::InstancingRender(std::pair<std::pair<std::string, Mesh*>, 
 		if (typeid(*d.second.first->shader).name() == typeid(SkinnedObjectShader).name())
 		{
 			//std::vector<DirectX::XMFLOAT4X4> finalTransforms = d.second.second.front()->GetComponent<AnimationController>()->FinalTransforms;
-			D3D12_GPU_VIRTUAL_ADDRESS BoneTransformsGpuVirtualAddress = d.second.second.front()->GetComponent<AnimationController>()->finalTransformsResource->GetGPUVirtualAddress();
+			//memcpy(&(d.second.second.front()->GetComponent<AnimationController>()->Data[0]), d.second.second.front()->GetComponent<AnimationController>()->FinalTransforms.data(), sizeof(XMFLOAT4X4) * 96);
+			D3D12_GPU_VIRTUAL_ADDRESS BoneTransformsGpuVirtualAddress = d.second.second.front()->GetComponent<AnimationController>()->finalTransformsUploadResource->GetGPUVirtualAddress();
 			commandList->SetGraphicsRootConstantBufferView(0, BoneTransformsGpuVirtualAddress);
 		}
 			

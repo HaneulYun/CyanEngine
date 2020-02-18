@@ -50,7 +50,7 @@ struct VS_SKINNED_OUTPUT
 VS_SKINNED_OUTPUT VSTextured(VS_SKINNED_INPUT input, uint nInstanceID : SV_InstanceID)
 {
 	VS_SKINNED_OUTPUT output;
-	/*
+	
 	// skinned
 	float weights[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	weights[0] = input.BoneWeights.x;
@@ -76,7 +76,7 @@ VS_SKINNED_OUTPUT VSTextured(VS_SKINNED_INPUT input, uint nInstanceID : SV_Insta
 	input.normal = normalL;
 	//input.TangentL.xyz = tangentL;
 	// skinned
-	*/
+	
 	output.positionW = (float3)mul(float4(input.position, 1.0f), instance[nInstanceID].transform);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	float3 normalW = mul(input.normal, (float3x3)instance[nInstanceID].transform);
