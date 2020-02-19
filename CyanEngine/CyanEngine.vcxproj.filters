@@ -213,7 +213,7 @@
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="DDSTextureLoader.h" />
-    <ClInclude Include="AnimationHelper.h" />
+    <ClInclude Include="SkinnedData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -326,7 +326,7 @@
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
-    <ClCompile Include="AnimationHelper.cpp" />
+    <ClCompile Include="SkinnedData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">

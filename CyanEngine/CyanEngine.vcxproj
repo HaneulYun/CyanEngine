@@ -167,7 +167,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AnimationHelper.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
@@ -211,6 +210,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="SkinnedData.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="StandardShader.h" />
     <ClInclude Include="Terrain.h" />
@@ -223,7 +223,6 @@
     <ClInclude Include="Wave.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationHelper.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
@@ -263,6 +262,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="SkinnedData.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="StandardShader.cpp" />
     <ClCompile Include="Terrain.cpp" />

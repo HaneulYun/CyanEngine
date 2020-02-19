@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FrameResource.h"
-#include "AnimationHelper.h"
+#include "SkinnedData.h"
 
 struct MEMORY
 {
