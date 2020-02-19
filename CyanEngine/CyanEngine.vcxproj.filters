@@ -213,9 +213,7 @@
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="DDSTextureLoader.h" />
-    <ClInclude Include="AnimationHelper.h">
-      <Filter>0_00_CyanEngine\90_PATTERN</Filter>
-    </ClInclude>
+    <ClInclude Include="AnimationHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -328,9 +326,7 @@
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
-    <ClCompile Include="AnimationHelper.cpp">
-      <Filter>0_00_CyanEngine\90_PATTERN</Filter>
-    </ClCompile>
+    <ClCompile Include="AnimationHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">
