@@ -814,7 +814,7 @@ void RendererManager::LoadAssets()
 
 	
 	for (int i = 0; i < NumFrameResources; ++i)
-		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size(), (UINT)materials.size()));
+		frameResources.push_back(std::make_unique<FrameResource>(device.Get(), 1, (UINT)allRItems.size(), 1, (UINT)materials.size()));
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
