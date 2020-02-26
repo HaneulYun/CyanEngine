@@ -70,8 +70,8 @@ void RendererManager::UpdateManager()
 	}
 
 	mSkullAnimation.Interpolate(mAnimTimePos, mSkullWorld);
-	mSkullRitem->world = mSkullWorld;
-	mSkullRitem->numFramesDirty = NUM_FRAME_RESOURCES;
+	mSkullRitem->World = mSkullWorld;
+	mSkullRitem->NumFramesDirty = NUM_FRAME_RESOURCES;
 
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
@@ -85,19 +85,19 @@ void RendererManager::UpdateManager()
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : allRItems)
 	{
-		if (e->numFramesDirty > 0)
+		if (e->NumFramesDirty > 0)
 		{
-			XMMATRIX world = XMLoadFloat4x4(&e->world);
-			XMMATRIX texTransform = XMLoadFloat4x4(&e->texTransform);
+			XMMATRIX world = XMLoadFloat4x4(&e->World);
+			XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
 
 			ObjectConstants objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
-			objConstants.MaterialIndex = e->mat->MatCBIndex;
+			objConstants.MaterialIndex = e->Mat->MatCBIndex;
 
-			currObjectCB->CopyData(e->objCBIndex, objConstants);
+			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
-			--e->numFramesDirty;
+			--e->NumFramesDirty;
 		}
 	}
 
@@ -226,14 +226,14 @@ void RendererManager::Render()
 	{
 		auto ri = opaqueRItems[i];
 
-		commandList->IASetVertexBuffers(0, 1, &ri->geo->VertexBufferView());
-		commandList->IASetIndexBuffer(&ri->geo->IndexBufferView());
-		commandList->IASetPrimitiveTopology(ri->primitiveType);
+		commandList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
+		commandList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
+		commandList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->objCBIndex * objCBByteSize;
+		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 
-		commandList->DrawIndexedInstanced(ri->indexCount, 1, ri->startIndexLocation, ri->baseVertexLocation, 0);
+		commandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
 	}
 
 	//for (auto& d : instances)
@@ -636,6 +636,54 @@ void RendererManager::LoadAssets()
 		geometries[geo->Name] = std::move(geo);
 	}
 	{
+		std::vector<M3DLoader::SkinnedVertex> vertices;
+		std::vector<std::uint16_t> indices;
+
+		M3DLoader m3dLoader;
+		m3dLoader.LoadM3d("..\\CyanEngine\\Models\\soldier.m3d", vertices, indices,
+			mSkinnedSubsets, mSkinnedMats, mSkinnedInfo);
+
+		mSkinnedModelInst = std::make_unique<SkinnedModelInstance>();
+		mSkinnedModelInst->SkinnedInfo = &mSkinnedInfo;
+		mSkinnedModelInst->FinalTransforms.resize(mSkinnedInfo.BoneCount());
+		mSkinnedModelInst->ClipName = "Take1";
+		mSkinnedModelInst->TimePos = 0.0f;
+
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
+		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+		auto geo = std::make_unique<MeshGeometry>();
+		geo->Name = mSkinnedModelFilename;
+
+		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+		geo->VertexByteStride = sizeof(FrameResource::SkinnedVertex);
+		geo->VertexBufferByteSize = vbByteSize;
+		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+		geo->IndexBufferByteSize = ibByteSize;
+
+		for (UINT i = 0; i < (UINT)mSkinnedSubsets.size(); ++i)
+		{
+			SubmeshGeometry submesh;
+			std::string name = "sm_" + std::to_string(i);
+
+			submesh.IndexCount = (UINT)mSkinnedSubsets[i].FaceCount * 3;
+			submesh.StartIndexLocation = mSkinnedSubsets[i].FaceStart * 3;
+			submesh.BaseVertexLocation = 0;
+
+			geo->DrawArgs[name] = submesh;
+		}
+
+		geometries[geo->Name] = std::move(geo);
+	}
+	{
 		std::ifstream fin("..\\CyanEngine\\Models/skull.txt");
 
 		if (!fin)
@@ -707,39 +755,39 @@ void RendererManager::LoadAssets()
 	}
 	{
 		auto boxRItem = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&boxRItem->world, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 1.0f, 0.0f));
-		XMStoreFloat4x4(&boxRItem->texTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-		boxRItem->objCBIndex = 0;
-		boxRItem->mat = materials["stone0"].get();
-		boxRItem->geo = geometries["shapeGeo"].get();
-		boxRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		boxRItem->indexCount = boxRItem->geo->DrawArgs["box"].IndexCount;
-		boxRItem->startIndexLocation = boxRItem->geo->DrawArgs["box"].StartIndexLocation;
-		boxRItem->baseVertexLocation = boxRItem->geo->DrawArgs["box"].BaseVertexLocation;
+		XMStoreFloat4x4(&boxRItem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+		XMStoreFloat4x4(&boxRItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+		boxRItem->ObjCBIndex = 0;
+		boxRItem->Mat = materials["stone0"].get();
+		boxRItem->Geo = geometries["shapeGeo"].get();
+		boxRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		boxRItem->IndexCount = boxRItem->Geo->DrawArgs["box"].IndexCount;
+		boxRItem->StartIndexLocation = boxRItem->Geo->DrawArgs["box"].StartIndexLocation;
+		boxRItem->BaseVertexLocation = boxRItem->Geo->DrawArgs["box"].BaseVertexLocation;
 		allRItems.push_back(std::move(boxRItem));
 
 		auto gridRItem = std::make_unique<RenderItem>();
-		gridRItem->world = MathHelper::Identity4x4();
-		XMStoreFloat4x4(&gridRItem->texTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
-		gridRItem->objCBIndex = 1;
-		gridRItem->mat = materials["tile0"].get();
-		gridRItem->geo = geometries["shapeGeo"].get();
-		gridRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		gridRItem->indexCount = gridRItem->geo->DrawArgs["grid"].IndexCount;
-		gridRItem->startIndexLocation = gridRItem->geo->DrawArgs["grid"].StartIndexLocation;
-		gridRItem->baseVertexLocation = gridRItem->geo->DrawArgs["grid"].BaseVertexLocation;
+		gridRItem->World = MathHelper::Identity4x4();
+		XMStoreFloat4x4(&gridRItem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
+		gridRItem->ObjCBIndex = 1;
+		gridRItem->Mat = materials["tile0"].get();
+		gridRItem->Geo = geometries["shapeGeo"].get();
+		gridRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		gridRItem->IndexCount = gridRItem->Geo->DrawArgs["grid"].IndexCount;
+		gridRItem->StartIndexLocation = gridRItem->Geo->DrawArgs["grid"].StartIndexLocation;
+		gridRItem->BaseVertexLocation = gridRItem->Geo->DrawArgs["grid"].BaseVertexLocation;
 		allRItems.push_back(std::move(gridRItem));
 
 		auto skullRItem = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&skullRItem->world, XMMatrixScaling(0.5f, 0.5f, 0.5f)* XMMatrixTranslation(0.0f, 1.0f, 0.0f));
-		skullRItem->texTransform = MathHelper::Identity4x4();
-		skullRItem->objCBIndex = 2;
-		skullRItem->mat = materials["skullMat"].get();
-		skullRItem->geo = geometries["skullGeo"].get();
-		skullRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		skullRItem->indexCount = skullRItem->geo->DrawArgs["skull"].IndexCount;
-		skullRItem->startIndexLocation = skullRItem->geo->DrawArgs["skull"].StartIndexLocation;
-		skullRItem->baseVertexLocation = skullRItem->geo->DrawArgs["skull"].BaseVertexLocation;
+		XMStoreFloat4x4(&skullRItem->World, XMMatrixScaling(0.5f, 0.5f, 0.5f)* XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+		skullRItem->TexTransform = MathHelper::Identity4x4();
+		skullRItem->ObjCBIndex = 2;
+		skullRItem->Mat = materials["skullMat"].get();
+		skullRItem->Geo = geometries["skullGeo"].get();
+		skullRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		skullRItem->IndexCount = skullRItem->Geo->DrawArgs["skull"].IndexCount;
+		skullRItem->StartIndexLocation = skullRItem->Geo->DrawArgs["skull"].StartIndexLocation;
+		skullRItem->BaseVertexLocation = skullRItem->Geo->DrawArgs["skull"].BaseVertexLocation;
 		mSkullRitem = skullRItem.get();
 		allRItems.push_back(std::move(skullRItem));
 
@@ -757,45 +805,45 @@ void RendererManager::LoadAssets()
 			XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i * 5.0f);
 			XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
 
-			XMStoreFloat4x4(&leftCylRItem->world, leftCylWorld);
-			XMStoreFloat4x4(&leftCylRItem->texTransform, brickTexTransform);
-			leftCylRItem->objCBIndex = objCBIndex++;
-			leftCylRItem->mat = materials["bricks0"].get();
-			leftCylRItem->geo = geometries["shapeGeo"].get();
-			leftCylRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-			leftCylRItem->indexCount = leftCylRItem->geo->DrawArgs["cylinder"].IndexCount;
-			leftCylRItem->startIndexLocation = leftCylRItem->geo->DrawArgs["cylinder"].StartIndexLocation;
-			leftCylRItem->baseVertexLocation = leftCylRItem->geo->DrawArgs["cylinder"].BaseVertexLocation;
+			XMStoreFloat4x4(&leftCylRItem->World, leftCylWorld);
+			XMStoreFloat4x4(&leftCylRItem->TexTransform, brickTexTransform);
+			leftCylRItem->ObjCBIndex = objCBIndex++;
+			leftCylRItem->Mat = materials["bricks0"].get();
+			leftCylRItem->Geo = geometries["shapeGeo"].get();
+			leftCylRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			leftCylRItem->IndexCount = leftCylRItem->Geo->DrawArgs["cylinder"].IndexCount;
+			leftCylRItem->StartIndexLocation = leftCylRItem->Geo->DrawArgs["cylinder"].StartIndexLocation;
+			leftCylRItem->BaseVertexLocation = leftCylRItem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
 
-			XMStoreFloat4x4(&rightCylRItem->world, rightCylWorld);
-			XMStoreFloat4x4(&rightCylRItem->texTransform, brickTexTransform);
-			rightCylRItem->objCBIndex = objCBIndex++;
-			rightCylRItem->mat = materials["bricks0"].get();
-			rightCylRItem->geo = geometries["shapeGeo"].get();
-			rightCylRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-			rightCylRItem->indexCount = rightCylRItem->geo->DrawArgs["cylinder"].IndexCount;
-			rightCylRItem->startIndexLocation = rightCylRItem->geo->DrawArgs["cylinder"].StartIndexLocation;
-			rightCylRItem->baseVertexLocation = rightCylRItem->geo->DrawArgs["cylinder"].BaseVertexLocation;
+			XMStoreFloat4x4(&rightCylRItem->World, rightCylWorld);
+			XMStoreFloat4x4(&rightCylRItem->TexTransform, brickTexTransform);
+			rightCylRItem->ObjCBIndex = objCBIndex++;
+			rightCylRItem->Mat = materials["bricks0"].get();
+			rightCylRItem->Geo = geometries["shapeGeo"].get();
+			rightCylRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			rightCylRItem->IndexCount = rightCylRItem->Geo->DrawArgs["cylinder"].IndexCount;
+			rightCylRItem->StartIndexLocation = rightCylRItem->Geo->DrawArgs["cylinder"].StartIndexLocation;
+			rightCylRItem->BaseVertexLocation = rightCylRItem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
 
-			XMStoreFloat4x4(&leftSphereRItem->world, leftSphereWorld);
-			XMStoreFloat4x4(&leftSphereRItem->texTransform, brickTexTransform);
-			leftSphereRItem->objCBIndex = objCBIndex++;
-			leftSphereRItem->mat = materials["stone0"].get();
-			leftSphereRItem->geo = geometries["shapeGeo"].get();
-			leftSphereRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-			leftSphereRItem->indexCount = leftSphereRItem->geo->DrawArgs["sphere"].IndexCount;
-			leftSphereRItem->startIndexLocation = leftSphereRItem->geo->DrawArgs["sphere"].StartIndexLocation;
-			leftSphereRItem->baseVertexLocation = leftSphereRItem->geo->DrawArgs["sphere"].BaseVertexLocation;
+			XMStoreFloat4x4(&leftSphereRItem->World, leftSphereWorld);
+			XMStoreFloat4x4(&leftSphereRItem->TexTransform, brickTexTransform);
+			leftSphereRItem->ObjCBIndex = objCBIndex++;
+			leftSphereRItem->Mat = materials["stone0"].get();
+			leftSphereRItem->Geo = geometries["shapeGeo"].get();
+			leftSphereRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			leftSphereRItem->IndexCount = leftSphereRItem->Geo->DrawArgs["sphere"].IndexCount;
+			leftSphereRItem->StartIndexLocation = leftSphereRItem->Geo->DrawArgs["sphere"].StartIndexLocation;
+			leftSphereRItem->BaseVertexLocation = leftSphereRItem->Geo->DrawArgs["sphere"].BaseVertexLocation;
 
-			XMStoreFloat4x4(&rightSphereRItem->world, rightSphereWorld);
-			XMStoreFloat4x4(&rightSphereRItem->texTransform, brickTexTransform);
-			rightSphereRItem->objCBIndex = objCBIndex++;
-			rightSphereRItem->mat = materials["stone0"].get();
-			rightSphereRItem->geo = geometries["shapeGeo"].get();
-			rightSphereRItem->primitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-			rightSphereRItem->indexCount = rightSphereRItem->geo->DrawArgs["sphere"].IndexCount;
-			rightSphereRItem->startIndexLocation = rightSphereRItem->geo->DrawArgs["sphere"].StartIndexLocation;
-			rightSphereRItem->baseVertexLocation = rightSphereRItem->geo->DrawArgs["sphere"].BaseVertexLocation;
+			XMStoreFloat4x4(&rightSphereRItem->World, rightSphereWorld);
+			XMStoreFloat4x4(&rightSphereRItem->TexTransform, brickTexTransform);
+			rightSphereRItem->ObjCBIndex = objCBIndex++;
+			rightSphereRItem->Mat = materials["stone0"].get();
+			rightSphereRItem->Geo = geometries["shapeGeo"].get();
+			rightSphereRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			rightSphereRItem->IndexCount = rightSphereRItem->Geo->DrawArgs["sphere"].IndexCount;
+			rightSphereRItem->StartIndexLocation = rightSphereRItem->Geo->DrawArgs["sphere"].StartIndexLocation;
+			rightSphereRItem->BaseVertexLocation = rightSphereRItem->Geo->DrawArgs["sphere"].BaseVertexLocation;
 
 			allRItems.push_back(std::move(leftCylRItem));
 			allRItems.push_back(std::move(rightCylRItem));

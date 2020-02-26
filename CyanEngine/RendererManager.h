@@ -2,6 +2,7 @@
 
 #include "FrameResource.h"
 #include "SkinnedData.h"
+#include "LoadM3d.h"
 
 struct MEMORY
 {
@@ -17,24 +18,45 @@ struct INSTANCING
 	Shader* shader;
 };
 
+struct SkinnedModelInstance
+{
+	SkinnedData* SkinnedInfo = nullptr;
+	std::vector<DirectX::XMFLOAT4X4> FinalTransforms;
+	std::string ClipName;
+	float TimePos = 0.0f;
+
+	void UpdateSkinnedAnimation(float dt)
+	{
+		TimePos += dt;
+
+		if (TimePos > SkinnedInfo->GetClipEndTime(ClipName))
+			TimePos = 0.0f;
+
+		SkinnedInfo->GetFinalTransforms(ClipName, TimePos, FinalTransforms);
+	}
+};
+
 struct RenderItem
 {
 	RenderItem() = default;
 	RenderItem(const RenderItem& rhs) = delete;
 
-	XMFLOAT4X4 world = MathHelper::Identity4x4();
-	XMFLOAT4X4 texTransform = MathHelper::Identity4x4();
+	XMFLOAT4X4 World = MathHelper::Identity4x4();
+	XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
 
-	int numFramesDirty{ NUM_FRAME_RESOURCES };
-	UINT objCBIndex{ UINT(-1) };
+	int NumFramesDirty{ NUM_FRAME_RESOURCES };
+	UINT ObjCBIndex{ UINT(-1) };
 
-	Material* mat{ nullptr };
-	MeshGeometry* geo{ nullptr };
+	Material* Mat{ nullptr };
+	MeshGeometry* Geo{ nullptr };
 
-	D3D12_PRIMITIVE_TOPOLOGY primitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
-	UINT indexCount{ 0 };
-	UINT startIndexLocation{ 0 };
-	int baseVertexLocation{ 0 };
+	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+	UINT IndexCount{ 0 };
+	UINT StartIndexLocation{ 0 };
+	int BaseVertexLocation{ 0 };
+
+	UINT SkinnedCBIndex = -1;
+	SkinnedModelInstance* SkinnedModelInst = nullptr;
 };
 
 class RendererManager : public Singleton<RendererManager>
@@ -81,6 +103,16 @@ public:
 	XMFLOAT4X4 mSkullWorld = MathHelper::Identity4x4();
 	float mAnimTimePos = 0.0f;
 	BoneAnimation mSkullAnimation;
+
+
+	UINT mSkinnedSrvHeapStart = 0;
+	std::string mSkinnedModelFilename = "Models\\soldier.m3d";
+	std::unique_ptr<SkinnedModelInstance> mSkinnedModelInst;
+	SkinnedData mSkinnedInfo;
+	std::vector<M3DLoader::Subset> mSkinnedSubsets;
+	std::vector<M3DLoader::M3dMaterial> mSkinnedMats;
+	std::vector<std::string> mSkinnedTextureNames;
+
 
 	UINT frameIndex{ 0 };
 	ComPtr<ID3D12Fence> fence;
