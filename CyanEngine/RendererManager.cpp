@@ -60,6 +60,20 @@ void RendererManager::UpdateManager()
 		}
 	}
 
+	// UpdateSkinnedCBs
+	auto currSkinnedCB = currFrameResource->SkinnedCB.get();
+
+	// We only have one skinned model being animated.
+	mSkinnedModelInst->UpdateSkinnedAnimation(Time::deltaTime);
+
+	SkinnedConstants skinnedConstants;
+	std::copy(
+		std::begin(mSkinnedModelInst->FinalTransforms),
+		std::end(mSkinnedModelInst->FinalTransforms),
+		&skinnedConstants.BoneTransforms[0]);
+
+	currSkinnedCB->CopyData(0, skinnedConstants);
+
 	// UpdateMaterialBuffer
 	auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
 	for (auto& e : materials)
@@ -175,12 +189,14 @@ void RendererManager::Render()
 	auto passCB = currFrameResource->PassCB->Resource();
 	auto matBuffer = currFrameResource->MaterialBuffer->Resource();
 
-	commandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootShaderResourceView(2, matBuffer->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(3, srvHeap->GetGPUDescriptorHandleForHeapStart());
+	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	UINT skinnedCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(SkinnedConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
+	auto skinnedCB = currFrameResource->SkinnedCB->Resource();
 	for (int i = 0; i < opaqueRItems.size(); ++i)
 	{
 		auto ri = opaqueRItems[i];
@@ -191,6 +207,16 @@ void RendererManager::Render()
 
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+
+		if (ri->SkinnedModelInst != nullptr)
+		{
+			D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress = skinnedCB->GetGPUVirtualAddress() + ri->SkinnedCBIndex * skinnedCBByteSize;
+			commandList->SetGraphicsRootConstantBufferView(1, skinnedCBAddress);
+		}
+		else
+		{
+			commandList->SetGraphicsRootConstantBufferView(1, 0);
+		}
 
 		commandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
 	}
@@ -372,13 +398,14 @@ void RendererManager::LoadAssets()
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
 	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0, 0, 0);
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 0, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER rootParameters[4];
+	CD3DX12_ROOT_PARAMETER rootParameters[5];
 	rootParameters[0].InitAsConstantBufferView(0);
 	rootParameters[1].InitAsConstantBufferView(1);
-	rootParameters[2].InitAsShaderResourceView(0, 1);
-	rootParameters[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[2].InitAsConstantBufferView(2);
+	rootParameters[3].InitAsShaderResourceView(0, 1);
+	rootParameters[4].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
 	{

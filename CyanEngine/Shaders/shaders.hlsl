@@ -19,7 +19,7 @@ struct MaterialData
 	float	 Roughness;
 	float4x4 MatTransform;
 	uint	 DiffuseMapIndex;
-	uint	 MatPad0;
+	uint	 NormalMapIndex;
 	uint	 MatPad1;
 	uint	 MatPad2;
 };
@@ -45,7 +45,12 @@ cbuffer cbPerObject : register(b0)
 	uint gObjPad2;
 };
 
-cbuffer cbPass : register(b1)
+cbuffer cbSkinned : register(b1)
+{
+	float4x4 gBoneTransforms[96];
+}
+
+cbuffer cbPass : register(b2)
 {
 	float4x4 gView;
 	float4x4 gInvView;
