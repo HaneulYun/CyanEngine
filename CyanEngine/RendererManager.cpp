@@ -490,7 +490,7 @@ void RendererManager::LoadAssets()
 			mat->Name = mSkinnedMats[i].Name;
 			mat->MatCBIndex = matCBIndex++;
 			mat->DiffuseSrvHeapIndex = srvHeapIndex++;
-			mat->NormalSrvHeapIndex = srvHeapIndex++;
+			mat->NormalSrvHeapIndex = srvHeapIndex;// srvHeapIndex++;
 			mat->DiffuseAlbedo = mSkinnedMats[i].DiffuseAlbedo;
 			mat->FresnelR0 = mSkinnedMats[i].FresnelR0;
 			mat->Roughness = mSkinnedMats[i].Roughness;
