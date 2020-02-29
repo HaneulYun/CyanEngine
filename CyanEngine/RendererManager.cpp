@@ -474,9 +474,74 @@ void RendererManager::LoadAssets()
 
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
 
-
 	{
-		struct NameFileName { std::string Name; std::wstring FileName; } nfn[5]
+		std::vector<M3DLoader::SkinnedVertex> vertices;
+		std::vector<std::uint16_t> indices;
+
+		M3DLoader m3dLoader;
+		m3dLoader.LoadM3d("..\\CyanEngine\\Models\\soldier.m3d", vertices, indices,
+			mSkinnedSubsets, mSkinnedMats, mSkinnedInfo);
+
+		mSkinnedModelInst = std::make_unique<SkinnedModelInstance>();
+		mSkinnedModelInst->SkinnedInfo = &mSkinnedInfo;
+		mSkinnedModelInst->FinalTransforms.resize(mSkinnedInfo.BoneCount());
+		mSkinnedModelInst->ClipName = "Take1";
+		mSkinnedModelInst->TimePos = 0.0f;
+
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
+		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+		auto geo = std::make_unique<MeshGeometry>();
+		geo->Name = mSkinnedModelFilename;
+
+		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+		geo->VertexByteStride = sizeof(FrameResource::SkinnedVertex);
+		geo->VertexBufferByteSize = vbByteSize;
+		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+		geo->IndexBufferByteSize = ibByteSize;
+
+		for (UINT i = 0; i < (UINT)mSkinnedSubsets.size(); ++i)
+		{
+			SubmeshGeometry submesh;
+			std::string name = "sm_" + std::to_string(i);
+
+			submesh.IndexCount = (UINT)mSkinnedSubsets[i].FaceCount * 3;
+			submesh.StartIndexLocation = mSkinnedSubsets[i].FaceStart * 3;
+			submesh.BaseVertexLocation = 0;
+
+			geo->DrawArgs[name] = submesh;
+		}
+
+		geometries[geo->Name] = std::move(geo);
+
+
+		UINT matCBIndex = 4;
+		UINT srvHeapIndex = 5;// mSkinnedSrvHeapStart;
+		for (UINT i = 0; i < mSkinnedMats.size(); ++i)
+		{
+			auto mat = std::make_unique<Material>();
+			mat->Name = mSkinnedMats[i].Name;
+			mat->MatCBIndex = matCBIndex++;
+			mat->DiffuseSrvHeapIndex = srvHeapIndex++;
+			mat->NormalSrvHeapIndex = srvHeapIndex++;
+			mat->DiffuseAlbedo = mSkinnedMats[i].DiffuseAlbedo;
+			mat->FresnelR0 = mSkinnedMats[i].FresnelR0;
+			mat->Roughness = mSkinnedMats[i].Roughness;
+
+			materials[mat->Name] = std::move(mat);
+		}
+	}
+	std::vector<std::string> texName;
+	{
+		struct NameFileName { std::string Name; std::wstring FileName; } nfn[10]
 		{
 			{"bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds"},
 			{"stoneTex", L"..\\CyanEngine\\Textures\\stone.dds"},
@@ -485,14 +550,29 @@ void RendererManager::LoadAssets()
 			{"defaultTex", L"..\\CyanEngine\\Textures\\white1x1.dds"}
 		};
 
+		for (int i = 0; i < mSkinnedMats.size(); ++i)
+		{
+			std::string diffuseName = mSkinnedMats[i].DiffuseMapName;
+			std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
+		
+			diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
+		
+			nfn[5 + i] = { diffuseName, diffuseFilename };
+		}
+
 		for (auto& d : nfn)
 		{
-			auto texture = std::make_unique<Texture>();
-			texture->Name = d.Name;
-			texture->Filename = d.FileName;
+			if (textures.find(d.Name) == std::end(textures))
+			{
+				auto texture = std::make_unique<Texture>();
+				texture->Name = d.Name;
+				texture->Filename = d.FileName;
 
-			CreateDDSTextureFromFile12(device.Get(), commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-			textures[texture->Name] = std::move(texture);
+				texName.push_back(d.Name);
+
+				CreateDDSTextureFromFile12(device.Get(), commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+				textures[texture->Name] = std::move(texture);
+			}
 		}
 	}
 	{
@@ -522,8 +602,8 @@ void RendererManager::LoadAssets()
 
 		auto skullMat = std::make_unique<Material>();
 		skullMat->Name = "skullMat";
-		skullMat->MatCBIndex = 4;
-		skullMat->DiffuseSrvHeapIndex = 4;
+		skullMat->MatCBIndex = 3;
+		skullMat->DiffuseSrvHeapIndex = 3;
 		skullMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 		skullMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
 		skullMat->Roughness = 0.3f;
@@ -634,71 +714,6 @@ void RendererManager::LoadAssets()
 		geo->DrawArgs["cylinder"] = cylinderSubmesh;
 
 		geometries[geo->Name] = std::move(geo);
-	}
-	{
-		std::vector<M3DLoader::SkinnedVertex> vertices;
-		std::vector<std::uint16_t> indices;
-
-		M3DLoader m3dLoader;
-		m3dLoader.LoadM3d("..\\CyanEngine\\Models\\soldier.m3d", vertices, indices,
-			mSkinnedSubsets, mSkinnedMats, mSkinnedInfo);
-
-		mSkinnedModelInst = std::make_unique<SkinnedModelInstance>();
-		mSkinnedModelInst->SkinnedInfo = &mSkinnedInfo;
-		mSkinnedModelInst->FinalTransforms.resize(mSkinnedInfo.BoneCount());
-		mSkinnedModelInst->ClipName = "Take1";
-		mSkinnedModelInst->TimePos = 0.0f;
-
-		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
-		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-		auto geo = std::make_unique<MeshGeometry>();
-		geo->Name = mSkinnedModelFilename;
-
-		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-		geo->VertexByteStride = sizeof(FrameResource::SkinnedVertex);
-		geo->VertexBufferByteSize = vbByteSize;
-		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-		geo->IndexBufferByteSize = ibByteSize;
-
-		for (UINT i = 0; i < (UINT)mSkinnedSubsets.size(); ++i)
-		{
-			SubmeshGeometry submesh;
-			std::string name = "sm_" + std::to_string(i);
-
-			submesh.IndexCount = (UINT)mSkinnedSubsets[i].FaceCount * 3;
-			submesh.StartIndexLocation = mSkinnedSubsets[i].FaceStart * 3;
-			submesh.BaseVertexLocation = 0;
-
-			geo->DrawArgs[name] = submesh;
-		}
-
-		geometries[geo->Name] = std::move(geo);
-
-
-		UINT matCBIndex = 4;
-		UINT srvHeapIndex = mSkinnedSrvHeapStart;
-		for (UINT i = 0; i < mSkinnedMats.size(); ++i)
-		{
-			auto mat = std::make_unique<Material>();
-			mat->Name = mSkinnedMats[i].Name;
-			mat->MatCBIndex = matCBIndex++;
-			mat->DiffuseSrvHeapIndex = srvHeapIndex++;
-			mat->NormalSrvHeapIndex = srvHeapIndex++;
-			mat->DiffuseAlbedo = mSkinnedMats[i].DiffuseAlbedo;
-			mat->FresnelR0 = mSkinnedMats[i].FresnelR0;
-			mat->Roughness = mSkinnedMats[i].Roughness;
-
-			materials[mat->Name] = std::move(mat);
-		}
 	}
 	{
 		std::ifstream fin("..\\CyanEngine\\Models/skull.txt");
@@ -887,7 +902,7 @@ void RendererManager::LoadAssets()
 			auto ritem = std::make_unique<RenderItem>();
 		
 			XMMATRIX modelScale = XMMatrixScaling(0.05f, 0.05f, -0.05f);
-			XMMATRIX modelRot = XMMatrixRotationY(MathHelper::Pi);
+			XMMATRIX modelRot = XMMatrixRotationY(MathHelper::Pi * 0);
 			XMMATRIX modelOffset = XMMatrixTranslation(0.0f, 0.0f, -5.0f);
 			XMStoreFloat4x4(&ritem->World, modelScale * modelRot * modelOffset);
 		
@@ -921,47 +936,28 @@ void RendererManager::LoadAssets()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 5;
+	descriptorHeapDesc.NumDescriptors = 9;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
 
 	{
 		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());
-		auto bricksTex = textures["bricksTex"]->Resource;
-		auto stoneTex = textures["stoneTex"]->Resource;
-		auto tileTex = textures["tileTex"]->Resource;
-		auto crateTex = textures["crateTex"]->Resource;
-		auto defaultTex = textures["defaultTex"]->Resource;
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.Format = bricksTex->GetDesc().Format;
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MostDetailedMip = 0;
-		srvDesc.Texture2D.MipLevels = bricksTex->GetDesc().MipLevels;
 		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-		device->CreateShaderResourceView(bricksTex.Get(), &srvDesc, handle);
 
-		handle.Offset(1, srvDescriptorSize);
-		srvDesc.Format = stoneTex->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = stoneTex->GetDesc().MipLevels;
-		device->CreateShaderResourceView(stoneTex.Get(), &srvDesc, handle);
+		for (auto& d : texName)
+		{
+			srvDesc.Format = textures[d]->Resource->GetDesc().Format;
+			srvDesc.Texture2D.MipLevels = textures[d]->Resource->GetDesc().MipLevels;
+			device->CreateShaderResourceView(textures[d]->Resource.Get(), &srvDesc, handle);
 
-		handle.Offset(1, srvDescriptorSize);
-		srvDesc.Format = tileTex->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = tileTex->GetDesc().MipLevels;
-		device->CreateShaderResourceView(tileTex.Get(), &srvDesc, handle);
-
-		handle.Offset(1, srvDescriptorSize);
-		srvDesc.Format = crateTex->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = crateTex->GetDesc().MipLevels;
-		device->CreateShaderResourceView(crateTex.Get(), &srvDesc, handle);
-
-		handle.Offset(1, srvDescriptorSize);
-		srvDesc.Format = defaultTex->GetDesc().Format;
-		srvDesc.Texture2D.MipLevels = defaultTex->GetDesc().MipLevels;
-		device->CreateShaderResourceView(defaultTex.Get(), &srvDesc, handle);
+			handle.Offset(1, srvDescriptorSize);
+		}
 	}
 
 
