@@ -74,7 +74,6 @@ public:
 	ComPtr<ID3D12DescriptorHeap> rtvHeap;
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12DescriptorHeap> srvHeap;
-	ComPtr<ID3D12PipelineState> pipelineState;
 	ComPtr<ID3D12GraphicsCommandList> commandList;
 	UINT rtvDescriptorSize{ 0 };
 	UINT dsvDescriptorSize{ 0 };
@@ -98,11 +97,6 @@ public:
 
 	std::vector<std::unique_ptr<RenderItem>> allRItems;
 	std::vector<RenderItem*> opaqueRItems;
-
-	RenderItem* mSkullRitem = nullptr;
-	XMFLOAT4X4 mSkullWorld = MathHelper::Identity4x4();
-	float mAnimTimePos = 0.0f;
-	BoneAnimation mSkullAnimation;
 
 
 	UINT mSkinnedSrvHeapStart = 0;
@@ -129,7 +123,6 @@ private:
 	UINT m_nMsaa4xQualityLevels{ 0 };
 
 	ID3D12Resource* m_pd3dDepthStencilBuffer{ nullptr };
-	ID3D12PipelineState* m_pd3dPipelineState{ nullptr };
 
 	Camera* m_pCamera{ nullptr };
 
