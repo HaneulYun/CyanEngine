@@ -682,6 +682,23 @@ void RendererManager::LoadAssets()
 		}
 
 		geometries[geo->Name] = std::move(geo);
+
+
+		UINT matCBIndex = 4;
+		UINT srvHeapIndex = mSkinnedSrvHeapStart;
+		for (UINT i = 0; i < mSkinnedMats.size(); ++i)
+		{
+			auto mat = std::make_unique<Material>();
+			mat->Name = mSkinnedMats[i].Name;
+			mat->MatCBIndex = matCBIndex++;
+			mat->DiffuseSrvHeapIndex = srvHeapIndex++;
+			mat->NormalSrvHeapIndex = srvHeapIndex++;
+			mat->DiffuseAlbedo = mSkinnedMats[i].DiffuseAlbedo;
+			mat->FresnelR0 = mSkinnedMats[i].FresnelR0;
+			mat->Roughness = mSkinnedMats[i].Roughness;
+
+			materials[mat->Name] = std::move(mat);
+		}
 	}
 	{
 		std::ifstream fin("..\\CyanEngine\\Models/skull.txt");
@@ -849,6 +866,44 @@ void RendererManager::LoadAssets()
 			allRItems.push_back(std::move(rightCylRItem));
 			allRItems.push_back(std::move(leftSphereRItem));
 			allRItems.push_back(std::move(rightSphereRItem));
+		}
+
+		auto skinnedMesh = std::make_unique<RenderItem>();
+		XMStoreFloat4x4(&skinnedMesh->World, XMMatrixScaling(0.5f, 0.5f, 0.5f) * XMMatrixTranslation(0.0f, 1.0f, 0.0f));
+		skinnedMesh->TexTransform = MathHelper::Identity4x4();
+		skinnedMesh->ObjCBIndex = objCBIndex++;
+		skinnedMesh->Mat = materials["skullMat"].get();
+		skinnedMesh->Geo = geometries["skullGeo"].get();
+		skinnedMesh->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		skinnedMesh->IndexCount = skinnedMesh->Geo->DrawArgs["skull"].IndexCount;
+		skinnedMesh->StartIndexLocation = skinnedMesh->Geo->DrawArgs["skull"].StartIndexLocation;
+		skinnedMesh->BaseVertexLocation = skinnedMesh->Geo->DrawArgs["skull"].BaseVertexLocation;
+		allRItems.push_back(std::move(skinnedMesh));
+		
+		for (UINT i = 0; i < mSkinnedMats.size(); ++i)
+		{
+			std::string submeshName = "sm_" + std::to_string(i);
+		
+			auto ritem = std::make_unique<RenderItem>();
+		
+			XMMATRIX modelScale = XMMatrixScaling(0.05f, 0.05f, -0.05f);
+			XMMATRIX modelRot = XMMatrixRotationY(MathHelper::Pi);
+			XMMATRIX modelOffset = XMMatrixTranslation(0.0f, 0.0f, -5.0f);
+			XMStoreFloat4x4(&ritem->World, modelScale * modelRot * modelOffset);
+		
+			ritem->TexTransform = MathHelper::Identity4x4();
+			ritem->ObjCBIndex = objCBIndex++;
+			ritem->Mat = materials[mSkinnedMats[i].Name].get();
+			ritem->Geo = geometries[mSkinnedModelFilename].get();
+			ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			ritem->IndexCount = ritem->Geo->DrawArgs[submeshName].IndexCount;
+			ritem->StartIndexLocation = ritem->Geo->DrawArgs[submeshName].StartIndexLocation;
+			ritem->BaseVertexLocation = ritem->Geo->DrawArgs[submeshName].BaseVertexLocation;
+		
+			ritem->SkinnedCBIndex = 0;
+			ritem->SkinnedModelInst = mSkinnedModelInst.get();
+		
+			allRItems.push_back(std::move(ritem));
 		}
 	}
 
