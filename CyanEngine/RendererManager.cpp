@@ -5,36 +5,6 @@ extern UINT gnCbvSrvDescriptorIncrementSize;
 
 RendererManager::RendererManager()
 {
-	XMVECTOR q0 = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMConvertToRadians(30.0f));
-	XMVECTOR q1 = XMQuaternionRotationAxis(XMVectorSet(1.0f, 1.0f, 2.0f, 0.0f), XMConvertToRadians(45.0f));
-	XMVECTOR q2 = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), XMConvertToRadians(-30.0f));
-	XMVECTOR q3 = XMQuaternionRotationAxis(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), XMConvertToRadians(70.0f));
-
-	mSkullAnimation.Keyframes.resize(5);
-	mSkullAnimation.Keyframes[0].TimePos = 0.0f;
-	mSkullAnimation.Keyframes[0].Translation = XMFLOAT3(-7.0f, 0.0f, 0.0f);
-	mSkullAnimation.Keyframes[0].Scale = XMFLOAT3(0.25f, 0.25f, 0.25f);
-	XMStoreFloat4(&mSkullAnimation.Keyframes[0].RotationQuat, q0);
-
-	mSkullAnimation.Keyframes[1].TimePos = 2.0f;
-	mSkullAnimation.Keyframes[1].Translation = XMFLOAT3(0.0f, 2.0f, 10.0f);
-	mSkullAnimation.Keyframes[1].Scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
-	XMStoreFloat4(&mSkullAnimation.Keyframes[1].RotationQuat, q1);
-
-	mSkullAnimation.Keyframes[2].TimePos = 4.0f;
-	mSkullAnimation.Keyframes[2].Translation = XMFLOAT3(7.0f, 0.0f, 0.0f);
-	mSkullAnimation.Keyframes[2].Scale = XMFLOAT3(0.25f, 0.25f, 0.25f);
-	XMStoreFloat4(&mSkullAnimation.Keyframes[2].RotationQuat, q2);
-
-	mSkullAnimation.Keyframes[3].TimePos = 6.0f;
-	mSkullAnimation.Keyframes[3].Translation = XMFLOAT3(0.0f, 1.0f, -10.0f);
-	mSkullAnimation.Keyframes[3].Scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
-	XMStoreFloat4(&mSkullAnimation.Keyframes[3].RotationQuat, q3);
-
-	mSkullAnimation.Keyframes[4].TimePos = 8.0f;
-	mSkullAnimation.Keyframes[4].Translation = XMFLOAT3(-7.0f, 0.0f, 0.0f);
-	mSkullAnimation.Keyframes[4].Scale = XMFLOAT3(0.25f, 0.25f, 0.25f);
-	XMStoreFloat4(&mSkullAnimation.Keyframes[4].RotationQuat, q0);
 }
 
 RendererManager::~RendererManager()
@@ -61,17 +31,6 @@ void RendererManager::UpdateManager()
 
 	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
 	currFrameResource = frameResources[currFrameResourceIndex].get();
-
-	mAnimTimePos += Time::deltaTime;
-	if (mAnimTimePos >= mSkullAnimation.GetEndTime())
-	{
-		// Loop animation back to beginning.
-		mAnimTimePos = 0.0f;
-	}
-
-	mSkullAnimation.Interpolate(mAnimTimePos, mSkullWorld);
-	mSkullRitem->World = mSkullWorld;
-	mSkullRitem->NumFramesDirty = NUM_FRAME_RESOURCES;
 
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
@@ -716,76 +675,6 @@ void RendererManager::LoadAssets()
 		geometries[geo->Name] = std::move(geo);
 	}
 	{
-		std::ifstream fin("..\\CyanEngine\\Models/skull.txt");
-
-		if (!fin)
-		{
-			MessageBox(0, L"..\\CyanEngine\\Models/skull.txt not found.", 0, 0);
-			return;
-		}
-
-		UINT vcount = 0;
-		UINT tcount = 0;
-		std::string ignore;
-
-		fin >> ignore >> vcount;
-		fin >> ignore >> tcount;
-		fin >> ignore >> ignore >> ignore >> ignore;
-
-		std::vector<FrameResource::Vertex> vertices(vcount);
-		for (UINT i = 0; i < vcount; ++i)
-		{
-			fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
-			fin >> vertices[i].Normal.x >> vertices[i].Normal.y >> vertices[i].Normal.z;
-		}
-
-		fin >> ignore;
-		fin >> ignore;
-		fin >> ignore;
-
-		std::vector<std::int32_t> indices(3 * tcount);
-		for (UINT i = 0; i < tcount; ++i)
-		{
-			fin >> indices[i * 3 + 0] >> indices[i * 3 + 1] >> indices[i * 3 + 2];
-		}
-
-		fin.close();
-
-		//
-		// Pack the indices of all the meshes into one index buffer.
-		//
-
-		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::Vertex);
-
-		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::int32_t);
-
-		auto geo = std::make_unique<MeshGeometry>();
-		geo->Name = "skullGeo";
-
-		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-		geo->VertexByteStride = sizeof(FrameResource::Vertex);
-		geo->VertexBufferByteSize = vbByteSize;
-		geo->IndexFormat = DXGI_FORMAT_R32_UINT;
-		geo->IndexBufferByteSize = ibByteSize;
-
-		SubmeshGeometry submesh;
-		submesh.IndexCount = (UINT)indices.size();
-		submesh.StartIndexLocation = 0;
-		submesh.BaseVertexLocation = 0;
-
-		geo->DrawArgs["skull"] = submesh;
-
-		geometries[geo->Name] = std::move(geo);
-	}
-	{
 		auto boxRItem = std::make_unique<RenderItem>();
 		XMStoreFloat4x4(&boxRItem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 1.0f, 0.0f));
 		XMStoreFloat4x4(&boxRItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
@@ -810,21 +699,8 @@ void RendererManager::LoadAssets()
 		gridRItem->BaseVertexLocation = gridRItem->Geo->DrawArgs["grid"].BaseVertexLocation;
 		allRItems.push_back(std::move(gridRItem));
 
-		auto skullRItem = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&skullRItem->World, XMMatrixScaling(0.5f, 0.5f, 0.5f)* XMMatrixTranslation(0.0f, 1.0f, 0.0f));
-		skullRItem->TexTransform = MathHelper::Identity4x4();
-		skullRItem->ObjCBIndex = 2;
-		skullRItem->Mat = materials["skullMat"].get();
-		skullRItem->Geo = geometries["skullGeo"].get();
-		skullRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		skullRItem->IndexCount = skullRItem->Geo->DrawArgs["skull"].IndexCount;
-		skullRItem->StartIndexLocation = skullRItem->Geo->DrawArgs["skull"].StartIndexLocation;
-		skullRItem->BaseVertexLocation = skullRItem->Geo->DrawArgs["skull"].BaseVertexLocation;
-		mSkullRitem = skullRItem.get();
-		allRItems.push_back(std::move(skullRItem));
-
 		XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-		UINT objCBIndex = 3;
+		UINT objCBIndex = 2;
 		for (int i = 0; i < 5; ++i)
 		{
 			auto leftCylRItem = std::make_unique<RenderItem>();
@@ -883,18 +759,6 @@ void RendererManager::LoadAssets()
 			allRItems.push_back(std::move(rightSphereRItem));
 		}
 
-		auto skinnedMesh = std::make_unique<RenderItem>();
-		XMStoreFloat4x4(&skinnedMesh->World, XMMatrixScaling(0.5f, 0.5f, 0.5f) * XMMatrixTranslation(0.0f, 1.0f, 0.0f));
-		skinnedMesh->TexTransform = MathHelper::Identity4x4();
-		skinnedMesh->ObjCBIndex = objCBIndex++;
-		skinnedMesh->Mat = materials["skullMat"].get();
-		skinnedMesh->Geo = geometries["skullGeo"].get();
-		skinnedMesh->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		skinnedMesh->IndexCount = skinnedMesh->Geo->DrawArgs["skull"].IndexCount;
-		skinnedMesh->StartIndexLocation = skinnedMesh->Geo->DrawArgs["skull"].StartIndexLocation;
-		skinnedMesh->BaseVertexLocation = skinnedMesh->Geo->DrawArgs["skull"].BaseVertexLocation;
-		allRItems.push_back(std::move(skinnedMesh));
-		
 		for (UINT i = 0; i < mSkinnedMats.size(); ++i)
 		{
 			std::string submeshName = "sm_" + std::to_string(i);
