@@ -829,7 +829,7 @@ void RendererManager::LoadAssets()
 			auto ritem = std::make_unique<RenderItem>();
 		
 			XMMATRIX modelScale = XMMatrixScaling(0.05f, 0.05f, -0.05f);
-			XMMATRIX modelRot = XMMatrixRotationY(MathHelper::Pi * 0);
+			XMMATRIX modelRot = XMMatrixRotationY(MathHelper::Pi);
 			XMMATRIX modelOffset = XMMatrixTranslation(0.0f, 0.0f, -5.0f);
 			XMStoreFloat4x4(&ritem->World, modelScale * modelRot * modelOffset);
 		
