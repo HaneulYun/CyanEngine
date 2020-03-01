@@ -212,7 +212,9 @@
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="MathHelper.h" />
-       <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="SkinnedData.h" />
+    <ClInclude Include="LoadM3d.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -324,7 +326,9 @@
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="MathHelper.cpp" />
-     <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="SkinnedData.cpp" />
+    <ClCompile Include="LoadM3d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">

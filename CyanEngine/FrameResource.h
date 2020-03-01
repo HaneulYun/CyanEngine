@@ -14,6 +14,11 @@ struct ObjectConstants
 	UINT ObjPad2;
 };
 
+struct SkinnedConstants
+{
+	DirectX::XMFLOAT4X4 BoneTransforms[96];
+};
+
 struct PassConstants
 {
     DirectX::XMFLOAT4X4 View = MathHelper::Identity4x4();
@@ -40,12 +45,12 @@ struct MaterialData
 {
 	DirectX::XMFLOAT4 DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
 	DirectX::XMFLOAT3 FresnelR0 = { 0.01f, 0.01f, 0.01f };
-	float Roughness = 64.0f;
+	float Roughness = 0.5f;
 
 	DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 
 	UINT DiffuseMapIndex = 0;
-	UINT MaterialPad0;
+	UINT NormalMapIndex = 0;
 	UINT MaterialPad1;
 	UINT MaterialPad2;
 };
@@ -59,10 +64,20 @@ struct FrameResource
 		DirectX::XMFLOAT3 Pos;
 		DirectX::XMFLOAT3 Normal;
 		DirectX::XMFLOAT2 TexC;
+		DirectX::XMFLOAT3 TangentU;
+	};
+	struct SkinnedVertex
+	{
+		DirectX::XMFLOAT3 Pos;
+		DirectX::XMFLOAT3 Normal;
+		DirectX::XMFLOAT2 TexC;
+		DirectX::XMFLOAT3 TangentU;
+		DirectX::XMFLOAT3 BoneWeights;
+		BYTE BoneIndices[4];
 	};
 public:
     
-	FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount);
+	FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT skinnedObjectCount, UINT materialCount);
 	FrameResource(const FrameResource& rhs) = delete;
     FrameResource& operator=(const FrameResource& rhs) = delete;
     ~FrameResource();
@@ -75,6 +90,7 @@ public:
     // that reference it.  So each frame needs their own cbuffers.
     std::unique_ptr<UploadBuffer<PassConstants>> PassCB = nullptr;
     std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB = nullptr;
+	std::unique_ptr<UploadBuffer<SkinnedConstants>> SkinnedCB = nullptr;
 	std::unique_ptr<UploadBuffer<MaterialData>> MaterialBuffer = nullptr;
 
     // Fence value to mark commands up to this fence point.  This lets us

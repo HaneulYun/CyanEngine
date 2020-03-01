@@ -187,6 +187,7 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="LoadM3d.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="Mesh.h" />
@@ -210,6 +211,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="SkinnedData.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="StandardShader.h" />
     <ClInclude Include="Terrain.h" />
@@ -240,6 +242,7 @@
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="LoadM3d.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -261,6 +264,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="SkinnedData.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="StandardShader.cpp" />
     <ClCompile Include="Terrain.cpp" />
