@@ -59,6 +59,15 @@ struct RenderItem
 	SkinnedModelInstance* SkinnedModelInst = nullptr;
 };
 
+enum class RenderLayer : int
+{
+	Opaque = 0,
+	SkinnedOpaque,
+	Debug,
+	Sky,
+	Count
+};
+
 class RendererManager : public Singleton<RendererManager>
 {
 public:
@@ -96,7 +105,7 @@ public:
 	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> pipelineStates;
 
 	std::vector<std::unique_ptr<RenderItem>> allRItems;
-	std::vector<RenderItem*> opaqueRItems;
+	std::vector<RenderItem*> renderItemLayer[(int)RenderLayer::Count];
 
 
 	UINT mSkinnedSrvHeapStart = 0;

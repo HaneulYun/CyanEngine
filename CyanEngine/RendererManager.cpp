@@ -197,9 +197,9 @@ void RendererManager::Render()
 	UINT skinnedCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(SkinnedConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
 	auto skinnedCB = currFrameResource->SkinnedCB->Resource();
-	for (int i = 0; i < opaqueRItems.size(); ++i)
+	for (int i = 0; i < renderItemLayer[(int)RenderLayer::Opaque].size(); ++i)
 	{
-		auto ri = opaqueRItems[i];
+		auto ri = renderItemLayer[(int)RenderLayer::Opaque][i];
 
 		commandList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
 		commandList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
@@ -713,6 +713,7 @@ void RendererManager::LoadAssets()
 		boxRItem->IndexCount = boxRItem->Geo->DrawArgs["box"].IndexCount;
 		boxRItem->StartIndexLocation = boxRItem->Geo->DrawArgs["box"].StartIndexLocation;
 		boxRItem->BaseVertexLocation = boxRItem->Geo->DrawArgs["box"].BaseVertexLocation;
+		renderItemLayer[(int)RenderLayer::Opaque].push_back(boxRItem.get());
 		allRItems.push_back(std::move(boxRItem));
 
 		auto gridRItem = std::make_unique<RenderItem>();
@@ -725,6 +726,7 @@ void RendererManager::LoadAssets()
 		gridRItem->IndexCount = gridRItem->Geo->DrawArgs["grid"].IndexCount;
 		gridRItem->StartIndexLocation = gridRItem->Geo->DrawArgs["grid"].StartIndexLocation;
 		gridRItem->BaseVertexLocation = gridRItem->Geo->DrawArgs["grid"].BaseVertexLocation;
+		renderItemLayer[(int)RenderLayer::Opaque].push_back(gridRItem.get());
 		allRItems.push_back(std::move(gridRItem));
 
 		XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
@@ -781,6 +783,10 @@ void RendererManager::LoadAssets()
 			rightSphereRItem->StartIndexLocation = rightSphereRItem->Geo->DrawArgs["sphere"].StartIndexLocation;
 			rightSphereRItem->BaseVertexLocation = rightSphereRItem->Geo->DrawArgs["sphere"].BaseVertexLocation;
 
+			renderItemLayer[(int)RenderLayer::Opaque].push_back(leftCylRItem.get());
+			renderItemLayer[(int)RenderLayer::Opaque].push_back(rightCylRItem.get());
+			renderItemLayer[(int)RenderLayer::Opaque].push_back(leftSphereRItem.get());
+			renderItemLayer[(int)RenderLayer::Opaque].push_back(rightSphereRItem.get());
 			allRItems.push_back(std::move(leftCylRItem));
 			allRItems.push_back(std::move(rightCylRItem));
 			allRItems.push_back(std::move(leftSphereRItem));
@@ -810,12 +816,10 @@ void RendererManager::LoadAssets()
 			ritem->SkinnedCBIndex = 0;
 			ritem->SkinnedModelInst = mSkinnedModelInst.get();
 		
+			renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
 			allRItems.push_back(std::move(ritem));
 		}
 	}
-
-	for (auto& e : allRItems)
-		opaqueRItems.push_back(e.get());
 
 
 	commandList->Close();
