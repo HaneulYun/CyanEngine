@@ -197,28 +197,38 @@ void RendererManager::Render()
 	UINT skinnedCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(SkinnedConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
 	auto skinnedCB = currFrameResource->SkinnedCB->Resource();
-	for (int i = 0; i < renderItemLayer[(int)RenderLayer::Opaque].size(); ++i)
+
+	int k = 0;
+	for (auto& renderItems : renderItemLayer)
 	{
-		auto ri = renderItemLayer[(int)RenderLayer::Opaque][i];
-
-		commandList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
-		commandList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
-		commandList->IASetPrimitiveTopology(ri->PrimitiveType);
-
-		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
-		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-
-		if (ri->SkinnedModelInst != nullptr)
-		{
-			D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress = skinnedCB->GetGPUVirtualAddress() + ri->SkinnedCBIndex * skinnedCBByteSize;
-			commandList->SetGraphicsRootConstantBufferView(1, skinnedCBAddress);
-		}
+		if (k++ == (int)RenderLayer::SkinnedOpaque)
+			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
 		else
-		{
-			commandList->SetGraphicsRootConstantBufferView(1, 0);
-		}
+			commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
-		commandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+		for (int i = 0; i < renderItems.size(); ++i)
+		{
+			auto ri = renderItems[i];
+
+			commandList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
+			commandList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
+			commandList->IASetPrimitiveTopology(ri->PrimitiveType);
+
+			D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+			commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+
+			if (ri->SkinnedModelInst != nullptr)
+			{
+				D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress = skinnedCB->GetGPUVirtualAddress() + ri->SkinnedCBIndex * skinnedCBByteSize;
+				commandList->SetGraphicsRootConstantBufferView(1, skinnedCBAddress);
+			}
+			else
+			{
+				commandList->SetGraphicsRootConstantBufferView(1, 0);
+			}
+
+			commandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+		}
 	}
 
 	//for (auto& d : instances)
@@ -431,6 +441,12 @@ void RendererManager::LoadAssets()
 	D3D12SerializeRootSignature(&rootSignatureDesc, featureData.HighestVersion, &signature, &error);
 	device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
 
+	const D3D_SHADER_MACRO skinnedDefines[] =
+	{
+		"SKINNED", "1",
+		NULL, NULL
+	};
+	ComPtr<ID3DBlob> vertexShader_skinned = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", skinnedDefines, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_1");
 
@@ -440,6 +456,15 @@ void RendererManager::LoadAssets()
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs_skinned[]
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "WEIGHTS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "BONEINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
@@ -457,6 +482,10 @@ void RendererManager::LoadAssets()
 	pipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	pipelineStateDesc.SampleDesc.Count = 1;
 	device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineStates["opaque"]));
+
+	pipelineStateDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
+	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinned.Get());
+	device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineStates["skinnedOpaque"]));
 
 
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
