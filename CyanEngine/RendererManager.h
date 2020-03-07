@@ -125,7 +125,15 @@ public:
 	bool isRenewed{ false };
 	void UpdateManager();
 
-	std::map<std::pair<std::string, Mesh*>, std::pair<INSTANCING*, std::deque<GameObject*>>> instances;
+	std::map<
+		std::pair<
+			std::string,
+			Mesh*>,
+		std::pair<
+			INSTANCING*,
+			std::deque<GameObject*>
+		>
+	> instances;
 	 
 private:
 	bool m_bMsaa4xEnable{ false };
@@ -151,7 +159,7 @@ public:
 	void Destroy();
 
 	//--------------//
-	void LoadPipeline();
+	void InitDirect3D();
 	void LoadAssets();
 
 	void CreateDepthStencilView();
