@@ -10,6 +10,9 @@ void SampleScene::BuildObjects()
 	//*** Asset ***//
 
 	Mesh* mesh_cube = new Cube();
+	Mesh* mesh_grid = new Plane();
+	Mesh* mesh_sphere = new Sphere();
+	Mesh* mesh_cylinder = new Cylinder();
 	Material* material_defaultMaterial = new DefaultMaterial();
 
 
@@ -43,4 +46,41 @@ void SampleScene::BuildObjects()
 					cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
 					cube->AddComponent<Renderer>()->material = material_defaultMaterial;
 				}
+
+	{
+		GameObject* cube = CreateEmpty();
+		cube->GetComponent<Transform>()->position = Vector3(0, 1, 0);
+		cube->GetComponent<Transform>()->localScale = Vector3(2, 2, 2);
+		cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
+		cube->AddComponent<Renderer>()->material = material_defaultMaterial;
+	}
+
+	{
+		GameObject* grid = CreateEmpty();
+		grid->AddComponent<MeshFilter>()->mesh = mesh_grid;
+		grid->AddComponent<Renderer>()->material = material_defaultMaterial;
+	}
+
+	for (int i = 0; i < 5; ++i)
+	{
+		GameObject* leftCylRItem = CreateEmpty();
+		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
+		leftCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
+		leftCylRItem->AddComponent<Renderer>()->material = material_defaultMaterial;
+
+		GameObject* rightCylRItem = CreateEmpty();
+		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
+		rightCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
+		rightCylRItem->AddComponent<Renderer>()->material = material_defaultMaterial;
+
+		GameObject* leftSphereRItem = CreateEmpty();
+		leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
+		leftSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
+		leftSphereRItem->AddComponent<Renderer>()->material = material_defaultMaterial;
+
+		GameObject* rightSphereRItem = CreateEmpty();
+		rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
+		rightSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
+		rightSphereRItem->AddComponent<Renderer>()->material = material_defaultMaterial;
+	}
 }

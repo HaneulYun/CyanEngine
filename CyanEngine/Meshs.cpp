@@ -4,49 +4,25 @@
 Cube::Cube()
 {
 	Name = "Cube";
+	Create(GeometryType::GeometryType_Cube);
+}
 
-	std::vector<FrameResource::Vertex> vertices;
-	std::vector<std::uint16_t> indices;
-	{
-		GeometryGenerator geoGen;
-		GeometryGenerator::MeshData box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 1);
+Sphere::Sphere()
+{
+	Name = "Sphere";
+	Create(GeometryType::GeometryType_Sphere);
+}
 
-		vertices.resize(box.Vertices.size());
-		for (size_t i = 0; i < box.Vertices.size(); ++i)
-		{
-			vertices[i].Pos = box.Vertices[i].Position;
-			vertices[i].Normal = box.Vertices[i].Normal;
-			vertices[i].TexC = box.Vertices[i].TexC;
-		}
-		indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
-	}
+Cylinder::Cylinder()
+{
+	Name = "Cylinder";
+	Create(GeometryType::GeometryType_Cylinder);
+}
 
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::Vertex);
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-
-	D3DCreateBlob(vbByteSize, &VertexBufferCPU);
-	CopyMemory(VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-	D3DCreateBlob(ibByteSize, &IndexBufferCPU);
-	CopyMemory(IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	auto device = RendererManager::Instance()->device;
-	auto commandList = RendererManager::Instance()->commandList;
-
-	VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, VertexBufferUploader);
-	IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, IndexBufferUploader);
-
-	VertexByteStride = sizeof(FrameResource::Vertex);
-	VertexBufferByteSize = vbByteSize;
-	IndexFormat = DXGI_FORMAT_R16_UINT;
-	IndexBufferByteSize = ibByteSize;
-
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
-
-	DrawArgs["box"] = submesh;
+Plane::Plane()
+{
+	Name = "Plane";
+	Create(GeometryType::GeometryType_Plane);
 }
 
 //***********************************************

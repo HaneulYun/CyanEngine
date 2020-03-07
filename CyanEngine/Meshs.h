@@ -8,6 +8,27 @@ public:
 	virtual ~Cube() {};
 };
 
+class Sphere : public Mesh
+{
+public:
+	Sphere();
+	virtual ~Sphere() {};
+};
+
+class Cylinder : public Mesh
+{
+public:
+	Cylinder();
+	virtual ~Cylinder() {};
+};
+
+class Plane : public Mesh
+{
+public:
+	Plane();
+	virtual ~Plane() {};
+};
+
 //***********************************************
 
 class TriangleMesh : public Mesh

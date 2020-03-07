@@ -27,4 +27,10 @@ public:
 
 public:
 	virtual void Render(UINT nInstances = 1);
+
+	enum class GeometryType {
+		GeometryType_Cube, GeometryType_Sphere,
+		GeometryType_Cylinder, GeometryType_Plane
+	};
+	void Create(GeometryType type);
 };
