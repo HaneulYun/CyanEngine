@@ -184,7 +184,6 @@
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Geometry.h" />
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="LoadM3d.h" />
@@ -239,7 +238,6 @@
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="LoadM3d.cpp" />

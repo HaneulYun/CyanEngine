@@ -1,6 +1,6 @@
 #pragma once
 
-class Mesh
+class Mesh : public MeshGeometry
 {
 public:
 	Mesh() = default;
