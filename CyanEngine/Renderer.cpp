@@ -20,10 +20,27 @@ void Renderer::Start()
 		if(!(meshFilter = gameObject->GetComponent<Terrain>()))
 			return;
 	
-	auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
+	//auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
 
 	rendererManager->isRenewed = false;
-	rendererManager->instances[pair].second.push_back(gameObject);
+	//rendererManager->instances[pair].second.push_back(gameObject);
+
+	{
+		auto item = std::make_unique<RenderItem>();
+
+		XMStoreFloat4x4(&item->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 1.0f, 5.0f));
+		XMStoreFloat4x4(&item->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
+		item->ObjCBIndex = rendererManager->allRItems.size();
+		item->Mat = material;
+		item->Geo = meshFilter->mesh;
+		item->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		item->IndexCount = item->Geo->DrawArgs["box"].IndexCount;
+		item->StartIndexLocation = item->Geo->DrawArgs["box"].StartIndexLocation;
+		item->BaseVertexLocation = item->Geo->DrawArgs["box"].BaseVertexLocation;
+
+		rendererManager->renderItemLayer[(int)RenderLayer::Opaque].push_back(item.get());
+		rendererManager->allRItems.push_back(std::move(item));
+	}
 }
 
 void Renderer::Update()

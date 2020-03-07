@@ -7,6 +7,14 @@ void SampleScene::BuildObjects()
 {
 	scene = this;
 
+	//*** Asset ***//
+
+	Mesh* mesh_cube = new Cube();
+	Material* material_defaultMaterial = new DefaultMaterial();
+
+
+	//*** Game Object ***//
+
 	GameObject* mainCamera = CreateEmpty();
 	{
 		Camera* camera = mainCamera->AddComponent<Camera>();
@@ -26,7 +34,7 @@ void SampleScene::BuildObjects()
 
 	GameObject* cube = CreateEmpty();
 	{
-		cube->AddComponent<MeshFilter>()->mesh = new CubeMeshDiffused();
-		cube->AddComponent<Renderer>()->material = new DefaultMaterial();
+		cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
+		cube->AddComponent<Renderer>()->material = material_defaultMaterial;
 	}
 }

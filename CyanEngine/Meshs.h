@@ -1,6 +1,15 @@
 #pragma once
 #include "Vertex.h"
 
+class Cube : public Mesh
+{
+public:
+	Cube();
+	virtual ~Cube() {};
+};
+
+//***********************************************
+
 class TriangleMesh : public Mesh
 {
 public:

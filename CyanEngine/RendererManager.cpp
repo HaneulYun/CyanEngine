@@ -743,10 +743,12 @@ void RendererManager::LoadAssets()
 		geometries[geo->Name] = std::move(geo);
 	}
 	{
+		UINT objCBIndex = allRItems.size();
+		
 		auto boxRItem = std::make_unique<RenderItem>();
 		XMStoreFloat4x4(&boxRItem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 1.0f, 0.0f));
 		XMStoreFloat4x4(&boxRItem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
-		boxRItem->ObjCBIndex = 0;
+		boxRItem->ObjCBIndex = objCBIndex++;
 		boxRItem->Mat = materials["stone0"].get();
 		boxRItem->Geo = geometries["shapeGeo"].get();
 		boxRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -759,7 +761,7 @@ void RendererManager::LoadAssets()
 		auto gridRItem = std::make_unique<RenderItem>();
 		gridRItem->World = MathHelper::Identity4x4();
 		XMStoreFloat4x4(&gridRItem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
-		gridRItem->ObjCBIndex = 1;
+		gridRItem->ObjCBIndex = objCBIndex++;
 		gridRItem->Mat = materials["tile0"].get();
 		gridRItem->Geo = geometries["shapeGeo"].get();
 		gridRItem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -770,7 +772,6 @@ void RendererManager::LoadAssets()
 		allRItems.push_back(std::move(gridRItem));
 
 		XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
-		UINT objCBIndex = 2;
 		for (int i = 0; i < 5; ++i)
 		{
 			auto leftCylRItem = std::make_unique<RenderItem>();
@@ -859,6 +860,7 @@ void RendererManager::LoadAssets()
 			renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
 			allRItems.push_back(std::move(ritem));
 		}
+
 	}
 
 
