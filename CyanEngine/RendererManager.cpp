@@ -479,14 +479,11 @@ void RendererManager::LoadAssets()
 	}
 	std::vector<std::string> texName;
 	{
-		struct NameFileName { std::string Name; std::wstring FileName; } nfn[10]
-		{
-			{"bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds"},
-			{"stoneTex", L"..\\CyanEngine\\Textures\\stone.dds"},
-			{"tileTex", L"..\\CyanEngine\\Textures\\tile.dds"},
-			{"crateTex", L"..\\CyanEngine\\Textures\\WoodCrate01.dds"},
-			{"defaultTex", L"..\\CyanEngine\\Textures\\white1x1.dds"}
-		};
+		textureData.push_back({ "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds" });
+		textureData.push_back({ "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds" });
+		textureData.push_back({ "tileTex", L"..\\CyanEngine\\Textures\\tile.dds" });
+		textureData.push_back({ "crateTex", L"..\\CyanEngine\\Textures\\WoodCrate01.dds" });
+		textureData.push_back({ "defaultTex", L"..\\CyanEngine\\Textures\\white1x1.dds" });
 
 		for (int i = 0; i < mSkinnedMats.size(); ++i)
 		{
@@ -495,18 +492,18 @@ void RendererManager::LoadAssets()
 		
 			diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
 		
-			nfn[5 + i] = { diffuseName, diffuseFilename };
+			textureData.push_back({ diffuseName, diffuseFilename });
 		}
 
-		for (auto& d : nfn)
+		for (auto& d : textureData)
 		{
-			if (textures.find(d.Name) == std::end(textures))
+			if (textures.find(d.name) == std::end(textures))
 			{
 				auto texture = std::make_unique<Texture>();
-				texture->Name = d.Name;
-				texture->Filename = d.FileName;
+				texture->Name = d.name;
+				texture->Filename = d.fileName;
 
-				texName.push_back(d.Name);
+				texName.push_back(d.name);
 
 				CreateDDSTextureFromFile12(device.Get(), commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
 				textures[texture->Name] = std::move(texture);
@@ -516,33 +513,36 @@ void RendererManager::LoadAssets()
 	{
 		UINT objCBIndex = allRItems.size();
 
-		for (UINT i = 0; i < mSkinnedMats.size(); ++i)
-		{
-			std::string submeshName = "sm_" + std::to_string(i);
-		
-			auto ritem = std::make_unique<RenderItem>();
-		
-			XMMATRIX modelScale = XMMatrixScaling(0.05f, 0.05f, -0.05f);
-			XMMATRIX modelRot = XMMatrixRotationY(MathHelper::Pi);
-			XMMATRIX modelOffset = XMMatrixTranslation(0.0f, 0.0f, -5.0f);
-			XMStoreFloat4x4(&ritem->World, modelScale * modelRot * modelOffset);
-		
-			ritem->TexTransform = MathHelper::Identity4x4();
-			ritem->ObjCBIndex = objCBIndex++;
-			ritem->Mat = materials[mSkinnedMats[i].Name].get();
-			ritem->Geo = geometries[mSkinnedModelFilename].get();
-			ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-			ritem->IndexCount = ritem->Geo->DrawArgs[submeshName].IndexCount;
-			ritem->StartIndexLocation = ritem->Geo->DrawArgs[submeshName].StartIndexLocation;
-			ritem->BaseVertexLocation = ritem->Geo->DrawArgs[submeshName].BaseVertexLocation;
-		
-			ritem->SkinnedCBIndex = 0;
-			ritem->SkinnedModelInst = mSkinnedModelInst.get();
-		
-			renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
-			allRItems.push_back(std::move(ritem));
-		}
+		int count = 15;
+		float interval = 2.5f;
+		for(int x = -count; x <= count; ++x)
+			for(int z = -count; z <= count; ++z)
+				for (UINT i = 0; i < mSkinnedMats.size(); ++i)
+				{
+					std::string submeshName = "sm_" + std::to_string(i);
 
+					auto ritem = std::make_unique<RenderItem>();
+
+					XMMATRIX modelScale = XMMatrixScaling(0.05f, 0.05f, -0.05f);
+					XMMATRIX modelRot = XMMatrixRotationY(MathHelper::Pi);
+					XMMATRIX modelOffset = XMMatrixTranslation(interval * x, 0.0f, interval * z);
+					XMStoreFloat4x4(&ritem->World, modelScale * modelRot * modelOffset);
+
+					ritem->TexTransform = MathHelper::Identity4x4();
+					ritem->ObjCBIndex = objCBIndex++;
+					ritem->Mat = materials[mSkinnedMats[i].Name].get();
+					ritem->Geo = geometries[mSkinnedModelFilename].get();
+					ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+					ritem->IndexCount = ritem->Geo->DrawArgs[submeshName].IndexCount;
+					ritem->StartIndexLocation = ritem->Geo->DrawArgs[submeshName].StartIndexLocation;
+					ritem->BaseVertexLocation = ritem->Geo->DrawArgs[submeshName].BaseVertexLocation;
+
+					ritem->SkinnedCBIndex = 0;
+					ritem->SkinnedModelInst = mSkinnedModelInst.get();
+
+					renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
+					allRItems.push_back(std::move(ritem));
+				}
 	}
 
 

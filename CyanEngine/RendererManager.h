@@ -68,6 +68,12 @@ enum class RenderLayer : int
 	Count
 };
 
+struct TextureData
+{
+	std::string name;
+	std::wstring fileName;
+};
+
 class RendererManager : public Singleton<RendererManager>
 {
 public:
@@ -115,6 +121,9 @@ public:
 	std::vector<M3DLoader::Subset> mSkinnedSubsets;
 	std::vector<M3DLoader::M3dMaterial> mSkinnedMats;
 	std::vector<std::string> mSkinnedTextureNames;
+
+
+	std::vector<TextureData> textureData;
 
 
 	UINT frameIndex{ 0 };
