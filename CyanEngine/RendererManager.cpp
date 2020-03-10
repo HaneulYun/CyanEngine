@@ -38,6 +38,7 @@ void RendererManager::UpdateManager()
 		CloseHandle(eventHandle);
 	}
 
+	SkinnedModelInstance* skinnedModelInst;
 	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : allRItems)
@@ -56,21 +57,28 @@ void RendererManager::UpdateManager()
 
 			--e->NumFramesDirty;
 		}
+
+		if (e->SkinnedModelInst)
+		{
+			skinnedModelInst = e->SkinnedModelInst;
+		}
 	}
+	if (skinnedModelInst)
+	{
+		// UpdateSkinnedCBs
+		auto currSkinnedCB = currFrameResource->SkinnedCB.get();
 
-	// UpdateSkinnedCBs
-	auto currSkinnedCB = currFrameResource->SkinnedCB.get();
+		// We only have one skinned model being animated.
+		skinnedModelInst->UpdateSkinnedAnimation(Time::deltaTime);
 
-	// We only have one skinned model being animated.
-	mSkinnedModelInst->UpdateSkinnedAnimation(Time::deltaTime);
+		SkinnedConstants skinnedConstants;
+		std::copy(
+			std::begin(skinnedModelInst->FinalTransforms),
+			std::end(skinnedModelInst->FinalTransforms),
+			&skinnedConstants.BoneTransforms[0]);
 
-	SkinnedConstants skinnedConstants;
-	std::copy(
-		std::begin(mSkinnedModelInst->FinalTransforms),
-		std::end(mSkinnedModelInst->FinalTransforms),
-		&skinnedConstants.BoneTransforms[0]);
-
-	currSkinnedCB->CopyData(0, skinnedConstants);
+		currSkinnedCB->CopyData(0, skinnedConstants);
+	}
 
 	// UpdateMaterialBuffer
 	auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
@@ -411,18 +419,22 @@ void RendererManager::LoadAssets()
 	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinned.Get());
 	device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineStates["skinnedOpaque"]));
 
-
+	std::vector<M3DLoader::Subset> mSkinnedSubsets;
+	std::vector<M3DLoader::M3dMaterial> mSkinnedMats;
+	SkinnedModelInstance* mSkinnedModelInst;
 	{
+		SkinnedData* mSkinnedInfo = new SkinnedData();
+
 		std::vector<M3DLoader::SkinnedVertex> vertices;
 		std::vector<std::uint16_t> indices;
 
 		M3DLoader m3dLoader;
 		m3dLoader.LoadM3d("..\\CyanEngine\\Models\\soldier.m3d", vertices, indices,
-			mSkinnedSubsets, mSkinnedMats, mSkinnedInfo);
+			mSkinnedSubsets, mSkinnedMats, *mSkinnedInfo);
 
-		mSkinnedModelInst = std::make_unique<SkinnedModelInstance>();
-		mSkinnedModelInst->SkinnedInfo = &mSkinnedInfo;
-		mSkinnedModelInst->FinalTransforms.resize(mSkinnedInfo.BoneCount());
+		mSkinnedModelInst = new SkinnedModelInstance();
+		mSkinnedModelInst->SkinnedInfo = mSkinnedInfo;
+		mSkinnedModelInst->FinalTransforms.resize(mSkinnedInfo->BoneCount());
 		mSkinnedModelInst->ClipName = "Take1";
 		mSkinnedModelInst->TimePos = 0.0f;
 
@@ -477,43 +489,35 @@ void RendererManager::LoadAssets()
 			materials[mat->Name] = std::move(mat);
 		}
 	}
-	std::vector<std::string> texName;
+	for (int i = 0; i < mSkinnedMats.size(); ++i)
 	{
-		textureData.push_back({ "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds" });
-		textureData.push_back({ "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds" });
-		textureData.push_back({ "tileTex", L"..\\CyanEngine\\Textures\\tile.dds" });
-		textureData.push_back({ "crateTex", L"..\\CyanEngine\\Textures\\WoodCrate01.dds" });
-		textureData.push_back({ "defaultTex", L"..\\CyanEngine\\Textures\\white1x1.dds" });
+		std::string diffuseName = mSkinnedMats[i].DiffuseMapName;
+		std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
+	
+		diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
+	
+		textureData.push_back({ diffuseName, diffuseFilename });
+	}
 
-		for (int i = 0; i < mSkinnedMats.size(); ++i)
+	std::vector<std::string> texName;
+	for (auto& d : textureData)
+	{
+		if (textures.find(d.name) == std::end(textures))
 		{
-			std::string diffuseName = mSkinnedMats[i].DiffuseMapName;
-			std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
-		
-			diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
-		
-			textureData.push_back({ diffuseName, diffuseFilename });
-		}
+			auto texture = std::make_unique<Texture>();
+			texture->Name = d.name;
+			texture->Filename = d.fileName;
 
-		for (auto& d : textureData)
-		{
-			if (textures.find(d.name) == std::end(textures))
-			{
-				auto texture = std::make_unique<Texture>();
-				texture->Name = d.name;
-				texture->Filename = d.fileName;
+			texName.push_back(d.name);
 
-				texName.push_back(d.name);
-
-				CreateDDSTextureFromFile12(device.Get(), commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-				textures[texture->Name] = std::move(texture);
-			}
+			CreateDDSTextureFromFile12(device.Get(), commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+			textures[texture->Name] = std::move(texture);
 		}
 	}
 	{
 		UINT objCBIndex = allRItems.size();
 
-		int count = 15;
+		int count = 10;
 		float interval = 2.5f;
 		for(int x = -count; x <= count; ++x)
 			for(int z = -count; z <= count; ++z)
@@ -538,7 +542,7 @@ void RendererManager::LoadAssets()
 					ritem->BaseVertexLocation = ritem->Geo->DrawArgs[submeshName].BaseVertexLocation;
 
 					ritem->SkinnedCBIndex = 0;
-					ritem->SkinnedModelInst = mSkinnedModelInst.get();
+					ritem->SkinnedModelInst = mSkinnedModelInst;
 
 					renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
 					allRItems.push_back(std::move(ritem));

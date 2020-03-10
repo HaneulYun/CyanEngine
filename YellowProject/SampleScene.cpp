@@ -16,6 +16,12 @@ void SampleScene::BuildObjects()
 	Mesh* mesh_sphere = new Sphere();
 	Mesh* mesh_cylinder = new Cylinder();
 
+	rendererManager->textureData.push_back({ "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds" });
+	rendererManager->textureData.push_back({ "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds" });
+	rendererManager->textureData.push_back({ "tileTex", L"..\\CyanEngine\\Textures\\tile.dds" });
+	rendererManager->textureData.push_back({ "crateTex", L"..\\CyanEngine\\Textures\\WoodCrate01.dds" });
+	rendererManager->textureData.push_back({ "defaultTex", L"..\\CyanEngine\\Textures\\white1x1.dds" });
+
 	rendererManager->materials["bricks0"] = std::make_unique<Material>();
 	rendererManager->materials["stone0"] = std::make_unique<Material>();
 	rendererManager->materials["tile0"] = std::make_unique<Material>();

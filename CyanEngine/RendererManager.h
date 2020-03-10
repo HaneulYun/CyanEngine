@@ -114,15 +114,11 @@ public:
 	std::vector<RenderItem*> renderItemLayer[(int)RenderLayer::Count];
 
 
-	UINT mSkinnedSrvHeapStart = 0;
 	std::string mSkinnedModelFilename = "Models\\soldier.m3d";
-	std::unique_ptr<SkinnedModelInstance> mSkinnedModelInst;
-	SkinnedData mSkinnedInfo;
-	std::vector<M3DLoader::Subset> mSkinnedSubsets;
-	std::vector<M3DLoader::M3dMaterial> mSkinnedMats;
-	std::vector<std::string> mSkinnedTextureNames;
 
 
+	//UINT mSkinnedSrvHeapStart = 0;
+	//std::vector<std::string> mSkinnedTextureNames;
 	std::vector<TextureData> textureData;
 
 
