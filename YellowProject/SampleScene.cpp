@@ -95,7 +95,7 @@ void SampleScene::BuildObjects()
 
 	{
 		GameObject* cube = CreateEmpty();
-		cube->GetComponent<Transform>()->position = Vector3(0, 1, 0);
+		cube->GetComponent<Transform>()->position = Vector3(0, 1, 3);
 		cube->GetComponent<Transform>()->localScale = Vector3(2, 2, 2);
 		cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
 		cube->AddComponent<Renderer>()->material = material_defaultMaterial;

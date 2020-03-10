@@ -3,6 +3,53 @@
 
 extern UINT gnCbvSrvDescriptorIncrementSize;
 
+void ProcessHierarchy(FbxNode* node,
+	std::vector<M3DLoader::SkinnedVertex>& vertices,
+	std::vector<USHORT>& indices)
+{
+	FbxNodeAttribute* attribute = node->GetNodeAttribute();
+
+	if (attribute)
+	{
+		FbxNodeAttribute::EType attributeType = attribute->GetAttributeType();
+		if (attributeType == FbxNodeAttribute::eMesh)
+		{
+			FbxMesh* mesh = node->GetMesh();
+
+			vertices.clear();
+			indices.clear();
+
+			int verticesCount = mesh->GetControlPointsCount();
+			for (unsigned int i = 0; i < verticesCount; ++i)
+			{
+				M3DLoader::SkinnedVertex vertex;
+				vertex.Pos.x = static_cast<float>(mesh->GetControlPointAt(i).mData[0]);
+				vertex.Pos.y = static_cast<float>(mesh->GetControlPointAt(i).mData[1]);
+				vertex.Pos.z = static_cast<float>(mesh->GetControlPointAt(i).mData[2]);
+			
+				vertices.push_back(vertex);
+			}
+			
+			int polygonCount = mesh->GetPolygonCount();
+			for (unsigned int i = 0; i < polygonCount; ++i)
+			{
+				for (unsigned int j = 0; j < 3; ++j)
+				{
+					USHORT index = mesh->GetPolygonVertex(i, j);
+			
+					indices.push_back(index);
+				}
+			}
+		}
+	}
+
+	int childCount = node->GetChildCount();
+	for (int i = 0; i < childCount; ++i)
+	{
+		ProcessHierarchy(node->GetChild(i), vertices, indices);
+	}
+}
+
 RendererManager::RendererManager()
 {
 }
@@ -38,7 +85,7 @@ void RendererManager::UpdateManager()
 		CloseHandle(eventHandle);
 	}
 
-	SkinnedModelInstance* skinnedModelInst;
+	SkinnedModelInstance* skinnedModelInst{ nullptr };
 	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : allRItems)
@@ -185,9 +232,9 @@ void RendererManager::Render()
 	int k = 0;
 	for (auto& renderItems : renderItemLayer)
 	{
-		if (k++ == (int)RenderLayer::SkinnedOpaque)
-			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
-		else
+		//if (k++ == (int)RenderLayer::SkinnedOpaque)
+		//	commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
+		//else
 			commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
 		for (int i = 0; i < renderItems.size(); ++i)
@@ -432,6 +479,29 @@ void RendererManager::LoadAssets()
 		m3dLoader.LoadM3d("..\\CyanEngine\\Models\\soldier.m3d", vertices, indices,
 			mSkinnedSubsets, mSkinnedMats, *mSkinnedInfo);
 
+		{
+			FbxManager* manager = FbxManager::Create();
+
+			FbxIOSettings* ios = FbxIOSettings::Create(manager, IOSROOT);
+			manager->SetIOSettings(ios);
+
+			FbxScene* scene = FbxScene::Create(manager, "Scene");
+
+			FbxImporter* importer = FbxImporter::Create(manager, "");
+			importer->Initialize("..\\CyanEngine\\Models\\humanoid.fbx");
+			importer->Import(scene);
+
+			{
+				FbxGeometryConverter geometryConverter(manager);
+				geometryConverter.Triangulate(scene, true);
+
+				ProcessHierarchy(scene->GetRootNode(), vertices, indices);
+			}
+
+			if (manager)
+				manager->Destroy();
+		}
+
 		mSkinnedModelInst = new SkinnedModelInstance();
 		mSkinnedModelInst->SkinnedInfo = mSkinnedInfo;
 		mSkinnedModelInst->FinalTransforms.resize(mSkinnedInfo->BoneCount());
@@ -517,7 +587,7 @@ void RendererManager::LoadAssets()
 	{
 		UINT objCBIndex = allRItems.size();
 
-		int count = 10;
+		int count = 0;
 		float interval = 2.5f;
 		for(int x = -count; x <= count; ++x)
 			for(int z = -count; z <= count; ++z)
@@ -541,8 +611,8 @@ void RendererManager::LoadAssets()
 					ritem->StartIndexLocation = ritem->Geo->DrawArgs[submeshName].StartIndexLocation;
 					ritem->BaseVertexLocation = ritem->Geo->DrawArgs[submeshName].BaseVertexLocation;
 
-					ritem->SkinnedCBIndex = 0;
-					ritem->SkinnedModelInst = mSkinnedModelInst;
+					//ritem->SkinnedCBIndex = 0;
+					//ritem->SkinnedModelInst = mSkinnedModelInst;
 
 					renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
 					allRItems.push_back(std::move(ritem));
