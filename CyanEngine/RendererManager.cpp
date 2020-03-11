@@ -3,11 +3,27 @@
 
 extern UINT gnCbvSrvDescriptorIncrementSize;
 
+struct BoneWeightData
+{
+	unsigned int boneIndex;
+	double weight;
+};
+
+std::map<std::string, int> skeletonIndexer;
+std::map<int, std::vector<BoneWeightData>> boneWeightData;
+
 void ProcessHierarchy(FbxNode* node,
 	std::vector<M3DLoader::SkinnedVertex>& vertices,
-	std::vector<USHORT>& indices)
+	std::vector<USHORT>& indices,
+	SkinnedData& skinnedData,
+	AnimationClip& clip,
+	std::vector<XMFLOAT4X4>& boneOffsets,
+	std::vector<int>& boneIndexToParentIndex,
+	int parentIndex = -1)
 {
 	FbxNodeAttribute* attribute = node->GetNodeAttribute();
+
+	int boneIndex = boneIndexToParentIndex.size();
 
 	if (attribute)
 	{
@@ -15,9 +31,6 @@ void ProcessHierarchy(FbxNode* node,
 		if (attributeType == FbxNodeAttribute::eMesh)
 		{
 			FbxMesh* mesh = node->GetMesh();
-
-			vertices.clear();
-			indices.clear();
 
 			int verticesCount = mesh->GetControlPointsCount();
 			for (unsigned int i = 0; i < verticesCount; ++i)
@@ -32,21 +45,120 @@ void ProcessHierarchy(FbxNode* node,
 			
 			int polygonCount = mesh->GetPolygonCount();
 			for (unsigned int i = 0; i < polygonCount; ++i)
-			{
 				for (unsigned int j = 0; j < 3; ++j)
+					indices.emplace_back(mesh->GetPolygonVertex(i, j));
+
+			FbxVector4 T = node->GetGeometricTranslation(FbxNode::eSourcePivot);
+			FbxVector4 R = node->GetGeometricRotation(FbxNode::eSourcePivot);
+			FbxVector4 S = node->GetGeometricScaling(FbxNode::eSourcePivot);
+			FbxAMatrix geometryTransform = FbxAMatrix(T, R, S);
+
+			int deformerCount = mesh->GetDeformerCount();
+			for (unsigned int i = 0; i < deformerCount; ++i)
+			{
+				FbxSkin* skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(i, FbxDeformer::eSkin));
+				if (!skin)
+					continue;
+
+				int clusterCount = skin->GetClusterCount();
+				for (unsigned int j = 0; j < clusterCount; ++j)
 				{
-					USHORT index = mesh->GetPolygonVertex(i, j);
-			
-					indices.push_back(index);
+					FbxCluster* cluster = skin->GetCluster(j);
+					std::string jointName = cluster->GetLink()->GetName();
+					unsigned int jointIndex = skeletonIndexer[jointName];
+
+					FbxAMatrix transformMatrix;
+					FbxAMatrix transformLinkMatrix;
+					FbxAMatrix globalBindposeInverseMatrix;
+					
+					cluster->GetTransformMatrix(transformMatrix);
+					cluster->GetTransformLinkMatrix(transformLinkMatrix);
+					globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
+
+					FbxVector4 r1 = globalBindposeInverseMatrix.GetRow(0);
+					FbxVector4 r2 = globalBindposeInverseMatrix.GetRow(1);
+					FbxVector4 r3 = globalBindposeInverseMatrix.GetRow(2);
+					FbxVector4 r4 = globalBindposeInverseMatrix.GetRow(3);
+
+					boneOffsets[jointIndex] = XMFLOAT4X4 {
+						(float)r1.mData[0], (float)r1.mData[1], (float)r1.mData[2], (float)r1.mData[3],
+						(float)r2.mData[0], (float)r2.mData[1], (float)r2.mData[2], (float)r2.mData[3],
+						(float)r3.mData[0], (float)r3.mData[1], (float)r3.mData[2], (float)r3.mData[3],
+						(float)r4.mData[0], (float)r4.mData[1], (float)r4.mData[2], (float)r4.mData[3]
+					};
+
+
+					int indicesCount = cluster->GetControlPointIndicesCount();
+					for (int k = 0; k < indicesCount; ++k)
+					{
+						boneWeightData[cluster->GetControlPointIndices()[k]].push_back({ jointIndex, cluster->GetControlPointWeights()[k] });
+
+						for (int i = 0; i < 4; ++i)
+						{
+							int vertexIndex = cluster->GetControlPointIndices()[k];
+
+							if (vertices[vertexIndex].BoneIndices[i] != (BYTE)-1)
+								continue;
+							vertices[vertexIndex].BoneIndices[i] = jointIndex;
+
+							if (i == 0)
+								vertices[vertexIndex].BoneWeights.x = cluster->GetControlPointWeights()[k];
+							else if (i == 1)
+								vertices[vertexIndex].BoneWeights.y = cluster->GetControlPointWeights()[k];
+							else if (i == 2)
+								vertices[vertexIndex].BoneWeights.z = cluster->GetControlPointWeights()[k];
+							break;
+						}
+					}
+
+
+					FbxAnimStack* animStack = node->GetScene()->GetSrcObject<FbxAnimStack>(0);
+					FbxString stackName = animStack->GetName();;
+					FbxTakeInfo* takeInfo = node->GetScene()->GetTakeInfo(stackName);
+					FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+					FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+
+					BoneAnimation boneAnim;
+					for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+					{
+						Keyframe keyframe;
+					
+						FbxTime time;
+						time.SetFrame(i, FbxTime::eFrames24);
+					
+					
+						FbxAMatrix transformOffset = node->EvaluateGlobalTransform(time) * geometryTransform;
+						FbxAMatrix matrix = transformOffset.Inverse() * cluster->GetLink()->EvaluateGlobalTransform(time);
+					
+						FbxVector4 t = matrix.GetT();
+						FbxVector4 s = matrix.GetS();
+						FbxQuaternion q = matrix.GetQ();
+					
+						keyframe.TimePos = i * 0.016;
+						keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
+						keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
+						keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
+
+						boneAnim.Keyframes.push_back(keyframe);
+					}
+					clip.BoneAnimations.push_back(boneAnim);
 				}
 			}
 		}
+		else if (attributeType == FbxNodeAttribute::eSkeleton)
+		{
+			skeletonIndexer[node->GetName()] = boneIndex;
+			boneIndexToParentIndex.push_back(parentIndex);
+		}
 	}
+
+	if (boneIndexToParentIndex.size() == 0)
+		boneIndex = -1;
 
 	int childCount = node->GetChildCount();
 	for (int i = 0; i < childCount; ++i)
 	{
-		ProcessHierarchy(node->GetChild(i), vertices, indices);
+		ProcessHierarchy(node->GetChild(i), vertices, indices, skinnedData, clip, boneOffsets, boneIndexToParentIndex, boneIndex);
 	}
 }
 
@@ -495,7 +607,18 @@ void RendererManager::LoadAssets()
 				FbxGeometryConverter geometryConverter(manager);
 				geometryConverter.Triangulate(scene, true);
 
-				ProcessHierarchy(scene->GetRootNode(), vertices, indices);
+				std::vector<XMFLOAT4X4> boneOffsets;
+				std::vector<int> boneIndexToParentIndex;
+				std::unordered_map<std::string, AnimationClip> animations;
+				AnimationClip clip;
+
+				vertices.clear();
+				indices.clear();
+				boneOffsets.resize(96);
+				for (auto& offset : boneOffsets)
+					offset = MathHelper::Identity4x4();
+
+				ProcessHierarchy(scene->GetRootNode(), vertices, indices, *mSkinnedInfo, clip, boneOffsets, boneIndexToParentIndex);
 			}
 
 			if (manager)
