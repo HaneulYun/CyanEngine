@@ -31,6 +31,19 @@ float BoneAnimation::GetEndTime()const
 
 void BoneAnimation::Interpolate(float t, XMFLOAT4X4& M)const
 {
+	//XMFLOAT3 s{ 0.05, 0.05, 0.05 };
+	//XMFLOAT3 p{ 500, 0, 0 };
+	//XMFLOAT4 q{ 0, 0, 0, 1 };
+	//
+	//XMVECTOR S = XMLoadFloat3(&s);
+	//XMVECTOR P = XMLoadFloat3(&p);
+	//XMVECTOR Q = XMLoadFloat4(&q);
+	//
+	//XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	//XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
+	//
+	//return;
+
 	if( t <= Keyframes.front().TimePos )
 	{
 		XMVECTOR S = XMLoadFloat3(&Keyframes.front().Scale);
@@ -174,7 +187,7 @@ void SkinnedData::GetFinalTransforms(const std::string& clipName, float timePos,
 	for(UINT i = 0; i < numBones; ++i)
 	{
 		XMMATRIX offset = XMLoadFloat4x4(&mBoneOffsets[i]);
-		XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
+		XMMATRIX toRoot = XMLoadFloat4x4(&toParentTransforms[i]);
         XMMATRIX finalTransform = XMMatrixMultiply(offset, toRoot);
 		XMStoreFloat4x4(&finalTransforms[i], XMMatrixTranspose(finalTransform));
 	}
