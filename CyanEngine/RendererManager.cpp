@@ -145,7 +145,7 @@ void ProcessHierarchy(FbxNode* node,
 					int parentIndex = boneIndexToParentIndex[jointIndex];
 
 					FbxAMatrix transformLinkMatrix;
-					FbxAMatrix offset = cluster->GetTransformLinkMatrix(transformLinkMatrix);
+					FbxAMatrix toRoot_global = cluster->GetTransformLinkMatrix(transformLinkMatrix);
 
 					FbxAnimStack* animStack = node->GetScene()->GetSrcObject<FbxAnimStack>(0);
 					FbxString stackName = animStack->GetName();
@@ -162,8 +162,9 @@ void ProcessHierarchy(FbxNode* node,
 						FbxTime time;
 						time.SetFrame(i, FbxTime::eFrames24);
 
-						FbxAMatrix parentMat;
-						FbxAMatrix mat;
+						FbxAMatrix toRoot;
+						FbxAMatrix parentToRoot;
+						FbxAMatrix toParent;
 
 						//FbxAMatrix transformOffset = node->EvaluateGlobalTransform(time) * geometryTransform;
 						//FbxAMatrix matrix = transformOffset.Inverse() * cluster->GetLink()->EvaluateGlobalTransform(time);
@@ -172,22 +173,18 @@ void ProcessHierarchy(FbxNode* node,
 						{
 							for (int i = 0; i < 4; ++i)
 								for (int j = 0; j < 4; ++j)
-									parentMat.mData[i][j] = boneOffsets[parentIndex].m[i][j];
-							mat = parentMat.Inverse() * offset;
+									parentToRoot.mData[i][j] = boneOffsets[parentIndex].m[i][j];
+							toParent = parentToRoot.Inverse() * toRoot_global;
+							toRoot = parentToRoot * toParent;
 						}
 						else
-							mat = offset;
- 						mat = parentMat * mat;
+							toRoot = toRoot_global;
 
-						FbxVector4 t = mat.GetT();
-						FbxVector4 s = mat.GetS();
-						FbxQuaternion q = mat.GetQ();
+						FbxVector4 t = toRoot.GetT();
+						FbxVector4 s = toRoot.GetS();
+						FbxQuaternion q = toRoot.GetQ();
 
 						keyframe.TimePos = i;
-						//if(jointIndex == 0)
-						//	keyframe.Translation = XMFLOAT3(0, 300, 0);
-						//else
-						//	keyframe.Translation = XMFLOAT3(50, 0, 0);
 						keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
 						keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
 						keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
