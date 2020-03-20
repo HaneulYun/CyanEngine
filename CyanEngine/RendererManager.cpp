@@ -11,6 +11,10 @@ struct BoneWeightData
 
 std::map<std::string, int> skeletonIndexer;
 std::map<int, std::vector<BoneWeightData>> boneWeightData;
+std::map<int, FbxAMatrix> toParents;
+std::map<int, FbxAMatrix> locals;
+std::map<int, FbxAMatrix> globals;
+std::map<int, FbxNode*> nodes;
 
 void ProcessHierarchy(FbxNode* node,
 	std::vector<M3DLoader::SkinnedVertex>& vertices,
@@ -24,6 +28,15 @@ void ProcessHierarchy(FbxNode* node,
 	FbxNodeAttribute* attribute = node->GetNodeAttribute();
 
 	int boneIndex = boneIndexToParentIndex.size();
+
+
+
+	FbxString N = node->GetName();
+	FbxVector4 T = node->LclTranslation.Get();
+	FbxVector4 R = node->LclRotation.Get();
+	FbxVector4 S = node->LclScaling.Get();
+	FbxAMatrix M = FbxAMatrix(T, R, S);
+	int childCount = node->GetChildCount();
 
 	if (attribute)
 	{
@@ -99,7 +112,8 @@ void ProcessHierarchy(FbxNode* node,
 					unsigned int jointIndex = skeletonIndexer[jointName];
 
 					FbxAMatrix transformLinkMatrix;
-					FbxAMatrix offset = cluster->GetTransformLinkMatrix(transformLinkMatrix).Inverse();
+
+					FbxAMatrix offset = cluster->GetLink()->EvaluateGlobalTransform().Inverse();
 
 					FbxVector4 r1 = offset.GetRow(0);
 					FbxVector4 r2 = offset.GetRow(1);
@@ -169,6 +183,11 @@ void ProcessHierarchy(FbxNode* node,
 						//FbxAMatrix transformOffset = node->EvaluateGlobalTransform(time) * geometryTransform;
 						//FbxAMatrix matrix = transformOffset.Inverse() * cluster->GetLink()->EvaluateGlobalTransform(time);
 
+						//FbxVector4 T = cluster->GetLink()->LclTranslation.Get();
+						//FbxVector4 R = cluster->GetLink()->LclRotation.Get();
+						//FbxVector4 S = cluster->GetLink()->LclScaling.Get();
+						//FbxAMatrix M = FbxAMatrix(T, R, S);
+
 						if (parentIndex != -1)
 						{
 							for (int i = 0; i < 4; ++i)
@@ -179,6 +198,8 @@ void ProcessHierarchy(FbxNode* node,
 						}
 						else
 							toRoot = toRoot_global;
+
+						toRoot = cluster->GetLink()->EvaluateLocalTransform();
 
 						FbxVector4 t = toRoot.GetT();
 						FbxVector4 s = toRoot.GetS();
@@ -197,19 +218,74 @@ void ProcessHierarchy(FbxNode* node,
 					}
 					clip.BoneAnimations[jointIndex] = boneAnim;
 				}
+
+				for (int j = 0; j < 80; ++j)
+				{
+					FbxAnimStack* animStack = node->GetScene()->GetSrcObject<FbxAnimStack>(0);
+					FbxString stackName = animStack->GetName();
+				
+					FbxTakeInfo* takeInfo = node->GetScene()->GetTakeInfo(stackName);
+					FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+					FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+				
+					BoneAnimation boneAnim;
+					if (clip.BoneAnimations[j].Keyframes.size() == 0)
+					{
+
+						for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+						{
+							Keyframe keyframe;
+
+							FbxTime time;
+							time.SetFrame(i, FbxTime::eFrames24);
+
+							FbxAMatrix toRoot;
+
+							toRoot = nodes[j]->EvaluateLocalTransform();
+
+							FbxVector4 t = toRoot.GetT();
+							FbxVector4 s = toRoot.GetS();
+							FbxQuaternion q = toRoot.GetQ();
+
+							keyframe.TimePos = i;
+							keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
+							keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
+							keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
+
+							boneAnim.Keyframes.push_back(keyframe);
+						}
+						clip.BoneAnimations[j] = boneAnim;
+					}
+				}
 			}
 		}
 		else if (attributeType == FbxNodeAttribute::eSkeleton)
 		{
 			skeletonIndexer[node->GetName()] = boneIndex;
 			boneIndexToParentIndex.push_back(parentIndex);
+
+			nodes[boneIndex] = node;
+
+			FbxAMatrix offset = node->EvaluateGlobalTransform().Inverse();
+
+			FbxVector4 r1 = offset.GetRow(0);
+			FbxVector4 r2 = offset.GetRow(1);
+			FbxVector4 r3 = offset.GetRow(2);
+			FbxVector4 r4 = offset.GetRow(3);
+
+			boneOffsets[boneIndex] = XMFLOAT4X4{
+				(float)r1.mData[0], (float)r1.mData[1], (float)r1.mData[2], (float)r1.mData[3],
+				(float)r2.mData[0], (float)r2.mData[1], (float)r2.mData[2], (float)r2.mData[3],
+				(float)r3.mData[0], (float)r3.mData[1], (float)r3.mData[2], (float)r3.mData[3],
+				(float)r4.mData[0], (float)r4.mData[1], (float)r4.mData[2], (float)r4.mData[3]
+			};
 		}
 	}
 
 	if (boneIndexToParentIndex.size() == 0)
 		boneIndex = -1;
 
-	int childCount = node->GetChildCount();
+	//int childCount = node->GetChildCount();
 	for (int i = 0; i < childCount; ++i)
 	{
 		ProcessHierarchy(node->GetChild(i), vertices, indices, skinnedData, clip, boneOffsets, boneIndexToParentIndex, boneIndex);
@@ -820,8 +896,8 @@ void RendererManager::LoadAssets()
 
 					auto ritem = std::make_unique<RenderItem>();
 
-					XMMATRIX modelScale = XMMatrixScaling(0.02, 0.02, 0.02);
-					XMMATRIX modelRot = XMMatrixRotationY(PI);
+					XMMATRIX modelScale = XMMatrixScaling(0.005, 0.005, 0.005);
+					XMMATRIX modelRot = XMMatrixRotationX(-PI * 0.5);
 					XMMATRIX modelOffset = XMMatrixTranslation(0, 0, 0);
 					XMStoreFloat4x4(&ritem->World, modelScale * modelRot * modelOffset);
 
