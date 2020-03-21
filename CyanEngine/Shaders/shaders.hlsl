@@ -107,6 +107,8 @@ PSInput VSMain(VSInput vin)
 	weights[2] = vin.BoneWeights.z;
 	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
 
+	//vin.PosL = float3(0.0f, 0.0f, 0.0f);
+
 	float3 posL = float3(0.0f, 0.0f, 0.0f);
 	float3 normalL = float3(0.0f, 0.0f, 0.0f);
 	float3 tangentL = float3(0.0f, 0.0f, 0.0f);

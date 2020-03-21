@@ -81,17 +81,17 @@ void SampleScene::BuildObjects()
 		player->AddComponent<Controller>()->gameObject = player;
 	}
 
-	int cnt = 1;
-	float offset = 2.0f;
-	for (int x = -cnt; x <= cnt; ++x)
-		for (int y = -cnt; y <= cnt; ++y)
-			for (int z = -cnt; z <= cnt; ++z)
-				{
-					GameObject* cube = CreateEmpty();
-					cube->GetComponent<Transform>()->position = Vector3(x * offset, y * offset + 5, z * offset + 5);
-					cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
-					cube->AddComponent<Renderer>()->material = material_defaultMaterial;
-				}
+	//int cnt = 1;
+	//float offset = 2.0f;
+	//for (int x = -cnt; x <= cnt; ++x)
+	//	for (int y = -cnt; y <= cnt; ++y)
+	//		for (int z = -cnt; z <= cnt; ++z)
+	//			{
+	//				GameObject* cube = CreateEmpty();
+	//				cube->GetComponent<Transform>()->position = Vector3(x * offset, y * offset + 5, z * offset + 5);
+	//				cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
+	//				cube->AddComponent<Renderer>()->material = material_defaultMaterial;
+	//			}
 
 	{
 		GameObject* cube = CreateEmpty();
