@@ -49,6 +49,11 @@ void Camera::GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneD
 	projection = NS_Matrix4x4::PerspectiveFovLH(XMConvertToRadians(fFOVAngle), fAspectRatio, fNearPlaneDistance, fFarPlaneDistance);
 }
 
+void Camera::GenerateOrthoMatrix(float _width, float _height, float _near, float _far)
+{
+	XMStoreFloat4x4(&projection, XMMatrixOrthographicLH(_width, _height, _near, _far));
+}
+
 void Camera::SetViewport(int xTopLeft, int yTopLeft, int nWidth, int nHeight, float fMinZ, float fMaxZ)
 {
 	viewport.TopLeftX = float(xTopLeft);
