@@ -41,6 +41,7 @@ void Renderer::Start()
 		item->StartIndexLocation = item->Geo->DrawArgs["submesh"].StartIndexLocation;
 		item->BaseVertexLocation = item->Geo->DrawArgs["submesh"].BaseVertexLocation;
 
+		this->item = item.get();
 		rendererManager->renderItemLayer[(int)RenderLayer::Opaque].push_back(item.get());
 		rendererManager->allRItems.push_back(std::move(item));
 	}
