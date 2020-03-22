@@ -29,15 +29,6 @@ void ProcessHierarchy(FbxNode* node,
 
 	int boneIndex = boneIndexToParentIndex.size();
 
-
-
-	FbxString N = node->GetName();
-	FbxVector4 T = node->LclTranslation.Get();
-	FbxVector4 R = node->LclRotation.Get();
-	FbxVector4 S = node->LclScaling.Get();
-	FbxAMatrix M = FbxAMatrix(T, R, S);
-	int childCount = node->GetChildCount();
-
 	if (attribute)
 	{
 		FbxNodeAttribute::EType attributeType = attribute->GetAttributeType();
@@ -119,7 +110,7 @@ void ProcessHierarchy(FbxNode* node,
 
 					FbxAMatrix global = linkTransform.Inverse() * transform;
 
-					FbxAMatrix offset = global;// .Inverse();//cluster->GetLink()->EvaluateGlobalTransform();// .Inverse();
+					FbxAMatrix offset = global;
 					
 					FbxVector4 r1 = offset.GetRow(0);
 					FbxVector4 r2 = offset.GetRow(1);
@@ -156,19 +147,16 @@ void ProcessHierarchy(FbxNode* node,
 					}
 				}
 
-				// Animation
-				//FbxAnimStack* animStack = node->GetScene()->GetSrcObject<FbxAnimStack>(0);
-
 				FbxArray<FbxString*> animStackNameArray;
 				node->GetScene()->FillAnimStackNameArray(animStackNameArray);
 
-				FbxAnimStack* animStack = node->GetScene()->FindMember<FbxAnimStack>(animStackNameArray[2]->Buffer());
+				FbxAnimStack* animStack = node->GetScene()->FindMember<FbxAnimStack>(animStackNameArray[0]->Buffer());
 				FbxAnimLayer* animLayer = animStack->GetMember<FbxAnimLayer>();
 				node->GetScene()->SetCurrentAnimationStack(animStack);
 
 				FbxString stackName = animStack->GetName();
 
-				FbxTakeInfo* takeInfo = node->GetScene()->GetTakeInfo(*(animStackNameArray[2]));
+				FbxTakeInfo* takeInfo = node->GetScene()->GetTakeInfo(*(animStackNameArray[0]));
 				FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
 				FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
 
@@ -238,28 +226,13 @@ void ProcessHierarchy(FbxNode* node,
 			boneIndexToParentIndex.push_back(parentIndex);
 
 			nodes[boneIndex] = node;
-
-			//FbxAMatrix offset = node->EvaluateGlobalTransform();//.Inverse();
-			//
-			//FbxVector4 r1 = offset.GetRow(0);
-			//FbxVector4 r2 = offset.GetRow(1);
-			//FbxVector4 r3 = offset.GetRow(2);
-			//FbxVector4 r4 = offset.GetRow(3);
-			//
-			//
-			//boneOffsets[boneIndex] = XMFLOAT4X4{
-			//	(float)r1.mData[0], (float)r1.mData[1], (float)r1.mData[2], (float)r1.mData[3],
-			//	(float)r2.mData[0], (float)r2.mData[1], (float)r2.mData[2], (float)r2.mData[3],
-			//	(float)r3.mData[0], (float)r3.mData[1], (float)r3.mData[2], (float)r3.mData[3],
-			//	(float)r4.mData[0], (float)r4.mData[1], (float)r4.mData[2], (float)r4.mData[3]
-			//};
 		}
 	}
 
 	if (boneIndexToParentIndex.size() == 0)
 		boneIndex = -1;
 
-	//int childCount = node->GetChildCount();
+	int childCount = node->GetChildCount();
 	for (int i = 0; i < childCount; ++i)
 	{
 		ProcessHierarchy(node->GetChild(i), vertices, indices, skinnedData, clip, boneOffsets, boneIndexToParentIndex, boneIndex);
