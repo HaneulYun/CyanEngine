@@ -28,10 +28,10 @@ void Renderer::Start()
 	{
 		auto item = std::make_unique<RenderItem>();
 
-		Vector3 position = gameObject->GetComponent<Transform>()->position;
-		Vector3 scale = gameObject->GetComponent<Transform>()->localScale;
+		//Vector3 position = gameObject->GetComponent<Transform>()->position;
+		//Vector3 scale = gameObject->GetComponent<Transform>()->localScale;
 
-		XMStoreFloat4x4(&item->World, XMMatrixScaling(scale.x, scale.y, scale.z) * XMMatrixTranslation(position.x, position.y, position.z));
+		item->World = gameObject->transform->localToWorldMatrix;
 		XMStoreFloat4x4(&item->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
 		item->ObjCBIndex = rendererManager->allRItems.size();
 		item->Mat = material;

@@ -38,12 +38,12 @@ void SampleScene::BuildObjects()
 		Camera* camera = mainCamera->AddComponent<Camera>();
 		camera->SetViewport(0, 0, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight(), 0.0f, 1.0f);
 		camera->SetScissorRect(0, 0, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight());
-		camera->GenerateProjectionMatrix(0.3f, 10000.0f, CyanFW::Instance()->GetAspectRatio() , XMConvertToDegrees(0.25f * PI));
-		//camera->GenerateOrthoMatrix(800, 600, 0, 100);
+		//camera->GenerateProjectionMatrix(0.3f, 10000.0f, CyanFW::Instance()->GetAspectRatio() , XMConvertToDegrees(0.25f * PI));
+		camera->GenerateOrthoMatrix(800, 600, 0, 100);
 		camera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -15.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 		camera->main = camera;
 
-		mainCamera->AddComponent<CameraController>();
+		//mainCamera->AddComponent<CameraController>();
 	}
 
 	GameObject* player = CreateEmpty();
@@ -54,7 +54,8 @@ void SampleScene::BuildObjects()
 	{
 		GameObject* grid = CreateEmpty();
 
-		grid->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
+		grid->transform->Scale({ 60, 60, 60 });
+		grid->transform->Rotate({ 1, 0, 0 }, -90);
 		grid->AddComponent<MeshFilter>()->mesh = mesh_grid;
 		grid->AddComponent<Renderer>()->material = material_defaultMaterial;
 	}
