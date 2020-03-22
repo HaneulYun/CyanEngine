@@ -242,10 +242,3 @@ public:
 	int GetRawImageWidth() { return(m_nWidth); }
 	int GetRawImageLength() { return(m_nLength); }
 };
-
-class MeshFromFbx : public Mesh
-{
-public:
-	MeshFromFbx(FbxMesh* fbxMesh);
-	virtual ~MeshFromFbx() {}
-};

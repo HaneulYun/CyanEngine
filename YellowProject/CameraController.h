@@ -45,7 +45,7 @@ public:
 			mTheta += delta.x;
 			mPhi += delta.y;
 
-			mPhi = FbxClamp(mPhi, 0.1f, PI - 0.1f);
+			//mPhi = std::(mPhi, 0.1f, PI - 0.1f);
 
 			lastMousePos = currMousePos;
 		}

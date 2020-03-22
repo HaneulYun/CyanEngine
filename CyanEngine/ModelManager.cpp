@@ -358,18 +358,6 @@ GameObject* ModelManager::LoadGeometryFromFBX(const char* pstrFileName)
 	}
 
 	GameObject* pGameObject = nullptr;
-	
-
-	fbxManager = FbxManager::Create();
-	FbxIOSettings* ios = FbxIOSettings::Create(fbxManager, IOSROOT);
-	fbxManager->SetIOSettings(ios);
-
-	fbxScene = FbxScene::Create(fbxManager, "Scene");
-
-	fbxImporter = FbxImporter::Create(fbxManager, "");
-	fbxImporter->Initialize(pstrFileName, -1);
-	fbxImporter->Import(fbxScene);
-
 
 	database[pstrFileName] = pGameObject;
 

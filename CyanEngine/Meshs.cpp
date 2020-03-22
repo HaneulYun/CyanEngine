@@ -940,35 +940,3 @@ WaveMesh::WaveMesh(float fWidth, float fHeight, float fDepth, float fxPosition, 
 	vertexBufferView.StrideInBytes = m_nStride;
 	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 }
-
-MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh)
-{
-	int triangleCount = fbxMesh->GetPolygonCount();
-	m_nVertices = triangleCount * 3;
-	m_nStride = sizeof(DiffusedVertex);
-	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
-	DiffusedVertex* pVertices = new DiffusedVertex[m_nVertices];
-
-	FbxVector4* vertices = fbxMesh->GetControlPoints();
-
-	for (int i = 0; i < triangleCount; ++i)
-	{
-		for (int j = 0; j < 3; ++j)
-		{
-			int ctrlPointIndex = fbxMesh->GetPolygonVertex(i, j);
-
-			float x = vertices[ctrlPointIndex].mData[0];
-			float y = vertices[ctrlPointIndex].mData[1];
-			float z = vertices[ctrlPointIndex].mData[2];
-
-			pVertices[i * 3 + j] = DiffusedVertex(XMFLOAT3(x, y, z), XMFLOAT4(Colors::White));
-		}
-	}
-
-	vertexBuffer = CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
-
-	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = m_nStride;
-	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
-}
