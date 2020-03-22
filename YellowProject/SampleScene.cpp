@@ -17,17 +17,27 @@ void SampleScene::BuildObjects()
 	Mesh* mesh_cylinder = new Cylinder();
 
 	rendererManager->textureData.push_back({ "boardTex", L"..\\CyanEngine\\Textures\\borad.dds" });
+	rendererManager->textureData.push_back({ "pawnTex", L"..\\CyanEngine\\Textures\\pawn.dds" });
 
 	rendererManager->materials["board"] = std::make_unique<Material>();
-	Material* material_bricks0 = rendererManager->materials["board"].get();
+	rendererManager->materials["pawn"] = std::make_unique<Material>();
+	Material* material_board = rendererManager->materials["board"].get();
+	Material* material_pawn = rendererManager->materials["pawn"].get();
 
 	{
-		material_bricks0->Name = "board";
-		material_bricks0->MatCBIndex = 0;
-		material_bricks0->DiffuseSrvHeapIndex = 0;
-		material_bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		material_bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-		material_bricks0->Roughness = 0.1f;
+		material_board->Name = "board";
+		material_board->MatCBIndex = 0;
+		material_board->DiffuseSrvHeapIndex = 0;
+		material_board->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		material_board->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+		material_board->Roughness = 0.1f;
+
+		material_pawn->Name = "pawn";
+		material_pawn->MatCBIndex = 1;
+		material_pawn->DiffuseSrvHeapIndex = 1;
+		material_pawn->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		material_pawn->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+		material_pawn->Roughness = 0.1f;
 	}
 
 
@@ -51,12 +61,20 @@ void SampleScene::BuildObjects()
 		player->AddComponent<Controller>()->gameObject = player;
 	}
 
+	GameObject* board = CreateEmpty();
 	{
-		GameObject* grid = CreateEmpty();
+		board->transform->Scale({ 60, 60, 60 });
+		board->transform->Rotate({ 1, 0, 0 }, -90);
+		board->AddComponent<MeshFilter>()->mesh = mesh_grid;
+		board->AddComponent<Renderer>()->material = material_defaultMaterial;
+	}
 
-		grid->transform->Scale({ 60, 60, 60 });
-		grid->transform->Rotate({ 1, 0, 0 }, -90);
-		grid->AddComponent<MeshFilter>()->mesh = mesh_grid;
-		grid->AddComponent<Renderer>()->material = material_defaultMaterial;
+	GameObject* pawn = CreateEmpty();
+	{
+		pawn->transform->Scale({ 7.5, 7.5, 7.5 });
+		pawn->transform->Rotate({ 1, 0, 0 }, -90);
+		pawn->transform->position = { 0, 0, -1 };
+		pawn->AddComponent<MeshFilter>()->mesh = mesh_grid;
+		pawn->AddComponent<Renderer>()->material = material_pawn;
 	}
 }
