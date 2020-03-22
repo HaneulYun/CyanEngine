@@ -76,5 +76,7 @@ void SampleScene::BuildObjects()
 		pawn->transform->position = { 0, 0, -1 };
 		pawn->AddComponent<MeshFilter>()->mesh = mesh_grid;
 		pawn->AddComponent<Renderer>()->material = material_pawn;
+
+		pawn->AddComponent<Pawn>();
 	}
 }

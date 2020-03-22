@@ -165,9 +165,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="board.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="pawn.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SampleScene.h" />
