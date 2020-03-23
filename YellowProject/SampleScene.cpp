@@ -48,12 +48,9 @@ void SampleScene::BuildObjects()
 		Camera* camera = mainCamera->AddComponent<Camera>();
 		camera->SetViewport(0, 0, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight(), 0.0f, 1.0f);
 		camera->SetScissorRect(0, 0, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight());
-		//camera->GenerateProjectionMatrix(0.3f, 10000.0f, CyanFW::Instance()->GetAspectRatio() , XMConvertToDegrees(0.25f * PI));
-		camera->GenerateOrthoMatrix(800, 600, 0, 100);
+		camera->GenerateOrthoMatrix(600, 600, 0, 100);
 		camera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -15.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 		camera->main = camera;
-
-		//mainCamera->AddComponent<CameraController>();
 	}
 
 	GameObject* player = CreateEmpty();
@@ -76,5 +73,6 @@ void SampleScene::BuildObjects()
 		pawn->transform->position = { 0, 0, -1 };
 		pawn->AddComponent<MeshFilter>()->mesh = mesh_grid;
 		pawn->AddComponent<Renderer>()->material = material_pawn;
+		pawn->AddComponent<chessPiece>();
 	}
 }

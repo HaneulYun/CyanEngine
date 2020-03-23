@@ -167,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="board.h" />
     <ClInclude Include="CameraController.h" />
+    <ClInclude Include="chessPiece.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />

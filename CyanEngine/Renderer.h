@@ -1,6 +1,7 @@
 #pragma once
 
 class RendererManager;
+class RenderItem;
 
 class Renderer : public Component
 {
@@ -9,6 +10,7 @@ private:
 
 public:
 	//std::deque<Material*> materials;
+	RenderItem* item{ nullptr };
 	Material* material{ nullptr };
 
 private:
