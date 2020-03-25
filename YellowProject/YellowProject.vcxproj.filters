@@ -22,6 +22,9 @@
     <Filter Include="Assets\Scripts">
       <UniqueIdentifier>{075fe0ba-de05-4eb5-98e9-bbfa3134b271}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Scripts\Form">
+      <UniqueIdentifier>{687a5e12-d535-4f8e-b254-b20befcf62fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -47,6 +50,9 @@
     </ClInclude>
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptForm.h">
+      <Filter>Assets\Scripts\Form</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

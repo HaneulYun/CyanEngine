@@ -171,7 +171,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="Controller.h" />
     <ClInclude Include="CTexture.h" />
     <ClInclude Include="CyanApp.h" />
     <ClInclude Include="CyanFW.h" />
@@ -180,7 +179,6 @@
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DefaultMaterial.h" />
-    <ClInclude Include="FBX_TEST.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
@@ -194,18 +192,13 @@
     <ClInclude Include="MeshFilter.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="MonoBehavior.h" />
-    <ClInclude Include="MovingBehavior.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RendererManager.h" />
-    <ClInclude Include="RotatingBehavior.h" />
-    <ClInclude Include="RotorBehavior.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneManager.h" />
-    <ClInclude Include="ScriptForm.h" />
     <ClInclude Include="scripts.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
@@ -220,7 +213,6 @@
     <ClInclude Include="UploadBuffer.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vertex.h" />
-    <ClInclude Include="Wave.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoxCollider.cpp" />

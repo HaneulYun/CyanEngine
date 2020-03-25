@@ -76,23 +76,6 @@ void SampleScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
-	GameObject* player = CreateEmpty();
-	{
-		player->AddComponent<Controller>()->gameObject = player;
-	}
-
-	//int cnt = 1;
-	//float offset = 2.0f;
-	//for (int x = -cnt; x <= cnt; ++x)
-	//	for (int y = -cnt; y <= cnt; ++y)
-	//		for (int z = -cnt; z <= cnt; ++z)
-	//			{
-	//				GameObject* cube = CreateEmpty();
-	//				cube->GetComponent<Transform>()->position = Vector3(x * offset, y * offset + 5, z * offset + 5);
-	//				cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
-	//				cube->AddComponent<Renderer>()->material = material_defaultMaterial;
-	//			}
-
 	{
 		GameObject* cube = CreateEmpty();
 		cube->GetComponent<Transform>()->position = Vector3(0, 1, 3);

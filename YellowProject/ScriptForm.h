@@ -1,11 +1,11 @@
 #pragma once
-#include "framework.h"
+#include "..\CyanEngine\framework.h"
 
 class ScriptForm : public MonoBehavior<ScriptForm>
 {
-private /*이 영역에 private 변수를 선언하세요.*/ :
+private /*이 영역에 private 변수를 선언하세요.*/:
 
-public  /*이 영역에 public 변수를 선언하세요.*/ :
+public  /*이 영역에 public 변수를 선언하세요.*/:
 
 private:
 	friend class GameObject;
@@ -24,5 +24,5 @@ public:
 	{
 	}
 
-// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
+	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };

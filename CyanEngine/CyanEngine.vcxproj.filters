@@ -34,18 +34,6 @@
     <Filter Include="0_00_CyanEngine\12_Math">
       <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
     </Filter>
-    <Filter Include="1_00_YellowProject">
-      <UniqueIdentifier>{6278fbf3-a6b9-4bd0-90e5-e0469395c962}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="1_00_YellowProject\00_Scene">
-      <UniqueIdentifier>{9e10db84-6f52-4402-a5d4-909d396d3ce8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="1_00_YellowProject\10_Scripts">
-      <UniqueIdentifier>{8a066a5c-fd82-4600-881a-762e61d9436a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="1_00_YellowProject\10_Scripts\11_Form">
-      <UniqueIdentifier>{1acdfba3-2a73-4300-801d-621662c8d63e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="shaders">
       <UniqueIdentifier>{761e2aee-8ba3-4d70-ae2b-b8ae022c7bcf}</UniqueIdentifier>
     </Filter>
@@ -102,20 +90,8 @@
     <ClInclude Include="Camera.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
-    <ClInclude Include="RotatingBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneManager.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptForm.h">
-      <Filter>1_00_YellowProject\10_Scripts\11_Form</Filter>
-    </ClInclude>
     <ClInclude Include="Vector3.h">
       <Filter>0_00_CyanEngine\12_Math</Filter>
-    </ClInclude>
-    <ClInclude Include="MovingBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
@@ -153,9 +129,6 @@
     <ClInclude Include="SphereCollider.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
-    <ClInclude Include="Controller.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClInclude>
@@ -168,12 +141,6 @@
     <ClInclude Include="TextureShader.h">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="Wave.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="FBX_TEST.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
     </ClInclude>
@@ -182,9 +149,6 @@
     </ClInclude>
     <ClInclude Include="scripts.h">
       <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
-    </ClInclude>
-    <ClInclude Include="RotorBehavior.h">
-      <Filter>1_00_YellowProject\10_Scripts</Filter>
     </ClInclude>
     <ClInclude Include="CTexture.h">
       <Filter>0_00_CyanEngine\44_Materials</Filter>
