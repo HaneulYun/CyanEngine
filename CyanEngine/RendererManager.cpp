@@ -179,7 +179,7 @@ void ProcessHierarchy(FbxNode* node,
 						FbxVector4 s = localTransform.GetS();
 						FbxQuaternion q = localTransform.GetQ();
 
-						keyframe.TimePos = i * 0.0166;
+						keyframe.TimePos = i * 0.166;
 						keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
 						keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
 						keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
@@ -208,7 +208,7 @@ void ProcessHierarchy(FbxNode* node,
 							FbxVector4 s = localTransform.GetS();
 							FbxQuaternion q = localTransform.GetQ();
 
-							keyframe.TimePos = i;
+							keyframe.TimePos = i * 0.166;
 							keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
 							keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
 							keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);

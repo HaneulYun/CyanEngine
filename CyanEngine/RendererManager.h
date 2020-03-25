@@ -29,6 +29,8 @@ struct SkinnedModelInstance
 	{
 		TimePos += dt;
 
+		float k = SkinnedInfo->GetClipEndTime(ClipName);
+
 		if (TimePos > SkinnedInfo->GetClipEndTime(ClipName))
 			TimePos = 0.0f;
 
