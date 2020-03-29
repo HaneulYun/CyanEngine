@@ -5,7 +5,11 @@
 #include <stdio.h>
 
 #define SERVERPORT 9000
-#define BUFSIZE    512
+
+struct MOVE_PACKET
+{
+	char x; char y; char dx; char dy;
+};
 
 void err_quit(const char* msg)
 {
@@ -64,7 +68,7 @@ int main()
 	SOCKET client_sock;
 	SOCKADDR_IN clientaddr;
 	int addrlen;
-	char buf[BUFSIZE + 1];
+	MOVE_PACKET buf;
 
 	while (1) {
 		// accept()
@@ -82,7 +86,7 @@ int main()
 		// 클라이언트와 데이터 통신
 		while (1) {
 			// 데이터 받기
-			retval = recv(client_sock, buf, BUFSIZE, 0);
+			retval = recv(client_sock, (char*)&buf, sizeof(MOVE_PACKET), 0);
 			if (retval == SOCKET_ERROR)
 			{
 				err_display("recv()");
@@ -92,12 +96,11 @@ int main()
 				break;
 
 			// 받은 데이터 출력
-			buf[retval] = '\0';
-			printf("[TCP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr),
-				ntohs(clientaddr.sin_port), buf);
+			printf("[TCP/%s:%d] %d %d %d %d\n", inet_ntoa(clientaddr.sin_addr),
+				ntohs(clientaddr.sin_port), (int)buf.x, (int)buf.y, (int)buf.dx, (int)buf.dy);
 
 			// 데이터 보내기
-			retval = send(client_sock, buf, retval, 0);
+			retval = send(client_sock, (char*)&buf, sizeof(MOVE_PACKET), 0);
 			if (retval == SOCKET_ERROR)
 			{
 				err_display("send()");

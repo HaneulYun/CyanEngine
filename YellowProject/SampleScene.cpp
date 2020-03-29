@@ -59,6 +59,8 @@ void SampleScene::BuildObjects()
 		board->transform->Rotate({ 1, 0, 0 }, -90);
 		board->AddComponent<MeshFilter>()->mesh = mesh_grid;
 		board->AddComponent<Renderer>()->material = material_board;
+
+		board->AddComponent<TCPClient>();
 	}
 
 	GameObject* pawn = CreateEmpty();
