@@ -1,6 +1,5 @@
 #pragma once
 #include <WS2tcpip.h>
-#include <conio.h>
 #pragma comment(lib, "Ws2_32.lib")
 #include "framework.h"
 
@@ -39,17 +38,27 @@ public:
 		memset(&serverAddr, 0, sizeof(SOCKADDR_IN));
 		serverAddr.sin_family = AF_INET;
 		serverAddr.sin_port = htons(serverPort);
+		std::wstring title(L"Input IP Here : ");
+		SetWindowText(CyanApp::GetHwnd(), title.c_str());
 	}
 
 	std::wstring ToWString(const std::string& string)
 	{
 		wchar_t buffer[1024];
 		DWORD minSize = MultiByteToWideChar(CP_ACP, 0, string.c_str(), -1, NULL, 0);
-		if (1024 < minSize)
-			return L"OverFlowed";
-
+		if (1024 < minSize)	return L"OverFlowed";
 		MultiByteToWideChar(CP_ACP, 0, string.c_str(), -1, buffer, minSize);
 		return std::wstring(buffer);
+	}
+
+	std::string ToString(const std::wstring& input)
+	{
+		char buffer[1024];
+
+		DWORD minSize = WideCharToMultiByte(CP_OEMCP, NULL, input.c_str(), -1, NULL, 0, NULL, FALSE);
+		if (1024 < minSize)	return "OverFlowed";
+		WideCharToMultiByte(CP_OEMCP, NULL, input.c_str(), -1, buffer, 1024, NULL, FALSE);
+		return std::string(buffer);
 	}
 
 	void Update()
@@ -65,16 +74,19 @@ public:
 					SetWindowText(CyanApp::GetHwnd(), (title + ToWString(serverIP)).c_str());
 				}
 			}
-			
-				inet_pton(AF_INET, serverIP.c_str(), &serverAddr.sin_addr);
-				SetWindowText(CyanApp::GetHwnd(), ToWString(serverIP).c_str());//title.c_str());
-				int retval = connect(serverSocket, (struct sockaddr*) & serverAddr, sizeof(serverAddr));
-
-				if (retval != SOCKET_ERROR) isConnect = true;
-	
-			else
+			if (Input::GetKeyDown(KeyCode::Period))
 			{
-				serverIP += c;
+				serverIP += '.';
+				SetWindowText(CyanApp::GetHwnd(), (title + ToWString(serverIP)).c_str());
+			}
+			if (Input::GetKeyDown(KeyCode::Return))
+			{
+				SetWindowText(CyanApp::GetHwnd(), (title + ToWString(serverIP)).c_str());
+				const char* a = serverIP.c_str();
+				inet_pton(AF_INET, a, &serverAddr.sin_addr);
+				int retval = connect(serverSocket, (struct sockaddr*) & serverAddr, sizeof(serverAddr));
+				if (retval == SOCKET_ERROR) serverIP = "";
+				else isConnect = true;
 			}
 		}
 	}
