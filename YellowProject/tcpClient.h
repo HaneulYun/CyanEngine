@@ -8,7 +8,7 @@
 
 struct MOVE_PACKET
 {
-	char x; char y; char dx; char dy;
+	char x; char y;
 };
 
 class TCPClient : public MonoBehavior<TCPClient>
@@ -18,6 +18,7 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 	SOCKET sock;
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
+	Pawn* pawn;
 
 private:
 	friend class GameObject;
@@ -48,10 +49,23 @@ public:
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
-		MOVE_PACKET packet{};
-		send(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
-		recv(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
+		if (Input::GetMouseButtonDown(0))
+		{
+			Vector3 pos = Camera::main->ScreenToWorldPoint(Input::mousePosition);
+			int xIndexOnBoard = GetIndexFromPosition(pos.x);
+			int yIndexOnBoard = GetIndexFromPosition(pos.y);
+
+			MOVE_PACKET packet{ xIndexOnBoard, yIndexOnBoard };
+			send(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
+			recv(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
+
+			pawn->SetPositionByIndex(xIndexOnBoard, yIndexOnBoard);
+		}
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
+	int GetIndexFromPosition(float d)
+	{
+		return (d + 300) / 75;
+	}
 };

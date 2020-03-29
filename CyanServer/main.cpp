@@ -8,7 +8,7 @@
 
 struct MOVE_PACKET
 {
-	char x; char y; char dx; char dy;
+	char x; char y;
 };
 
 void err_quit(const char* msg)
@@ -96,8 +96,8 @@ int main()
 				break;
 
 			// 받은 데이터 출력
-			printf("[TCP/%s:%d] %d %d %d %d\n", inet_ntoa(clientaddr.sin_addr),
-				ntohs(clientaddr.sin_port), (int)buf.x, (int)buf.y, (int)buf.dx, (int)buf.dy);
+			printf("[TCP/%s:%d] %d %d\n", inet_ntoa(clientaddr.sin_addr),
+				ntohs(clientaddr.sin_port), (int)buf.x, (int)buf.y);
 
 			// 데이터 보내기
 			retval = send(client_sock, (char*)&buf, sizeof(MOVE_PACKET), 0);

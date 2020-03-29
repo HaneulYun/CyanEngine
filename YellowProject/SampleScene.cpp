@@ -72,5 +72,6 @@ void SampleScene::BuildObjects()
 		pawn->AddComponent<Renderer>()->material = material_pawn;
 
 		pawn->AddComponent<Pawn>();
+		board->GetComponent<TCPClient>()->pawn = pawn->GetComponent<Pawn>();
 	}
 }
