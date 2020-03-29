@@ -66,8 +66,7 @@ int main(int argc, char* argv[])
 				msg.x = board->getPosToBoardPos(board->p.getX(), board->p.getY()).x;
 				msg.y = board->getPosToBoardPos(board->p.getX(), board->p.getY()).y;
 				msg.z = board->getPosToBoardPos(board->p.getX(), board->p.getY()).z;
-				int sendBytes = send(client_socket, (char*)msg, sizeof(msg), 0);
-				if (sendBytes > 0)printf("TRACE - Send message : %s (%d bytes)\n", messageBuffer, sendBytes);
+				int sendBytes = send(client_socket, (char*)&msg, sizeof(msg), 0);
 			}
 		}
 

@@ -56,6 +56,11 @@ void SampleScene::BuildObjects()
 		//mainCamera->AddComponent<CameraController>();
 	}
 
+	GameObject* network = CreateEmpty();
+	{
+		network->AddComponent<Network>()->serverIP = "!27.0.0.1";
+	}
+
 	GameObject* board = CreateEmpty();
 	{
 		board->transform->Scale({ 60, 60, 60 });
