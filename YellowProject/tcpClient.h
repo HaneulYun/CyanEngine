@@ -14,6 +14,9 @@ struct MOVE_PACKET
 class TCPClient : public MonoBehavior<TCPClient>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
+	bool isIP{ false };
+	std::wstring ip;
+
 	WSADATA wsa;
 	SOCKET sock;
 
@@ -36,30 +39,62 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
-		WSAStartup(MAKEWORD(2, 2), &wsa);
+		std::wstring title(L"Yellow Project _ Input IP Here : ");
 
-		sock = socket(AF_INET, SOCK_STREAM, 0);
-
-		SOCKADDR_IN serveraddr{};
-		serveraddr.sin_family = AF_INET;
-		serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
-		serveraddr.sin_port = htons(SERVERPORT);
-		connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
+		SetWindowText(CyanApp::GetHwnd(), title.c_str());
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
-		if (Input::GetMouseButtonDown(0))
+		if (!isIP)
 		{
-			Vector3 pos = Camera::main->ScreenToWorldPoint(Input::mousePosition);
-			int xIndexOnBoard = GetIndexFromPosition(pos.x);
-			int yIndexOnBoard = GetIndexFromPosition(pos.y);
+			for (char keyCode = '0'; keyCode <= '9'; ++keyCode)
+			{
+				if (Input::GetKeyDown((KeyCode)keyCode))
+				{
+					ip += keyCode;
+					std::wstring title(L"Yellow Project _ Input IP Here : ");
+					SetWindowText(CyanApp::GetHwnd(), (title+ip).c_str());
+				}
+			}
+			if (Input::GetKeyDown(KeyCode::Period))
+			{
+				ip += '.';
+				std::wstring title(L"Yellow Project _ Input IP Here : ");
+				SetWindowText(CyanApp::GetHwnd(), (title + ip).c_str());
+			}
+			if (Input::GetKeyDown(KeyCode::Return))
+			{
+				isIP = true;
 
-			MOVE_PACKET packet{ xIndexOnBoard, yIndexOnBoard };
-			send(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
-			recv(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
+				WSAStartup(MAKEWORD(2, 2), &wsa);
 
-			pawn->SetPositionByIndex(packet.x, packet.y);
+				sock = socket(AF_INET, SOCK_STREAM, 0);
+
+				std::string addr;
+				addr.assign(ip.begin(), ip.end());
+
+				SOCKADDR_IN serveraddr{};
+				serveraddr.sin_family = AF_INET;
+				serveraddr.sin_addr.s_addr = inet_addr(addr.c_str());
+				serveraddr.sin_port = htons(SERVERPORT);
+				connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
+			}
+		}
+		else
+		{
+			if (Input::GetMouseButtonDown(0))
+			{
+				Vector3 pos = Camera::main->ScreenToWorldPoint(Input::mousePosition);
+				int xIndexOnBoard = GetIndexFromPosition(pos.x);
+				int yIndexOnBoard = GetIndexFromPosition(pos.y);
+
+				MOVE_PACKET packet{ xIndexOnBoard, yIndexOnBoard };
+				send(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
+				recv(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
+
+				pawn->SetPositionByIndex(packet.x, packet.y);
+			}
 		}
 	}
 
