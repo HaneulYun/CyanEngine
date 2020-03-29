@@ -173,6 +173,7 @@
     <ClInclude Include="SampleScene.h" />
     <ClInclude Include="scripts.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="tcpClient.h" />
     <ClInclude Include="YellowProject.h" />
   </ItemGroup>
   <ItemGroup>

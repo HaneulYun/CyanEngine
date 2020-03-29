@@ -48,6 +48,9 @@
     <ClInclude Include="pawn.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="tcpClient.h">
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
