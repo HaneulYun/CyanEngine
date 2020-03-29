@@ -2,6 +2,7 @@
 #pragma comment(lib, "ws2_32.lib")
 #include <stdio.h>
 #include <WS2tcpip.h>
+#include "board.h"
 
 #define SERVER_PORT 3500
 #define BUFSIZE 1024
@@ -27,7 +28,7 @@ int main(int argc, char* argv[])
 	serverAddr.sin_port = htons(SERVER_PORT);
 	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	::bind(listenSocket, (sockaddr*)&serverAddr, sizeof(serverAddr));
-	
+
 	// listen()
 	listen(listenSocket, 5);
 
