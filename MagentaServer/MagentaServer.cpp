@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 	while (true) {
 		int addr_size = sizeof(client_addr);
 		SOCKET client_socket = accept(listenSocket, (sockaddr*)&client_addr, &addr_size);
-
+		printf("accept()\n");
 		Board* board = new Board();
 
 		while (true) {
@@ -67,6 +67,7 @@ int main(int argc, char* argv[])
 				msg.y = board->getPosToBoardPos(board->p.getX(), board->p.getY()).y;
 				msg.z = board->getPosToBoardPos(board->p.getX(), board->p.getY()).z;
 				int sendBytes = send(client_socket, (char*)&msg, sizeof(msg), 0);
+				printf("%f, %f\n", msg.x, msg.y);
 			}
 		}
 

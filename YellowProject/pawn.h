@@ -6,8 +6,8 @@ class Pawn : public MonoBehavior<Pawn>
 private:
 
 public:
-	int x{ 0 };
-	int y{ 0 };
+	Vector3 pos;
+	Network* network;
 
 private:
 	friend class GameObject;
@@ -16,54 +16,36 @@ private:
 	Pawn(Pawn&) = default;
 
 public:
-	~Pawn() {}
+	~Pawn() { }
 
 	void Start()
 	{
-		gameObject->transform->position = getPosToBoardPos(x, y);
+		pos = { -2100 / 8, -2100 / 8, -1 };
+		gameObject->transform->position = pos;
 		gameObject->GetComponent<Renderer>()->item->NumFramesDirty = NUM_FRAME_RESOURCES;
 		gameObject->GetComponent<Renderer>()->item->World = gameObject->transform->localToWorldMatrix;
 	}
 
 	void Update()
 	{
-		if (Input::GetMouseButtonDown(0))
+		if (Input::GetKeyDown(KeyCode::W))
 		{
-			Vector3 cursorPos = Camera::main->ScreenToWorldPoint(Input::mousePosition);
-			if (cursorPos.x > -300 && cursorPos.x < 300)
-			{
-				x = (cursorPos.x + 300) / (600 / 8);
-				y = (cursorPos.y + 300) / (600 / 8);
-			}
+			pos = network->communicate(MOVE_UP, pos);
 		}
-		else if (Input::GetKeyDown(KeyCode::W) && y < 7)
+		else if (Input::GetKeyDown(KeyCode::A))
 		{
-			y++;
+			pos = network->communicate(MOVE_LEFT, pos);
 		}
-		else if (Input::GetKeyDown(KeyCode::A) && x > 0)
+		else if (Input::GetKeyDown(KeyCode::S))
 		{
-			x--;
+			pos = network->communicate(MOVE_DOWN, pos);
 		}
-		else if (Input::GetKeyDown(KeyCode::S) && y > 0)
+		else if (Input::GetKeyDown(KeyCode::D))
 		{
-			y--;
+			pos = network->communicate(MOVE_RIGHT, pos);
 		}
-		else if (Input::GetKeyDown(KeyCode::D) && x < 7)
-		{
-			x++;
-		}
-		gameObject->transform->position = getPosToBoardPos(x, y);
+		gameObject->transform->position = pos;
 		gameObject->GetComponent<Renderer>()->item->NumFramesDirty = NUM_FRAME_RESOURCES;
 		gameObject->GetComponent<Renderer>()->item->World = gameObject->transform->localToWorldMatrix;
-	}
-
-	Vector3 getPosToBoardPos(int x, int y)
-	{
-		Vector3 boardPos;
-		boardPos.x = x * 600 / 8 - (2100/8);
-		boardPos.y = y * 600 / 8 - (2100/8);
-		boardPos.z = -1;
-
-		return boardPos;
 	}
 };
