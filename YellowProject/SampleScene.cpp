@@ -58,7 +58,7 @@ void SampleScene::BuildObjects()
 
 	GameObject* network = CreateEmpty();
 	{
-		network->AddComponent<Network>()->serverIP = "!27.0.0.1";
+		network->AddComponent<Network>()->serverIP = "127.0.0.1";
 	}
 
 	GameObject* board = CreateEmpty();

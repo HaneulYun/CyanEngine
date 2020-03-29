@@ -15,13 +15,10 @@ int main(int argc, char* argv[])
 	WSAStartup(MAKEWORD(2, 2), &wsa);
 
 	// socket()
-	//SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-	//if (listen_sock == INVALID_SOCKET) err_quit("socket()");
 	SOCKET listenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, 0);
 
 	// bind()
 	SOCKADDR_IN serverAddr;
-	//ZeroMemory(&serveraddr, sizeof(serveraddr));
 	memset(&serverAddr, 0, sizeof(SOCKADDR_IN));
 	serverAddr.sin_family = AF_INET;
 	serverAddr.sin_port = htons(SERVER_PORT);
