@@ -59,7 +59,7 @@ public:
 			send(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
 			recv(sock, (char*)&packet, sizeof(MOVE_PACKET), 0);
 
-			pawn->SetPositionByIndex(xIndexOnBoard, yIndexOnBoard);
+			pawn->SetPositionByIndex(packet.x, packet.y);
 		}
 	}
 

@@ -6,6 +6,11 @@
 
 #define SERVERPORT 9000
 
+struct Pawn
+{
+	char x; char y;
+};
+
 struct MOVE_PACKET
 {
 	char x; char y;
@@ -83,6 +88,7 @@ int main()
 		// 접속한 클라이언트 정보 출력
 		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
+		Pawn pawn{ 0, 0 };
 		// 클라이언트와 데이터 통신
 		while (1) {
 			// 데이터 받기
@@ -98,6 +104,16 @@ int main()
 			// 받은 데이터 출력
 			printf("[TCP/%s:%d] %d %d\n", inet_ntoa(clientaddr.sin_addr),
 				ntohs(clientaddr.sin_port), (int)buf.x, (int)buf.y);
+
+			if (pawn.x == 0 && buf.x == -1 ||
+				pawn.x == 7 && buf.x == 8 ||
+				pawn.y == 0 && buf.y == -1 ||
+				pawn.y == 7 && buf.y == 8)
+				buf = { pawn.x, pawn.y };
+			else if (abs(pawn.x - buf.x) + abs(pawn.y - buf.y) < 2)
+				pawn = { buf.x, buf.y };
+			else
+				buf = { pawn.x, pawn.y };
 
 			// 데이터 보내기
 			retval = send(client_sock, (char*)&buf, sizeof(MOVE_PACKET), 0);
