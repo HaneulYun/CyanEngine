@@ -1,8 +1,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS // 최신 VC++ 컴파일 시 경고 방지
 #pragma comment(lib, "ws2_32.lib")
-#include <stdio.h>
-#include <WS2tcpip.h>
-#include "board.h"
+
+#include "pch.h"
 
 #define SERVER_PORT 3500
 #define BUFSIZE 1024
@@ -36,14 +35,43 @@ int main(int argc, char* argv[])
 	while (true) {
 		int addr_size = sizeof(client_addr);
 		SOCKET client_socket = accept(listenSocket, (sockaddr*)&client_addr, &addr_size);
+
+		Board* board = new Board();
+
 		while (true) {
 			char messageBuffer[BUFSIZE];
 			int receiveBytes = recv(client_socket, messageBuffer, BUFSIZE, 0);
-			if (receiveBytes > 0) printf("TRACE - Receive message : %s (%d bytes)\n", messageBuffer, receiveBytes);
-			else break;
-			int sendBytes = send(client_socket, messageBuffer, receiveBytes, 0);
-			if (sendBytes > 0)printf("TRACE - Send message : %s (%d bytes)\n", messageBuffer, sendBytes);
+			if (receiveBytes > 0)
+			{
+				switch (messageBuffer[0])
+				{
+				case MOVE_UP:
+					board->p.moveUp();
+					break;
+				case MOVE_DOWN:
+					board->p.moveDown();
+					break;
+				case MOVE_LEFT:
+					board->p.moveLeft();
+					break;
+				case MOVE_RIGHT:
+					board->p.moveRight();
+					break;
+				default:
+					break;
+				}
+
+				Message msg;
+				msg.msgID = MOVE;
+				msg.x = board->getPosToBoardPos(board->p.getX(), board->p.getY()).x;
+				msg.y = board->getPosToBoardPos(board->p.getX(), board->p.getY()).y;
+				msg.z = board->getPosToBoardPos(board->p.getX(), board->p.getY()).z;
+				int sendBytes = send(client_socket, (char*)msg, sizeof(msg), 0);
+				if (sendBytes > 0)printf("TRACE - Send message : %s (%d bytes)\n", messageBuffer, sendBytes);
+			}
 		}
+
+		delete board;
 		closesocket(client_socket);
 	}
 

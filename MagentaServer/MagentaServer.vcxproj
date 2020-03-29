@@ -144,7 +144,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="board.h" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MagentaServer.cpp" />
+    <ClCompile Include="pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="message.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="scripts.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

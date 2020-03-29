@@ -1,3 +1,6 @@
+#pragma once
+#include "framework.h"
+
 struct Vector3 {
 	float x, y, z;
 };
@@ -9,6 +12,9 @@ private:
 public:
 	Pawn() { x = 0, y = 0; }
 	Pawn(int xpos, int ypos) { x = xpos, y = ypos; }
+
+	int getX() const { return x; }
+	int getY() const { return y; }
 
 	void moveUp() { if (y < 7) ++y; }
 	void moveDown() { if (y > 0) --y; }
@@ -23,11 +29,11 @@ public:
 };
 
 class Board {
-private:
+public:
 	Pawn p;
 
 public:
-	Vector3 getPosToBoardPos(int& x, int& y)
+	Vector3 getPosToBoardPos(const int& x, const int& y)
 	{
 		Vector3 boardPos;
 		boardPos.x = x * 600 / 8 - (2100 / 8);
