@@ -2,5 +2,5 @@
 
 #include "CameraController.h"
 
-#include "board.h"
 #include "chessPiece.h"
+#include "clientServer.h"

@@ -74,8 +74,9 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		case VK_ESCAPE:
 			PostQuitMessage(0);
 			break;
-		case VK_RETURN:
-		case VK_F8:
+		case VK_OEM_PERIOD:
+			Input::keys[(int)KeyCode::Period] = false;
+			Input::keyUp[(int)KeyCode::Period] = true;
 			break;
 		case VK_F9:
 			RendererManager::Instance()->ChangeSwapChainState();
@@ -87,6 +88,15 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		Input::keyUp[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = true;
 		break;
 	case WM_KEYDOWN:
+		switch (wParam)
+		{
+		case VK_OEM_PERIOD:
+			Input::keys[(int)KeyCode::Period] = true;
+			Input::keyDown[(int)KeyCode::Period] = true;
+			break;
+		default:
+			break;
+		}
 		Input::keys[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = true;
 		Input::keyDown[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = true;
 		break;

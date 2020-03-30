@@ -16,7 +16,7 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 	windowClass.lpfnWndProc = WindowProc;
 	windowClass.hInstance = hInstance;
 	windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-	windowClass.lpszClassName = L"CyanEngine";
+	windowClass.lpszClassName = L"IP를 입력해주세요 : ";
 	RegisterClassEx(&windowClass);
 
 	RECT windowRect = { 0, 0, static_cast<LONG>(cyanFW->GetWidth()), static_cast<LONG>(cyanFW->GetHeight()) };
@@ -53,8 +53,8 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 
 			Input::Update();
 
-			Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
-			SetWindowText(hwnd, cyanFW->m_pszFrameRate);
+			//Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
+			//SetWindowText(hwnd, cyanFW->m_pszFrameRate);
 		}
 	}
 

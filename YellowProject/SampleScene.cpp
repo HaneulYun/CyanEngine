@@ -53,11 +53,6 @@ void SampleScene::BuildObjects()
 		camera->main = camera;
 	}
 
-	GameObject* player = CreateEmpty();
-	{
-		player->AddComponent<Controller>()->gameObject = player;
-	}
-
 	GameObject* board = CreateEmpty();
 	{
 		board->transform->Scale({ 60, 60, 60 });
@@ -74,5 +69,9 @@ void SampleScene::BuildObjects()
 		pawn->AddComponent<MeshFilter>()->mesh = mesh_grid;
 		pawn->AddComponent<Renderer>()->material = material_pawn;
 		pawn->AddComponent<chessPiece>();
+	}
+	
+	GameObject* server = CreateEmpty(); {
+		server->AddComponent<clientServer>()->pawn = pawn->GetComponent<chessPiece>();
 	}
 }

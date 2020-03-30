@@ -48,11 +48,11 @@
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="board.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="chessPiece.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="clientServer.h">
+      <Filter>Assets\Scripts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
