@@ -10,58 +10,12 @@
 
 struct PACKET
 {
-	unsigned char index;
-	unsigned char x;
-	unsigned char y;
+	char index;
+	char x;
+	char y;
 };
 
-struct SOCKETINFO
-{
-	WSAOVERLAPPED overlapped_recv;
-	WSAOVERLAPPED overlapped_send;
-	WSABUF dataBuffer;
-	char messageBuffer[sizeof(PACKET)];
-};
-
-SOCKETINFO socketInfo;
-chessPiece* chessPiece[10]{ NULL };
-
-void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags)
-{
-	SOCKET client_s = reinterpret_cast<int>(overlapped->hEvent);
-
-	if (dataBytes == 0)
-	{
-		closesocket(client_s);
-		return;
-	}  // 클라이언트가 closesocket을 했을 경우
-
-	//cout << "From client : " << clients[client_s].messageBuffer << " (" << dataBytes << ") bytes)\n";
-
-	// 데이터 처리
-	PACKET packet;
-	memcpy(&packet, socketInfo.messageBuffer, sizeof(PACKET));
-
-	pawn->move(packet.x, packet.y);
-
-	memset(&(socketInfo.overlapped_recv), 0, sizeof(WSAOVERLAPPED));
-	socketInfo.overlapped_recv.hEvent = (HANDLE)client_s;
-	WSARecv(client_s, &socketInfo.dataBuffer, 1, NULL,
-		0, &(socketInfo.overlapped_recv), recv_callback);
-}
-
-void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags)
-{
-	SOCKET client_s = reinterpret_cast<int>(overlapped->hEvent);
-
-	if (dataBytes == 0) {
-		closesocket(client_s);
-		return;
-	}  // 클라이언트가 closesocket을 했을 경우
-
-	// WSASend(응답에 대한)의 콜백일 경우
-	//std::cout << "Send message : " << clients[client_s].messageBuffer << " (" << dataBytes << ") bytes)\n";
-}
+//chessPiece* chessPiece[10]{ NULL };
 
 class clientServer : public MonoBehavior<clientServer>
 {
@@ -92,10 +46,12 @@ public:
 	void Start()
 	{
 		// 윈속 초기화
-		WSAStartup(MAKEWORD(2, 2), &wsa);
+		WSAStartup(MAKEWORD(2, 0), &wsa);
 
 		// socket()
-		sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+		sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, 0);
+		unsigned long noblock = 1; 
+		int nRet = ioctlsocket(sock, FIONBIO, &noblock);
 
 		std::wstring title(L"IP를 입력해주세요 : ");
 		SetWindowText(CyanApp::GetHwnd(), (title).c_str());
@@ -132,46 +88,47 @@ public:
 				serveraddr.sin_addr.s_addr = inet_addr(serverIP.c_str());
 				serveraddr.sin_port = htons(SERVERPORT);
 				connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
-
-				socketInfo.dataBuffer.len = sizeof(SOCKET);
-				socketInfo.dataBuffer.buf = socketInfo.messageBuffer;
-				memset(&(socketInfo.overlapped_recv), 0, sizeof(WSAOVERLAPPED));
-				socketInfo.overlapped_recv.hEvent = (HANDLE)sock;
-				WSARecv(sock, &socketInfo.dataBuffer, 1, NULL,
-					0, &(socketInfo.overlapped_recv), recv_callback);
 			}
 		}
 		else
 		{
+			PACKET packet;
+			if(recv(sock, (char*)&packet, sizeof(PACKET), 0) > 0)
+				pawn->move(packet.x, packet.y);
+
 			if (Input::GetKeyDown(KeyCode::W))
 			{
-				Move(0, -1);
+				packet.index = 0;
+				packet.x = 0;
+				packet.y = -1;
+				send(sock, (char*)&packet, sizeof(PACKET), 0);
+				
 			}
 			if (Input::GetKeyDown(KeyCode::A))
 			{
-				Move(-1, 0);
+				packet.index = 0;
+				packet.x = -1;
+				packet.y = 0;
+				send(sock, (char*)&packet, sizeof(PACKET), 0);
 			}
 			if (Input::GetKeyDown(KeyCode::S))
 			{
-				Move(0, +1);
+				//Move(0, +1);
+				packet.index = 0;
+				packet.x = 0;
+				packet.y = 1;
+				send(sock, (char*)&packet, sizeof(PACKET), 0);
 			}
 			if (Input::GetKeyDown(KeyCode::D))
 			{
-				Move(+1, 0);
+				//Move(+1, 0);
+				packet.index = 0;
+				packet.x = 1;
+				packet.y = 0;
+				send(sock, (char*)&packet, sizeof(PACKET), 0);
 			}
 		}
 
 
 	}
-
-	void Move(int x, int y) 
-	{
-		PACKET packet{ x, y };
-		send(sock, (char*)&packet, sizeof(PACKET), 0);
-		//recv(sock, (char*)&packet, sizeof(PACKET), 0);
-
-		pawn->move(packet.x, packet.y);
-	}
-
-
 };

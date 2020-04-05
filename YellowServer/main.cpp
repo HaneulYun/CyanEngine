@@ -1,3 +1,4 @@
+#define _WINSOCK_DEPRECATED_NO_WARNINGS // 최신 VC++ 컴파일 시 경고 방지
 #include <iostream>
 #include <map>
 using namespace std;
@@ -9,15 +10,15 @@ using namespace std;
 
 struct PACKET
 {
-	unsigned char index;
-	unsigned char x;
-	unsigned char y;
+	char index;
+	char x;
+	char y;
 };
 
 struct ChessPiece
 {
-	unsigned char x;
-	unsigned char y;
+	char x;
+	char y;
 };
 
 struct SOCKETINFO
@@ -29,7 +30,7 @@ struct SOCKETINFO
 	char messageBuffer[sizeof(PACKET)];
 };
 map <SOCKET, SOCKETINFO> clients;
-ChessPiece chessPieces[10]{ {-1,-1}, };
+ChessPiece chessPieces[10]{ 0, };
 
 void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags);
 void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags);
@@ -37,7 +38,7 @@ void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags)
 {
 	SOCKET client_s = reinterpret_cast<int>(overlapped->hEvent);
-
+	DWORD flags = 0;
 	if (dataBytes == 0)
 	{
 		closesocket(clients[client_s].socket);
@@ -45,11 +46,11 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 		return;
 	}  // 클라이언트가 closesocket을 했을 경우
 
-	cout << "From client : " << clients[client_s].messageBuffer << " (" << dataBytes << ") bytes)\n";
-
+	//cout << "From client : " << clients[client_s].messageBuffer << " (" << dataBytes << ") bytes)\n";
 	// 데이터 처리
 	PACKET packet;
 	memcpy(&packet, clients[client_s].messageBuffer, sizeof(PACKET));
+	cout << "From client : " << static_cast<int>(packet.index) << " " << static_cast<int>(packet.x) << " " << static_cast<int>(packet.y) << endl;
 
 	int tx = chessPieces[packet.index].x + packet.x;
 	int ty = chessPieces[packet.index].y + packet.y;
@@ -64,7 +65,7 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 	packet.y = chessPieces[packet.index].y;
 
 	// 처리된 데이터 브로드캐스트
-	for (auto d : clients)
+	for (auto& d : clients)
 	{
 		memcpy(d.second.messageBuffer, &packet, sizeof(PACKET));
 		memset(&(d.second.overlapped_send), 0, sizeof(WSAOVERLAPPED));
@@ -74,8 +75,7 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 
 	memset(&(clients[client_s].overlapped_recv), 0, sizeof(WSAOVERLAPPED));
 	clients[client_s].overlapped_recv.hEvent = (HANDLE)client_s;
-	WSARecv(clients[client_s].socket, &clients[client_s].dataBuffer, 1, NULL,
-		0, &(clients[client_s].overlapped_recv), recv_callback);
+	WSARecv(client_s, &clients[client_s].dataBuffer, 1, NULL, &flags, &(clients[client_s].overlapped_recv), recv_callback);
 }
 
 void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags)
@@ -89,7 +89,10 @@ void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 	}  // 클라이언트가 closesocket을 했을 경우
 
 	// WSASend(응답에 대한)의 콜백일 경우
-	cout << "Send message : " << clients[client_s].messageBuffer << " (" << dataBytes << ") bytes)\n";
+	//cout << "Send message : " << clients[client_s].messageBuffer << " (" << dataBytes << ") bytes)\n";
+	PACKET packet;
+	memcpy(&packet, clients[client_s].messageBuffer, sizeof(PACKET));
+	cout << "Send message : " << static_cast<int>(packet.index) << " " << static_cast<int>(packet.x) << " " << static_cast<int>(packet.y) << endl;
 }
 
 
@@ -122,34 +125,34 @@ int main(int argc, char* argv[])
 		DWORD flags = 0;
 		
 
-		int index = 0;
-		for (int i = 0; i < 10; ++i)
-		{
-			if (chessPieces[i].x == -1)
-			{
-				index = i;
-				chessPieces[i].x = 0;
-				chessPieces[i].y = 0;
-				break;
-			}
-		}
+		//int index = 0;
+		//for (int i = 0; i < 10; ++i)
+		//{
+		//	if (chessPieces[i].x == -1)
+		//	{
+		//		index = i;
+		//		chessPieces[i].x = 0;
+		//		chessPieces[i].y = 0;
+		//		break;
+		//	}
+		//}
 
-		PACKET packet;
-		packet.index = index;
-		packet.x = 0;
-		packet.y = 0;
+		//PACKET packet;
+		//packet.index = index;
+		//packet.x = 0;
+		//packet.y = 0;
 
-		// 현재 보드판 상태를 새로 접속한 client에게 전송
-		//@@@@@
+		//// 현재 보드판 상태를 새로 접속한 client에게 전송
+		////@@@@@
 
-		// 접속하면 모든 클라이언트에게 Send
-		for (auto d : clients)
-		{		
-			memcpy(d.second.messageBuffer, &packet, sizeof(PACKET));
-			memset(&(d.second.overlapped_send), 0, sizeof(WSAOVERLAPPED));
-			d.second.overlapped_send.hEvent = (HANDLE)d.second.socket;
-			WSASend(d.second.socket, &(d.second.dataBuffer), 1, NULL, 0, &(d.second.overlapped_send), send_callback);
-		}
+		//// 접속하면 모든 클라이언트에게 Send
+		//for (auto d : clients)
+		//{		
+		//	memcpy(d.second.messageBuffer, &packet, sizeof(PACKET));
+		//	memset(&(d.second.overlapped_send), 0, sizeof(WSAOVERLAPPED));
+		//	d.second.overlapped_send.hEvent = (HANDLE)d.second.socket;
+		//	WSASend(d.second.socket, &(d.second.dataBuffer), 1, NULL, 0, &(d.second.overlapped_send), send_callback);
+		//}
 
 		WSARecv(clients[clientSocket].socket, &clients[clientSocket].dataBuffer, 1, NULL,
 			&flags, &(clients[clientSocket].overlapped_recv), recv_callback);
