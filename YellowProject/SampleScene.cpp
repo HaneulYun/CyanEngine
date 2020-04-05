@@ -63,15 +63,18 @@ void SampleScene::BuildObjects()
 		board->AddComponent<TCPClient>();
 	}
 
-	GameObject* pawn = CreateEmpty();
+	for(int i = -1; i < 9; ++i)
 	{
+		GameObject* pawn = CreateEmpty();
 		pawn->transform->Scale({ 7.5, 7.5, 7.5 });
 		pawn->transform->Rotate({ 1, 0, 0 }, -90);
 		pawn->transform->position = { 0, 0, -1 };
 		pawn->AddComponent<MeshFilter>()->mesh = mesh_grid;
 		pawn->AddComponent<Renderer>()->material = material_pawn;
 
-		pawn->AddComponent<Pawn>();
-		board->GetComponent<TCPClient>()->pawn = pawn->GetComponent<Pawn>();
+		pawn->AddComponent<Pawn>()->x =	 i;
+		pawn->GetComponent<Pawn>()->y =  7;
+
+		board->GetComponent<TCPClient>()->pawns.push_back(pawn->GetComponent<Pawn>());
 	}
 }

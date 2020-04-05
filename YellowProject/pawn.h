@@ -4,10 +4,10 @@
 class Pawn : public MonoBehavior<Pawn>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	int x{ 0 };
-	int y{ 0 };
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
+	int x{ 0 };
+	int y{ 0 };
 
 private:
 	friend class GameObject;

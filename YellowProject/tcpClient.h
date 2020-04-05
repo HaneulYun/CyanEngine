@@ -21,7 +21,7 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 	SOCKET serverSocket;
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
-	Pawn* pawn;
+	std::vector<Pawn*> pawns;
 
 private:
 	friend class GameObject;
@@ -91,7 +91,7 @@ public:
 				send(serverSocket, (char*)&packet, sizeof(MOVE_PACKET), 0);
 				recv(serverSocket, (char*)&packet, sizeof(MOVE_PACKET), 0);
 
-				pawn->SetPositionByIndex(packet.x, packet.y);
+				pawns[0]->SetPositionByIndex(packet.x, packet.y);
 			}
 		}
 	}

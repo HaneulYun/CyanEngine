@@ -83,11 +83,14 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 	else
 		buf = { 0, pawn.x, pawn.y };
 
-	clients[client_s].senddata = { 0, pawn.x, pawn.y };
-	clients[client_s].sendbuf.buf = (char*)&clients[client_s].senddata;
-	clients[client_s].send = {};
-	clients[client_s].send.hEvent = (HANDLE)client_s;
-	WSASend(client_s, &(clients[client_s].sendbuf), 1, NULL, 0, &(clients[client_s].send), send_callback);
+	for (auto& client : clients)
+	{
+		client.second.senddata = { 0, pawn.x, pawn.y };
+		client.second.sendbuf.buf = (char*)&client.second.senddata;
+		client.second.send = {};
+		client.second.send.hEvent = (HANDLE)client.second.socket;
+		WSASend(client_s, &(client.second.sendbuf), 1, NULL, 0, &(client.second.send), send_callback);
+	}
 
 	DWORD flags = 0;
 	clients[client_s].recv = {};
