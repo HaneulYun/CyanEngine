@@ -61,17 +61,25 @@ void SampleScene::BuildObjects()
 		board->AddComponent<Renderer>()->material = material_defaultMaterial;
 	}
 
-	GameObject* pawn = CreateEmpty();
+	GameObject* pawns[10];
+	for (int i = 0; i < 10; ++i)
 	{
-		pawn->transform->Scale({ 7.5, 7.5, 7.5 });
-		pawn->transform->Rotate({ 1, 0, 0 }, -90);
-		pawn->transform->position = { 0, 0, -1 };
-		pawn->AddComponent<MeshFilter>()->mesh = mesh_grid;
-		pawn->AddComponent<Renderer>()->material = material_pawn;
-		pawn->AddComponent<chessPiece>();
+		pawns[i] = CreateEmpty();
+		pawns[i]->transform->Scale({ 7.5, 7.5, 7.5 });
+		pawns[i]->transform->Rotate({ 1, 0, 0 }, -90);
+		pawns[i]->transform->position = { 0, 0, -1 };
+		pawns[i]->AddComponent<MeshFilter>()->mesh = mesh_grid;
+		pawns[i]->AddComponent<Renderer>()->material = material_pawn;
+		pawns[i]->AddComponent<chessPiece>();
 	}
-	
-	GameObject* server = CreateEmpty(); {
-		server->AddComponent<clientServer>()->pawn = pawn->GetComponent<chessPiece>();
+
+	GameObject* server = CreateEmpty();
+	{
+		clientServer* cs = server->AddComponent<clientServer>();
+		for (int i = 0; i < 10; ++i)
+		{
+			cs->pawns[i] = pawns[i]->GetComponent<chessPiece>();
+		}
 	}
+
 }

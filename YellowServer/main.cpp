@@ -28,9 +28,10 @@ struct SOCKETINFO
 	WSABUF dataBuffer;
 	SOCKET socket;
 	char messageBuffer[sizeof(PACKET)];
+	int index;
 };
 map <SOCKET, SOCKETINFO> clients;
-ChessPiece chessPieces[10]{ 0, };
+ChessPiece chessPieces[10];
 
 void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags);
 void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags);
@@ -50,19 +51,22 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 	// 데이터 처리
 	PACKET packet;
 	memcpy(&packet, clients[client_s].messageBuffer, sizeof(PACKET));
-	cout << "From client : " << static_cast<int>(packet.index) << " " << static_cast<int>(packet.x) << " " << static_cast<int>(packet.y) << endl;
+	//cout << "From client : " << static_cast<int>(packet.index) << " " << static_cast<int>(packet.x) << " " << static_cast<int>(packet.y) << endl;
 
-	int tx = chessPieces[packet.index].x + packet.x;
-	int ty = chessPieces[packet.index].y + packet.y;
+	int index = clients[client_s].index;
+
+	int tx = chessPieces[index].x + packet.x;
+	int ty = chessPieces[index].y + packet.y;
 
 	if (0 <= tx && tx < 8 &&
 		0 <= ty && ty < 8)
 	{
-		chessPieces[packet.index].x = tx;
-		chessPieces[packet.index].y = ty;
+		chessPieces[index].x = tx;
+		chessPieces[index].y = ty;
 	}
-	packet.x = chessPieces[packet.index].x;
-	packet.y = chessPieces[packet.index].y;
+	packet.index = index;
+	packet.x = chessPieces[index].x;
+	packet.y = chessPieces[index].y;
 
 	// 처리된 데이터 브로드캐스트
 	for (auto& d : clients)
@@ -112,6 +116,8 @@ int main(int argc, char* argv[])
 	int addrLen = sizeof(SOCKADDR_IN);
 	memset(&clientAddr, 0, addrLen);
 
+	memset(chessPieces, -1, 20);
+
 	while (true) {
 		SOCKET clientSocket = accept(listenSocket, (struct sockaddr*) & clientAddr, &addrLen);
 		clients[clientSocket] = SOCKETINFO{};
@@ -124,35 +130,49 @@ int main(int argc, char* argv[])
 		clients[clientSocket].overlapped_send.hEvent = (HANDLE)clients[clientSocket].socket;
 		DWORD flags = 0;
 		
+		PACKET packet;
 
-		//int index = 0;
-		//for (int i = 0; i < 10; ++i)
-		//{
-		//	if (chessPieces[i].x == -1)
-		//	{
-		//		index = i;
-		//		chessPieces[i].x = 0;
-		//		chessPieces[i].y = 0;
-		//		break;
-		//	}
-		//}
+		// 현재 보드판 상태를 새로 접속한 client에게 전송
+		for (int i = 0; i < 10; ++i)
+		{
+			if (chessPieces[i].x != -1)
+			{
+				packet.index = i;
+				packet.x = chessPieces[i].x;
+				packet.y = chessPieces[i].y;
+				memcpy(clients[clientSocket].messageBuffer, &packet, sizeof(PACKET));
+				memset(&(clients[clientSocket].overlapped_send), 0, sizeof(WSAOVERLAPPED));
+				clients[clientSocket].overlapped_send.hEvent = (HANDLE)clients[clientSocket].socket;
+				WSASend(clientSocket, &(clients[clientSocket].dataBuffer), 1, NULL, 0, &(clients[clientSocket].overlapped_send), send_callback);
+			}
 
-		//PACKET packet;
-		//packet.index = index;
-		//packet.x = 0;
-		//packet.y = 0;
+		}
 
-		//// 현재 보드판 상태를 새로 접속한 client에게 전송
-		////@@@@@
+		int index = 0;
+		for (int i = 0; i < 10; ++i)
+		{
+			if (chessPieces[i].x == -1)
+			{
+				index = i;
+				chessPieces[i].x = 0;
+				chessPieces[i].y = 0;
+				break;
+			}
+		}
 
-		//// 접속하면 모든 클라이언트에게 Send
-		//for (auto d : clients)
-		//{		
-		//	memcpy(d.second.messageBuffer, &packet, sizeof(PACKET));
-		//	memset(&(d.second.overlapped_send), 0, sizeof(WSAOVERLAPPED));
-		//	d.second.overlapped_send.hEvent = (HANDLE)d.second.socket;
-		//	WSASend(d.second.socket, &(d.second.dataBuffer), 1, NULL, 0, &(d.second.overlapped_send), send_callback);
-		//}
+		packet.index = index;
+		packet.x = 0;
+		packet.y = 0;
+		clients[clientSocket].index = index;
+
+		// 접속하면 모든 클라이언트에게 Send
+		for (auto& d : clients)
+		{		
+			memcpy(d.second.messageBuffer, &packet, sizeof(PACKET));
+			memset(&(d.second.overlapped_send), 0, sizeof(WSAOVERLAPPED));
+			d.second.overlapped_send.hEvent = (HANDLE)d.second.socket;
+			WSASend(d.second.socket, &(d.second.dataBuffer), 1, NULL, 0, &(d.second.overlapped_send), send_callback);
+		}
 
 		WSARecv(clients[clientSocket].socket, &clients[clientSocket].dataBuffer, 1, NULL,
 			&flags, &(clients[clientSocket].overlapped_recv), recv_callback);

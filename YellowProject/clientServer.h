@@ -15,8 +15,6 @@ struct PACKET
 	char y;
 };
 
-//chessPiece* chessPiece[10]{ NULL };
-
 class clientServer : public MonoBehavior<clientServer>
 {
 private:
@@ -27,7 +25,7 @@ private:
 	std::wstring ip;
 
 public:
-	chessPiece* pawn;
+	chessPiece* pawns[10];
 
 private:
 	friend class GameObject;
@@ -94,7 +92,7 @@ public:
 		{
 			PACKET packet;
 			if(recv(sock, (char*)&packet, sizeof(PACKET), 0) > 0)
-				pawn->move(packet.x, packet.y);
+				pawns[packet.index]->move(packet.x, packet.y);
 
 			if (Input::GetKeyDown(KeyCode::W))
 			{
