@@ -147,7 +147,6 @@ public:
 		if (tcpClient->myID == -1)
 			tcpClient->myID = buf.id;
 
-
 		DWORD flags{ 0 };
 		tcpClient->recv.hEvent = (HANDLE)tcpClient;
 		tcpClient->recvbuf.buf = (char*)&tcpClient->recvdata;
