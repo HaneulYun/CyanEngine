@@ -1,10 +1,10 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #pragma comment(lib, "ws2_32")
-#include <WinSock2.h>
+#include <WS2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#define SERVERPORT 9000
+#define SERVER_PORT 3500
 
 struct Pawn
 {
@@ -45,40 +45,40 @@ int main()
 {
 	int retval;
 
-	WSADATA wsa;
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+	WSADATA WSAData;
+	if (WSAStartup(MAKEWORD(2, 0), &WSAData) != 0)
 		return 1;
 
 	// socket()
-	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (listen_sock == INVALID_SOCKET)
+	SOCKET listenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (listenSocket == INVALID_SOCKET)
 		err_quit("socket()");
 
 	// bind()
-	SOCKADDR_IN serveraddr;
-	ZeroMemory(&serveraddr, sizeof(serveraddr));
-	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serveraddr.sin_port = htons(SERVERPORT);
-	retval = bind(listen_sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
+	SOCKADDR_IN serverAddr;
+	ZeroMemory(&serverAddr, sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(SERVER_PORT);
+	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+	retval = ::bind(listenSocket, (sockaddr*)&serverAddr, sizeof(SOCKADDR_IN));
 	if (retval == SOCKET_ERROR)
 		err_quit("bind()");
 
 	// listen()
-	retval = listen(listen_sock, SOMAXCONN);
+	retval = listen(listenSocket, 5);
 	if (retval == SOCKET_ERROR)
 		err_quit("listen()");
 
 	// 데이터 통신에 사용할 변수
 	SOCKET client_sock;
-	SOCKADDR_IN clientaddr;
+	SOCKADDR_IN clientAddr{};
 	int addrlen;
 	MOVE_PACKET buf;
 
 	while (1) {
 		// accept()
-		addrlen = sizeof(clientaddr);
-		client_sock = accept(listen_sock, (SOCKADDR*)&clientaddr, &addrlen);
+		addrlen = sizeof(clientAddr);
+		client_sock = accept(listenSocket, (SOCKADDR*)&clientAddr, &addrlen);
 		if (client_sock == INVALID_SOCKET)
 		{
 			err_display("accept()");
@@ -86,7 +86,7 @@ int main()
 		}
 
 		// 접속한 클라이언트 정보 출력
-		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 
 		Pawn pawn{ 0, 0 };
 		// 클라이언트와 데이터 통신
@@ -102,8 +102,7 @@ int main()
 				break;
 
 			// 받은 데이터 출력
-			printf("[TCP/%s:%d] %d %d\n", inet_ntoa(clientaddr.sin_addr),
-				ntohs(clientaddr.sin_port), (int)buf.x, (int)buf.y);
+			printf("[TCP/%s:%d] %d %d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port), (int)buf.x, (int)buf.y);
 
 			if (pawn.x == 0 && buf.x == -1 ||
 				pawn.x == 7 && buf.x == 8 ||
@@ -126,11 +125,11 @@ int main()
 
 		// closesocket()
 		closesocket(client_sock);
-		printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+		printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 	}
 
 	// closesocket()
-	closesocket(listen_sock);
+	closesocket(listenSocket);
 
 	// 윈속 종료
 	WSACleanup();
