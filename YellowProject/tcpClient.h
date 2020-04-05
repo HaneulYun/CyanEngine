@@ -8,7 +8,7 @@
 
 struct MOVE_PACKET
 {
-	char x; char y;
+	char id; char x; char y;
 };
 
 class TCPClient : public MonoBehavior<TCPClient>
@@ -87,7 +87,7 @@ public:
 				int xIndexOnBoard = GetIndexFromPosition(pos.x);
 				int yIndexOnBoard = GetIndexFromPosition(pos.y);
 
-				MOVE_PACKET packet{ xIndexOnBoard, yIndexOnBoard };
+				MOVE_PACKET packet{ 0, xIndexOnBoard, yIndexOnBoard };
 				send(serverSocket, (char*)&packet, sizeof(MOVE_PACKET), 0);
 				recv(serverSocket, (char*)&packet, sizeof(MOVE_PACKET), 0);
 

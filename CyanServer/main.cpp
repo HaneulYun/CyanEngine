@@ -3,18 +3,33 @@
 #include <WS2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <map>
 
 #define SERVER_PORT 3500
 
 struct Pawn
 {
-	char x; char y;
+	char id; char x; char y;
 };
 
-struct MOVE_PACKET
+struct SOCKETINFO
 {
-	char x; char y;
+	WSAOVERLAPPED recv;
+	WSAOVERLAPPED send;
+	WSABUF recvbuf;
+	WSABUF sendbuf;
+	Pawn recvdata;
+	Pawn senddata;
+
+	SOCKET socket;
+	SOCKADDR_IN clientAddr;
+	Pawn userData;
 };
+
+std::map<SOCKET, SOCKETINFO> clients;
+
+void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags);
+void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags);
 
 void err_quit(const char* msg)
 {
@@ -39,6 +54,60 @@ void err_display(const char* msg)
 		(LPTSTR)&lpMsgBuf, 0, NULL);
 	printf("[%s] %s", msg, (char*)lpMsgBuf);
 	LocalFree(lpMsgBuf);
+}
+
+void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags)
+{
+	SOCKET client_s = reinterpret_cast<int>(overlapped->hEvent);
+
+	if (dataBytes == 0)
+	{
+		printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clients[client_s].clientAddr.sin_addr), ntohs(clients[client_s].clientAddr.sin_port));
+		closesocket(clients[client_s].socket);
+		clients.erase(client_s);
+		return;
+	}  // 클라이언트가 closesocket을 했을 경우
+
+	printf("[TCP/%s:%d] %d %d\n", inet_ntoa(clients[client_s].clientAddr.sin_addr), ntohs(clients[client_s].clientAddr.sin_port), (int)clients[client_s].recvdata.x, (int)clients[client_s].recvdata.y);
+
+	Pawn& buf = clients[client_s].recvdata;
+	Pawn& pawn = clients[client_s].userData;
+
+	if (pawn.x == 0 && buf.x == -1 ||
+		pawn.x == 7 && buf.x == 8 ||
+		pawn.y == 0 && buf.y == -1 ||
+		pawn.y == 7 && buf.y == 8)
+		buf = { 0, pawn.x, pawn.y };
+	else if (abs(pawn.x - buf.x) + abs(pawn.y - buf.y) < 2)
+		pawn = { 0, buf.x, buf.y };
+	else
+		buf = { 0, pawn.x, pawn.y };
+
+	clients[client_s].senddata = { 0, pawn.x, pawn.y };
+	clients[client_s].sendbuf.buf = (char*)&clients[client_s].senddata;
+	clients[client_s].send = {};
+	clients[client_s].send.hEvent = (HANDLE)client_s;
+	WSASend(client_s, &(clients[client_s].sendbuf), 1, NULL, 0, &(clients[client_s].send), send_callback);
+
+	DWORD flags = 0;
+	clients[client_s].recv = {};
+	clients[client_s].recv.hEvent = (HANDLE)client_s;
+	WSARecv(client_s, &clients[client_s].recvbuf, 1, 0, &flags, &(clients[client_s].recv), recv_callback);
+}
+
+void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags)
+{
+	DWORD receiveBytes = 0;
+
+	SOCKET client_s = reinterpret_cast<int>(overlapped->hEvent);
+
+	if (dataBytes == 0) {
+		closesocket(clients[client_s].socket);
+		clients.erase(client_s);
+		return;
+	}  // 클라이언트가 closesocket을 했을 경우
+
+	// WSASend(응답에 대한)의 콜백일 경우
 }
 
 int main()
@@ -70,16 +139,13 @@ int main()
 		err_quit("listen()");
 
 	// 데이터 통신에 사용할 변수
-	SOCKET client_sock;
 	SOCKADDR_IN clientAddr{};
-	int addrlen;
-	MOVE_PACKET buf;
+	int addrLen = sizeof(SOCKADDR_IN);
 
 	while (1) {
-		// accept()
-		addrlen = sizeof(clientAddr);
-		client_sock = accept(listenSocket, (SOCKADDR*)&clientAddr, &addrlen);
-		if (client_sock == INVALID_SOCKET)
+		// accept()s
+		SOCKET clientSocket = accept(listenSocket, (sockaddr*)&clientAddr, &addrLen);
+		if (clientSocket == INVALID_SOCKET)
 		{
 			err_display("accept()");
 			break;
@@ -87,45 +153,20 @@ int main()
 
 		// 접속한 클라이언트 정보 출력
 		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-
-		Pawn pawn{ 0, 0 };
-		// 클라이언트와 데이터 통신
-		while (1) {
-			// 데이터 받기
-			retval = recv(client_sock, (char*)&buf, sizeof(MOVE_PACKET), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("recv()");
-				break;
-			}
-			else if (retval == 0)
-				break;
-
-			// 받은 데이터 출력
-			printf("[TCP/%s:%d] %d %d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port), (int)buf.x, (int)buf.y);
-
-			if (pawn.x == 0 && buf.x == -1 ||
-				pawn.x == 7 && buf.x == 8 ||
-				pawn.y == 0 && buf.y == -1 ||
-				pawn.y == 7 && buf.y == 8)
-				buf = { pawn.x, pawn.y };
-			else if (abs(pawn.x - buf.x) + abs(pawn.y - buf.y) < 2)
-				pawn = { buf.x, buf.y };
-			else
-				buf = { pawn.x, pawn.y };
-
-			// 데이터 보내기
-			retval = send(client_sock, (char*)&buf, sizeof(MOVE_PACKET), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("send()");
-				break;
-			}
-		}
-
-		// closesocket()
-		closesocket(client_sock);
-		printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+		clients[clientSocket] = SOCKETINFO{};
+		clients[clientSocket].socket = clientSocket;
+		clients[clientSocket].clientAddr = clientAddr;
+		clients[clientSocket].recv = {};
+		clients[clientSocket].recv.hEvent = (HANDLE)clients[clientSocket].socket;
+		clients[clientSocket].recvbuf.buf = (char*)&clients[clientSocket].recvdata;
+		clients[clientSocket].recvbuf.len = sizeof(Pawn);
+		clients[clientSocket].send = {};
+		clients[clientSocket].send.hEvent = (HANDLE)clients[clientSocket].socket;
+		clients[clientSocket].sendbuf.buf = (char*)&clients[clientSocket].senddata;
+		clients[clientSocket].sendbuf.len = sizeof(Pawn);
+		clients[clientSocket].userData = {};
+		DWORD flags = 0;
+		WSARecv(clients[clientSocket].socket, &clients[clientSocket].recvbuf, 1, NULL, &flags, &(clients[clientSocket].recv), recv_callback);
 	}
 
 	// closesocket()
