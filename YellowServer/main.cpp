@@ -139,6 +139,9 @@ int main(int argc, char* argv[])
 		packet.x = 0;
 		packet.y = 0;
 
+		// 현재 보드판 상태를 새로 접속한 client에게 전송
+		//@@@@@
+
 		// 접속하면 모든 클라이언트에게 Send
 		for (auto d : clients)
 		{		
