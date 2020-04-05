@@ -23,7 +23,7 @@ struct SOCKETINFO
 
 	SOCKET socket;
 	SOCKADDR_IN clientAddr;
-	Pawn userData;
+	Pawn userdata;
 };
 
 std::map<SOCKET, SOCKETINFO> clients;
@@ -71,25 +71,25 @@ void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overla
 	printf("[TCP/%s:%d] %d %d\n", inet_ntoa(clients[client_s].clientAddr.sin_addr), ntohs(clients[client_s].clientAddr.sin_port), (int)clients[client_s].recvdata.x, (int)clients[client_s].recvdata.y);
 
 	Pawn& buf = clients[client_s].recvdata;
-	Pawn& pawn = clients[client_s].userData;
+	Pawn& pawn = clients[client_s].userdata;
 
 	if (pawn.x == 0 && buf.x == -1 ||
 		pawn.x == 7 && buf.x == 8 ||
 		pawn.y == 0 && buf.y == -1 ||
 		pawn.y == 7 && buf.y == 8)
-		buf = { 0, pawn.x, pawn.y };
+		buf = pawn;
 	else if (abs(pawn.x - buf.x) + abs(pawn.y - buf.y) < 2)
-		pawn = { 0, buf.x, buf.y };
+		pawn = buf;
 	else
-		buf = { 0, pawn.x, pawn.y };
+		buf = pawn;
 
 	for (auto& client : clients)
 	{
-		client.second.senddata = { 0, pawn.x, pawn.y };
+		client.second.senddata = pawn;
 		client.second.sendbuf.buf = (char*)&client.second.senddata;
 		client.second.send = {};
 		client.second.send.hEvent = (HANDLE)client.second.socket;
-		WSASend(client_s, &(client.second.sendbuf), 1, NULL, 0, &(client.second.send), send_callback);
+		WSASend(client.second.socket, &(client.second.sendbuf), 1, NULL, 0, &(client.second.send), send_callback);
 	}
 
 	DWORD flags = 0;
@@ -145,6 +145,7 @@ int main()
 	SOCKADDR_IN clientAddr{};
 	int addrLen = sizeof(SOCKADDR_IN);
 
+	char idCnt{ 0 };
 	while (1) {
 		// accept()s
 		SOCKET clientSocket = accept(listenSocket, (sockaddr*)&clientAddr, &addrLen);
@@ -167,8 +168,22 @@ int main()
 		clients[clientSocket].send.hEvent = (HANDLE)clients[clientSocket].socket;
 		clients[clientSocket].sendbuf.buf = (char*)&clients[clientSocket].senddata;
 		clients[clientSocket].sendbuf.len = sizeof(Pawn);
-		clients[clientSocket].userData = {};
+		clients[clientSocket].userdata = { idCnt++, 0, 0 };
 		DWORD flags = 0;
+
+		clients[clientSocket].senddata = clients[clientSocket].userdata;
+		WSASend(clients[clientSocket].socket, &clients[clientSocket].sendbuf, 1, NULL, 0, &clients[clientSocket].send, send_callback);
+		for (auto& client : clients)
+		{
+			for (auto& user : clients)
+			{
+				client.second.senddata = user.second.userdata;
+				client.second.sendbuf.buf = (char*)&client.second.senddata;
+				client.second.send = {};
+				client.second.send.hEvent = (HANDLE)client.second.socket;
+				WSASend(client.second.socket, &(client.second.sendbuf), 1, NULL, 0, &(client.second.send), send_callback);
+			}
+		}
 		WSARecv(clients[clientSocket].socket, &clients[clientSocket].recvbuf, 1, NULL, &flags, &(clients[clientSocket].recv), recv_callback);
 	}
 

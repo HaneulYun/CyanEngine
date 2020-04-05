@@ -72,8 +72,8 @@ void SampleScene::BuildObjects()
 		pawn->AddComponent<MeshFilter>()->mesh = mesh_grid;
 		pawn->AddComponent<Renderer>()->material = material_pawn;
 
-		pawn->AddComponent<Pawn>()->x =	 i;
-		pawn->GetComponent<Pawn>()->y =  7;
+		pawn->AddComponent<Pawn>()->x =	-1;
+		pawn->GetComponent<Pawn>()->y = -1;
 
 		board->GetComponent<TCPClient>()->pawns.push_back(pawn->GetComponent<Pawn>());
 	}
