@@ -42,10 +42,10 @@ public:
 	void Start()
 	{
 		// 윈속 초기화
-		WSAStartup(MAKEWORD(2, 2), &wsa);
+		WSAStartup(MAKEWORD(2, 0), &wsa);
 
 		// socket()
-		sock = socket(AF_INET, SOCK_STREAM, 0);
+		sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, 0);
 
 		std::wstring title(L"IP를 입력해주세요 : ");
 		SetWindowText(CyanApp::GetHwnd(), (title).c_str());
