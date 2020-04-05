@@ -101,6 +101,8 @@ public:
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 	int GetIndexFromPosition(float d)
 	{
-		return (d + 300) / 75;
+		float n = d / 75;
+		float r = n - (int)n;
+		return n - r + 3;
 	}
 };
