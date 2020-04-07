@@ -25,6 +25,12 @@ Plane::Plane()
 	Create(GeometryType::GeometryType_Plane);
 }
 
+ModelMesh::ModelMesh()
+{
+	Name = "Plane";
+	Create(GeometryType::GeometryType_Plane);
+}
+
 //***********************************************
 
 TriangleMesh::TriangleMesh()

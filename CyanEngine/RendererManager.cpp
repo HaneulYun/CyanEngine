@@ -11,16 +11,11 @@ struct BoneWeightData
 
 std::map<std::string, int> skeletonIndexer;
 std::map<int, std::vector<BoneWeightData>> boneWeightData;
-std::map<int, FbxAMatrix> toParents;
-std::map<int, FbxAMatrix> locals;
-std::map<int, FbxAMatrix> globals;
 std::map<int, FbxNode*> nodes;
 
-void ProcessHierarchy(FbxNode* node,
+void LoadModel(FbxNode* node,
 	std::vector<M3DLoader::SkinnedVertex>& vertices,
 	std::vector<USHORT>& indices,
-	SkinnedData& skinnedData,
-	AnimationClip& clip,
 	std::vector<XMFLOAT4X4>& boneOffsets,
 	std::vector<int>& boneIndexToParentIndex,
 	int parentIndex = -1)
@@ -75,9 +70,6 @@ void ProcessHierarchy(FbxNode* node,
 							vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
 							break;
 						}
-						break;
-					case FbxGeometryElement::eByPolygonVertex:
-						// ¹Ì±¸Çö
 						break;
 					}
 				}
@@ -146,6 +138,57 @@ void ProcessHierarchy(FbxNode* node,
 						}
 					}
 				}
+			}
+		}
+		else if (attributeType == FbxNodeAttribute::eSkeleton)
+		{
+			skeletonIndexer[node->GetName()] = boneIndex;
+			boneIndexToParentIndex.push_back(parentIndex);
+
+			nodes[boneIndex] = node;
+		}
+	}
+
+	if (boneIndexToParentIndex.size() == 0)
+		boneIndex = -1;
+
+	int childCount = node->GetChildCount();
+	for (int i = 0; i < childCount; ++i)
+	{
+		LoadModel(node->GetChild(i), vertices, indices, boneOffsets, boneIndexToParentIndex, boneIndex);
+	}
+}
+
+void LoadAnimation(FbxNode* node,
+	AnimationClip& clip,
+	std::vector<XMFLOAT4X4>& boneOffsets,
+	std::vector<int>& boneIndexToParentIndex,
+	int parentIndex = -1)
+{
+	FbxNodeAttribute* attribute = node->GetNodeAttribute();
+
+	int boneIndex = boneIndexToParentIndex.size();
+
+	if (attribute)
+	{
+		FbxNodeAttribute::EType attributeType = attribute->GetAttributeType();
+		if (attributeType == FbxNodeAttribute::eMesh)
+		{
+			FbxMesh* mesh = node->GetMesh();
+
+			FbxVector4 T = node->GetGeometricTranslation(FbxNode::eSourcePivot);
+			FbxVector4 R = node->GetGeometricRotation(FbxNode::eSourcePivot);
+			FbxVector4 S = node->GetGeometricScaling(FbxNode::eSourcePivot);
+			FbxAMatrix geometryTransform = FbxAMatrix(T, R, S);
+
+			int deformerCount = mesh->GetDeformerCount();
+			for (unsigned int i = 0; i < deformerCount; ++i)
+			{
+				FbxSkin* skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(i, FbxDeformer::eSkin));
+				if (!skin)
+					continue;
+
+				int clusterCount = skin->GetClusterCount();
 
 				FbxArray<FbxString*> animStackNameArray;
 				node->GetScene()->FillAnimStackNameArray(animStackNameArray);
@@ -235,7 +278,7 @@ void ProcessHierarchy(FbxNode* node,
 	int childCount = node->GetChildCount();
 	for (int i = 0; i < childCount; ++i)
 	{
-		ProcessHierarchy(node->GetChild(i), vertices, indices, skinnedData, clip, boneOffsets, boneIndexToParentIndex, boneIndex);
+		LoadAnimation(node->GetChild(i), clip, boneOffsets, boneIndexToParentIndex, boneIndex);
 	}
 }
 
@@ -696,8 +739,9 @@ void RendererManager::LoadAssets()
 				for (auto& offset : boneOffsets)
 					offset = MathHelper::Identity4x4();
 
-		
-				ProcessHierarchy(scene->GetRootNode(), vertices, indices, *mSkinnedInfo, clip, boneOffsets, boneIndexToParentIndex);
+				LoadModel(scene->GetRootNode(), vertices, indices, boneOffsets, boneIndexToParentIndex);
+				boneIndexToParentIndex.clear();
+				LoadAnimation(scene->GetRootNode(), clip, boneOffsets, boneIndexToParentIndex);
 
 				for (auto iter = clip.BoneAnimations.begin(); iter != clip.BoneAnimations.end(); ++iter)
 				{
@@ -718,9 +762,6 @@ void RendererManager::LoadAssets()
 							keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
 							keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
 							keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
-							//keyframe.Translation = XMFLOAT3(0, 0, 0);
-							//keyframe.Scale = XMFLOAT3(1, 1, 1);
-							//keyframe.RotationQuat = XMFLOAT4(0, 0, 0, 1);
 
 							iter->Keyframes.push_back(keyframe);
 						}
@@ -847,7 +888,7 @@ void RendererManager::LoadAssets()
 					XMMATRIX modelRot = XMMatrixRotationX(-PI * 0.5);
 					//XMMATRIX modelScale = XMMatrixScaling(0.2, 0.2, 0.2);
 					//XMMATRIX modelRot = XMMatrixRotationX(0);
-					XMMATRIX modelOffset = XMMatrixTranslation(0, 0, 0);
+					XMMATRIX modelOffset = XMMatrixTranslation(x * 3, 0, z * 3);
 					XMStoreFloat4x4(&ritem->World, modelScale * modelRot * modelOffset);
 
 					ritem->TexTransform = MathHelper::Identity4x4();

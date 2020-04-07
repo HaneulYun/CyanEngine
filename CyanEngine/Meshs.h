@@ -29,6 +29,13 @@ public:
 	virtual ~Plane() {};
 };
 
+class ModelMesh : public Mesh
+{
+public:
+	ModelMesh();
+	virtual ~ModelMesh() {};
+};
+
 //***********************************************
 
 class TriangleMesh : public Mesh

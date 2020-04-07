@@ -33,4 +33,5 @@ public:
 		GeometryType_Cylinder, GeometryType_Plane
 	};
 	void Create(GeometryType type);
+	void LoadFBX() {};
 };
