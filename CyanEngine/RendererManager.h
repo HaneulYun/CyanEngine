@@ -4,20 +4,6 @@
 #include "SkinnedData.h"
 #include "LoadM3d.h"
 
-struct MEMORY
-{
-	XMFLOAT4X4 transform;
-	XMFLOAT4 color;
-};
-
-struct INSTANCING
-{
-	ID3D12Resource* resource{ nullptr };
-	MEMORY* memory{ nullptr };
-
-	Shader* shader;
-};
-
 struct SkinnedModelInstance
 {
 	SkinnedData* SkinnedInfo = nullptr;
@@ -118,9 +104,6 @@ public:
 
 	std::string mSkinnedModelFilename = "Models\\soldier.m3d";
 
-
-	//UINT mSkinnedSrvHeapStart = 0;
-	//std::vector<std::string> mSkinnedTextureNames;
 	std::vector<TextureData> textureData;
 
 
@@ -131,16 +114,6 @@ public:
 public:
 	bool isRenewed{ false };
 	void UpdateManager();
-
-	std::map<
-		std::pair<
-			std::string,
-			Mesh*>,
-		std::pair<
-			INSTANCING*,
-			std::deque<GameObject*>
-		>
-	> instances;
 	 
 private:
 	bool m_bMsaa4xEnable{ false };

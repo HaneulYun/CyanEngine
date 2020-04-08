@@ -202,43 +202,9 @@ void LoadAnimation(FbxNode* node,
 
 		for (unsigned int j = 0; j < clip.BoneAnimations.size(); ++j)
 		{
-			//std::string str = nodes[j]->GetName();
-			//if (nodes[j]->GetName() == "hand_r")
-			//	int k = 0;
-			//FbxString tn = 0;
-			//FbxString rn = 0;
-			//FbxString sn = 0;
-			//int nn = 0;
-			//FbxSkeleton* skel = nodes[j]->GetSkeleton();
-			//FbxAnimCurve* tc = nodes[j]->LclTranslation.GetCurve(animLayer, "X");
-			//FbxAnimCurve* rc = nodes[j]->LclRotation.GetCurve(animLayer, "X");
-			//FbxAnimCurve* sc = nodes[j]->LclScaling.GetCurve(animLayer);
-			//if (tc)
-			//	tn = tc->KeyGetCount();
-			//if (rc)
-			//	rn = rc->KeyGetCount();
-			//if (sc)
-			//	sn = sc->KeyGetCount();
-			//
-			//if(rc)
-			//for (int i = 0; i < rc->KeyGetCount(); ++i)
-			//{
-			//	FbxAnimCurveKey key = rc->KeyGet(i);
-			//	FbxAnimCurveDef::EConstantMode mode = key.GetConstantMode();
-			//	auto mode0 = key.GetTangentMode();
-			//	auto mode1 = key.GetTangentVelocityMode();
-			//	auto mode2 = key.GetTangentWeightMode();
-			//
-			//	auto isBreak = key.GetBreak();
-			//	auto mode4 = key.GetInterpolation();
-			//
-			//	auto time = key.GetTime();
-			//	auto value = key.GetValue();
-			//
-			//	//auto data = key.GetDataFloat();
-			//
-			//	int k = 0;
-			//}
+			std::string str = nodes[j]->GetName();
+			if (nodes[j]->GetName() == "hand_r")
+				int k = 0;
 
 			BoneAnimation boneAnim;
 			for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
@@ -869,7 +835,7 @@ void RendererManager::LoadAssets()
 	{
 		UINT objCBIndex = allRItems.size();
 
-		int count = 0;
+		int count = 10;
 		float interval = 2.5f;
 		for(int x = -count; x <= count; ++x)
 			for(int z = -count; z <= count; ++z)
