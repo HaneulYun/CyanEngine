@@ -3,7 +3,7 @@
 class Component : public Object
 {
 private:
-	bool isStarted{ false };
+	bool isDirty{ true };
 
 protected:
 	Component() = default;

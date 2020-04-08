@@ -29,8 +29,7 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 	SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cyanFW);
 
 	cyanFW->OnCreate(hInstance, hwnd);
-	cyanFW->scene->Start();
-
+	
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
 
@@ -46,13 +45,7 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 		}
 		else
 		{
-			Time::Instance()->Tick();
-
-			cyanFW->scene->Update();
-			cyanFW->scene->Render();
-
-			Input::Update();
-
+			cyanFW->OnFrameAdvance();
 			Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
 			SetWindowText(hwnd, cyanFW->m_pszFrameRate);
 		}

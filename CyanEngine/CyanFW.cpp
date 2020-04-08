@@ -2,7 +2,7 @@
 #include "CyanFW.h"
 
 CyanFW::CyanFW(UINT width, UINT height, std::wstring name)
-	:width(width), height(height), title(name)
+	 : width(width), height(height), title(name)
 {
 	instance = this;
 	_tcscpy_s(m_pszFrameRate, _T("CyanEngine ("));
@@ -20,12 +20,25 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	Input::Instance();
 	Random::Instance()->Start();
 
+	if (!rendererManager)
+		(rendererManager = RendererManager::Instance())->Initialize();
+
 	return true;
 }
 
 void CyanFW::OnSetScene(Scene* newScene)
 {
 	scene = newScene;
+}
+
+void CyanFW::OnFrameAdvance()
+{
+	Time::Instance()->Tick();
+
+	scene->Update();
+	scene->Render();
+
+	Input::Update();
 }
 
 void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -59,8 +72,6 @@ void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	case WM_MOUSEMOVE:
 		Input::mousePosition = Vector3(LOWORD(lParam), HIWORD(lParam), 0);
 		break;
-	default:
-		break;
 	}
 }
 
@@ -74,13 +85,8 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		case VK_ESCAPE:
 			PostQuitMessage(0);
 			break;
-		case VK_RETURN:
-		case VK_F8:
-			break;
 		case VK_F9:
 			RendererManager::Instance()->ChangeSwapChainState();
-			break;
-		default:
 			break;
 		}
 		Input::keys[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = false;
@@ -100,11 +106,9 @@ LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wPa
 	switch (nMessageID)
 	{
 	case WM_SIZE:
-	{
 		width = LOWORD(lParam);
 		height = HIWORD(lParam);
 		break;
-	}
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_LBUTTONUP:

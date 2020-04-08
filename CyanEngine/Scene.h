@@ -2,6 +2,9 @@
 
 class Scene
 {
+private:
+	bool isDirty{ true };
+
 protected:
 	std::deque<GameObject*> gameObjects;
 	RendererManager* rendererManager{ nullptr };

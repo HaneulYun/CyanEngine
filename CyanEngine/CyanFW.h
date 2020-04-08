@@ -9,8 +9,8 @@ private:
 
 	std::wstring title;
 
-
 public:
+	RendererManager* rendererManager{ nullptr };
 	Scene* scene{ nullptr };
 	_TCHAR m_pszFrameRate[50];
 
@@ -20,6 +20,7 @@ public:
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
 	void OnSetScene(Scene* newScene);
+	void OnFrameAdvance();
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

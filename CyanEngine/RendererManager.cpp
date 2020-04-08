@@ -273,6 +273,8 @@ RendererManager::~RendererManager()
 void RendererManager::Initialize()
 {
 	InitDirect3D();
+	commandList->Reset(commandAllocator.Get(), nullptr);
+	LoadAssets();
 	CreateDepthStencilView();
 }
 
@@ -392,8 +394,6 @@ void RendererManager::UpdateManager()
 
 void RendererManager::Start()
 {
-	commandList->Reset(commandAllocator.Get(), nullptr);
-	LoadAssets();
 }
 
 void RendererManager::Update()
@@ -835,7 +835,7 @@ void RendererManager::LoadAssets()
 	{
 		UINT objCBIndex = allRItems.size();
 
-		int count = 10;
+		int count = 0;
 		float interval = 2.5f;
 		for(int x = -count; x <= count; ++x)
 			for(int z = -count; z <= count; ++z)

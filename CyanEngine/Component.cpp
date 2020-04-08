@@ -3,9 +3,9 @@
 
 void Component::UpdateComponent()
 {
-	if (!isStarted)
+	if (isDirty)
 	{
-		isStarted = true;
+		isDirty = false;
 		this->Start();
 	}
 	this->Update();
