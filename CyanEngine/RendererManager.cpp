@@ -146,8 +146,6 @@ void LoadModel(FbxNode* node,
 		{
 			skeletonIndexer[node->GetName()] = boneIndex;
 			boneIndexToParentIndex.push_back(parentIndex);
-
-			nodes[boneIndex] = node;
 		}
 	}
 
@@ -164,7 +162,7 @@ void LoadModel(FbxNode* node,
 void LoadAnimation(FbxNode* node,
 	AnimationClip& clip,
 	std::vector<int>& boneIndexToParentIndex,
-	int parentIndex = -1)
+	int parentIndex = -2)
 {
 	FbxNodeAttribute* attribute = node->GetNodeAttribute();
 
@@ -189,26 +187,63 @@ void LoadAnimation(FbxNode* node,
 	{
 		LoadAnimation(node->GetChild(i), clip, boneIndexToParentIndex, boneIndex);
 	}
-	if (boneIndex == -1)
+	if (parentIndex == -2)
 	{
 		FbxArray<FbxString*> animStackNameArray;
 		node->GetScene()->FillAnimStackNameArray(animStackNameArray);
 
 		FbxAnimStack* animStack = node->GetScene()->FindMember<FbxAnimStack>(animStackNameArray[0]->Buffer());
-		FbxAnimLayer* animLayer = animStack->GetMember<FbxAnimLayer>();
 		node->GetScene()->SetCurrentAnimationStack(animStack);
 
-		FbxString stackName = animStack->GetName();
-
+		FbxAnimLayer* animLayer = animStack->GetMember<FbxAnimLayer>();
 		FbxTakeInfo* takeInfo = node->GetScene()->GetTakeInfo(*(animStackNameArray[0]));
 		FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
 		FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
 
 		for (unsigned int j = 0; j < clip.BoneAnimations.size(); ++j)
 		{
+			//std::string str = nodes[j]->GetName();
+			//if (nodes[j]->GetName() == "hand_r")
+			//	int k = 0;
+			//FbxString tn = 0;
+			//FbxString rn = 0;
+			//FbxString sn = 0;
+			//int nn = 0;
+			//FbxSkeleton* skel = nodes[j]->GetSkeleton();
+			//FbxAnimCurve* tc = nodes[j]->LclTranslation.GetCurve(animLayer, "X");
+			//FbxAnimCurve* rc = nodes[j]->LclRotation.GetCurve(animLayer, "X");
+			//FbxAnimCurve* sc = nodes[j]->LclScaling.GetCurve(animLayer);
+			//if (tc)
+			//	tn = tc->KeyGetCount();
+			//if (rc)
+			//	rn = rc->KeyGetCount();
+			//if (sc)
+			//	sn = sc->KeyGetCount();
+			//
+			//if(rc)
+			//for (int i = 0; i < rc->KeyGetCount(); ++i)
+			//{
+			//	FbxAnimCurveKey key = rc->KeyGet(i);
+			//	FbxAnimCurveDef::EConstantMode mode = key.GetConstantMode();
+			//	auto mode0 = key.GetTangentMode();
+			//	auto mode1 = key.GetTangentVelocityMode();
+			//	auto mode2 = key.GetTangentWeightMode();
+			//
+			//	auto isBreak = key.GetBreak();
+			//	auto mode4 = key.GetInterpolation();
+			//
+			//	auto time = key.GetTime();
+			//	auto value = key.GetValue();
+			//
+			//	//auto data = key.GetDataFloat();
+			//
+			//	int k = 0;
+			//}
+
 			BoneAnimation boneAnim;
 			for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 			{
+
 				FbxTime time;
 				time.SetFrame(i, FbxTime::eFrames24);
 
@@ -699,13 +734,13 @@ void RendererManager::LoadAssets()
 			FbxScene* scene = FbxScene::Create(manager, "Scene");
 
 			FbxImporter* importer = FbxImporter::Create(manager, "");
-			importer->Initialize("..\\CyanEngine\\Models\\modelTest.fbx");
+			importer->Initialize("..\\CyanEngine\\Models\\humanoid.fbx");
 			importer->Import(scene);
 
 			FbxScene* scene2 = FbxScene::Create(manager, "Scene2");
 
 			FbxImporter* importer2 = FbxImporter::Create(manager, "");
-			importer2->Initialize("..\\CyanEngine\\Models\\animTest.fbx");
+			importer2->Initialize("..\\CyanEngine\\Models\\humanoid.fbx");
 			importer2->Import(scene2);
 		
 			{
@@ -844,7 +879,7 @@ void RendererManager::LoadAssets()
 
 					auto ritem = std::make_unique<RenderItem>();
 
-					XMMATRIX modelScale = XMMatrixScaling(0.05, 0.05, 0.05);
+					XMMATRIX modelScale = XMMatrixScaling(0.005, 0.005, 0.005);
 					XMMATRIX modelRot = XMMatrixRotationX(-PI * 0.5);
 					//XMMATRIX modelScale = XMMatrixScaling(0.2, 0.2, 0.2);
 					//XMMATRIX modelRot = XMMatrixRotationX(0);
