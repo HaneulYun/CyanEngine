@@ -79,7 +79,7 @@ void CTerrainShader::CreateShader()
 
 	HRESULT result{ S_OK };
 	ComPtr<ID3DBlob> error{ nullptr };
-	result = RendererManager::Instance()->device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineState));
+	result = Graphics::Instance()->device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineState));
 	if (result != S_OK)
 		OutputDebugStringA((const char*)error.Get()->GetBufferPointer());
 

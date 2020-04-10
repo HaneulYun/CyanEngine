@@ -1,11 +1,11 @@
 #pragma once
 
-class RendererManager;
+class Graphics;
 
 class Renderer : public Component
 {
 private:
-	RendererManager* rendererManager{ nullptr };
+	Graphics* graphics{ nullptr };
 
 public:
 	//std::deque<Material*> materials;
@@ -15,7 +15,7 @@ private:
 	friend class GameObject;
 	Renderer();
 	Renderer(Renderer& component)
-		: rendererManager(component.rendererManager)
+		: graphics(component.graphics)
 	{
 		if (component.material)
 		{

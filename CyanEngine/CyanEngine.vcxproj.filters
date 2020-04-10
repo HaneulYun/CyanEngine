@@ -173,7 +173,7 @@
     <ClInclude Include="Material.h">
       <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClInclude>
-    <ClInclude Include="RendererManager.h">
+    <ClInclude Include="Graphics.h">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClInclude>
   </ItemGroup>
@@ -284,7 +284,7 @@
     <ClCompile Include="Material.cpp">
       <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClCompile>
-    <ClCompile Include="RendererManager.cpp">
+    <ClCompile Include="Graphics.cpp">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClCompile>
   </ItemGroup>

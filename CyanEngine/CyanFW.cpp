@@ -20,15 +20,15 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	Input::Instance();
 	Random::Instance()->Start();
 
-	if (!rendererManager)
-		(rendererManager = RendererManager::Instance())->Initialize();
+	if (!graphics)
+		(graphics = Graphics::Instance())->Initialize();
 
 	return true;
 }
 
 void CyanFW::OnSetScene(Scene* newScene)
 {
-	scene = newScene;
+	Scene::scene = scene = newScene;
 }
 
 void CyanFW::OnFrameAdvance()
@@ -36,7 +36,8 @@ void CyanFW::OnFrameAdvance()
 	Time::Instance()->Tick();
 
 	scene->Update();
-	scene->Render();
+	graphics->Update(scene->frameResources);
+	graphics->Render();
 
 	Input::Update();
 }
@@ -86,7 +87,7 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 			PostQuitMessage(0);
 			break;
 		case VK_F9:
-			RendererManager::Instance()->ChangeSwapChainState();
+			Graphics::Instance()->ChangeSwapChainState();
 			break;
 		}
 		Input::keys[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = false;

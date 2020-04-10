@@ -33,7 +33,7 @@ void Shader::CreateShader()
 
 	HRESULT result{ S_OK };
 	ComPtr<ID3DBlob> error{ nullptr };
-	result = RendererManager::Instance()->device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineState));
+	result = Graphics::Instance()->device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineState));
 	if (result != S_OK)
 		OutputDebugStringA((const char*)error.Get()->GetBufferPointer());
 
@@ -269,7 +269,7 @@ void Shader::CreateCbvSrvDescriptorHeaps(int nConstantBufferViews, int nShaderRe
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
-	RendererManager::Instance()->device->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dCbvSrvDescriptorHeap);
+	Graphics::Instance()->device->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dCbvSrvDescriptorHeap);
 
 	m_d3dCbvCPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	m_d3dCbvGPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
@@ -287,7 +287,7 @@ void Shader::CreateConstantBufferViews(int nConstantBufferViews, ID3D12Resource*
 		d3dCBVDesc.BufferLocation = d3dGpuVirtualAddress + (nStride * j);
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dCbvCPUDescriptorHandle;
 		d3dCbvCPUDescriptorHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (gnCbvSrvDescriptorIncrementSize * j);
-		RendererManager::Instance()->device->CreateConstantBufferView(&d3dCBVDesc, d3dCbvCPUDescriptorHandle);
+		Graphics::Instance()->device->CreateConstantBufferView(&d3dCBVDesc, d3dCbvCPUDescriptorHandle);
 	}
 }
 
@@ -341,7 +341,7 @@ void Shader::CreateShaderResourceViews(CTexture* pTexture, UINT nDescriptorHeapI
 		ID3D12Resource* pShaderResource = pTexture->GetTexture(i);
 		D3D12_RESOURCE_DESC d3dResourceDesc = pShaderResource->GetDesc();
 		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = GetShaderResourceViewDesc(d3dResourceDesc, nTextureType);
-		RendererManager::Instance()->device->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorStartHandle);
+		Graphics::Instance()->device->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorStartHandle);
 		m_d3dSrvCPUDescriptorStartHandle.ptr += gnCbvSrvDescriptorIncrementSize;
 
 		pTexture->SetRootArgument(i, (bAutoIncrement) ? (nRootParameterStartIndex + i) : nRootParameterStartIndex, m_d3dSrvGPUDescriptorStartHandle);

@@ -3,16 +3,16 @@
 
 void Mesh::Render(UINT nInstances)
 {
-	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &vertexBufferView);
-	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	Graphics::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &vertexBufferView);
+	Graphics::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	if (indexBuffer)
 	{
-		RendererManager::Instance()->commandList->IASetIndexBuffer(&indexBufferView);
-		RendererManager::Instance()->commandList->DrawIndexedInstanced(m_nIndices, nInstances, 0, 0, 0);
+		Graphics::Instance()->commandList->IASetIndexBuffer(&indexBufferView);
+		Graphics::Instance()->commandList->DrawIndexedInstanced(m_nIndices, nInstances, 0, 0, 0);
 	}
 	else
 	{
-		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
+		Graphics::Instance()->commandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
 	}
 }
 
@@ -55,8 +55,8 @@ void Mesh::Create(GeometryType type)
 	D3DCreateBlob(ibByteSize, &IndexBufferCPU);
 	CopyMemory(IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-	auto device = RendererManager::Instance()->device;
-	auto commandList = RendererManager::Instance()->commandList;
+	auto device = Graphics::Instance()->device;
+	auto commandList = Graphics::Instance()->commandList;
 
 	VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, VertexBufferUploader);
 	IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, IndexBufferUploader);

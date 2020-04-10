@@ -7,12 +7,16 @@ private:
 
 protected:
 	std::deque<GameObject*> gameObjects;
-	RendererManager* rendererManager{ nullptr };
-
 	std::priority_queue<GameObject*> deletionQueue;
+
 
 public:
 	static Scene* scene;
+
+	std::vector<std::unique_ptr<FrameResource>> frameResources;
+
+	std::vector<std::unique_ptr<RenderItem>> allRItems;
+	std::vector<RenderItem*> renderItemLayer[(int)RenderLayer::Count];
 
 public:
 	Scene();
@@ -20,7 +24,6 @@ public:
 
 	virtual void Start();
 	virtual void Update();
-	virtual void Render();
 
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();

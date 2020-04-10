@@ -37,7 +37,7 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 
 	HRESULT hResult;
 	
-	RendererManager::Instance()->device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, d3dResourceInitialStates, NULL, __uuidof(ID3D12Resource), (void**)&pd3dBuffer);
+	Graphics::Instance()->device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, d3dResourceInitialStates, NULL, __uuidof(ID3D12Resource), (void**)&pd3dBuffer);
 	
 	if (pData)
 	{
@@ -48,7 +48,7 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 			if (ppd3dUploadBuffer)
 			{
 				heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
-				HRESULT result = RendererManager::Instance()->device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
+				HRESULT result = Graphics::Instance()->device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
 				if (result != S_OK)
 					int k = 0;
 
@@ -60,7 +60,7 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 				(*ppd3dUploadBuffer)->Unmap(0, NULL);
 
 				//업로드 버퍼의 내용을 디폴트 버퍼에 복사한다.
-				RendererManager::Instance()->commandList->CopyResource(pd3dBuffer, *ppd3dUploadBuffer);
+				Graphics::Instance()->commandList->CopyResource(pd3dBuffer, *ppd3dUploadBuffer);
 
 				D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 				::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
@@ -70,7 +70,7 @@ ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d
 				d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 				d3dResourceBarrier.Transition.StateAfter = d3dResourceStates;
 				d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-				RendererManager::Instance()->commandList->ResourceBarrier(1, &d3dResourceBarrier);
+				Graphics::Instance()->commandList->ResourceBarrier(1, &d3dResourceBarrier);
 			}
 			break;
 		}
@@ -98,7 +98,7 @@ ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12
 	DDS_ALPHA_MODE ddsAlphaMode = DDS_ALPHA_MODE_UNKNOWN;
 	bool bIsCubeMap = false;
 
-	HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(RendererManager::Instance()->device.Get(), pszFileName, 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT, &pd3dTexture, ddsData, vSubresources, &ddsAlphaMode, &bIsCubeMap);
+	HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(Graphics::Instance()->device.Get(), pszFileName, 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT, &pd3dTexture, ddsData, vSubresources, &ddsAlphaMode, &bIsCubeMap);
 
 	D3D12_HEAP_PROPERTIES d3dHeapPropertiesDesc;
 	::ZeroMemory(&d3dHeapPropertiesDesc, sizeof(D3D12_HEAP_PROPERTIES));
@@ -129,14 +129,14 @@ ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12
 	d3dResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	d3dResourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-	RendererManager::Instance()->device.Get()->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
+	Graphics::Instance()->device.Get()->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, __uuidof(ID3D12Resource), (void**)ppd3dUploadBuffer);
 
 	//UINT nSubResources = (UINT)vSubresources.size();
 	//D3D12_SUBRESOURCE_DATA *pd3dSubResourceData = new D3D12_SUBRESOURCE_DATA[nSubResources];
 	//for (UINT i = 0; i < nSubResources; i++) pd3dSubResourceData[i] = vSubresources.at(i);
 
 	//	std::vector<D3D12_SUBRESOURCE_DATA>::pointer ptr = &vSubresources[0];
-	::UpdateSubresources(RendererManager::Instance()->commandList.Get(), pd3dTexture, *ppd3dUploadBuffer, 0, 0, nSubResources, &vSubresources[0]);
+	::UpdateSubresources(Graphics::Instance()->commandList.Get(), pd3dTexture, *ppd3dUploadBuffer, 0, 0, nSubResources, &vSubresources[0]);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
@@ -146,7 +146,7 @@ ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	d3dResourceBarrier.Transition.StateAfter = d3dResourceStates;
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	RendererManager::Instance()->commandList->ResourceBarrier(1, &d3dResourceBarrier);
+	Graphics::Instance()->commandList->ResourceBarrier(1, &d3dResourceBarrier);
 
 	//	delete[] pd3dSubResourceData;
 
@@ -179,7 +179,7 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 	d3dTextureResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	d3dTextureResourceDesc.Flags = d3dResourceFlags;
 
-	HRESULT hResult = RendererManager::Instance()->device->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dTextureResourceDesc, d3dResourceStates, pd3dClearValue, __uuidof(ID3D12Resource), (void**)&pd3dTexture);
+	HRESULT hResult = Graphics::Instance()->device->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dTextureResourceDesc, d3dResourceStates, pd3dClearValue, __uuidof(ID3D12Resource), (void**)&pd3dTexture);
 
 	return(pd3dTexture);
 }

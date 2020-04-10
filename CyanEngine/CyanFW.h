@@ -10,8 +10,9 @@ private:
 	std::wstring title;
 
 public:
-	RendererManager* rendererManager{ nullptr };
+	Graphics* graphics{ nullptr };
 	Scene* scene{ nullptr };
+
 	_TCHAR m_pszFrameRate[50];
 
 public:

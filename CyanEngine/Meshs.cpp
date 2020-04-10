@@ -612,16 +612,16 @@ void CMeshFromFile::ReleaseUploadBuffers()
 
 void CMeshFromFile::Render(int nSubSet)
 {
-	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
+	Graphics::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	Graphics::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{
-		RendererManager::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
-		RendererManager::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
+		Graphics::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
+		Graphics::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
 	}
 	else
 	{
-		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
+		Graphics::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 	}
 }
 
@@ -650,31 +650,31 @@ void CMeshIlluminatedFromFile::ReleaseUploadBuffers()
 
 void CMeshIlluminatedFromFile::Render(int nSubSet)
 {
-	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
-	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	Graphics::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
+	Graphics::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{
-		RendererManager::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
-		RendererManager::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
+		Graphics::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
+		Graphics::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
 	}
 	else
 	{
-		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
+		Graphics::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 	}
 }
 
 void CMeshIlluminatedFromFile::Render(UINT nInstances, int nSubSet)
 {
-	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
-	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	Graphics::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
+	Graphics::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
 	{
-		RendererManager::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
-		RendererManager::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], nInstances, 0, 0, 0);
+		Graphics::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
+		Graphics::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], nInstances, 0, 0, 0);
 	}
 	else
 	{
-		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
+		Graphics::Instance()->commandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
 	}
 }
 

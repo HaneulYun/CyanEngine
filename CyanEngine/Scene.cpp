@@ -11,21 +11,12 @@ Scene::~Scene()
 
 void Scene::Start()
 {
-	rendererManager = RendererManager::Instance();
-
-	RendererManager::Instance()->commandList->Reset(RendererManager::Instance()->commandAllocator.Get(), NULL);
 	BuildObjects();
 
-	for (int i = 0; i < gameObjects.size(); ++i)
-		gameObjects[i]->Start();
-	rendererManager->UpdateManager();;
-
-	RendererManager::Instance()->commandList->Close();
-
-	ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->commandList.Get() };
-	RendererManager::Instance()->commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
-
-	RendererManager::Instance()->WaitForPreviousFrame();
+	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
+		frameResources.push_back(std::make_unique<FrameResource>(
+			Graphics::Instance()->device.Get(), 1, (UINT)Scene::scene->allRItems.size(), 1,
+			(UINT)5));
 }
 
 void Scene::Update()
@@ -82,7 +73,6 @@ void Scene::Update()
 	// update
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Update();
-	rendererManager->UpdateManager();
 
 	while (!deletionQueue.empty())
 	{
@@ -90,11 +80,6 @@ void Scene::Update()
 		Delete(gameObject);
 		deletionQueue.pop();
 	}
-}
-
-void Scene::Render()
-{
-	rendererManager->Render();
 }
 
 void Scene::BuildObjects()

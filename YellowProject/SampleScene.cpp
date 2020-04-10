@@ -5,8 +5,6 @@ Scene* Scene::scene{ nullptr };
 
 void SampleScene::BuildObjects()
 {
-	scene = this;
-
 	//*** Asset ***//
 
 	//Material* material_defaultMaterial = new DefaultMaterial();
@@ -16,20 +14,20 @@ void SampleScene::BuildObjects()
 	//Mesh* mesh_sphere = new Sphere();
 	//Mesh* mesh_cylinder = new Cylinder();
 	//
-	//rendererManager->textureData.push_back({ "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds" });
-	//rendererManager->textureData.push_back({ "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds" });
-	//rendererManager->textureData.push_back({ "tileTex", L"..\\CyanEngine\\Textures\\tile.dds" });
-	//rendererManager->textureData.push_back({ "crateTex", L"..\\CyanEngine\\Textures\\WoodCrate01.dds" });
-	//rendererManager->textureData.push_back({ "defaultTex", L"..\\CyanEngine\\Textures\\white1x1.dds" });
+	//graphics->textureData.push_back({ "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds" });
+	//graphics->textureData.push_back({ "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds" });
+	//graphics->textureData.push_back({ "tileTex", L"..\\CyanEngine\\Textures\\tile.dds" });
+	//graphics->textureData.push_back({ "crateTex", L"..\\CyanEngine\\Textures\\WoodCrate01.dds" });
+	//graphics->textureData.push_back({ "defaultTex", L"..\\CyanEngine\\Textures\\white1x1.dds" });
 	//
-	//rendererManager->materials["bricks0"] = std::make_unique<Material>();
-	//rendererManager->materials["stone0"] = std::make_unique<Material>();
-	//rendererManager->materials["tile0"] = std::make_unique<Material>();
-	//rendererManager->materials["skullMat"] = std::make_unique<Material>();
-	//Material* material_bricks0 = rendererManager->materials["bricks0"].get();
-	//Material* material_stone0 = rendererManager->materials["stone0"].get();
-	//Material* material_tile0 = rendererManager->materials["tile0"].get();
-	//Material* material_skullMat = rendererManager->materials["skullMat"].get();
+	//graphics->materials["bricks0"] = std::make_unique<Material>();
+	//graphics->materials["stone0"] = std::make_unique<Material>();
+	//graphics->materials["tile0"] = std::make_unique<Material>();
+	//graphics->materials["skullMat"] = std::make_unique<Material>();
+	//Material* material_bricks0 = graphics->materials["bricks0"].get();
+	//Material* material_stone0 = graphics->materials["stone0"].get();
+	//Material* material_tile0 = graphics->materials["tile0"].get();
+	//Material* material_skullMat = graphics->materials["skullMat"].get();
 	//
 	//{
 	//	material_bricks0->Name = "bricks0";
