@@ -15,6 +15,11 @@ public:
 
 	std::vector<std::unique_ptr<FrameResource>> frameResources;
 
+	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> geometries;
+	std::unordered_map<std::string, std::unique_ptr<Material>> materials;
+	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
+	std::vector<TextureData> textureData;
+
 	std::vector<std::unique_ptr<RenderItem>> allRItems;
 	std::vector<RenderItem*> renderItemLayer[(int)RenderLayer::Count];
 

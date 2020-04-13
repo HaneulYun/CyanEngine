@@ -92,16 +92,8 @@ public:
 	FrameResource* currFrameResource{ nullptr };
 	int currFrameResourceIndex{ 0 };
 
-	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> geometries;
-	std::unordered_map<std::string, std::unique_ptr<Material>> materials;
-	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> shaders;
 	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> pipelineStates;
-
-	std::string mSkinnedModelFilename = "Models\\soldier.m3d";
-
-	std::vector<TextureData> textureData;
-
 
 	UINT frameIndex{ 0 };
 	ComPtr<ID3D12Fence> fence;

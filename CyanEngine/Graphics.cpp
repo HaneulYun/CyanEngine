@@ -288,113 +288,109 @@ void Graphics::Start()
 
 void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResources)
 {
+	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
+	currFrameResource = frameResources[currFrameResourceIndex].get();
+
+	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
+		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		fence->SetEventOnCompletion(currFrameResource->Fence, eventHandle);
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
 
-		currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
-		currFrameResource = frameResources[currFrameResourceIndex].get();
-
-		if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
+	SkinnedModelInstance* skinnedModelInst{ nullptr };
+	// UpdateObjectCBs
+	auto currObjectCB = currFrameResource->ObjectCB.get();
+	for (auto& e : Scene::scene->allRItems)
+	{
+		if (e->NumFramesDirty > 0)
 		{
-			HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
-			fence->SetEventOnCompletion(currFrameResource->Fence, eventHandle);
-			WaitForSingleObject(eventHandle, INFINITE);
-			CloseHandle(eventHandle);
+			XMMATRIX world = XMLoadFloat4x4(&e->World);
+			XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
+
+			ObjectConstants objConstants;
+			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+			objConstants.MaterialIndex = e->Mat->MatCBIndex;
+
+			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
+
+			--e->NumFramesDirty;
 		}
 
-		SkinnedModelInstance* skinnedModelInst{ nullptr };
-		// UpdateObjectCBs
-		auto currObjectCB = currFrameResource->ObjectCB.get();
-		for (auto& e : Scene::scene->allRItems)
+		if (e->SkinnedModelInst)
 		{
-			if (e->NumFramesDirty > 0)
-			{
-				XMMATRIX world = XMLoadFloat4x4(&e->World);
-				XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
-
-				ObjectConstants objConstants;
-				XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
-				XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
-				objConstants.MaterialIndex = e->Mat->MatCBIndex;
-
-				currObjectCB->CopyData(e->ObjCBIndex, objConstants);
-
-				--e->NumFramesDirty;
-			}
-
-			if (e->SkinnedModelInst)
-			{
-				skinnedModelInst = e->SkinnedModelInst;
-			}
+			skinnedModelInst = e->SkinnedModelInst;
 		}
-		if (skinnedModelInst)
+	}
+	if (skinnedModelInst)
+	{
+		// UpdateSkinnedCBs
+		auto currSkinnedCB = currFrameResource->SkinnedCB.get();
+
+		// We only have one skinned model being animated.
+		skinnedModelInst->UpdateSkinnedAnimation(Time::deltaTime);
+
+		SkinnedConstants skinnedConstants;
+		std::copy(
+			std::begin(skinnedModelInst->FinalTransforms),
+			std::end(skinnedModelInst->FinalTransforms),
+			&skinnedConstants.BoneTransforms[0]);
+
+		currSkinnedCB->CopyData(0, skinnedConstants);
+	}
+
+	// UpdateMaterialBuffer
+	auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
+	for (auto& e : Scene::scene->materials)
+	{
+		Material* mat = e.second.get();
+		if (mat->NumFramesDirty > 0)
 		{
-			// UpdateSkinnedCBs
-			auto currSkinnedCB = currFrameResource->SkinnedCB.get();
+			XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
 
-			// We only have one skinned model being animated.
-			skinnedModelInst->UpdateSkinnedAnimation(Time::deltaTime);
+			MaterialData matData;
+			matData.DiffuseAlbedo = mat->DiffuseAlbedo;
+			matData.FresnelR0 = mat->FresnelR0;
+			matData.Roughness = mat->Roughness;
+			XMStoreFloat4x4(&matData.MatTransform, XMMatrixTranspose(matTransform));
+			matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
 
-			SkinnedConstants skinnedConstants;
-			std::copy(
-				std::begin(skinnedModelInst->FinalTransforms),
-				std::end(skinnedModelInst->FinalTransforms),
-				&skinnedConstants.BoneTransforms[0]);
+			currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
 
-			currSkinnedCB->CopyData(0, skinnedConstants);
+			--mat->NumFramesDirty;
 		}
+	}
 
-		// UpdateMaterialBuffer
-		auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
-		for (auto& e : materials)
-		{
-			Material* mat = e.second.get();
-			if (mat->NumFramesDirty > 0)
-			{
-				XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
+	// UpdateMainPassCB
+	{
+		PassConstants passConstants;
 
-				MaterialData matData;
-				matData.DiffuseAlbedo = mat->DiffuseAlbedo;
-				matData.FresnelR0 = mat->FresnelR0;
-				matData.Roughness = mat->Roughness;
-				XMStoreFloat4x4(&matData.MatTransform, XMMatrixTranspose(matTransform));
-				matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
+		XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
+		XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
+		XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
+		XMVECTOR up{ 0, 1, 0 };
 
-				currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
+		XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
+		XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
+		XMMATRIX worldViewProj = view * proj;
 
-				--mat->NumFramesDirty;
-			}
-		}
+		XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
 
-		// UpdateMainPassCB
-		{
+		float mSunTheta = 1.25f * XM_PI;
+		float mSunPhi = XM_PIDIV4;
 
-			PassConstants passConstants;
+		XMStoreFloat3(&passConstants.EyePosW, pos);
+		passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+		passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+		passConstants.Lights[0].Strength = { 0.8f, 0.8f, 0.8f };
+		passConstants.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+		passConstants.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
+		passConstants.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+		passConstants.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
 
-			XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
-			XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
-			XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
-			XMVECTOR up{ 0, 1, 0 };
-
-			XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
-			XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
-			XMMATRIX worldViewProj = view * proj;
-
-			XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
-
-			float mSunTheta = 1.25f * XM_PI;
-			float mSunPhi = XM_PIDIV4;
-
-			XMStoreFloat3(&passConstants.EyePosW, pos);
-			passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
-			passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
-			passConstants.Lights[0].Strength = { 0.8f, 0.8f, 0.8f };
-			passConstants.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
-			passConstants.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
-			passConstants.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
-			passConstants.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
-
-			currFrameResource->PassCB->CopyData(0, passConstants);
-		}
+		currFrameResource->PassCB->CopyData(0, passConstants);
 	}
 }
 
@@ -676,228 +672,11 @@ void Graphics::LoadAssets()
 	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinned.Get());
 	device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineStates["skinnedOpaque"]));
 
-	commandList->Reset(commandAllocator.Get(), nullptr);
-
-	std::vector<M3DLoader::Subset> mSkinnedSubsets;
-	std::vector<M3DLoader::M3dMaterial> mSkinnedMats;
-	SkinnedModelInstance* mSkinnedModelInst;
-	{
-		SkinnedData* mSkinnedInfo = new SkinnedData();
-
-		std::vector<M3DLoader::SkinnedVertex> vertices;
-		std::vector<std::uint16_t> indices;
-
-		M3DLoader m3dLoader;
-		m3dLoader.LoadM3d("..\\CyanEngine\\Models\\soldier.m3d", vertices, indices,
-			mSkinnedSubsets, mSkinnedMats, *mSkinnedInfo);
-
-		{
-			FbxManager* manager = FbxManager::Create();
-		
-			FbxIOSettings* ios = FbxIOSettings::Create(manager, IOSROOT);
-			manager->SetIOSettings(ios);
-		
-			FbxScene* scene = FbxScene::Create(manager, "Scene");
-
-			FbxImporter* importer = FbxImporter::Create(manager, "");
-			importer->Initialize("..\\CyanEngine\\Models\\modelTest3.fbx");
-			importer->Import(scene);
-
-			FbxScene* scene2 = FbxScene::Create(manager, "Scene2");
-
-			FbxImporter* importer2 = FbxImporter::Create(manager, "");
-			importer2->Initialize("..\\CyanEngine\\Models\\animTest3.fbx");
-			importer2->Import(scene2);
-		
-			{
-				FbxGeometryConverter geometryConverter(manager);
-				geometryConverter.Triangulate(scene, true);
-		
-				std::vector<XMFLOAT4X4> boneOffsets;
-				std::vector<int> boneIndexToParentIndex;
-				std::unordered_map<std::string, AnimationClip> animations;
-				AnimationClip clip;
-		
-				vertices.clear();
-				indices.clear();
-				for (auto& offset : boneOffsets)
-					offset = MathHelper::Identity4x4();
-
-				LoadModel(scene->GetRootNode(), vertices, indices, boneOffsets, boneIndexToParentIndex);
-				boneIndexToParentIndex.clear();
-				clip.BoneAnimations.resize(boneOffsets.size());
-				LoadAnimation(scene2->GetRootNode(), clip, boneIndexToParentIndex);
-
-				animations["run"] = clip;
-		
-				delete mSkinnedInfo;
-				mSkinnedInfo = new SkinnedData();
-				mSkinnedInfo->Set(boneIndexToParentIndex, boneOffsets, animations);
-			}
-		
-			if (manager)
-				manager->Destroy();
-		}
-		mSkinnedSubsets.resize(1);
-
-		for (UINT i = 0; i < 1; ++i)
-		{
-			mSkinnedSubsets[i].Id = 0;
-			mSkinnedSubsets[i].VertexStart = 0;
-			mSkinnedSubsets[i].VertexCount = vertices.size();
-			mSkinnedSubsets[i].FaceStart = 0;
-			mSkinnedSubsets[i].FaceCount = indices.size();
-		}
-
-		mSkinnedModelInst = new SkinnedModelInstance();
-		mSkinnedModelInst->SkinnedInfo = mSkinnedInfo;
-		mSkinnedModelInst->FinalTransforms.resize(mSkinnedInfo->BoneCount());
-		//mSkinnedModelInst->ClipName = "Take1";
-		mSkinnedModelInst->ClipName = "run";
-		mSkinnedModelInst->TimePos = 0.0f;
-
-		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
-		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-		auto geo = std::make_unique<MeshGeometry>();
-		geo->Name = mSkinnedModelFilename;
-
-		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
-		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-		geo->VertexByteStride = sizeof(FrameResource::SkinnedVertex);
-		geo->VertexBufferByteSize = vbByteSize;
-		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-		geo->IndexBufferByteSize = ibByteSize;
-
-		for (UINT i = 0; i < (UINT)mSkinnedSubsets.size(); ++i)
-		{
-			SubmeshGeometry submesh;
-			std::string name = "sm_" + std::to_string(i);
-
-			submesh.IndexCount = (UINT)mSkinnedSubsets[i].FaceCount * 3;
-			submesh.StartIndexLocation = mSkinnedSubsets[i].FaceStart * 3;
-			submesh.BaseVertexLocation = 0;
-
-			geo->DrawArgs[name] = submesh;
-		}
-
-		geometries[geo->Name] = std::move(geo);
-
-
-		UINT matCBIndex = 4;
-		UINT srvHeapIndex = 5;// mSkinnedSrvHeapStart;
-		for (UINT i = 0; i < mSkinnedMats.size(); ++i)
-		{
-			auto mat = std::make_unique<Material>();
-			mat->Name = mSkinnedMats[i].Name;
-			mat->MatCBIndex = matCBIndex++;
-			mat->DiffuseSrvHeapIndex = srvHeapIndex++;
-			mat->NormalSrvHeapIndex = srvHeapIndex;// srvHeapIndex++;
-			mat->DiffuseAlbedo = mSkinnedMats[i].DiffuseAlbedo;
-			mat->FresnelR0 = mSkinnedMats[i].FresnelR0;
-			mat->Roughness = mSkinnedMats[i].Roughness;
-
-			materials[mat->Name] = std::move(mat);
-		}
-	}
-	for (int i = 0; i < mSkinnedMats.size(); ++i)
-	{
-		std::string diffuseName = mSkinnedMats[i].DiffuseMapName;
-		std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
-	
-		diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
-	
-		textureData.push_back({ diffuseName, diffuseFilename });
-	}
-
-	std::vector<std::string> texName;
-	for (auto& d : textureData)
-	{
-		if (textures.find(d.name) == std::end(textures))
-		{
-			auto texture = std::make_unique<Texture>();
-			texture->Name = d.name;
-			texture->Filename = d.fileName;
-
-			texName.push_back(d.name);
-
-			CreateDDSTextureFromFile12(device.Get(), commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-			textures[texture->Name] = std::move(texture);
-		}
-	}
-	{
-		UINT objCBIndex = Scene::scene->allRItems.size();
-
-		int count = 0;
-		float interval = 2.5f;
-		for(int x = -count; x <= count; ++x)
-			for(int z = -count; z <= count; ++z)
-				for (UINT i = 0; i < mSkinnedMats.size(); ++i)
-				{
-					std::string submeshName = "sm_" + std::to_string(i);
-
-					auto ritem = std::make_unique<RenderItem>();
-
-					XMMATRIX modelScale = XMMatrixScaling(0.005, 0.005, 0.005);
-					XMMATRIX modelRot = XMMatrixRotationX(-PI * 0.5);
-					//XMMATRIX modelScale = XMMatrixScaling(0.2, 0.2, 0.2);
-					//XMMATRIX modelRot = XMMatrixRotationX(0);
-					XMMATRIX modelOffset = XMMatrixTranslation(x * 3, 0, z * 3);
-					XMStoreFloat4x4(&ritem->World, modelScale * modelRot * modelOffset);
-
-					ritem->TexTransform = MathHelper::Identity4x4();
-					ritem->ObjCBIndex = objCBIndex++;
-					ritem->Mat = materials[mSkinnedMats[i].Name].get();
-					ritem->Geo = geometries[mSkinnedModelFilename].get();
-					ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-					ritem->IndexCount = ritem->Geo->DrawArgs[submeshName].IndexCount;
-					ritem->StartIndexLocation = ritem->Geo->DrawArgs[submeshName].StartIndexLocation;
-					ritem->BaseVertexLocation = ritem->Geo->DrawArgs[submeshName].BaseVertexLocation;
-
-					ritem->SkinnedCBIndex = 0;
-					ritem->SkinnedModelInst = mSkinnedModelInst;
-
-					Scene::scene->renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
-					Scene::scene->allRItems.push_back(std::move(ritem));
-				}
-	}
-
-
-	commandList->Close();
-	ID3D12CommandList* cmdsLists[] = { commandList.Get() };
-	commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = 9;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
-
-	{
-		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());
-
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-
-		for (auto& d : texName)
-		{
-			srvDesc.Format = textures[d]->Resource->GetDesc().Format;
-			srvDesc.Texture2D.MipLevels = textures[d]->Resource->GetDesc().MipLevels;
-			device->CreateShaderResourceView(textures[d]->Resource.Get(), &srvDesc, handle);
-
-			handle.Offset(1, srvDescriptorSize);
-		}
-	}
 
 	WaitForPreviousFrame();
 
