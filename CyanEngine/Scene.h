@@ -9,7 +9,6 @@ protected:
 	std::deque<GameObject*> gameObjects;
 	std::priority_queue<GameObject*> deletionQueue;
 
-
 public:
 	static Scene* scene;
 
