@@ -33,6 +33,32 @@ void LoadModel(FbxNode* node,
 				kk = 1;
 				FbxMesh* mesh = node->GetMesh();
 
+				int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
+				if (materialCount > 0)
+				{
+					FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)node->GetSrcObject<FbxSurfaceMaterial>(0);
+					if (material != NULL)
+					{
+						FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+
+						int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
+
+						if (layeredTextureCount > 0)
+						{
+							for (int i = 0; i < layeredTextureCount; ++i)
+							{
+								FbxLayeredTexture* layeredTexture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(i));
+								int textureCount = layeredTexture->GetSrcObjectCount<FbxTexture>();
+								for (int j = 0; j < textureCount; ++j)
+								{
+									FbxTexture* texture = FbxCast<FbxTexture>(layeredTexture->GetSrcObject<FbxTexture>(j));
+									const char* textrueName = texture->GetName();
+								}
+							}
+						}
+					}
+				}
+
 				int verticesCount = mesh->GetControlPointsCount();
 				for (unsigned int i = 0; i < verticesCount; ++i)
 				{
@@ -44,9 +70,11 @@ void LoadModel(FbxNode* node,
 					vertices.push_back(vertex);
 				}
 
+				// normal, Texcoord, Tangent ·Îµå
 				int polygonCount = mesh->GetPolygonCount();
 				for (unsigned int i = 0; i < polygonCount; ++i)
 				{
+					// normal
 					for (unsigned int j = 0; j < 3; ++j)
 					{
 						int vertexIndex = mesh->GetPolygonVertex(i, j);
@@ -70,6 +98,33 @@ void LoadModel(FbxNode* node,
 								vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
 								vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
 								vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+								break;
+							}
+							break;
+						}
+					}
+
+					// uvs
+					for (unsigned int j = 0; j < 3; ++j)
+					{
+						int vertexIndex = mesh->GetPolygonVertex(i, j);
+						//indices.emplace_back(vertexIndex);
+						if (mesh->GetElementUVCount() < 1)
+							continue;
+						const FbxGeometryElementUV* vertexUv = mesh->GetElementUV(0);
+						switch (vertexUv->GetMappingMode())
+						{
+						case FbxGeometryElement::eByControlPoint:
+							switch (vertexUv->GetReferenceMode())
+							{
+							case FbxGeometryElement::eDirect:
+								vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
+								vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
+								break;
+							case FbxGeometryElement::eIndexToDirect:
+								int index = vertexUv->GetIndexArray().GetAt(vertexIndex);
+								vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
+								vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
 								break;
 							}
 							break;
@@ -414,7 +469,7 @@ void Scene::Start()
 			Scene::scene->materials[mat->Name] = std::move(mat);
 		}
 	}
-	for (int i = 0; i < mSkinnedMats.size(); ++i)
+	/*for (int i = 0; i < mSkinnedMats.size(); ++i)
 	{
 		std::string diffuseName = mSkinnedMats[i].DiffuseMapName;
 		std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
@@ -422,7 +477,11 @@ void Scene::Start()
 		diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
 
 		textureData.push_back({ diffuseName, diffuseFilename });
-	}
+	}*/
+
+	std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\PolyArtTex.dds";
+	
+	textureData.push_back({ "PolyArtTex", diffuseFilename });
 
 	std::vector<std::string> texName;
 	for (auto& d : textureData)
@@ -454,7 +513,7 @@ void Scene::Start()
 
 					auto ritem = std::make_unique<RenderItem>();
 
-					XMMATRIX modelScale = XMMatrixScaling(0.005, 0.005, 0.005);
+					XMMATRIX modelScale = XMMatrixScaling(0.05, 0.05, 0.05);
 					XMMATRIX modelRot = XMMatrixRotationX(-PI * 0.5);
 					//XMMATRIX modelScale = XMMatrixScaling(0.05, 0.05, -0.05);
 					//XMMATRIX modelRot = XMMatrixRotationX(0);
