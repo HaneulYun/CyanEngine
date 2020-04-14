@@ -23,20 +23,15 @@ void Scene::Start()
 	{
 		SkinnedData* mSkinnedInfo = new SkinnedData();
 
-		std::vector<M3DLoader::SkinnedVertex> vertices;
-		std::vector<std::uint16_t> indices;
-
-		M3DLoader m3dLoader;
-		m3dLoader.LoadM3d("..\\CyanEngine\\Models\\soldier.m3d", vertices, indices,
-			modelData.skinnedSubsets, modelData.skinnedMats, *mSkinnedInfo);
+		M3DLoader::M3dMaterial mat{ "test" };
+		modelData.skinnedMats.clear();
+		modelData.skinnedMats.push_back(mat);
 
 		modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
 		animData.LoadFbx("..\\CyanEngine\\Models\\animTest.fbx");
 
 		std::unordered_map<std::string, AnimationClip> animations;
 		animations["run"] = *animationClips["k"].get();
-		delete mSkinnedInfo;
-		mSkinnedInfo = new SkinnedData();
 		mSkinnedInfo->Set(animData.parentIndexer, modelData.boneOffsets, animations);
 
 		mSkinnedModelInst = new SkinnedModelInstance();
@@ -62,33 +57,33 @@ void Scene::Start()
 			materials[mat->Name] = std::move(mat);
 		}
 	}
-	for (int i = 0; i < modelData.skinnedMats.size(); ++i)
-	{
-		std::string diffuseName = modelData.skinnedMats[i].DiffuseMapName;
-		std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
+	//for (int i = 0; i < modelData.skinnedMats.size(); ++i)
+	//{
+	//	std::string diffuseName = modelData.skinnedMats[i].DiffuseMapName;
+	//	std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
+	//
+	//	diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
+	//
+	//	textureData.push_back({ diffuseName, diffuseFilename });
+	//}
 
-		diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
-
-		textureData.push_back({ diffuseName, diffuseFilename });
-	}
-
-	std::vector<std::string> texName;
-	for (auto& d : textureData)
-	{
-		if (textures.find(d.name) == std::end(textures))
-		{
-			auto texture = std::make_unique<Texture>();
-			texture->Name = d.name;
-			texture->Filename = d.fileName;
-
-			texName.push_back(d.name);
-
-			CreateDDSTextureFromFile12(
-				Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
-				texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-			textures[texture->Name] = std::move(texture);
-		}
-	}
+	//std::vector<std::string> texName;
+	//for (auto& d : textureData)
+	//{
+		//if (textures.find(d.name) == std::end(textures))
+		//{
+		//	auto texture = std::make_unique<Texture>();
+		//	texture->Name = d.name;
+		//	texture->Filename = d.fileName;
+		//
+		//	texName.push_back(d.name);
+		//
+		//	CreateDDSTextureFromFile12(
+		//		Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
+		//		texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+		//	textures[texture->Name] = std::move(texture);
+		//}
+	//}
 	{
 		UINT objCBIndex = allRItems.size();
 
@@ -139,14 +134,14 @@ void Scene::Start()
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-		for (auto& d : texName)
-		{
-			srvDesc.Format = textures[d]->Resource->GetDesc().Format;
-			srvDesc.Texture2D.MipLevels = textures[d]->Resource->GetDesc().MipLevels;
-			Graphics::Instance()->device->CreateShaderResourceView(textures[d]->Resource.Get(), &srvDesc, handle);
-
-			handle.Offset(1, Graphics::Instance()->srvDescriptorSize);
-		}
+		//for (auto& d : texName)
+		//{
+		//	srvDesc.Format = textures[d]->Resource->GetDesc().Format;
+		//	srvDesc.Texture2D.MipLevels = textures[d]->Resource->GetDesc().MipLevels;
+		//	Graphics::Instance()->device->CreateShaderResourceView(textures[d]->Resource.Get(), &srvDesc, handle);
+		//
+		//	handle.Offset(1, Graphics::Instance()->srvDescriptorSize);
+		//}
 	}
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
@@ -290,15 +285,6 @@ void FbxModelData::LoadFbx(const char* path)
 
 	LoadFbxHierarchy(scene->GetRootNode());
 
-	//
-
-	static int k = 0;
-	if (k == 0)
-	{
-		k = 1;
-		return;
-	}
-
 	FbxArray<FbxString*> animStackNameArray;
 	scene->FillAnimStackNameArray(animStackNameArray);
 
@@ -384,6 +370,12 @@ void FbxModelData::LoadFbxHierarchy(FbxNode* node)
 			LoadFbxHierarchyRecursive(node);
 		else if (attributeType == FbxNodeAttribute::eMesh)
 			LoadFbxMesh(node);
+		else if (attributeType == FbxNodeAttribute::eLODGroup)
+		{
+			const int childCount = node->GetChildCount();
+			for (int childIndex = 0; childIndex < childCount; ++childIndex)
+				LoadFbxHierarchy(node->GetChild(childIndex));
+		}
 	}
 	else
 	{
@@ -556,6 +548,16 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 	geo->IndexBufferByteSize = ibByteSize;
 
+	skinnedSubsets.resize(1);
+
+	for (UINT i = 0; i < 1; ++i)
+	{
+		skinnedSubsets[i].Id = 0;
+		skinnedSubsets[i].VertexStart = 0;
+		skinnedSubsets[i].VertexCount = vertices.size();
+		skinnedSubsets[i].FaceStart = 0;
+		skinnedSubsets[i].FaceCount = indices.size();
+	}
 	for (UINT i = 0; i < (UINT)skinnedSubsets.size(); ++i)
 	{
 		SubmeshGeometry submesh;
@@ -570,14 +572,4 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 	Scene::scene->geometries[geo->Name] = std::move(geo);
 
-	skinnedSubsets.resize(1);
-
-	for (UINT i = 0; i < 1; ++i)
-	{
-		skinnedSubsets[i].Id = 0;
-		skinnedSubsets[i].VertexStart = 0;
-		skinnedSubsets[i].VertexCount = vertices.size();
-		skinnedSubsets[i].FaceStart = 0;
-		skinnedSubsets[i].FaceCount = indices.size();
-	}
 }
