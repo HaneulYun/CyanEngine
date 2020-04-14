@@ -171,6 +171,10 @@ void Graphics::Render()
 	auto objectCB = currFrameResource->ObjectCB->Resource();
 	auto skinnedCB = currFrameResource->SkinnedCB->Resource();
 
+	static int cnt = 0;
+	if (Input::GetMouseButtonDown(0))
+		cnt = (cnt + 1) % 5;
+
 	int k = 0;
 	for (auto& renderItems : Scene::scene->renderItemLayer)
 	{
@@ -181,7 +185,7 @@ void Graphics::Render()
 
 		for (int i = 0; i < renderItems.size(); ++i)
 		{
-			auto ri = renderItems[i];
+			auto ri = renderItems[cnt];
 
 			commandList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
 			commandList->IASetIndexBuffer(&ri->Geo->IndexBufferView());

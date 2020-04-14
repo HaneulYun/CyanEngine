@@ -29,13 +29,10 @@ void LoadModel(FbxNode* node,
 		FbxNodeAttribute::EType attributeType = attribute->GetAttributeType();
 		if (attributeType == FbxNodeAttribute::eMesh)
 		{
-			if (!kk)
+			//if (kk++ == 1)
 			{
-				kk = 1;
-				geometryConverter.SplitMeshPerMaterial(node->GetMesh(), false);
-			}
-			else
-			{
+				//geometryConverter.SplitMeshPerMaterial(node->GetMesh(), false);
+
 				FbxMesh* mesh = node->GetMesh();
 				int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
 				if (materialCount > 0)
@@ -81,7 +78,7 @@ void LoadModel(FbxNode* node,
 					vertices.push_back(vertex);
 				}
 
-				s.VertexCount = vertices.size();				
+				s.VertexCount = vertices.size() - s.VertexStart;
 				s.FaceStart = indices.size();
 
 				// normal, Texcoord, Tangent ·Îµå
@@ -240,6 +237,10 @@ void LoadModel(FbxNode* node,
 		{
 			skeletonIndexer[node->GetName()] = boneIndex;
 			boneIndexToParentIndex.push_back(parentIndex);
+		}
+		else
+		{
+			int k = 0;
 		}
 	}
 
@@ -405,7 +406,8 @@ void Scene::Start()
 		
 			{
 				FbxGeometryConverter geometryConverter(manager);
-				geometryConverter.Triangulate(scene, true);
+				//geometryConverter.Triangulate(scene, true);
+				geometryConverter.SplitMeshesPerMaterial(scene, true);
 		
 				std::vector<XMFLOAT4X4> boneOffsets;
 				std::vector<int> boneIndexToParentIndex;
