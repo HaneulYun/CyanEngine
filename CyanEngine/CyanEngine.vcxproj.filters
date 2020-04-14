@@ -175,6 +175,9 @@
     <ClInclude Include="Graphics.h">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="FbxLoader.h">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -283,6 +286,9 @@
       <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClCompile>
     <ClCompile Include="Graphics.cpp">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="FbxLoader.cpp">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClCompile>
   </ItemGroup>
