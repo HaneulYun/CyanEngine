@@ -27,8 +27,8 @@ public:
 	std::unordered_map<std::string, std::unique_ptr<AnimationClip>> animationClips;
 	//std::vector<TextureData> textureData;
 
-	std::vector<std::unique_ptr<RenderItem>> allRItems;
-	std::vector<RenderItem*> renderItemLayer[(int)RenderLayer::Count];
+	std::vector<GameObject*> allRItems;
+	std::vector<GameObject*> renderItemLayer[(int)RenderLayer::Count];
 
 public:
 	Scene();

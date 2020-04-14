@@ -17,12 +17,6 @@ void Scene::Start()
 
 	Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
 
-	
-	auto gameObject = CreateEmpty();
-	{
-		gameObject->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
-	}
-
 	FbxModelData modelData;
 	FbxModelData animData;
 	SkinnedModelInstance* mSkinnedModelInst;
@@ -101,9 +95,9 @@ void Scene::Start()
 				{
 					std::string submeshName = "sm_" + std::to_string(i);
 
-					auto ritem = std::make_unique<RenderItem>();
+					auto ritem = CreateEmpty();
+					ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
 
-					ritem->gameObject = gameObject;
 					ritem->TexTransform = MathHelper::Identity4x4();
 					ritem->ObjCBIndex = objCBIndex++;
 					ritem->Mat = materials[modelData.skinnedMats[i].Name].get();
@@ -116,8 +110,8 @@ void Scene::Start()
 					ritem->SkinnedCBIndex = 0;
 					ritem->SkinnedModelInst = mSkinnedModelInst;
 
-					renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
-					allRItems.push_back(std::move(ritem));
+					renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
+					allRItems.push_back(ritem);
 				}
 	}
 
