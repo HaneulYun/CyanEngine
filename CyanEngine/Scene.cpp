@@ -3,119 +3,6 @@
 
 std::string mSkinnedModelFilename = "Models\\soldier.m3d";
 
-struct BoneWeightData
-{
-	unsigned int boneIndex;
-	double weight;
-};
-
-std::map<std::string, int> skeletonIndexer;
-std::map<int, std::vector<BoneWeightData>> boneWeightData;
-std::map<int, FbxNode*> nodes;
-
-void LoadAnimation(FbxNode* node,
-	AnimationClip& clip,
-	std::vector<int>& boneIndexToParentIndex,
-	int parentIndex = -2)
-{
-	FbxNodeAttribute* attribute = node->GetNodeAttribute();
-
-	int boneIndex = boneIndexToParentIndex.size();
-
-	if (attribute)
-	{
-		FbxNodeAttribute::EType attributeType = attribute->GetAttributeType();
-		if (attributeType == FbxNodeAttribute::eSkeleton)
-		{
-			boneIndexToParentIndex.push_back(parentIndex);
-
-			nodes[boneIndex] = node;
-		}
-	}
-
-	if (boneIndexToParentIndex.size() == 0)
-		boneIndex = -1;
-
-	int childCount = node->GetChildCount();
-	for (int i = 0; i < childCount; ++i)
-	{
-		LoadAnimation(node->GetChild(i), clip, boneIndexToParentIndex, boneIndex);
-	}
-	if (parentIndex == -2)
-	{
-		FbxArray<FbxString*> animStackNameArray;
-		node->GetScene()->FillAnimStackNameArray(animStackNameArray);
-
-		FbxAnimStack* animStack = node->GetScene()->FindMember<FbxAnimStack>(animStackNameArray[0]->Buffer());
-		node->GetScene()->SetCurrentAnimationStack(animStack);
-
-		FbxAnimLayer* animLayer = animStack->GetMember<FbxAnimLayer>();
-		FbxTakeInfo* takeInfo = node->GetScene()->GetTakeInfo(*(animStackNameArray[0]));
-		FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
-		FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
-
-		for (unsigned int j = 0; j < clip.BoneAnimations.size(); ++j)
-		{
-			std::string str = nodes[j]->GetName();
-			if (nodes[j]->GetName() == "hand_r")
-				int k = 0;
-
-			BoneAnimation boneAnim;
-			for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
-			{
-
-				FbxTime time;
-				time.SetFrame(i, FbxTime::eFrames24);
-
-				Keyframe keyframe;
-
-				FbxAMatrix localTransform = nodes[j]->EvaluateLocalTransform(time);
-				FbxVector4 t = localTransform.GetT();
-				FbxVector4 s = localTransform.GetS();
-				FbxQuaternion q = localTransform.GetQ();
-
-				keyframe.TimePos = i * 0.166;
-				keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
-				keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
-				keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
-
-				boneAnim.Keyframes.push_back(keyframe);
-			}
-			clip.BoneAnimations[j] = boneAnim;
-		}
-
-		for (int j = 0; j < clip.BoneAnimations.size(); ++j)
-		{
-			BoneAnimation boneAnim;
-			if (clip.BoneAnimations[j].Keyframes.size() == 0)
-			{
-
-				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
-				{
-					FbxTime time;
-					time.SetFrame(i, FbxTime::eFrames24);
-
-					Keyframe keyframe;
-
-					FbxAMatrix localTransform = nodes[j]->EvaluateLocalTransform(time);
-
-					FbxVector4 t = localTransform.GetT();
-					FbxVector4 s = localTransform.GetS();
-					FbxQuaternion q = localTransform.GetQ();
-
-					keyframe.TimePos = i * 0.166;
-					keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
-					keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
-					keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
-
-					boneAnim.Keyframes.push_back(keyframe);
-				}
-				clip.BoneAnimations[j] = boneAnim;
-			}
-		}
-	}
-}
-
 Scene::Scene()
 {
 }
@@ -131,6 +18,7 @@ void Scene::Start()
 	Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
 
 	FbxModelData modelData;
+	FbxModelData animData;
 	SkinnedModelInstance* mSkinnedModelInst;
 	{
 		SkinnedData* mSkinnedInfo = new SkinnedData();
@@ -143,58 +31,13 @@ void Scene::Start()
 			modelData.skinnedSubsets, modelData.skinnedMats, *mSkinnedInfo);
 
 		modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
-		{
-			FbxManager* manager = FbxManager::Create();
-		
-			FbxIOSettings* ios = FbxIOSettings::Create(manager, IOSROOT);
-			manager->SetIOSettings(ios);
-		
-			FbxScene* scene = FbxScene::Create(manager, "Scene");
-		
-			FbxImporter* importer = FbxImporter::Create(manager, "");
-			importer->Initialize("..\\CyanEngine\\Models\\modelTest.fbx");
-			importer->Import(scene);
-		
-			FbxScene* scene2 = FbxScene::Create(manager, "Scene2");
-		
-			FbxImporter* importer2 = FbxImporter::Create(manager, "");
-			importer2->Initialize("..\\CyanEngine\\Models\\animTest.fbx");
-			importer2->Import(scene2);
-		
-			{
-				FbxGeometryConverter geometryConverter(manager);
-				geometryConverter.Triangulate(scene, true);
-		
-				std::vector<int> boneIndexToParentIndex;
-				std::unordered_map<std::string, AnimationClip> animations;
-				AnimationClip clip;
-		
-				vertices.clear();
-				indices.clear();
+		animData.LoadFbx("..\\CyanEngine\\Models\\animTest.fbx");
 
-				clip.BoneAnimations.resize(modelData.boneOffsets.size());
-				LoadAnimation(scene2->GetRootNode(), clip, boneIndexToParentIndex);
-		
-				animations["run"] = clip;
-		
-				delete mSkinnedInfo;
-				mSkinnedInfo = new SkinnedData();
-				mSkinnedInfo->Set(boneIndexToParentIndex, modelData.boneOffsets, animations);
-			}
-		
-			if (manager)
-				manager->Destroy();
-		}
-		modelData.skinnedSubsets.resize(1);
-
-		for (UINT i = 0; i < 1; ++i)
-		{
-			modelData.skinnedSubsets[i].Id = 0;
-			modelData.skinnedSubsets[i].VertexStart = 0;
-			modelData.skinnedSubsets[i].VertexCount = vertices.size();
-			modelData.skinnedSubsets[i].FaceStart = 0;
-			modelData.skinnedSubsets[i].FaceCount = indices.size();
-		}
+		std::unordered_map<std::string, AnimationClip> animations;
+		animations["run"] = *animationClips["k"].get();
+		delete mSkinnedInfo;
+		mSkinnedInfo = new SkinnedData();
+		mSkinnedInfo->Set(animData.parentIndexer, modelData.boneOffsets, animations);
 
 		mSkinnedModelInst = new SkinnedModelInstance();
 		mSkinnedModelInst->SkinnedInfo = mSkinnedInfo;
@@ -446,6 +289,89 @@ void FbxModelData::LoadFbx(const char* path)
 	importer->Import(scene);
 
 	LoadFbxHierarchy(scene->GetRootNode());
+
+	//
+
+	static int k = 0;
+	if (k == 0)
+	{
+		k = 1;
+		return;
+	}
+
+	FbxArray<FbxString*> animStackNameArray;
+	scene->FillAnimStackNameArray(animStackNameArray);
+
+	int stackCount = animStackNameArray.GetCount();
+	for (int stackIndex = 0; stackIndex < stackCount; ++stackIndex)
+	{
+		auto clip = std::make_unique<AnimationClip>();
+		clip->BoneAnimations.resize(skeletonIndexer.size());
+
+		FbxAnimStack* animStack = scene->FindMember<FbxAnimStack>(animStackNameArray[stackIndex]->Buffer());
+		scene->SetCurrentAnimationStack(animStack);
+
+		//FbxAnimLayer* animLayer = animStack->GetMember<FbxAnimLayer>();
+
+		FbxTakeInfo* takeInfo = scene->GetTakeInfo(*(animStackNameArray[stackIndex]));
+		FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+		FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+
+		for (unsigned int j = 0; j < clip->BoneAnimations.size(); ++j)
+		{
+			BoneAnimation boneAnim;
+			for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+			{
+				FbxTime time;
+				time.SetFrame(i, FbxTime::eFrames24);
+
+				Keyframe keyframe;
+
+				FbxAMatrix localTransform = nodes[j]->EvaluateLocalTransform(time);
+				FbxVector4 t = localTransform.GetT();
+				FbxVector4 s = localTransform.GetS();
+				FbxQuaternion q = localTransform.GetQ();
+
+				keyframe.TimePos = i * 0.166;
+				keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
+				keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
+				keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
+
+				boneAnim.Keyframes.push_back(keyframe);
+			}
+			clip->BoneAnimations[j] = boneAnim;
+		}
+
+		for (int j = 0; j < clip->BoneAnimations.size(); ++j)
+		{
+			BoneAnimation boneAnim;
+			if (clip->BoneAnimations[j].Keyframes.size() == 0)
+			{
+				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+				{
+					FbxTime time;
+					time.SetFrame(i, FbxTime::eFrames24);
+
+					Keyframe keyframe;
+
+					FbxAMatrix localTransform = nodes[j]->EvaluateLocalTransform(time);
+
+					FbxVector4 t = localTransform.GetT();
+					FbxVector4 s = localTransform.GetS();
+					FbxQuaternion q = localTransform.GetQ();
+
+					keyframe.TimePos = i * 0.166;
+					keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
+					keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
+					keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
+
+					boneAnim.Keyframes.push_back(keyframe);
+				}
+				clip->BoneAnimations[j] = boneAnim;
+			}
+		}
+		Scene::scene->animationClips["k"] = std::move(clip);
+	}
 }
 
 void FbxModelData::LoadFbxHierarchy(FbxNode* node)
@@ -467,7 +393,7 @@ void FbxModelData::LoadFbxHierarchy(FbxNode* node)
 	}
 }
 
-void FbxModelData::LoadFbxHierarchyRecursive(FbxNode* node)
+void FbxModelData::LoadFbxHierarchyRecursive(FbxNode* node, int parentIndex)
 {
 	int boneIndex = skeletonIndexer.size();
 	FbxNodeAttribute* nodeAttribute = node->GetNodeAttribute();
@@ -476,11 +402,13 @@ void FbxModelData::LoadFbxHierarchyRecursive(FbxNode* node)
 		FbxNodeAttribute::EType attributeType = nodeAttribute->GetAttributeType();
 		if (attributeType == FbxNodeAttribute::eSkeleton)
 		{
+			parentIndexer.push_back(parentIndex);
 			skeletonIndexer[node->GetName()] = boneIndex;
+			nodes[boneIndex] = node;
 
 			const int childCount = node->GetChildCount();
 			for (int childIndex = 0; childIndex < childCount; ++childIndex)
-				LoadFbxHierarchyRecursive(node->GetChild(childIndex));
+				LoadFbxHierarchyRecursive(node->GetChild(childIndex), boneIndex);
 		}
 	}
 }
@@ -511,6 +439,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 			int vertexIndex = mesh->GetPolygonVertex(i, j);
 			indices.emplace_back(vertexIndex);
 
+			int k = mesh->GetElementNormalCount();
 			if (mesh->GetElementNormalCount() < 1)
 				continue;
 			const FbxGeometryElementNormal* vertexNormal = mesh->GetElementNormal(0);
@@ -640,4 +569,15 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 	}
 
 	Scene::scene->geometries[geo->Name] = std::move(geo);
+
+	skinnedSubsets.resize(1);
+
+	for (UINT i = 0; i < 1; ++i)
+	{
+		skinnedSubsets[i].Id = 0;
+		skinnedSubsets[i].VertexStart = 0;
+		skinnedSubsets[i].VertexCount = vertices.size();
+		skinnedSubsets[i].FaceStart = 0;
+		skinnedSubsets[i].FaceCount = indices.size();
+	}
 }

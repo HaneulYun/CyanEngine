@@ -60,6 +60,16 @@ struct TextureData
 
 struct FbxModelData
 {
+	struct BoneWeightData
+	{
+		unsigned int boneIndex;
+		double weight;
+	};
+
+	std::map<int, FbxNode*> nodes;
+	std::map<int, std::vector<BoneWeightData>> boneWeightData;
+	std::vector<int> parentIndexer;
+	std::map<std::string, int> skeletonIndexer;
 	std::vector<M3DLoader::Subset> skinnedSubsets;
 	std::vector<M3DLoader::M3dMaterial> skinnedMats;
 	std::vector<XMFLOAT4X4> boneOffsets;
@@ -67,7 +77,7 @@ struct FbxModelData
 	// Assets Management
 	void LoadFbx(const char* path);
 	void LoadFbxHierarchy(FbxNode* node);
-	void LoadFbxHierarchyRecursive(FbxNode* node);
+	void LoadFbxHierarchyRecursive(FbxNode* node, int parentIndex = -1);
 	void LoadFbxMesh(FbxNode* node);
 };
 
@@ -88,6 +98,7 @@ public:
 	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> geometries;
 	std::unordered_map<std::string, std::unique_ptr<Material>> materials;
 	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
+	std::unordered_map<std::string, std::unique_ptr<AnimationClip>> animationClips;
 	std::vector<TextureData> textureData;
 
 	std::vector<std::unique_ptr<RenderItem>> allRItems;
