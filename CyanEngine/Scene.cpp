@@ -10,12 +10,13 @@ struct BoneWeightData
 std::map<std::string, int> skeletonIndexer;
 std::map<int, std::vector<BoneWeightData>> boneWeightData;
 std::map<int, FbxNode*> nodes;
+std::vector<M3DLoader::Subset> subsets;
 
 void LoadModel(FbxNode* node,
 	std::vector<M3DLoader::SkinnedVertex>& vertices,
 	std::vector<USHORT>& indices,
 	std::vector<XMFLOAT4X4>& boneOffsets,
-	std::vector<int>& boneIndexToParentIndex,
+	std::vector<int>& boneIndexToParentIndex, FbxGeometryConverter geometryConverter,
 	int parentIndex = -1)
 {
 	static int kk = 0;
@@ -31,33 +32,43 @@ void LoadModel(FbxNode* node,
 			if (!kk)
 			{
 				kk = 1;
+				geometryConverter.SplitMeshPerMaterial(node->GetMesh(), false);
+			}
+			else
+			{
 				FbxMesh* mesh = node->GetMesh();
-
 				int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
 				if (materialCount > 0)
 				{
-					FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)node->GetSrcObject<FbxSurfaceMaterial>(0);
-					if (material != NULL)
+					for (int k = 0; k < materialCount; ++k)
 					{
-						FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
-
-						int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
-
-						if (layeredTextureCount > 0)
+						FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)node->GetSrcObject<FbxSurfaceMaterial>(k);
+						const char* name = material->GetName();
+						if (material != NULL)
 						{
-							for (int i = 0; i < layeredTextureCount; ++i)
+							FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+
+							int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
+							if (layeredTextureCount > 0)
 							{
-								FbxLayeredTexture* layeredTexture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(i));
-								int textureCount = layeredTexture->GetSrcObjectCount<FbxTexture>();
-								for (int j = 0; j < textureCount; ++j)
+								for (int i = 0; i < layeredTextureCount; ++i)
 								{
-									FbxTexture* texture = FbxCast<FbxTexture>(layeredTexture->GetSrcObject<FbxTexture>(j));
-									const char* textrueName = texture->GetName();
+									FbxLayeredTexture* layeredTexture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(i));
+									int textureCount = layeredTexture->GetSrcObjectCount<FbxTexture>();
+									for (int j = 0; j < textureCount; ++j)
+									{
+										FbxTexture* texture = FbxCast<FbxTexture>(layeredTexture->GetSrcObject<FbxTexture>(j));
+										const char* textrueName = texture->GetName();
+										//texture->UVSet;
+									}
 								}
 							}
 						}
 					}
 				}
+
+				M3DLoader::Subset s;
+				s.VertexStart = vertices.size();
 
 				int verticesCount = mesh->GetControlPointsCount();
 				for (unsigned int i = 0; i < verticesCount; ++i)
@@ -70,6 +81,9 @@ void LoadModel(FbxNode* node,
 					vertices.push_back(vertex);
 				}
 
+				s.VertexCount = vertices.size();				
+				s.FaceStart = indices.size();
+
 				// normal, Texcoord, Tangent ·Îµå
 				int polygonCount = mesh->GetPolygonCount();
 				for (unsigned int i = 0; i < polygonCount; ++i)
@@ -77,7 +91,8 @@ void LoadModel(FbxNode* node,
 					// normal
 					for (unsigned int j = 0; j < 3; ++j)
 					{
-						int vertexIndex = mesh->GetPolygonVertex(i, j);
+						//int vertexIndex = mesh->GetPolygonVertex(i, j);
+						int vertexIndex = mesh->GetPolygonVertex(i, j) + s.VertexStart;
 						indices.emplace_back(vertexIndex);
 
 						if (mesh->GetElementNormalCount() < 1)
@@ -107,7 +122,8 @@ void LoadModel(FbxNode* node,
 					// uvs
 					for (unsigned int j = 0; j < 3; ++j)
 					{
-						int vertexIndex = mesh->GetPolygonVertex(i, j);
+						//int vertexIndex = mesh->GetPolygonVertex(i, j);
+						int vertexIndex = mesh->GetPolygonVertex(i, j) + s.VertexStart;
 						//indices.emplace_back(vertexIndex);
 						if (mesh->GetElementUVCount() < 1)
 							continue;
@@ -129,8 +145,28 @@ void LoadModel(FbxNode* node,
 							}
 							break;
 						}
+
 					}
+
+
+					// materialIndices
+					/*for (unsigned int j = 0; j < 3; ++j)
+					{
+						int vertexIndex = mesh->GetPolygonVertex(i, j);
+						FbxSurfaceMaterial* material = node->GetMaterial(vertexIndex);
+
+						for (int k = 0; k < node->GetSrcObjectCount<FbxSurfaceMaterial>(); ++k)
+						{
+							FbxSurfaceMaterial* m = node->GetSrcObject<FbxSurfaceMaterial>(k);
+							if (m == material)
+								vertices[vertexIndex].MaterialIndex = k;
+						}
+					}*/
+					
 				}
+
+				s.FaceCount = indices.size() - s.FaceStart;
+				subsets.push_back(s);
 
 				FbxVector4 T = node->GetGeometricTranslation(FbxNode::eSourcePivot);
 				FbxVector4 R = node->GetGeometricRotation(FbxNode::eSourcePivot);
@@ -180,7 +216,7 @@ void LoadModel(FbxNode* node,
 						{
 							boneWeightData[cluster->GetControlPointIndices()[k]].push_back({ jointIndex, cluster->GetControlPointWeights()[k] });
 
-							int vertexIndex = cluster->GetControlPointIndices()[k];
+							int vertexIndex = cluster->GetControlPointIndices()[k] + s.VertexStart;
 							float* boneWeight[3];
 							boneWeight[0] = &vertices[vertexIndex].BoneWeights.x;
 							boneWeight[1] = &vertices[vertexIndex].BoneWeights.y;
@@ -213,7 +249,7 @@ void LoadModel(FbxNode* node,
 	int childCount = node->GetChildCount();
 	for (int i = 0; i < childCount; ++i)
 	{
-		LoadModel(node->GetChild(i), vertices, indices, boneOffsets, boneIndexToParentIndex, boneIndex);
+		LoadModel(node->GetChild(i), vertices, indices, boneOffsets, boneIndexToParentIndex, geometryConverter, boneIndex);
 	}
 }
 
@@ -358,13 +394,13 @@ void Scene::Start()
 			FbxScene* scene = FbxScene::Create(manager, "Scene");
 		
 			FbxImporter* importer = FbxImporter::Create(manager, "");
-			importer->Initialize("..\\CyanEngine\\Models\\modelTest.fbx");
+			importer->Initialize("..\\CyanEngine\\Models\\modelTest2.fbx");
 			importer->Import(scene);
 		
 			FbxScene* scene2 = FbxScene::Create(manager, "Scene2");
 		
 			FbxImporter* importer2 = FbxImporter::Create(manager, "");
-			importer2->Initialize("..\\CyanEngine\\Models\\animTest.fbx");
+			importer2->Initialize("..\\CyanEngine\\Models\\animTest2.fbx");
 			importer2->Import(scene2);
 		
 			{
@@ -381,7 +417,7 @@ void Scene::Start()
 				for (auto& offset : boneOffsets)
 					offset = MathHelper::Identity4x4();
 		
-				LoadModel(scene->GetRootNode(), vertices, indices, boneOffsets, boneIndexToParentIndex);
+				LoadModel(scene->GetRootNode(), vertices, indices, boneOffsets, boneIndexToParentIndex, geometryConverter);
 				boneIndexToParentIndex.clear();
 				clip.BoneAnimations.resize(boneOffsets.size());
 				LoadAnimation(scene2->GetRootNode(), clip, boneIndexToParentIndex);
