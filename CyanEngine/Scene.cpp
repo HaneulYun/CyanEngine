@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Scene.h"
 
+std::string mSkinnedModelFilename = "Models\\soldier.m3d";
+
 struct BoneWeightData
 {
 	unsigned int boneIndex;
@@ -10,157 +12,6 @@ struct BoneWeightData
 std::map<std::string, int> skeletonIndexer;
 std::map<int, std::vector<BoneWeightData>> boneWeightData;
 std::map<int, FbxNode*> nodes;
-
-void LoadModel(FbxNode* node,
-	std::vector<M3DLoader::SkinnedVertex>& vertices,
-	std::vector<USHORT>& indices,
-	std::vector<XMFLOAT4X4>& boneOffsets,
-	std::vector<int>& boneIndexToParentIndex,
-	int parentIndex = -1)
-{
-	static int kk = 0;
-	FbxNodeAttribute* attribute = node->GetNodeAttribute();
-
-	int boneIndex = boneIndexToParentIndex.size();
-
-	if (attribute)
-	{
-		FbxNodeAttribute::EType attributeType = attribute->GetAttributeType();
-		if (attributeType == FbxNodeAttribute::eMesh)
-		{
-			if (!kk)
-			{
-				kk = 1;
-				FbxMesh* mesh = node->GetMesh();
-
-				int verticesCount = mesh->GetControlPointsCount();
-				for (unsigned int i = 0; i < verticesCount; ++i)
-				{
-					M3DLoader::SkinnedVertex vertex;
-					vertex.Pos.x = static_cast<float>(mesh->GetControlPointAt(i).mData[0]);
-					vertex.Pos.y = static_cast<float>(mesh->GetControlPointAt(i).mData[1]);
-					vertex.Pos.z = static_cast<float>(mesh->GetControlPointAt(i).mData[2]);
-
-					vertices.push_back(vertex);
-				}
-
-				int polygonCount = mesh->GetPolygonCount();
-				for (unsigned int i = 0; i < polygonCount; ++i)
-				{
-					for (unsigned int j = 0; j < 3; ++j)
-					{
-						int vertexIndex = mesh->GetPolygonVertex(i, j);
-						indices.emplace_back(vertexIndex);
-
-						if (mesh->GetElementNormalCount() < 1)
-							continue;
-						const FbxGeometryElementNormal* vertexNormal = mesh->GetElementNormal(0);
-						switch (vertexNormal->GetMappingMode())
-						{
-						case FbxGeometryElement::eByControlPoint:
-							switch (vertexNormal->GetReferenceMode())
-							{
-							case FbxGeometryElement::eDirect:
-								vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[0]);
-								vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[1]);
-								vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[2]);
-								break;
-							case FbxGeometryElement::eIndexToDirect:
-								int index = vertexNormal->GetIndexArray().GetAt(vertexIndex);
-								vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
-								vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
-								vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
-								break;
-							}
-							break;
-						}
-					}
-				}
-
-				FbxVector4 T = node->GetGeometricTranslation(FbxNode::eSourcePivot);
-				FbxVector4 R = node->GetGeometricRotation(FbxNode::eSourcePivot);
-				FbxVector4 S = node->GetGeometricScaling(FbxNode::eSourcePivot);
-				FbxAMatrix geometryTransform = FbxAMatrix(T, R, S);
-
-				int deformerCount = mesh->GetDeformerCount();
-				for (unsigned int i = 0; i < deformerCount; ++i)
-				{
-					FbxSkin* skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(i, FbxDeformer::eSkin));
-					if (!skin)
-						continue;
-
-					int clusterCount = skin->GetClusterCount();
-					for (unsigned int j = 0; j < clusterCount; ++j)
-					{
-						FbxCluster* cluster = skin->GetCluster(j);
-						std::string jointName = cluster->GetLink()->GetName();
-						unsigned int jointIndex = skeletonIndexer[jointName];
-
-						FbxAMatrix transform;
-						FbxAMatrix linkTransform;
-
-						cluster->GetTransformMatrix(transform);
-						cluster->GetTransformLinkMatrix(linkTransform);
-
-						FbxAMatrix global = linkTransform.Inverse() * transform;
-
-						FbxAMatrix offset = global;
-
-						FbxVector4 r1 = offset.GetRow(0);
-						FbxVector4 r2 = offset.GetRow(1);
-						FbxVector4 r3 = offset.GetRow(2);
-						FbxVector4 r4 = offset.GetRow(3);
-
-						if (boneOffsets.size() <= jointIndex)
-							boneOffsets.resize(jointIndex + 1);
-						boneOffsets[jointIndex] = XMFLOAT4X4{
-							(float)r1.mData[0], (float)r1.mData[1], (float)r1.mData[2], (float)r1.mData[3],
-							(float)r2.mData[0], (float)r2.mData[1], (float)r2.mData[2], (float)r2.mData[3],
-							(float)r3.mData[0], (float)r3.mData[1], (float)r3.mData[2], (float)r3.mData[3],
-							(float)r4.mData[0], (float)r4.mData[1], (float)r4.mData[2], (float)r4.mData[3]
-						};
-
-						int indicesCount = cluster->GetControlPointIndicesCount();
-						for (int k = 0; k < indicesCount; ++k)
-						{
-							boneWeightData[cluster->GetControlPointIndices()[k]].push_back({ jointIndex, cluster->GetControlPointWeights()[k] });
-
-							int vertexIndex = cluster->GetControlPointIndices()[k];
-							float* boneWeight[3];
-							boneWeight[0] = &vertices[vertexIndex].BoneWeights.x;
-							boneWeight[1] = &vertices[vertexIndex].BoneWeights.y;
-							boneWeight[2] = &vertices[vertexIndex].BoneWeights.z;
-							for (int i = 0; i < 4; ++i)
-							{
-								if (i == 3);
-								else if (*boneWeight[i])
-									continue;
-								if (i < 3)
-									*boneWeight[i] = float(cluster->GetControlPointWeights()[k]);
-								vertices[vertexIndex].BoneIndices[i] = jointIndex;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-		else if (attributeType == FbxNodeAttribute::eSkeleton)
-		{
-			skeletonIndexer[node->GetName()] = boneIndex;
-			boneIndexToParentIndex.push_back(parentIndex);
-		}
-	}
-
-	if (boneIndexToParentIndex.size() == 0)
-		boneIndex = -1;
-
-	int childCount = node->GetChildCount();
-	for (int i = 0; i < childCount; ++i)
-	{
-		LoadModel(node->GetChild(i), vertices, indices, boneOffsets, boneIndexToParentIndex, boneIndex);
-	}
-}
 
 void LoadAnimation(FbxNode* node,
 	AnimationClip& clip,
@@ -279,10 +130,7 @@ void Scene::Start()
 
 	Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
 
-	std::string mSkinnedModelFilename = "Models\\soldier.m3d";
-
-	std::vector<M3DLoader::Subset> mSkinnedSubsets;
-	std::vector<M3DLoader::M3dMaterial> mSkinnedMats;
+	FbxModelData modelData;
 	SkinnedModelInstance* mSkinnedModelInst;
 	{
 		SkinnedData* mSkinnedInfo = new SkinnedData();
@@ -292,8 +140,9 @@ void Scene::Start()
 
 		M3DLoader m3dLoader;
 		m3dLoader.LoadM3d("..\\CyanEngine\\Models\\soldier.m3d", vertices, indices,
-			mSkinnedSubsets, mSkinnedMats, *mSkinnedInfo);
+			modelData.skinnedSubsets, modelData.skinnedMats, *mSkinnedInfo);
 
+		modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
 		{
 			FbxManager* manager = FbxManager::Create();
 		
@@ -316,40 +165,35 @@ void Scene::Start()
 				FbxGeometryConverter geometryConverter(manager);
 				geometryConverter.Triangulate(scene, true);
 		
-				std::vector<XMFLOAT4X4> boneOffsets;
 				std::vector<int> boneIndexToParentIndex;
 				std::unordered_map<std::string, AnimationClip> animations;
 				AnimationClip clip;
 		
 				vertices.clear();
 				indices.clear();
-				for (auto& offset : boneOffsets)
-					offset = MathHelper::Identity4x4();
-		
-				LoadModel(scene->GetRootNode(), vertices, indices, boneOffsets, boneIndexToParentIndex);
-				boneIndexToParentIndex.clear();
-				clip.BoneAnimations.resize(boneOffsets.size());
+
+				clip.BoneAnimations.resize(modelData.boneOffsets.size());
 				LoadAnimation(scene2->GetRootNode(), clip, boneIndexToParentIndex);
 		
 				animations["run"] = clip;
 		
 				delete mSkinnedInfo;
 				mSkinnedInfo = new SkinnedData();
-				mSkinnedInfo->Set(boneIndexToParentIndex, boneOffsets, animations);
+				mSkinnedInfo->Set(boneIndexToParentIndex, modelData.boneOffsets, animations);
 			}
 		
 			if (manager)
 				manager->Destroy();
 		}
-		mSkinnedSubsets.resize(1);
+		modelData.skinnedSubsets.resize(1);
 
 		for (UINT i = 0; i < 1; ++i)
 		{
-			mSkinnedSubsets[i].Id = 0;
-			mSkinnedSubsets[i].VertexStart = 0;
-			mSkinnedSubsets[i].VertexCount = vertices.size();
-			mSkinnedSubsets[i].FaceStart = 0;
-			mSkinnedSubsets[i].FaceCount = indices.size();
+			modelData.skinnedSubsets[i].Id = 0;
+			modelData.skinnedSubsets[i].VertexStart = 0;
+			modelData.skinnedSubsets[i].VertexCount = vertices.size();
+			modelData.skinnedSubsets[i].FaceStart = 0;
+			modelData.skinnedSubsets[i].FaceCount = indices.size();
 		}
 
 		mSkinnedModelInst = new SkinnedModelInstance();
@@ -359,64 +203,25 @@ void Scene::Start()
 		mSkinnedModelInst->ClipName = "run";
 		mSkinnedModelInst->TimePos = 0.0f;
 
-		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
-		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-		auto geo = std::make_unique<MeshGeometry>();
-		geo->Name = mSkinnedModelFilename;
-
-		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(
-			Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
-			vertices.data(), vbByteSize, geo->VertexBufferUploader);
-		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(
-			Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
-			indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-		geo->VertexByteStride = sizeof(FrameResource::SkinnedVertex);
-		geo->VertexBufferByteSize = vbByteSize;
-		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-		geo->IndexBufferByteSize = ibByteSize;
-
-		for (UINT i = 0; i < (UINT)mSkinnedSubsets.size(); ++i)
-		{
-			SubmeshGeometry submesh;
-			std::string name = "sm_" + std::to_string(i);
-
-			submesh.IndexCount = (UINT)mSkinnedSubsets[i].FaceCount * 3;
-			submesh.StartIndexLocation = mSkinnedSubsets[i].FaceStart * 3;
-			submesh.BaseVertexLocation = 0;
-
-			geo->DrawArgs[name] = submesh;
-		}
-
-		Scene::scene->geometries[geo->Name] = std::move(geo);
-
-
 		UINT matCBIndex = 4;
 		UINT srvHeapIndex = 0;// mSkinnedSrvHeapStart;
-		for (UINT i = 0; i < mSkinnedMats.size(); ++i)
+		for (UINT i = 0; i < modelData.skinnedMats.size(); ++i)
 		{
 			auto mat = std::make_unique<Material>();
-			mat->Name = mSkinnedMats[i].Name;
+			mat->Name = modelData.skinnedMats[i].Name;
 			mat->MatCBIndex = matCBIndex++;
 			mat->DiffuseSrvHeapIndex = srvHeapIndex++;
 			mat->NormalSrvHeapIndex = srvHeapIndex;// srvHeapIndex++;
-			mat->DiffuseAlbedo = mSkinnedMats[i].DiffuseAlbedo;
-			mat->FresnelR0 = mSkinnedMats[i].FresnelR0;
-			mat->Roughness = mSkinnedMats[i].Roughness;
+			mat->DiffuseAlbedo = modelData.skinnedMats[i].DiffuseAlbedo;
+			mat->FresnelR0 = modelData.skinnedMats[i].FresnelR0;
+			mat->Roughness = modelData.skinnedMats[i].Roughness;
 
-			Scene::scene->materials[mat->Name] = std::move(mat);
+			materials[mat->Name] = std::move(mat);
 		}
 	}
-	for (int i = 0; i < mSkinnedMats.size(); ++i)
+	for (int i = 0; i < modelData.skinnedMats.size(); ++i)
 	{
-		std::string diffuseName = mSkinnedMats[i].DiffuseMapName;
+		std::string diffuseName = modelData.skinnedMats[i].DiffuseMapName;
 		std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
 
 		diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
@@ -427,7 +232,7 @@ void Scene::Start()
 	std::vector<std::string> texName;
 	for (auto& d : textureData)
 	{
-		if (Scene::scene->textures.find(d.name) == std::end(Scene::scene->textures))
+		if (textures.find(d.name) == std::end(textures))
 		{
 			auto texture = std::make_unique<Texture>();
 			texture->Name = d.name;
@@ -438,17 +243,17 @@ void Scene::Start()
 			CreateDDSTextureFromFile12(
 				Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
 				texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-			Scene::scene->textures[texture->Name] = std::move(texture);
+			textures[texture->Name] = std::move(texture);
 		}
 	}
 	{
-		UINT objCBIndex = Scene::scene->allRItems.size();
+		UINT objCBIndex = allRItems.size();
 
 		int count = 0;
 		float interval = 2.5f;
 		for (int x = -count; x <= count; ++x)
 			for (int z = -count; z <= count; ++z)
-				for (UINT i = 0; i < mSkinnedMats.size(); ++i)
+				for (UINT i = 0; i < modelData.skinnedMats.size(); ++i)
 				{
 					std::string submeshName = "sm_" + std::to_string(i);
 
@@ -463,8 +268,8 @@ void Scene::Start()
 
 					ritem->TexTransform = MathHelper::Identity4x4();
 					ritem->ObjCBIndex = objCBIndex++;
-					ritem->Mat = Scene::scene->materials[mSkinnedMats[i].Name].get();
-					ritem->Geo = Scene::scene->geometries[mSkinnedModelFilename].get();
+					ritem->Mat = materials[modelData.skinnedMats[i].Name].get();
+					ritem->Geo = geometries[mSkinnedModelFilename].get();
 					ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 					ritem->IndexCount = ritem->Geo->DrawArgs[submeshName].IndexCount;
 					ritem->StartIndexLocation = ritem->Geo->DrawArgs[submeshName].StartIndexLocation;
@@ -473,8 +278,8 @@ void Scene::Start()
 					ritem->SkinnedCBIndex = 0;
 					ritem->SkinnedModelInst = mSkinnedModelInst;
 
-					Scene::scene->renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
-					Scene::scene->allRItems.push_back(std::move(ritem));
+					renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem.get());
+					allRItems.push_back(std::move(ritem));
 				}
 	}
 
@@ -493,9 +298,9 @@ void Scene::Start()
 
 		for (auto& d : texName)
 		{
-			srvDesc.Format = Scene::scene->textures[d]->Resource->GetDesc().Format;
-			srvDesc.Texture2D.MipLevels = Scene::scene->textures[d]->Resource->GetDesc().MipLevels;
-			Graphics::Instance()->device->CreateShaderResourceView(Scene::scene->textures[d]->Resource.Get(), &srvDesc, handle);
+			srvDesc.Format = textures[d]->Resource->GetDesc().Format;
+			srvDesc.Texture2D.MipLevels = textures[d]->Resource->GetDesc().MipLevels;
+			Graphics::Instance()->device->CreateShaderResourceView(textures[d]->Resource.Get(), &srvDesc, handle);
 
 			handle.Offset(1, Graphics::Instance()->srvDescriptorSize);
 		}
@@ -503,7 +308,7 @@ void Scene::Start()
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		frameResources.push_back(std::make_unique<FrameResource>(
-			Graphics::Instance()->device.Get(), 1, (UINT)Scene::scene->allRItems.size(), 1, (UINT)5));
+			Graphics::Instance()->device.Get(), 1, (UINT)allRItems.size(), 1, (UINT)5));
 }
 
 void Scene::Update()
@@ -625,4 +430,214 @@ void Scene::Delete(GameObject* gameObject)
 			gameObjects.erase(iter);
 			return;
 		}
+}
+
+void FbxModelData::LoadFbx(const char* path)
+{
+	FbxManager* manager = FbxManager::Create();
+
+	FbxIOSettings* ios = FbxIOSettings::Create(manager, IOSROOT);
+	manager->SetIOSettings(ios);
+
+	FbxScene* scene = FbxScene::Create(manager, "Scene");
+
+	FbxImporter* importer = FbxImporter::Create(manager, "");
+	importer->Initialize(path);
+	importer->Import(scene);
+
+	LoadFbxHierarchy(scene->GetRootNode());
+}
+
+void FbxModelData::LoadFbxHierarchy(FbxNode* node)
+{
+	FbxNodeAttribute* nodeAttribute = node->GetNodeAttribute();
+	if (nodeAttribute)
+	{
+		FbxNodeAttribute::EType attributeType = nodeAttribute->GetAttributeType();
+		if (attributeType == FbxNodeAttribute::eSkeleton)
+			LoadFbxHierarchyRecursive(node);
+		else if (attributeType == FbxNodeAttribute::eMesh)
+			LoadFbxMesh(node);
+	}
+	else
+	{
+		const int childCount = node->GetChildCount();
+		for (int childIndex = 0; childIndex < childCount; ++childIndex)
+			LoadFbxHierarchy(node->GetChild(childIndex));
+	}
+}
+
+void FbxModelData::LoadFbxHierarchyRecursive(FbxNode* node)
+{
+	int boneIndex = skeletonIndexer.size();
+	FbxNodeAttribute* nodeAttribute = node->GetNodeAttribute();
+	if (nodeAttribute)
+	{
+		FbxNodeAttribute::EType attributeType = nodeAttribute->GetAttributeType();
+		if (attributeType == FbxNodeAttribute::eSkeleton)
+		{
+			skeletonIndexer[node->GetName()] = boneIndex;
+
+			const int childCount = node->GetChildCount();
+			for (int childIndex = 0; childIndex < childCount; ++childIndex)
+				LoadFbxHierarchyRecursive(node->GetChild(childIndex));
+		}
+	}
+}
+
+void FbxModelData::LoadFbxMesh(FbxNode* node)
+{
+	std::vector<M3DLoader::SkinnedVertex> vertices;
+	std::vector<USHORT> indices;
+
+	FbxMesh* mesh = node->GetMesh();
+
+	int verticesCount = mesh->GetControlPointsCount();
+	for (unsigned int i = 0; i < verticesCount; ++i)
+	{
+		M3DLoader::SkinnedVertex vertex;
+		vertex.Pos.x = static_cast<float>(mesh->GetControlPointAt(i).mData[0]);
+		vertex.Pos.y = static_cast<float>(mesh->GetControlPointAt(i).mData[1]);
+		vertex.Pos.z = static_cast<float>(mesh->GetControlPointAt(i).mData[2]);
+
+		vertices.push_back(vertex);
+	}
+
+	int polygonCount = mesh->GetPolygonCount();
+	for (unsigned int i = 0; i < polygonCount; ++i)
+	{
+		for (unsigned int j = 0; j < 3; ++j)
+		{
+			int vertexIndex = mesh->GetPolygonVertex(i, j);
+			indices.emplace_back(vertexIndex);
+
+			if (mesh->GetElementNormalCount() < 1)
+				continue;
+			const FbxGeometryElementNormal* vertexNormal = mesh->GetElementNormal(0);
+			switch (vertexNormal->GetMappingMode())
+			{
+			case FbxGeometryElement::eByControlPoint:
+				switch (vertexNormal->GetReferenceMode())
+				{
+				case FbxGeometryElement::eDirect:
+					vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[0]);
+					vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[1]);
+					vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[2]);
+					break;
+				case FbxGeometryElement::eIndexToDirect:
+					int index = vertexNormal->GetIndexArray().GetAt(vertexIndex);
+					vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
+					vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
+					vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+					break;
+				}
+				break;
+			}
+		}
+	}
+
+	FbxVector4 T = node->GetGeometricTranslation(FbxNode::eSourcePivot);
+	FbxVector4 R = node->GetGeometricRotation(FbxNode::eSourcePivot);
+	FbxVector4 S = node->GetGeometricScaling(FbxNode::eSourcePivot);
+	FbxAMatrix geometryTransform = FbxAMatrix(T, R, S);
+
+	int deformerCount = mesh->GetDeformerCount();
+	for (unsigned int i = 0; i < deformerCount; ++i)
+	{
+		FbxSkin* skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(i, FbxDeformer::eSkin));
+		if (!skin)
+			continue;
+
+		int clusterCount = skin->GetClusterCount();
+		for (unsigned int j = 0; j < clusterCount; ++j)
+		{
+			FbxCluster* cluster = skin->GetCluster(j);
+			std::string jointName = cluster->GetLink()->GetName();
+			unsigned int jointIndex = skeletonIndexer[jointName];
+
+			FbxAMatrix transform;
+			FbxAMatrix linkTransform;
+
+			cluster->GetTransformMatrix(transform);
+			cluster->GetTransformLinkMatrix(linkTransform);
+
+			FbxAMatrix global = linkTransform.Inverse() * transform;
+
+			FbxAMatrix offset = global;
+
+			FbxVector4 r1 = offset.GetRow(0);
+			FbxVector4 r2 = offset.GetRow(1);
+			FbxVector4 r3 = offset.GetRow(2);
+			FbxVector4 r4 = offset.GetRow(3);
+
+			if (boneOffsets.size() <= jointIndex)
+				boneOffsets.resize(jointIndex + 1);
+			boneOffsets[jointIndex] = XMFLOAT4X4{
+				(float)r1.mData[0], (float)r1.mData[1], (float)r1.mData[2], (float)r1.mData[3],
+				(float)r2.mData[0], (float)r2.mData[1], (float)r2.mData[2], (float)r2.mData[3],
+				(float)r3.mData[0], (float)r3.mData[1], (float)r3.mData[2], (float)r3.mData[3],
+				(float)r4.mData[0], (float)r4.mData[1], (float)r4.mData[2], (float)r4.mData[3]
+			};
+
+			int indicesCount = cluster->GetControlPointIndicesCount();
+			for (int k = 0; k < indicesCount; ++k)
+			{
+				boneWeightData[cluster->GetControlPointIndices()[k]].push_back({ jointIndex, cluster->GetControlPointWeights()[k] });
+
+				int vertexIndex = cluster->GetControlPointIndices()[k];
+				float* boneWeight[3];
+				boneWeight[0] = &vertices[vertexIndex].BoneWeights.x;
+				boneWeight[1] = &vertices[vertexIndex].BoneWeights.y;
+				boneWeight[2] = &vertices[vertexIndex].BoneWeights.z;
+				for (int i = 0; i < 4; ++i)
+				{
+					if (i == 3);
+					else if (*boneWeight[i])
+						continue;
+					if (i < 3)
+						*boneWeight[i] = float(cluster->GetControlPointWeights()[k]);
+					vertices[vertexIndex].BoneIndices[i] = jointIndex;
+					break;
+				}
+			}
+		}
+	}
+
+	const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
+	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+	auto geo = std::make_unique<MeshGeometry>();
+	geo->Name = mSkinnedModelFilename;
+
+	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(
+		Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
+		vertices.data(), vbByteSize, geo->VertexBufferUploader);
+	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(
+		Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
+		indices.data(), ibByteSize, geo->IndexBufferUploader);
+
+	geo->VertexByteStride = sizeof(FrameResource::SkinnedVertex);
+	geo->VertexBufferByteSize = vbByteSize;
+	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+	geo->IndexBufferByteSize = ibByteSize;
+
+	for (UINT i = 0; i < (UINT)skinnedSubsets.size(); ++i)
+	{
+		SubmeshGeometry submesh;
+		std::string name = "sm_" + std::to_string(i);
+
+		submesh.IndexCount = (UINT)skinnedSubsets[i].FaceCount * 3;
+		submesh.StartIndexLocation = skinnedSubsets[i].FaceStart * 3;
+		submesh.BaseVertexLocation = 0;
+
+		geo->DrawArgs[name] = submesh;
+	}
+
+	Scene::scene->geometries[geo->Name] = std::move(geo);
 }
