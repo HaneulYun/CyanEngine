@@ -91,9 +91,9 @@ void LoadModel(FbxNode* node,
 					// normal
 					for (unsigned int j = 0; j < 3; ++j)
 					{
-						//int vertexIndex = mesh->GetPolygonVertex(i, j);
-						int vertexIndex = mesh->GetPolygonVertex(i, j) + s.VertexStart;
-						indices.emplace_back(vertexIndex);
+						int vertexIndex = mesh->GetPolygonVertex(i, j);
+						//int vertexIndex = mesh->GetPolygonVertex(i, j) + s.VertexStart;
+						indices.emplace_back(vertexIndex + s.VertexStart);
 
 						if (mesh->GetElementNormalCount() < 1)
 							continue;
@@ -104,15 +104,15 @@ void LoadModel(FbxNode* node,
 							switch (vertexNormal->GetReferenceMode())
 							{
 							case FbxGeometryElement::eDirect:
-								vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[0]);
-								vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[1]);
-								vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[2]);
+								vertices[vertexIndex + s.VertexStart].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[0]);
+								vertices[vertexIndex + s.VertexStart].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[1]);
+								vertices[vertexIndex + s.VertexStart].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[2]);
 								break;
 							case FbxGeometryElement::eIndexToDirect:
 								int index = vertexNormal->GetIndexArray().GetAt(vertexIndex);
-								vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
-								vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
-								vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+								vertices[vertexIndex + s.VertexStart].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
+								vertices[vertexIndex + s.VertexStart].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
+								vertices[vertexIndex + s.VertexStart].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
 								break;
 							}
 							break;
@@ -122,8 +122,8 @@ void LoadModel(FbxNode* node,
 					// uvs
 					for (unsigned int j = 0; j < 3; ++j)
 					{
-						//int vertexIndex = mesh->GetPolygonVertex(i, j);
-						int vertexIndex = mesh->GetPolygonVertex(i, j) + s.VertexStart;
+						int vertexIndex = mesh->GetPolygonVertex(i, j);
+						//int vertexIndex = mesh->GetPolygonVertex(i, j) + s.VertexStart;
 						//indices.emplace_back(vertexIndex);
 						if (mesh->GetElementUVCount() < 1)
 							continue;
@@ -134,13 +134,13 @@ void LoadModel(FbxNode* node,
 							switch (vertexUv->GetReferenceMode())
 							{
 							case FbxGeometryElement::eDirect:
-								vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
-								vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
+								vertices[vertexIndex + s.VertexStart].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
+								vertices[vertexIndex + s.VertexStart].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
 								break;
 							case FbxGeometryElement::eIndexToDirect:
 								int index = vertexUv->GetIndexArray().GetAt(vertexIndex);
-								vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
-								vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
+								vertices[vertexIndex + s.VertexStart].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
+								vertices[vertexIndex + s.VertexStart].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
 								break;
 							}
 							break;
@@ -432,7 +432,7 @@ void Scene::Start()
 			if (manager)
 				manager->Destroy();
 		}
-		mSkinnedSubsets.resize(1);
+		/*mSkinnedSubsets.resize(1);
 
 		for (UINT i = 0; i < 1; ++i)
 		{
@@ -441,7 +441,18 @@ void Scene::Start()
 			mSkinnedSubsets[i].VertexCount = vertices.size();
 			mSkinnedSubsets[i].FaceStart = 0;
 			mSkinnedSubsets[i].FaceCount = indices.size();
+		}*/
+		mSkinnedSubsets.resize(subsets.size());
+
+		for (UINT i = 0; i < subsets.size(); ++i)
+		{
+			mSkinnedSubsets[i].Id = i;
+			mSkinnedSubsets[i].VertexStart = subsets[i].VertexStart;
+			mSkinnedSubsets[i].VertexCount = subsets[i].VertexCount;
+			mSkinnedSubsets[i].FaceStart = subsets[i].FaceStart;
+			mSkinnedSubsets[i].FaceCount = subsets[i].FaceCount;
 		}
+
 
 		mSkinnedModelInst = new SkinnedModelInstance();
 		mSkinnedModelInst->SkinnedInfo = mSkinnedInfo;
@@ -505,7 +516,8 @@ void Scene::Start()
 			Scene::scene->materials[mat->Name] = std::move(mat);
 		}
 	}
-	/*for (int i = 0; i < mSkinnedMats.size(); ++i)
+	
+	for (int i = 0; i < mSkinnedMats.size(); ++i)
 	{
 		std::string diffuseName = mSkinnedMats[i].DiffuseMapName;
 		std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
@@ -513,11 +525,7 @@ void Scene::Start()
 		diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
 
 		textureData.push_back({ diffuseName, diffuseFilename });
-	}*/
-
-	std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\PolyArtTex.dds";
-	
-	textureData.push_back({ "PolyArtTex", diffuseFilename });
+	}
 
 	std::vector<std::string> texName;
 	for (auto& d : textureData)
@@ -549,7 +557,7 @@ void Scene::Start()
 
 					auto ritem = std::make_unique<RenderItem>();
 
-					XMMATRIX modelScale = XMMatrixScaling(0.05, 0.05, 0.05);
+					XMMATRIX modelScale = XMMatrixScaling(0.03, 0.03, 0.03);
 					XMMATRIX modelRot = XMMatrixRotationX(-PI * 0.5);
 					//XMMATRIX modelScale = XMMatrixScaling(0.05, 0.05, -0.05);
 					//XMMATRIX modelRot = XMMatrixRotationX(0);
