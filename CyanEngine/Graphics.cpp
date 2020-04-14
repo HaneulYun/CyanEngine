@@ -42,7 +42,11 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 	{
 		if (e->NumFramesDirty > 0)
 		{
-			XMMATRIX world = XMLoadFloat4x4(&e->World);
+			XMMATRIX world;
+			auto transform = e->gameObject->GetComponent<Transform>();
+			if (transform)
+				world = XMLoadFloat4x4(&transform->localToWorldMatrix);
+
 			XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
 
 			ObjectConstants objConstants;

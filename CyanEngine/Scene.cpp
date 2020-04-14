@@ -17,6 +17,12 @@ void Scene::Start()
 
 	Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
 
+	
+	auto gameObject = CreateEmpty();
+	{
+		gameObject->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
+	}
+
 	FbxModelData modelData;
 	FbxModelData animData;
 	SkinnedModelInstance* mSkinnedModelInst;
@@ -97,13 +103,7 @@ void Scene::Start()
 
 					auto ritem = std::make_unique<RenderItem>();
 
-					XMMATRIX modelScale = XMMatrixScaling(0.005, 0.005, 0.005);
-					XMMATRIX modelRot = XMMatrixRotationX(-PI * 0.5);
-					//XMMATRIX modelScale = XMMatrixScaling(0.05, 0.05, -0.05);
-					//XMMATRIX modelRot = XMMatrixRotationX(0);
-					XMMATRIX modelOffset = XMMatrixTranslation(x * 3, 0, z * 3);
-					XMStoreFloat4x4(&ritem->World, modelScale * modelRot * modelOffset);
-
+					ritem->gameObject = gameObject;
 					ritem->TexTransform = MathHelper::Identity4x4();
 					ritem->ObjCBIndex = objCBIndex++;
 					ritem->Mat = materials[modelData.skinnedMats[i].Name].get();

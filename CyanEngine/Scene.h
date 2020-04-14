@@ -1,5 +1,10 @@
 #pragma once
 
+struct RenderObjects
+{
+	std::vector<GameObject*> gameObjects;
+};
+
 class Scene
 {
 private:
@@ -7,6 +12,8 @@ private:
 
 protected:
 	std::deque<GameObject*> gameObjects;
+	std::map<Mesh*, RenderObjects> renderObjects[(int)RenderLayer::Count];
+
 	std::priority_queue<GameObject*> deletionQueue;
 
 public:
