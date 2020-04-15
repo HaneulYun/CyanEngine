@@ -138,6 +138,10 @@ void FbxModelData::LoadFbxHierarchyRecursive(FbxNode* node, int parentIndex)
 
 void FbxModelData::LoadFbxMesh(FbxNode* node)
 {
+	if (loadedMesh)
+		return;
+	loadedMesh = true;
+
 	std::vector<M3DLoader::SkinnedVertex> vertices;
 	std::vector<USHORT> indices;
 
@@ -154,9 +158,12 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		vertices.push_back(vertex);
 	}
 
+	std::map<std::string, std::vector<std::pair<int, int>>> testSubset;
+
 	int polygonCount = mesh->GetPolygonCount();
 	for (unsigned int i = 0; i < polygonCount; ++i)
 	{
+		// normal & uv
 		for (unsigned int j = 0; j < 3; ++j)
 		{
 			int vertexIndex = mesh->GetPolygonVertex(i, j);
@@ -185,7 +192,80 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 				}
 				break;
 			}
+
+			if (mesh->GetElementUVCount() < 1)
+				continue;
+			const FbxGeometryElementUV* vertexUv = mesh->GetElementUV(0);
+			switch (vertexUv->GetMappingMode())
+			{
+			case FbxGeometryElement::eByControlPoint:
+				switch (vertexUv->GetReferenceMode())
+				{
+				case FbxGeometryElement::eDirect:
+					vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
+					vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
+					break;
+				case FbxGeometryElement::eIndexToDirect:
+					int index = vertexUv->GetIndexArray().GetAt(vertexIndex);
+					vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
+					vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
+					break;
+				}
+				break;
+			}
 		}
+
+		// material
+		{
+			int t;
+			int index;
+			FbxSurfaceMaterial* mat;
+			std::string key;
+
+			const FbxGeometryElementMaterial* vertexMaterial = mesh->GetElementMaterial(0);
+			switch (vertexMaterial->GetMappingMode())
+			{
+			case FbxGeometryElement::eByPolygon:
+				switch (vertexMaterial->GetReferenceMode())
+				{
+				case FbxGeometryElement::eIndexToDirect:
+					vertexMaterial->GetDirectArray().GetCount();
+
+					index = vertexMaterial->GetIndexArray().GetAt(i);
+					mat = vertexMaterial->GetDirectArray().GetAt(index);
+					if (mat)
+						key = mat->GetName();
+					else
+						key = "unknown";
+					for (int j = 0; j < 3; ++j)
+						testSubset[key].push_back(std::make_pair(mesh->GetPolygonVertex(i, j), i * 3 + j));
+					break;
+				}
+				break;
+			}
+		}
+	}
+
+	int k = 0;
+	for (auto& v : testSubset)
+	{
+		std::pair<int, int> front = v.second.front();
+		std::pair<int, int> back = v.second.back();
+
+		SubmeshGeometry s;
+		//s.Id = k++;
+		s.StartIndexLocation = front.second;
+		s.IndexCount = back.second - front.second;
+
+		sort(v.second.begin(), v.second.end(), [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
+			return a.first < b.first; });
+
+		front = v.second.front();
+		back = v.second.back();
+
+		s.BaseVertexLocation = 0;
+
+		submeshes.push_back(s);
 	}
 
 	FbxVector4 T = node->GetGeometricTranslation(FbxNode::eSourcePivot);
@@ -288,17 +368,17 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		mesh->IndexFormat = DXGI_FORMAT_R16_UINT;
 		mesh->IndexBufferByteSize = ibByteSize;
 		
-		for (UINT i = 0; i < 1; ++i)
+		for (UINT i = 0; i < submeshes.size(); ++i)
 		{
 			SubmeshGeometry submesh;
 			std::string name = "sm_" + std::to_string(i);
 
-			submesh.IndexCount = indices.size();
-			submesh.StartIndexLocation = 0;
-			submesh.BaseVertexLocation = 0;
+			submesh.IndexCount = submeshes[i].IndexCount;
+			submesh.StartIndexLocation = submeshes[i].StartIndexLocation;
+			submesh.BaseVertexLocation = submeshes[i].BaseVertexLocation;
 
 			mesh->DrawArgs[name] = submesh;
 		}
-		Scene::scene->geometries[mesh->Name] = std::move(mesh);
+		Scene::scene->geometries["ApprenticeSK"] = std::move(mesh);
 	}
 }

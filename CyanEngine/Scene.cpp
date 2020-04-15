@@ -27,8 +27,8 @@ void Scene::Start()
 		modelData.skinnedMats.clear();
 		modelData.skinnedMats.push_back(mat);
 
-		modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
-		animData.LoadFbx("..\\CyanEngine\\Models\\animTest.fbx");
+		modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
+		animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
 
 		std::unordered_map<std::string, AnimationClip> animations;
 		animations["run"] = *animationClips["k"].get();
@@ -97,20 +97,20 @@ void Scene::Start()
 		float interval = 2.5f;
 		for (int x = -count; x <= count; ++x)
 			for (int z = -count; z <= count; ++z)
-				for (UINT i = 0; i < modelData.skinnedMats.size(); ++i)
+				for (UINT i = 0; i < modelData.submeshes.size(); ++i)
 				{
 					std::string submeshName = "sm_" + std::to_string(i);
 
 					auto ritem = CreateEmpty();
 					ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
 					auto geo = ritem->AddComponent<MeshFilter>()->mesh = geometries[mSkinnedModelFilename].get();
-					ritem->GetComponent<MeshFilter>()->IndexCount = geo->DrawArgs[submeshName].IndexCount;
-					ritem->GetComponent<MeshFilter>()->StartIndexLocation = geo->DrawArgs[submeshName].StartIndexLocation;
-					ritem->GetComponent<MeshFilter>()->BaseVertexLocation = geo->DrawArgs[submeshName].BaseVertexLocation;
+					int n0 = ritem->GetComponent<MeshFilter>()->IndexCount = geo->DrawArgs[submeshName].IndexCount;
+					int n1 = ritem->GetComponent<MeshFilter>()->StartIndexLocation = geo->DrawArgs[submeshName].StartIndexLocation;
+					int n2 = ritem->GetComponent<MeshFilter>()->BaseVertexLocation = geo->DrawArgs[submeshName].BaseVertexLocation;
 
 					ritem->TexTransform = MathHelper::Identity4x4();
 					ritem->ObjCBIndex = objCBIndex++;
-					ritem->Mat = materials[modelData.skinnedMats[i].Name].get();
+					//ritem->Mat = materials[modelData.skinnedMats[i].Name].get();
 					ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 					ritem->SkinnedCBIndex = 0;

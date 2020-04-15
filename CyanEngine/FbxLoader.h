@@ -43,6 +43,10 @@ struct FbxModelData
 		double weight;
 	};
 
+	bool loadedMesh{ false };
+
+	std::vector<SubmeshGeometry> submeshes;
+
 	std::map<int, FbxNode*> nodes;
 	std::map<int, std::vector<BoneWeightData>> boneWeightData;
 	std::vector<int> parentIndexer;

@@ -1437,7 +1437,7 @@ protected:
 	FbxLayerElementMaterial();
 	~FbxLayerElementMaterial();
 
-private:
+public:
     FbxLayerElementArrayTemplate<FbxSurfaceMaterial*>& GetDirectArray() const
 	{ 
         return ParentClass::GetDirectArray();

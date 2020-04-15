@@ -52,7 +52,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 			ObjectConstants objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
-			objConstants.MaterialIndex = e->Mat->MatCBIndex;
+			objConstants.MaterialIndex = 0;// e->Mat->MatCBIndex;
 
 			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
@@ -174,6 +174,10 @@ void Graphics::Render()
 	UINT skinnedCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(SkinnedConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
 	auto skinnedCB = currFrameResource->SkinnedCB->Resource();
+
+	static int cnt = 0;
+	if (Input::GetMouseButtonDown(0))
+		cnt = (cnt + 1) % 16;
 
 	int k = 0;
 	for (auto& renderItems : Scene::scene->renderItemLayer)
