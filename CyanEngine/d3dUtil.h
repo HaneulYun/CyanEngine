@@ -146,16 +146,16 @@ public:
 // geometries are stored in one vertex and index buffer.  It provides the offsets
 // and data needed to draw a subset of geometry stores in the vertex and index 
 // buffers so that we can implement the technique described by Figure 6.3.
-struct SubmeshGeometry
-{
-	UINT IndexCount = 0;
-	UINT StartIndexLocation = 0;
-	INT BaseVertexLocation = 0;
-
-    // Bounding box of the geometry defined by this submesh. 
-    // This is used in later chapters of the book.
-	DirectX::BoundingBox Bounds;
-};
+//struct SubmeshGeometry
+//{
+//	UINT IndexCount = 0;
+//	UINT StartIndexLocation = 0;
+//	INT BaseVertexLocation = 0;
+//
+//    // Bounding box of the geometry defined by this submesh. 
+//    // This is used in later chapters of the book.
+//	DirectX::BoundingBox Bounds;
+//};
 
 //struct MeshGeometry
 //{

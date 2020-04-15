@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Scene.h"
 
-std::string mSkinnedModelFilename = "Models\\soldier.m3d";
+std::string mSkinnedModelFilename = "ApprenticeSK";
 
 Scene::Scene()
 {

@@ -258,51 +258,47 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 	const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
 	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
-	std::string mSkinnedModelFilename = "Models\\soldier.m3d";
+	std::string name = node->GetName();
 
-	auto geo = std::make_unique<Mesh>();
-	geo->Name = mSkinnedModelFilename;
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(
-		Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
-		vertices.data(), vbByteSize, geo->VertexBufferUploader);
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(
-		Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
-		indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(FrameResource::SkinnedVertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-	skinnedSubsets.resize(1);
-
-	for (UINT i = 0; i < 1; ++i)
 	{
-		skinnedSubsets[i].Id = 0;
-		skinnedSubsets[i].VertexStart = 0;
-		skinnedSubsets[i].VertexCount = vertices.size();
-		skinnedSubsets[i].FaceStart = 0;
-		skinnedSubsets[i].FaceCount = indices.size();
+		auto mesh = std::make_unique<Mesh>();
+		mesh->Name = name;
+
+		ThrowIfFailed(D3DCreateBlob(vbByteSize, &mesh->VertexBufferCPU));
+		CopyMemory(mesh->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+		ThrowIfFailed(D3DCreateBlob(ibByteSize, &mesh->IndexBufferCPU));
+		CopyMemory(mesh->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+		mesh->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(
+			Graphics::Instance()->device.Get(),
+			Graphics::Instance()->commandList.Get(),
+			vertices.data(),
+			vbByteSize,
+			mesh->VertexBufferUploader);
+		mesh->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(
+			Graphics::Instance()->device.Get(),
+			Graphics::Instance()->commandList.Get(),
+			indices.data(),
+			ibByteSize,
+			mesh->IndexBufferUploader);
+
+		mesh->VertexByteStride = sizeof(FrameResource::SkinnedVertex);
+		mesh->VertexBufferByteSize = vbByteSize;
+		mesh->IndexFormat = DXGI_FORMAT_R16_UINT;
+		mesh->IndexBufferByteSize = ibByteSize;
+		
+		for (UINT i = 0; i < 1; ++i)
+		{
+			SubmeshGeometry submesh;
+			std::string name = "sm_" + std::to_string(i);
+
+			submesh.IndexCount = indices.size();
+			submesh.StartIndexLocation = 0;
+			submesh.BaseVertexLocation = 0;
+
+			mesh->DrawArgs[name] = submesh;
+		}
+		Scene::scene->geometries[mesh->Name] = std::move(mesh);
 	}
-	for (UINT i = 0; i < (UINT)skinnedSubsets.size(); ++i)
-	{
-		SubmeshGeometry submesh;
-		std::string name = "sm_" + std::to_string(i);
-
-		submesh.IndexCount = (UINT)skinnedSubsets[i].FaceCount * 3;
-		submesh.StartIndexLocation = skinnedSubsets[i].FaceStart * 3;
-		submesh.BaseVertexLocation = 0;
-
-		geo->DrawArgs[name] = submesh;
-	}
-
-	Scene::scene->geometries[geo->Name] = std::move(geo);
-
 }

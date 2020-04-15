@@ -47,7 +47,7 @@ struct FbxModelData
 	std::map<int, std::vector<BoneWeightData>> boneWeightData;
 	std::vector<int> parentIndexer;
 	std::map<std::string, int> skeletonIndexer;
-	std::vector<M3DLoader::Subset> skinnedSubsets;
+	//std::vector<M3DLoader::Subset> skinnedSubsets;
 	std::vector<M3DLoader::M3dMaterial> skinnedMats;
 	std::vector<XMFLOAT4X4> boneOffsets;
 
