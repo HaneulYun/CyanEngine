@@ -187,8 +187,8 @@ void Graphics::Render()
 		{
 			auto ri = renderItems[i];
 
-			commandList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
-			commandList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
+			commandList->IASetVertexBuffers(0, 1, &ri->GetComponent<MeshFilter>()->Geo->VertexBufferView());
+			commandList->IASetIndexBuffer(&ri->GetComponent<MeshFilter>()->Geo->IndexBufferView());
 			commandList->IASetPrimitiveTopology(ri->PrimitiveType);
 
 			D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
@@ -204,7 +204,10 @@ void Graphics::Render()
 				commandList->SetGraphicsRootConstantBufferView(1, 0);
 			}
 
-			commandList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+			commandList->DrawIndexedInstanced(
+				ri->GetComponent<MeshFilter>()->IndexCount, 1,
+				ri->GetComponent<MeshFilter>()->StartIndexLocation,
+				ri->GetComponent<MeshFilter>()->BaseVertexLocation, 0);
 		}
 	}
 

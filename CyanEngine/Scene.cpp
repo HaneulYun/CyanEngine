@@ -57,6 +57,12 @@ void Scene::Start()
 			materials[mat->Name] = std::move(mat);
 		}
 	}
+
+	Graphics::Instance()->commandList->Close();
+	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
+	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+
 	//for (int i = 0; i < modelData.skinnedMats.size(); ++i)
 	//{
 	//	std::string diffuseName = modelData.skinnedMats[i].DiffuseMapName;
@@ -66,23 +72,23 @@ void Scene::Start()
 	//
 	//	textureData.push_back({ diffuseName, diffuseFilename });
 	//}
-
+	//
 	//std::vector<std::string> texName;
 	//for (auto& d : textureData)
 	//{
-		//if (textures.find(d.name) == std::end(textures))
-		//{
-		//	auto texture = std::make_unique<Texture>();
-		//	texture->Name = d.name;
-		//	texture->Filename = d.fileName;
-		//
-		//	texName.push_back(d.name);
-		//
-		//	CreateDDSTextureFromFile12(
-		//		Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
-		//		texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-		//	textures[texture->Name] = std::move(texture);
-		//}
+	//	if (textures.find(d.name) == std::end(textures))
+	//	{
+	//		auto texture = std::make_unique<Texture>();
+	//		texture->Name = d.name;
+	//		texture->Filename = d.fileName;
+	//
+	//		texName.push_back(d.name);
+	//
+	//		CreateDDSTextureFromFile12(
+	//			Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
+	//			texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+	//		textures[texture->Name] = std::move(texture);
+	//	}
 	//}
 	{
 		UINT objCBIndex = allRItems.size();
@@ -97,15 +103,15 @@ void Scene::Start()
 
 					auto ritem = CreateEmpty();
 					ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
+					auto geo = ritem->AddComponent<MeshFilter>()->Geo = geometries[mSkinnedModelFilename].get();
+					ritem->GetComponent<MeshFilter>()->IndexCount = geo->DrawArgs[submeshName].IndexCount;
+					ritem->GetComponent<MeshFilter>()->StartIndexLocation = geo->DrawArgs[submeshName].StartIndexLocation;
+					ritem->GetComponent<MeshFilter>()->BaseVertexLocation = geo->DrawArgs[submeshName].BaseVertexLocation;
 
 					ritem->TexTransform = MathHelper::Identity4x4();
 					ritem->ObjCBIndex = objCBIndex++;
 					ritem->Mat = materials[modelData.skinnedMats[i].Name].get();
-					ritem->Geo = geometries[mSkinnedModelFilename].get();
 					ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-					ritem->IndexCount = ritem->Geo->DrawArgs[submeshName].IndexCount;
-					ritem->StartIndexLocation = ritem->Geo->DrawArgs[submeshName].StartIndexLocation;
-					ritem->BaseVertexLocation = ritem->Geo->DrawArgs[submeshName].BaseVertexLocation;
 
 					ritem->SkinnedCBIndex = 0;
 					ritem->SkinnedModelInst = mSkinnedModelInst;
@@ -114,11 +120,6 @@ void Scene::Start()
 					allRItems.push_back(ritem);
 				}
 	}
-
-	Graphics::Instance()->commandList->Close();
-	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
-	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
 	{
 		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());
 

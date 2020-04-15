@@ -21,11 +21,6 @@ public:
 	Component* meshFilter{ nullptr };
 	Component* renderer{ nullptr };
 
-	char m_pstrFrameName[64];
-
-	int m_nMaterials = 0;
-	CMaterial** m_ppMaterials = NULL;
-
 	std::map<GameObject*, CollisionType> collisionType;
 
 public:
@@ -36,12 +31,8 @@ public:
 	UINT ObjCBIndex{ UINT(-1) };
 
 	Material* Mat{ nullptr };
-	MeshGeometry* Geo{ nullptr };
 
 	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
-	UINT IndexCount{ 0 };
-	UINT StartIndexLocation{ 0 };
-	int BaseVertexLocation{ 0 };
 
 	UINT SkinnedCBIndex = -1;
 	SkinnedModelInstance* SkinnedModelInst = nullptr;
