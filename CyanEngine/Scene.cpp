@@ -12,6 +12,8 @@ std::map<int, std::vector<BoneWeightData>> boneWeightData;
 std::map<int, FbxNode*> nodes;
 std::vector<M3DLoader::Subset> subsets;
 
+std::map<std::string, std::vector<int>> testSubset;
+
 void LoadModel(FbxNode* node,
 	std::vector<M3DLoader::SkinnedVertex>& vertices,
 	std::vector<USHORT>& indices,
@@ -29,40 +31,39 @@ void LoadModel(FbxNode* node,
 		FbxNodeAttribute::EType attributeType = attribute->GetAttributeType();
 		if (attributeType == FbxNodeAttribute::eMesh)
 		{
-			//if (kk++ == 1)
+			if(!kk)
 			{
-				//geometryConverter.SplitMeshPerMaterial(node->GetMesh(), false);
-
 				FbxMesh* mesh = node->GetMesh();
-				int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
-				if (materialCount > 0)
-				{
-					for (int k = 0; k < materialCount; ++k)
-					{
-						FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)node->GetSrcObject<FbxSurfaceMaterial>(k);
-						const char* name = material->GetName();
-						if (material != NULL)
-						{
-							FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
 
-							int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
-							if (layeredTextureCount > 0)
-							{
-								for (int i = 0; i < layeredTextureCount; ++i)
-								{
-									FbxLayeredTexture* layeredTexture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(i));
-									int textureCount = layeredTexture->GetSrcObjectCount<FbxTexture>();
-									for (int j = 0; j < textureCount; ++j)
-									{
-										FbxTexture* texture = FbxCast<FbxTexture>(layeredTexture->GetSrcObject<FbxTexture>(j));
-										const char* textrueName = texture->GetName();
-										//texture->UVSet;
-									}
-								}
-							}
-						}
-					}
-				}
+				//int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
+				//if (materialCount > 0)
+				//{
+				//	for (int k = 0; k < materialCount; ++k)
+				//	{
+				//		FbxSurfaceMaterial* material = (FbxSurfaceMaterial*)node->GetSrcObject<FbxSurfaceMaterial>(k);
+				//		const char* name = material->GetName();
+				//		if (material != NULL)
+				//		{
+				//			FbxProperty prop = material->FindProperty(FbxSurfaceMaterial::sDiffuse);
+				//
+				//			int layeredTextureCount = prop.GetSrcObjectCount<FbxLayeredTexture>();
+				//			if (layeredTextureCount > 0)
+				//			{
+				//				for (int i = 0; i < layeredTextureCount; ++i)
+				//				{
+				//					FbxLayeredTexture* layeredTexture = FbxCast<FbxLayeredTexture>(prop.GetSrcObject<FbxLayeredTexture>(i));
+				//					int textureCount = layeredTexture->GetSrcObjectCount<FbxTexture>();
+				//					for (int j = 0; j < textureCount; ++j)
+				//					{
+				//						FbxTexture* texture = FbxCast<FbxTexture>(layeredTexture->GetSrcObject<FbxTexture>(j));
+				//						const char* textrueName = texture->GetName();
+				//						//texture->UVSet;
+				//					}
+				//				}
+				//			}
+				//		}
+				//	}
+				//}
 
 				M3DLoader::Subset s;
 				s.VertexStart = vertices.size();
@@ -85,6 +86,52 @@ void LoadModel(FbxNode* node,
 				int polygonCount = mesh->GetPolygonCount();
 				for (unsigned int i = 0; i < polygonCount; ++i)
 				{
+					// material
+					for (unsigned int j = 0; j < 3; ++j)
+					{
+						//int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
+						//for (int materialIndex = 0; materialIndex < materialCount; ++materialIndex)
+						//{
+						//	FbxSurfaceMaterial* material = node->GetMaterial(materialIndex);
+						int vertexIndex = mesh->GetPolygonVertex(i, j);
+
+						const FbxGeometryElementMaterial* vertexMaterial = mesh->GetElementMaterial(0);
+						switch (vertexMaterial->GetMappingMode())
+						{
+						case FbxGeometryElement::eByPolygon:
+							switch (vertexMaterial->GetReferenceMode())
+							{
+							case FbxGeometryElement::eIndexToDirect:
+								//int index = vertexMaterial->GetIndexArray().GetAt(vertexIndex);
+
+								auto v = vertexMaterial->GetDirectArray().GetCount();
+								//for (int p = 0; p < v; ++p)
+								//{
+								//	auto q = vertexMaterial->GetDirectArray().GetAt(p);
+								//	auto s = q->GetName();
+								//	int k = 0;
+								//}
+
+								//std::string q = vertexMaterial->GetDirectArray().GetAt(0)->GetName();
+								////auto s = q->GetName();
+								//FbxSurfaceMaterial* mat = vertexMaterial->GetDirectArray().GetAt(index);
+								//testSubset[vertexMaterial->GetDirectArray().GetAt(index)->GetName()].push_back(vertexIndex);
+
+								int index = vertexMaterial->GetIndexArray().GetAt(vertexIndex);
+								FbxSurfaceMaterial* mat = vertexMaterial->GetDirectArray().GetAt(index);
+								std::string key;
+								if (mat)
+									key = mat->GetName();
+								else
+									key = "unknown";
+								testSubset[key].push_back(vertexIndex);
+								break;
+							}
+							break;
+						}
+						//}
+					}
+
 					// normal
 					for (unsigned int j = 0; j < 3; ++j)
 					{
@@ -95,6 +142,7 @@ void LoadModel(FbxNode* node,
 						if (mesh->GetElementNormalCount() < 1)
 							continue;
 						const FbxGeometryElementNormal* vertexNormal = mesh->GetElementNormal(0);
+						auto v = vertexNormal->GetDirectArray().GetCount();
 						switch (vertexNormal->GetMappingMode())
 						{
 						case FbxGeometryElement::eByControlPoint:
@@ -107,6 +155,7 @@ void LoadModel(FbxNode* node,
 								break;
 							case FbxGeometryElement::eIndexToDirect:
 								int index = vertexNormal->GetIndexArray().GetAt(vertexIndex);
+								vertexNormal->GetDirectArray();
 								vertices[vertexIndex + s.VertexStart].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
 								vertices[vertexIndex + s.VertexStart].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
 								vertices[vertexIndex + s.VertexStart].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
@@ -161,6 +210,7 @@ void LoadModel(FbxNode* node,
 					}*/
 					
 				}
+				int k = 0;
 
 				s.FaceCount = indices.size() - s.FaceStart;
 				subsets.push_back(s);
@@ -406,8 +456,8 @@ void Scene::Start()
 		
 			{
 				FbxGeometryConverter geometryConverter(manager);
-				//geometryConverter.Triangulate(scene, true);
-				geometryConverter.SplitMeshesPerMaterial(scene, true);
+				//geometryConverter.SplitMeshesPerMaterial(scene, true);
+				geometryConverter.Triangulate(scene, true);
 		
 				std::vector<XMFLOAT4X4> boneOffsets;
 				std::vector<int> boneIndexToParentIndex;
@@ -492,8 +542,8 @@ void Scene::Start()
 			SubmeshGeometry submesh;
 			std::string name = "sm_" + std::to_string(i);
 
-			submesh.IndexCount = (UINT)mSkinnedSubsets[i].FaceCount * 3;
-			submesh.StartIndexLocation = mSkinnedSubsets[i].FaceStart * 3;
+			submesh.IndexCount = (UINT)mSkinnedSubsets[i].FaceCount;
+			submesh.StartIndexLocation = mSkinnedSubsets[i].FaceStart;
 			submesh.BaseVertexLocation = 0;
 
 			geo->DrawArgs[name] = submesh;
