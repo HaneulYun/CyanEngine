@@ -87,13 +87,16 @@ void LoadModel(FbxNode* node,
 				for (unsigned int i = 0; i < polygonCount; ++i)
 				{
 					// material
-					for (unsigned int j = 0; j < 3; ++j)
+					int t;
+					int index;
+					FbxSurfaceMaterial* mat;
+					std::string key;
+
 					{
 						//int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
 						//for (int materialIndex = 0; materialIndex < materialCount; ++materialIndex)
 						//{
 						//	FbxSurfaceMaterial* material = node->GetMaterial(materialIndex);
-						int vertexIndex = mesh->GetPolygonVertex(i, j);
 
 						const FbxGeometryElementMaterial* vertexMaterial = mesh->GetElementMaterial(0);
 						switch (vertexMaterial->GetMappingMode())
@@ -102,34 +105,21 @@ void LoadModel(FbxNode* node,
 							switch (vertexMaterial->GetReferenceMode())
 							{
 							case FbxGeometryElement::eIndexToDirect:
-								//int index = vertexMaterial->GetIndexArray().GetAt(vertexIndex);
+								vertexMaterial->GetDirectArray().GetCount();
 
-								auto v = vertexMaterial->GetDirectArray().GetCount();
-								//for (int p = 0; p < v; ++p)
-								//{
-								//	auto q = vertexMaterial->GetDirectArray().GetAt(p);
-								//	auto s = q->GetName();
-								//	int k = 0;
-								//}
-
-								//std::string q = vertexMaterial->GetDirectArray().GetAt(0)->GetName();
-								////auto s = q->GetName();
-								//FbxSurfaceMaterial* mat = vertexMaterial->GetDirectArray().GetAt(index);
-								//testSubset[vertexMaterial->GetDirectArray().GetAt(index)->GetName()].push_back(vertexIndex);
-
-								int index = vertexMaterial->GetIndexArray().GetAt(vertexIndex);
-								FbxSurfaceMaterial* mat = vertexMaterial->GetDirectArray().GetAt(index);
-								std::string key;
+								index = vertexMaterial->GetIndexArray().GetAt(i);
+								mat = vertexMaterial->GetDirectArray().GetAt(index);
 								if (mat)
 									key = mat->GetName();
 								else
 									key = "unknown";
-								testSubset[key].push_back(vertexIndex);
+								testSubset[key].push_back(i * 3 + 0);
+								testSubset[key].push_back(i * 3 + 1);
+								testSubset[key].push_back(i * 3 + 2);
 								break;
 							}
 							break;
 						}
-						//}
 					}
 
 					// normal
@@ -193,24 +183,14 @@ void LoadModel(FbxNode* node,
 						}
 
 					}
-
-
-					// materialIndices
-					/*for (unsigned int j = 0; j < 3; ++j)
-					{
-						int vertexIndex = mesh->GetPolygonVertex(i, j);
-						FbxSurfaceMaterial* material = node->GetMaterial(vertexIndex);
-
-						for (int k = 0; k < node->GetSrcObjectCount<FbxSurfaceMaterial>(); ++k)
-						{
-							FbxSurfaceMaterial* m = node->GetSrcObject<FbxSurfaceMaterial>(k);
-							if (m == material)
-								vertices[vertexIndex].MaterialIndex = k;
-						}
-					}*/
-					
 				}
 				int k = 0;
+				for (auto& v : testSubset)
+				{
+					int front = v.second.front();
+					int back = v.second.back();
+					int k = 0;
+				}
 
 				s.FaceCount = indices.size() - s.FaceStart;
 				subsets.push_back(s);
