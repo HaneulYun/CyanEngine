@@ -103,7 +103,7 @@ void Scene::Start()
 
 					auto ritem = CreateEmpty();
 					ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
-					auto geo = ritem->AddComponent<MeshFilter>()->Geo = geometries[mSkinnedModelFilename].get();
+					auto geo = ritem->AddComponent<MeshFilter>()->mesh = geometries[mSkinnedModelFilename].get();
 					ritem->GetComponent<MeshFilter>()->IndexCount = geo->DrawArgs[submeshName].IndexCount;
 					ritem->GetComponent<MeshFilter>()->StartIndexLocation = geo->DrawArgs[submeshName].StartIndexLocation;
 					ritem->GetComponent<MeshFilter>()->BaseVertexLocation = geo->DrawArgs[submeshName].BaseVertexLocation;

@@ -260,7 +260,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 	std::string mSkinnedModelFilename = "Models\\soldier.m3d";
 
-	auto geo = std::make_unique<MeshGeometry>();
+	auto geo = std::make_unique<Mesh>();
 	geo->Name = mSkinnedModelFilename;
 
 	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));

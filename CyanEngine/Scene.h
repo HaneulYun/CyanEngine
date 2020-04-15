@@ -21,7 +21,7 @@ public:
 
 	std::vector<std::unique_ptr<FrameResource>> frameResources;
 
-	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> geometries;
+	std::unordered_map<std::string, std::unique_ptr<Mesh>> geometries;
 	std::unordered_map<std::string, std::unique_ptr<Material>> materials;
 	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
 	std::unordered_map<std::string, std::unique_ptr<AnimationClip>> animationClips;
