@@ -11,8 +11,7 @@ std::map<std::string, int> skeletonIndexer;
 std::map<int, std::vector<BoneWeightData>> boneWeightData;
 std::map<int, FbxNode*> nodes;
 std::vector<M3DLoader::Subset> subsets;
-
-std::map<std::string, std::vector<int>> testSubset;
+std::map<std::string, std::vector<std::pair<int,int>>> testSubset;
 
 void LoadModel(FbxNode* node,
 	std::vector<M3DLoader::SkinnedVertex>& vertices,
@@ -33,6 +32,7 @@ void LoadModel(FbxNode* node,
 		{
 			if(!kk)
 			{
+				kk = 1;
 				FbxMesh* mesh = node->GetMesh();
 
 				//int materialCount = node->GetSrcObjectCount<FbxSurfaceMaterial>();
@@ -65,8 +65,8 @@ void LoadModel(FbxNode* node,
 				//	}
 				//}
 
-				M3DLoader::Subset s;
-				s.VertexStart = vertices.size();
+				//M3DLoader::Subset s;
+				//s.VertexStart = vertices.size();
 
 				int verticesCount = mesh->GetControlPointsCount();
 				for (unsigned int i = 0; i < verticesCount; ++i)
@@ -79,8 +79,8 @@ void LoadModel(FbxNode* node,
 					vertices.push_back(vertex);
 				}
 
-				s.VertexCount = vertices.size() - s.VertexStart;
-				s.FaceStart = indices.size();
+				//s.VertexCount = vertices.size() - s.VertexStart;
+				//s.FaceStart = indices.size();
 
 				// normal, Texcoord, Tangent ·Îµå
 				int polygonCount = mesh->GetPolygonCount();
@@ -113,9 +113,10 @@ void LoadModel(FbxNode* node,
 									key = mat->GetName();
 								else
 									key = "unknown";
-								testSubset[key].push_back(i * 3 + 0);
-								testSubset[key].push_back(i * 3 + 1);
-								testSubset[key].push_back(i * 3 + 2);
+								for (int j = 0; j < 3; ++j)
+								{
+									testSubset[key].push_back(std::make_pair(mesh->GetPolygonVertex(i, j), i * 3 + j));
+								}
 								break;
 							}
 							break;
@@ -127,7 +128,7 @@ void LoadModel(FbxNode* node,
 					{
 						int vertexIndex = mesh->GetPolygonVertex(i, j);
 						//int vertexIndex = mesh->GetPolygonVertex(i, j) + s.VertexStart;
-						indices.emplace_back(vertexIndex + s.VertexStart);
+						indices.emplace_back(vertexIndex);
 
 						if (mesh->GetElementNormalCount() < 1)
 							continue;
@@ -139,16 +140,16 @@ void LoadModel(FbxNode* node,
 							switch (vertexNormal->GetReferenceMode())
 							{
 							case FbxGeometryElement::eDirect:
-								vertices[vertexIndex + s.VertexStart].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[0]);
-								vertices[vertexIndex + s.VertexStart].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[1]);
-								vertices[vertexIndex + s.VertexStart].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[2]);
+								vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[0]);
+								vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[1]);
+								vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[2]);
 								break;
 							case FbxGeometryElement::eIndexToDirect:
 								int index = vertexNormal->GetIndexArray().GetAt(vertexIndex);
 								vertexNormal->GetDirectArray();
-								vertices[vertexIndex + s.VertexStart].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
-								vertices[vertexIndex + s.VertexStart].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
-								vertices[vertexIndex + s.VertexStart].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+								vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
+								vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
+								vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
 								break;
 							}
 							break;
@@ -170,13 +171,13 @@ void LoadModel(FbxNode* node,
 							switch (vertexUv->GetReferenceMode())
 							{
 							case FbxGeometryElement::eDirect:
-								vertices[vertexIndex + s.VertexStart].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
-								vertices[vertexIndex + s.VertexStart].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
+								vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
+								vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
 								break;
 							case FbxGeometryElement::eIndexToDirect:
 								int index = vertexUv->GetIndexArray().GetAt(vertexIndex);
-								vertices[vertexIndex + s.VertexStart].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
-								vertices[vertexIndex + s.VertexStart].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
+								vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
+								vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
 								break;
 							}
 							break;
@@ -187,13 +188,29 @@ void LoadModel(FbxNode* node,
 				int k = 0;
 				for (auto& v : testSubset)
 				{
-					int front = v.second.front();
-					int back = v.second.back();
-					int k = 0;
+					std::pair<int,int> front = v.second.front();
+					std::pair<int,int> back = v.second.back();
+
+					M3DLoader::Subset s;
+					s.Id = k++;
+					s.FaceStart = front.second;
+					s.FaceCount = back.second - front.second;
+
+					sort(v.second.begin(), v.second.end(), [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
+						return a.first < b.first; });
+
+					front = v.second.front();
+					back = v.second.back();
+
+					s.VertexStart = front.first;
+					s.VertexCount = back.first - front.first;
+
+					subsets.push_back(s);
 				}
 
-				s.FaceCount = indices.size() - s.FaceStart;
-				subsets.push_back(s);
+
+				//s.FaceCount = indices.size() - s.FaceStart;
+				//subsets.push_back(s);
 
 				FbxVector4 T = node->GetGeometricTranslation(FbxNode::eSourcePivot);
 				FbxVector4 R = node->GetGeometricRotation(FbxNode::eSourcePivot);
@@ -243,7 +260,7 @@ void LoadModel(FbxNode* node,
 						{
 							boneWeightData[cluster->GetControlPointIndices()[k]].push_back({ jointIndex, cluster->GetControlPointWeights()[k] });
 
-							int vertexIndex = cluster->GetControlPointIndices()[k] + s.VertexStart;
+							int vertexIndex = cluster->GetControlPointIndices()[k];
 							float* boneWeight[3];
 							boneWeight[0] = &vertices[vertexIndex].BoneWeights.x;
 							boneWeight[1] = &vertices[vertexIndex].BoneWeights.y;
@@ -583,7 +600,7 @@ void Scene::Start()
 		float interval = 2.5f;
 		for (int x = -count; x <= count; ++x)
 			for (int z = -count; z <= count; ++z)
-				for (UINT i = 0; i < mSkinnedMats.size(); ++i)
+				for (UINT i = 0; i < subsets.size(); ++i)
 				{
 					std::string submeshName = "sm_" + std::to_string(i);
 
@@ -598,7 +615,7 @@ void Scene::Start()
 
 					ritem->TexTransform = MathHelper::Identity4x4();
 					ritem->ObjCBIndex = objCBIndex++;
-					ritem->Mat = Scene::scene->materials[mSkinnedMats[i].Name].get();
+					ritem->Mat = Scene::scene->materials[mSkinnedMats[0].Name].get();
 					ritem->Geo = Scene::scene->geometries[mSkinnedModelFilename].get();
 					ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 					ritem->IndexCount = ritem->Geo->DrawArgs[submeshName].IndexCount;

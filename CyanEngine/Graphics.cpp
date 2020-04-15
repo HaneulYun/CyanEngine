@@ -173,7 +173,7 @@ void Graphics::Render()
 
 	static int cnt = 0;
 	if (Input::GetMouseButtonDown(0))
-		cnt = (cnt + 1) % 5;
+		cnt = (cnt + 1) % 16;
 
 	int k = 0;
 	for (auto& renderItems : Scene::scene->renderItemLayer)
