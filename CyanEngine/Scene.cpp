@@ -40,29 +40,6 @@ void Scene::Start()
 		mSkinnedModelInst->ClipName = "run";
 		mSkinnedModelInst->TimePos = 0.0f;
 	}
-	XMFLOAT4 colors[20]
-	{
-		{1, 0, 0, 1},
-		{0, 1, 0, 1},
-		{0, 0, 1, 1},
-		{1, 1, 0, 1},
-		{0, 1, 1, 1},
-		{1, 0, 1, 1},
-		{1, 0, 1, 1},
-		{1, 1, 0, 1},
-		{0, 1, 1, 1},
-		{1, 1, 1, 1},
-		{0, 0, 0, 1},
-		{0.5f, 0, 0, 1},
-		{0, 0.5f, 0, 1},
-		{0, 0, 0.5f, 1},
-		{0.5f, 0.5f, 0, 1},
-		{0, 0.5f, 0.5f, 1},
-		{0.5f, 0, 0.5f, 1},
-		{0.5f, 0, 0.5f, 1},
-		{0.5f, 0.5f, 0, 1},
-		{0, 0.5f, 0.5f, 1},
-	};
 	for(int i = 0; i < 20; ++i)
 	{
 		auto material = std::make_unique<Material>();
@@ -70,14 +47,14 @@ void Scene::Start()
 		material->MatCBIndex = i;
 		material->DiffuseSrvHeapIndex = 0;
 		material->NormalSrvHeapIndex = 0;
-		material->DiffuseAlbedo = colors[i];
+		material->DiffuseAlbedo = RANDOM_COLOR;
 		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
 		material->Roughness = 0.0f;
 		materials[material->Name] = std::move(material);
 	}
 	{
 		auto texture = std::make_unique<Texture>();
-		texture->Name = "test";
+		texture->Name = "texture";
 		texture->Filename = L"..\\CyanEngine\\Textures\\none.dds";
 		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
 		textures[texture->Name] = std::move(texture);

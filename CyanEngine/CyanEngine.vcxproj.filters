@@ -202,9 +202,6 @@
     <ClCompile Include="Singleton.cpp">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
     </ClCompile>
-    <ClCompile Include="MeshFilter.cpp">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClCompile>
     <ClCompile Include="DefaultMaterial.cpp">
       <Filter>0_00_CyanEngine\44_Materials</Filter>
     </ClCompile>

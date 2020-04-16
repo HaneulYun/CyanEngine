@@ -6,9 +6,9 @@ public:
 	Mesh* mesh{ nullptr };
 
 public:
-	MeshFilter();
+	MeshFilter() = default;
 	MeshFilter(MeshFilter&) = default;
-	~MeshFilter();
+	~MeshFilter() = default;
 
 	void Start() override {}
 	void Update() override {}
