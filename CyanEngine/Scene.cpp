@@ -55,7 +55,7 @@ void Scene::Start()
 	{
 		auto texture = std::make_unique<Texture>();
 		texture->Name = "test";
-		texture->Filename = L"..\\CyanEngine\\Textures\\grass.dds";
+		texture->Filename = L"..\\CyanEngine\\Textures\\none.dds";
 		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
 		textures[texture->Name] = std::move(texture);
 	}
