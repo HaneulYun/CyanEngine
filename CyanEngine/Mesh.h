@@ -6,6 +6,8 @@ struct SubmeshGeometry
 	UINT StartIndexLocation = 0;
 	INT BaseVertexLocation = 0;
 
+	UINT MatIndex = 0;
+
 	//DirectX::BoundingBox Bounds;
 };
 

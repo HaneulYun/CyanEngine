@@ -5,10 +5,6 @@ class MeshFilter : public Component
 public:
 	Mesh* mesh{ nullptr };
 
-	UINT IndexCount{ 0 };
-	UINT StartIndexLocation{ 0 };
-	int BaseVertexLocation{ 0 };
-
 public:
 	MeshFilter();
 	MeshFilter(MeshFilter&) = default;

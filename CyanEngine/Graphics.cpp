@@ -177,7 +177,7 @@ void Graphics::Render()
 
 	static int cnt = 0;
 	if (Input::GetMouseButtonDown(0))
-		cnt = (cnt + 1) % 16;
+		cnt = (cnt + 1) % 16;;
 
 	int k = 0;
 	for (auto& renderItems : Scene::scene->renderItemLayer)
@@ -191,8 +191,8 @@ void Graphics::Render()
 		{
 			auto ri = renderItems[i];
 
-			commandList->IASetVertexBuffers(0, 1, &ri->GetComponent<MeshFilter>()->mesh->VertexBufferView());
-			commandList->IASetIndexBuffer(&ri->GetComponent<MeshFilter>()->mesh->IndexBufferView());
+			commandList->IASetVertexBuffers(0, 1, &ri->GetComponent<SkinnedMeshRenderer>()->mesh->VertexBufferView());
+			commandList->IASetIndexBuffer(&ri->GetComponent<SkinnedMeshRenderer>()->mesh->IndexBufferView());
 			commandList->IASetPrimitiveTopology(ri->PrimitiveType);
 
 			D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
@@ -208,8 +208,9 @@ void Graphics::Render()
 				commandList->SetGraphicsRootConstantBufferView(1, 0);
 			}
 
-			for (auto& submesh : ri->GetComponent<MeshFilter>()->mesh->DrawArgs)
+			for (auto& submesh : ri->GetComponent<SkinnedMeshRenderer>()->mesh->DrawArgs)
 			{
+				commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress() + submesh.second.MatIndex * sizeof(MaterialData));
 				commandList->DrawIndexedInstanced(
 					submesh.second.IndexCount, 1,
 					submesh.second.StartIndexLocation,

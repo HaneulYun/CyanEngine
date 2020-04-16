@@ -40,14 +40,37 @@ void Scene::Start()
 		mSkinnedModelInst->ClipName = "run";
 		mSkinnedModelInst->TimePos = 0.0f;
 	}
-
+	XMFLOAT4 colors[20]
+	{
+		{1, 0, 0, 1},
+		{0, 1, 0, 1},
+		{0, 0, 1, 1},
+		{1, 1, 0, 1},
+		{0, 1, 1, 1},
+		{1, 0, 1, 1},
+		{1, 0, 1, 1},
+		{1, 1, 0, 1},
+		{0, 1, 1, 1},
+		{1, 1, 1, 1},
+		{0, 0, 0, 1},
+		{0.5f, 0, 0, 1},
+		{0, 0.5f, 0, 1},
+		{0, 0, 0.5f, 1},
+		{0.5f, 0.5f, 0, 1},
+		{0, 0.5f, 0.5f, 1},
+		{0.5f, 0, 0.5f, 1},
+		{0.5f, 0, 0.5f, 1},
+		{0.5f, 0.5f, 0, 1},
+		{0, 0.5f, 0.5f, 1},
+	};
+	for(int i = 0; i < 20; ++i)
 	{
 		auto material = std::make_unique<Material>();
-		material->Name = "test";
-		material->MatCBIndex = 0;
+		material->Name = "material_" + std::to_string(i);
+		material->MatCBIndex = i;
 		material->DiffuseSrvHeapIndex = 0;
 		material->NormalSrvHeapIndex = 0;
-		material->DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+		material->DiffuseAlbedo = colors[i];
 		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
 		material->Roughness = 0.0f;
 		materials[material->Name] = std::move(material);
@@ -76,11 +99,11 @@ void Scene::Start()
 				ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
 				ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 				ritem->GetComponent<Transform>()->position = { 2.0f * x, 0.0f, 2.0f * z };
-				auto geo = ritem->AddComponent<MeshFilter>()->mesh = geometries[mSkinnedModelFilename].get();
+				auto geo = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
 
 				ritem->TexTransform = MathHelper::Identity4x4();
 				ritem->ObjCBIndex = objCBIndex++;
-				ritem->Mat = materials["test"].get();
+				ritem->Mat = materials["material_0"].get();
 				ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 				ritem->SkinnedCBIndex = 0;

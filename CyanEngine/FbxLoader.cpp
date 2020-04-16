@@ -355,6 +355,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		mesh->IndexFormat = DXGI_FORMAT_R16_UINT;
 		mesh->IndexBufferByteSize = ibByteSize;
 
+		int materialIndex = 0;;
 		for (UINT i = 0; i < submeshes.size(); ++i)
 		{
 			SubmeshGeometry submesh;
@@ -363,6 +364,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 			submesh.IndexCount = submeshes[i].IndexCount;
 			submesh.StartIndexLocation = submeshes[i].StartIndexLocation;
 			submesh.BaseVertexLocation = submeshes[i].BaseVertexLocation;
+			submesh.MatIndex = materialIndex++;
 
 			mesh->DrawArgs[name] = submesh;
 		}

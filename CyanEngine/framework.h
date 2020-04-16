@@ -100,6 +100,7 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include "Transform.h"
 #include "MeshFilter.h"
 #include "Renderer.h"
+#include "SkinnedMeshRenderer.h"
 #include "Camera.h"
 #include "Terrain.h"
 

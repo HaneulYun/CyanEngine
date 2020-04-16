@@ -178,6 +178,7 @@
     <ClInclude Include="FbxLoader.h">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="SkinnedMeshRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -291,6 +292,7 @@
     <ClCompile Include="FbxLoader.cpp">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="SkinnedMeshRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">

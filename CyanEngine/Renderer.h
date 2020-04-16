@@ -9,18 +9,18 @@ private:
 
 public:
 	//std::deque<Material*> materials;
-	Material* material{ nullptr };
+	//Material* material{ nullptr };
 
-private:
+protected:
 	friend class GameObject;
 	Renderer();
 	Renderer(Renderer& component)
 		: graphics(component.graphics)
 	{
-		if (component.material)
-		{
-			material = new Material(*component.material);
-		}
+		//if (component.material)
+		//{
+		//	material = new Material(*component.material);
+		//}
 	}
 
 public:
