@@ -41,14 +41,14 @@ void Scene::Start()
 		mSkinnedModelInst->ClipName = "run";
 		mSkinnedModelInst->TimePos = 0.0f;
 
-		UINT matCBIndex = 4;
+		UINT matCBIndex = 0;
 		UINT srvHeapIndex = 0;// mSkinnedSrvHeapStart;
 		for (UINT i = 0; i < modelData.skinnedMats.size(); ++i)
 		{
 			auto mat = std::make_unique<Material>();
 			mat->Name = modelData.skinnedMats[i].Name;
-			mat->MatCBIndex = matCBIndex++;
-			mat->DiffuseSrvHeapIndex = srvHeapIndex++;
+			mat->MatCBIndex = matCBIndex;
+			mat->DiffuseSrvHeapIndex = srvHeapIndex;
 			mat->NormalSrvHeapIndex = srvHeapIndex;// srvHeapIndex++;
 			mat->DiffuseAlbedo = modelData.skinnedMats[i].DiffuseAlbedo;
 			mat->FresnelR0 = modelData.skinnedMats[i].FresnelR0;
@@ -57,11 +57,6 @@ void Scene::Start()
 			materials[mat->Name] = std::move(mat);
 		}
 	}
-
-	Graphics::Instance()->commandList->Close();
-	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
-	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
 
 	//for (int i = 0; i < modelData.skinnedMats.size(); ++i)
 	//{
@@ -73,7 +68,19 @@ void Scene::Start()
 	//	textureData.push_back({ diffuseName, diffuseFilename });
 	//}
 	//
-	//std::vector<std::string> texName;
+	{
+		auto texture = std::make_unique<Texture>();
+		texture->Name = "test";
+		texture->Filename = L"..\\CyanEngine\\Textures\\grass.dds";
+		CreateDDSTextureFromFile12(
+			Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
+			texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+		textures[texture->Name] = std::move(texture);
+	}
+
+	Graphics::Instance()->commandList->Close();
+	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
+	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 	//for (auto& d : textureData)
 	//{
 	//	if (textures.find(d.name) == std::end(textures))
@@ -103,6 +110,7 @@ void Scene::Start()
 
 					auto ritem = CreateEmpty();
 					ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
+					ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 					auto geo = ritem->AddComponent<MeshFilter>()->mesh = geometries[mSkinnedModelFilename].get();
 					int n0 = ritem->GetComponent<MeshFilter>()->IndexCount = geo->DrawArgs[submeshName].IndexCount;
 					int n1 = ritem->GetComponent<MeshFilter>()->StartIndexLocation = geo->DrawArgs[submeshName].StartIndexLocation;
@@ -129,14 +137,14 @@ void Scene::Start()
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-		//for (auto& d : texName)
-		//{
-		//	srvDesc.Format = textures[d]->Resource->GetDesc().Format;
-		//	srvDesc.Texture2D.MipLevels = textures[d]->Resource->GetDesc().MipLevels;
-		//	Graphics::Instance()->device->CreateShaderResourceView(textures[d]->Resource.Get(), &srvDesc, handle);
-		//
-		//	handle.Offset(1, Graphics::Instance()->srvDescriptorSize);
-		//}
+		for (auto& d : textures)
+		{
+			srvDesc.Format = d.second->Resource->GetDesc().Format;
+			srvDesc.Texture2D.MipLevels = d.second->Resource->GetDesc().MipLevels;
+			Graphics::Instance()->device->CreateShaderResourceView(d.second->Resource.Get(), &srvDesc, handle);
+		
+			handle.Offset(1, Graphics::Instance()->srvDescriptorSize);
+		}
 	}
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)

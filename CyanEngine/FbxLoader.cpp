@@ -158,7 +158,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		vertices.push_back(vertex);
 	}
 
-	std::map<std::string, std::vector<std::pair<int, int>>> testSubset;
+	std::map<std::string, std::vector<int>> testSubset;
 
 	int polygonCount = mesh->GetPolygonCount();
 	for (unsigned int i = 0; i < polygonCount; ++i)
@@ -238,7 +238,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 					else
 						key = "unknown";
 					for (int j = 0; j < 3; ++j)
-						testSubset[key].push_back(std::make_pair(mesh->GetPolygonVertex(i, j), i * 3 + j));
+						testSubset[key].push_back(i * 3 + j);
 					break;
 				}
 				break;
@@ -249,21 +249,9 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 	int k = 0;
 	for (auto& v : testSubset)
 	{
-		std::pair<int, int> front = v.second.front();
-		std::pair<int, int> back = v.second.back();
-
-		SubmeshGeometry s;
-		//s.Id = k++;
-		s.StartIndexLocation = front.second;
-		s.IndexCount = back.second - front.second;
-
-		sort(v.second.begin(), v.second.end(), [](const std::pair<int, int>& a, const std::pair<int, int>& b) {
-			return a.first < b.first; });
-
-		front = v.second.front();
-		back = v.second.back();
-
-		s.BaseVertexLocation = 0;
+		SubmeshGeometry s{};
+		s.StartIndexLocation = v.second.front();
+		s.IndexCount = v.second.back() - v.second.front();
 
 		submeshes.push_back(s);
 	}
@@ -335,12 +323,11 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		}
 	}
 
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	std::string name = node->GetName();
-
 	{
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
+		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+		std::string name = node->GetName();
 		auto mesh = std::make_unique<Mesh>();
 		mesh->Name = name;
 
@@ -367,7 +354,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		mesh->VertexBufferByteSize = vbByteSize;
 		mesh->IndexFormat = DXGI_FORMAT_R16_UINT;
 		mesh->IndexBufferByteSize = ibByteSize;
-		
+
 		for (UINT i = 0; i < submeshes.size(); ++i)
 		{
 			SubmeshGeometry submesh;
