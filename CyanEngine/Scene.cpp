@@ -71,29 +71,24 @@ void Scene::Start()
 		float interval = 2.5f;
 		for (int x = -count; x <= count; ++x)
 			for (int z = -count; z <= count; ++z)
-				for (UINT i = 0; i < modelData.submeshes.size(); ++i)
-				{
-					std::string submeshName = "sm_" + std::to_string(i);
+			{
+				auto ritem = CreateEmpty();
+				ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
+				ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
+				ritem->GetComponent<Transform>()->position = { 2.0f * x, 0.0f, 2.0f * z };
+				auto geo = ritem->AddComponent<MeshFilter>()->mesh = geometries[mSkinnedModelFilename].get();
 
-					auto ritem = CreateEmpty();
-					ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
-					ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
-					auto geo = ritem->AddComponent<MeshFilter>()->mesh = geometries[mSkinnedModelFilename].get();
-					int n0 = ritem->GetComponent<MeshFilter>()->IndexCount = geo->DrawArgs[submeshName].IndexCount;
-					int n1 = ritem->GetComponent<MeshFilter>()->StartIndexLocation = geo->DrawArgs[submeshName].StartIndexLocation;
-					int n2 = ritem->GetComponent<MeshFilter>()->BaseVertexLocation = geo->DrawArgs[submeshName].BaseVertexLocation;
+				ritem->TexTransform = MathHelper::Identity4x4();
+				ritem->ObjCBIndex = objCBIndex++;
+				ritem->Mat = materials["test"].get();
+				ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-					ritem->TexTransform = MathHelper::Identity4x4();
-					ritem->ObjCBIndex = objCBIndex++;
-					ritem->Mat = materials["test"].get();
-					ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+				ritem->SkinnedCBIndex = 0;
+				ritem->SkinnedModelInst = mSkinnedModelInst;
 
-					ritem->SkinnedCBIndex = 0;
-					ritem->SkinnedModelInst = mSkinnedModelInst;
-
-					renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
-					allRItems.push_back(ritem);
-				}
+				renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
+				allRItems.push_back(ritem);
+			}
 	}
 	{
 		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());

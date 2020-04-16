@@ -208,10 +208,13 @@ void Graphics::Render()
 				commandList->SetGraphicsRootConstantBufferView(1, 0);
 			}
 
-			commandList->DrawIndexedInstanced(
-				ri->GetComponent<MeshFilter>()->IndexCount, 1,
-				ri->GetComponent<MeshFilter>()->StartIndexLocation,
-				ri->GetComponent<MeshFilter>()->BaseVertexLocation, 0);
+			for (auto& submesh : ri->GetComponent<MeshFilter>()->mesh->DrawArgs)
+			{
+				commandList->DrawIndexedInstanced(
+					submesh.second.IndexCount, 1,
+					submesh.second.StartIndexLocation,
+					submesh.second.BaseVertexLocation, 0);
+			}
 		}
 	}
 
