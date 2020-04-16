@@ -12,6 +12,16 @@
 
 #include "..\\CyanEngine\\shaders\\LightingUtil.hlsl"
 
+struct InstanceData
+{
+	float4x4 World;
+	float4x4 TexTransform;
+	uint MaterialIndex;
+	uint ObjPad0;
+	uint ObjPad1;
+	uint ObjPad2;
+};
+
 struct MaterialData
 {
 	float4	 DiffuseAlbedo;
@@ -26,7 +36,8 @@ struct MaterialData
 
 Texture2D gDiffuseMap[4] : register(t0);
 
-StructuredBuffer<MaterialData> gMaterialData : register(t0, space1);
+StructuredBuffer<InstanceData> gInstanceData : register(t0, space1);
+StructuredBuffer<MaterialData> gMaterialData : register(t1, space1);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
@@ -92,13 +103,22 @@ struct PSInput
 	float3 NormalW	: NORMAL;
 	float3 TangentW : TANGENT;
 	float2 TexC		: TEXCOORD;
+
+	nointerpolation uint MatIndex : MATINDEX;
 };
 
-PSInput VSMain(VSInput vin)
+PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
 {
 	PSInput vout;
 
-	MaterialData matData = gMaterialData[gMaterialIndex];
+	InstanceData instData = gInstanceData[instanceID];
+	float4x4 world = instData.World;
+	float4x4 texTransform = instData.TexTransform;
+	uint matIndex = instData.MaterialIndex;
+
+	vout.MatIndex = matIndex;
+
+	MaterialData matData = gMaterialData[matIndex];
 
 #ifdef SKINNED
 	float weights[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -106,8 +126,6 @@ PSInput VSMain(VSInput vin)
 	weights[1] = vin.BoneWeights.y;
 	weights[2] = vin.BoneWeights.z;
 	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
-
-	//vin.PosL = float3(0.0f, 0.0f, 0.0f);
 
 	float3 posL = float3(0.0f, 0.0f, 0.0f);
 	float3 normalL = float3(0.0f, 0.0f, 0.0f);
@@ -124,17 +142,17 @@ PSInput VSMain(VSInput vin)
 	vin.TangentL.xyz = tangentL;
 #endif
 
-	vout.PosW = mul(float4(vin.PosL, 1.0f), gWorld).xyz;
+	vout.PosW = mul(float4(vin.PosL, 1.0f), world).xyz;
 	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj);
-	vout.NormalW = mul(vin.NormalL, (float3x3)gWorld);
-	vout.TexC = mul(mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform), matData.MatTransform).xy;
+	vout.NormalW = mul(vin.NormalL, (float3x3)world);
+	vout.TexC = mul(mul(float4(vin.TexC, 0.0f, 1.0f), texTransform), matData.MatTransform).xy;
 
 	return vout;
 }
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-	MaterialData matData = gMaterialData[gMaterialIndex];
+	MaterialData matData = gMaterialData[input.MatIndex];
 	float4 diffuseAlbedo = matData.DiffuseAlbedo;
 	float3 fresnelR0 = matData.FresnelR0;
 	float roughness = matData.Roughness;

@@ -49,7 +49,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 			XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
 
-			ObjectConstants objConstants;
+			InstanceData objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
 			objConstants.MaterialIndex = 0;// e->Mat->MatCBIndex;
@@ -168,9 +168,10 @@ void Graphics::Render()
 
 	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootShaderResourceView(5, currFrameResource->ObjectCB->Resource()->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
-	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
 	UINT skinnedCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(SkinnedConstants));
 	auto objectCB = currFrameResource->ObjectCB->Resource();
 	auto skinnedCB = currFrameResource->SkinnedCB->Resource();
@@ -187,35 +188,35 @@ void Graphics::Render()
 		else
 			commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
-		for (int i = 0; i < renderItems.size(); ++i)
+		if (!renderItems.size())
+			continue;
+
+		auto ri = renderItems[0];
+
+		commandList->IASetVertexBuffers(0, 1, &ri->GetComponent<SkinnedMeshRenderer>()->mesh->VertexBufferView());
+		commandList->IASetIndexBuffer(&ri->GetComponent<SkinnedMeshRenderer>()->mesh->IndexBufferView());
+		commandList->IASetPrimitiveTopology(ri->PrimitiveType);
+
+		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+
+		if (ri->SkinnedModelInst != nullptr)
 		{
-			auto ri = renderItems[i];
+			D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress = skinnedCB->GetGPUVirtualAddress() + ri->SkinnedCBIndex * skinnedCBByteSize;
+			commandList->SetGraphicsRootConstantBufferView(1, skinnedCBAddress);
+		}
+		else
+		{
+			commandList->SetGraphicsRootConstantBufferView(1, 0);
+		}
 
-			commandList->IASetVertexBuffers(0, 1, &ri->GetComponent<SkinnedMeshRenderer>()->mesh->VertexBufferView());
-			commandList->IASetIndexBuffer(&ri->GetComponent<SkinnedMeshRenderer>()->mesh->IndexBufferView());
-			commandList->IASetPrimitiveTopology(ri->PrimitiveType);
-
-			D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
-			commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-
-			if (ri->SkinnedModelInst != nullptr)
-			{
-				D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress = skinnedCB->GetGPUVirtualAddress() + ri->SkinnedCBIndex * skinnedCBByteSize;
-				commandList->SetGraphicsRootConstantBufferView(1, skinnedCBAddress);
-			}
-			else
-			{
-				commandList->SetGraphicsRootConstantBufferView(1, 0);
-			}
-
-			for (auto& submesh : ri->GetComponent<SkinnedMeshRenderer>()->mesh->DrawArgs)
-			{
-				commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress() + submesh.second.MatIndex * sizeof(MaterialData));
-				commandList->DrawIndexedInstanced(
-					submesh.second.IndexCount, 1,
-					submesh.second.StartIndexLocation,
-					submesh.second.BaseVertexLocation, 0);
-			}
+		for (auto& submesh : ri->GetComponent<SkinnedMeshRenderer>()->mesh->DrawArgs)
+		{
+			commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress() + submesh.second.MatIndex * sizeof(MaterialData));
+			commandList->DrawIndexedInstanced(
+				submesh.second.IndexCount, renderItems.size(),
+				submesh.second.StartIndexLocation,
+				submesh.second.BaseVertexLocation, 0);
 		}
 	}
 
@@ -346,12 +347,13 @@ void Graphics::LoadAssets()
 	CD3DX12_DESCRIPTOR_RANGE texTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 0, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER rootParameters[5];
+	CD3DX12_ROOT_PARAMETER rootParameters[6];
 	rootParameters[0].InitAsConstantBufferView(0);
 	rootParameters[1].InitAsConstantBufferView(1);
 	rootParameters[2].InitAsConstantBufferView(2);
-	rootParameters[3].InitAsShaderResourceView(0, 1);
+	rootParameters[3].InitAsShaderResourceView(1, 1);
 	rootParameters[4].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[5].InitAsShaderResourceView(0, 1);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
 	{
