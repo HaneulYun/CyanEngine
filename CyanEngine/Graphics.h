@@ -9,6 +9,19 @@ class Graphics : public Singleton<Graphics>
 public:
 	static const UINT FrameCount{ 2 };
 
+	ComPtr<ID3D11On12Device> device11On12;
+	ComPtr<ID3D11Resource> wrappedBackBuffers[FrameCount];
+	ComPtr<ID3D11DeviceContext> d11DeviceContext;
+
+	ComPtr<ID2D1Bitmap1> renderTargets2d[FrameCount];
+	ComPtr<ID2D1DeviceContext2> deviceContext;
+	ComPtr<ID2D1Device2> d2dDevice;
+
+	ComPtr<IDWriteFactory> writeFactory;
+	ComPtr<ID2D1SolidColorBrush> textBrush;
+	ComPtr<IDWriteTextFormat> textFormat;
+
+
 	ComPtr<IDXGISwapChain3> swapChain;
 	ComPtr<ID3D12Device> device;
 	ComPtr<ID3D12Resource> renderTargets[FrameCount];
@@ -60,7 +73,7 @@ public:
 	void PreRender();
 	void Render();
 	void PostRender();
-
+	void RenderUI();
 	void Destroy();
 
 	//--------------//

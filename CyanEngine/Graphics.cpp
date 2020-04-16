@@ -214,9 +214,41 @@ void Graphics::Render()
 				ri->GetComponent<MeshFilter>()->BaseVertexLocation, 0);
 		}
 	}
-
 	PostRender();
 }
+
+
+void Graphics::RenderUI()
+{
+	D2D1_SIZE_F rtSize = renderTargets2d[frameIndex]->GetSize();
+	D2D1_RECT_F textRect = D2D1::RectF(0, 0, rtSize.width, rtSize.height);
+	static const WCHAR text[] = L"µÇ°Ù³Ä?";
+
+	// Acquire our wrapped render target resource for the current back buffer.
+	device11On12->AcquireWrappedResources(wrappedBackBuffers[frameIndex].GetAddressOf(), 1);
+
+	// Render text directly to the back buffer.
+	deviceContext->SetTarget(renderTargets2d[frameIndex].Get());
+	deviceContext->BeginDraw();
+	deviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
+	deviceContext->DrawText(
+		text,
+		_countof(text) - 1,
+		textFormat.Get(),
+		&textRect,
+		textBrush.Get()
+	);
+	deviceContext->EndDraw();
+
+	// Release our wrapped render target resource. Releasing 
+	// transitions the back buffer resource to the state specified
+	// as the OutState when the wrapped resource was created.
+	device11On12->ReleaseWrappedResources(wrappedBackBuffers[frameIndex].GetAddressOf(), 1);
+
+	// Flush to submit the 11 command list to the shared command queue.
+	d11DeviceContext->Flush();
+}
+
 
 void Graphics::PostRender()
 {
@@ -226,6 +258,7 @@ void Graphics::PostRender()
 	ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
 	commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
 
+	RenderUI();
 	swapChain->Present(0, 0);
 
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
@@ -324,14 +357,79 @@ void Graphics::InitDirect3D()
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 
+	// Create an 11 device wrapped around the 12 device and share
+	// 12's command queue.
+
+	UINT d3d11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {};
+
+	ComPtr<ID3D11Device> d3d11Device;
+	D3D11On12CreateDevice(
+		device.Get(),
+		d3d11DeviceFlags,
+		nullptr,
+		0,
+		reinterpret_cast<IUnknown**>(commandQueue.GetAddressOf()),
+		1,
+		0,
+		&d3d11Device,
+		&d11DeviceContext,
+		nullptr
+	);
+
+	// Query the 11On12 device from the 11 device.
+	d3d11Device.As(&device11On12);
+
+	// Create D2D/DWrite components.
+	ComPtr<ID2D1Factory3> d2dFactory{ nullptr };
+	{
+		D2D1_DEVICE_CONTEXT_OPTIONS deviceOptions = D2D1_DEVICE_CONTEXT_OPTIONS_NONE;
+		D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory3), &d2dFactoryOptions, &d2dFactory);
+		ComPtr<IDXGIDevice> dxgiDevice;
+		device11On12.As(&dxgiDevice);
+		d2dFactory->CreateDevice(dxgiDevice.Get(), &d2dDevice);
+		d2dDevice->CreateDeviceContext(deviceOptions, &deviceContext);
+		DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), &writeFactory);
+	}
+
+	// Query the desktop's dpi settings, which will be used to create
+	// D2D's render targets.
+	float dpiX;
+	float dpiY;
+	d2dFactory->GetDesktopDpi(&dpiX, &dpiY);
+	D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(
+		D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+		D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED),
+		dpiX,
+		dpiY
+	);
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
 		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
 		device->CreateRenderTargetView(renderTargets[i].Get(), nullptr, rtvHandle);
+
+		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
+		device11On12->CreateWrappedResource(
+			renderTargets[i].Get(),
+			&d3d11Flags,
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_PRESENT,
+			IID_PPV_ARGS(&wrappedBackBuffers[i])
+		);
+
+		ComPtr<IDXGISurface> surface;
+		wrappedBackBuffers[i].As(&surface);
+		deviceContext->CreateBitmapFromDxgiSurface(
+			surface.Get(),
+			&bitmapProperties,
+			&renderTargets2d[i]
+		);
+
 		rtvHandle.Offset(1, rtvDescriptorSize);
 	}
+
 }
 
 void Graphics::LoadAssets()
@@ -398,6 +496,24 @@ void Graphics::LoadAssets()
 		{ "WEIGHTS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "BONEINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
+
+	// Create D2D/DWrite objects for rendering text.
+	{
+		deviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &textBrush);
+		writeFactory->CreateTextFormat(
+			L"Verdana",
+			NULL,
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			50,
+			L"en-us",
+			&textFormat
+		);
+		textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
+		textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+	}
+
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
 	pipelineStateDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
