@@ -179,6 +179,7 @@
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClInclude>
     <ClInclude Include="SkinnedMeshRenderer.h" />
+    <ClInclude Include="Animator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">

@@ -32,8 +32,7 @@ public:
 
 	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
-	UINT SkinnedCBIndex = -1;
-	SkinnedModelInstance* SkinnedModelInst = nullptr;
+public:
 
 private:
 	friend class Scene;

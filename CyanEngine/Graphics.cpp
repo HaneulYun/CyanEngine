@@ -59,9 +59,9 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 			--e->NumFramesDirty;
 		}
 
-		if (e->SkinnedModelInst)
+		if (e->GetComponent<Animator>())
 		{
-			skinnedModelInst = e->SkinnedModelInst;
+			skinnedModelInst = e->GetComponent<Animator>()->SkinnedModelInst;
 		}
 	}
 	if (skinnedModelInst)
@@ -200,9 +200,10 @@ void Graphics::Render()
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 
-		if (ri->SkinnedModelInst != nullptr)
+		if (ri->GetComponent<Animator>()->SkinnedModelInst)
 		{
-			D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress = skinnedCB->GetGPUVirtualAddress() + ri->SkinnedCBIndex * skinnedCBByteSize;
+			D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress =
+				skinnedCB->GetGPUVirtualAddress() + ri->GetComponent<Animator>()->SkinnedCBIndex * skinnedCBByteSize;
 			commandList->SetGraphicsRootConstantBufferView(1, skinnedCBAddress);
 		}
 		else

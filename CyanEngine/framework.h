@@ -100,18 +100,20 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include "TextureShader.h"
 
 #include "Component.h"
+#include "MonoBehavior.h"
+
 #include "Transform.h"
 #include "MeshFilter.h"
 #include "Renderer.h"
 #include "SkinnedMeshRenderer.h"
 #include "Camera.h"
 #include "Terrain.h"
+#include "Animator.h"
 
 #include "Collider.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 
-#include "MonoBehavior.h"
 
 #include "ModelManager.h"
 #include "ShaderManager.h"

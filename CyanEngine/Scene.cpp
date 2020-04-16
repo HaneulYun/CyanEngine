@@ -23,10 +23,6 @@ void Scene::Start()
 	{
 		SkinnedData* mSkinnedInfo = new SkinnedData();
 
-		//M3DLoader::M3dMaterial mat{ "test" };
-		//modelData.skinnedMats.clear();
-		//modelData.skinnedMats.push_back(mat);
-
 		modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
 		animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
 
@@ -67,7 +63,7 @@ void Scene::Start()
 	{
 		UINT objCBIndex = allRItems.size();
 
-		int count = 0;
+		int count = 2;
 		float interval = 2.5f;
 		for (int x = -count; x <= count; ++x)
 			for (int z = -count; z <= count; ++z)
@@ -76,14 +72,14 @@ void Scene::Start()
 				ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
 				ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 				ritem->GetComponent<Transform>()->position = { 2.0f * x, 0.0f, 2.0f * z };
-				auto geo = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
+				ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
 
 				ritem->TexTransform = MathHelper::Identity4x4();
 				ritem->ObjCBIndex = objCBIndex++;
 				ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-				ritem->SkinnedCBIndex = 0;
-				ritem->SkinnedModelInst = mSkinnedModelInst;
+				ritem->AddComponent<Animator>()->SkinnedModelInst = mSkinnedModelInst;
+				ritem->GetComponent<Animator>()->SkinnedCBIndex = 0;
 
 				renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
 				allRItems.push_back(ritem);
