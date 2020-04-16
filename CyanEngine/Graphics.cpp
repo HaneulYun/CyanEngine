@@ -57,7 +57,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 			if (e->GetComponent<Animator>())
 			{
 				objConstants.BoneTransformIndex = e->GetComponent<Animator>()->SkinnedCBIndex;
-				objConstants.BoneTransformStride = e->GetComponent<Animator>()->SkinnedInfo->BoneCount();
+				objConstants.BoneTransformStride = e->GetComponent<Animator>()->controller->BoneCount();
 			}
 
 			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
@@ -70,7 +70,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 	{
 		if (e->GetComponent<Animator>())
 		{
-			int base = e->GetComponent<Animator>()->SkinnedCBIndex * e->GetComponent<Animator>()->SkinnedInfo->BoneCount();
+			int base = e->GetComponent<Animator>()->SkinnedCBIndex * e->GetComponent<Animator>()->controller->BoneCount();
 			auto currSkinnedCB = currFrameResource->SkinnedCB.get();
 	
 			e->GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);

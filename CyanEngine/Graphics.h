@@ -1,8 +1,6 @@
 #pragma once
 
 #include "FrameResource.h"
-#include "SkinnedData.h"
-#include "LoadM3d.h"
 
 class Graphics : public Singleton<Graphics>
 {
@@ -43,7 +41,6 @@ public:
 	};
 
 	static const int NumFrameResources{ NUM_FRAME_RESOURCES };
-	//std::vector<std::unique_ptr<FrameResource>> frameResources;
 	FrameResource* currFrameResource{ nullptr };
 	int currFrameResourceIndex{ 0 };
 

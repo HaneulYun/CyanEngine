@@ -168,7 +168,6 @@
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="DDSTextureLoader.h" />
-    <ClInclude Include="SkinnedData.h" />
     <ClInclude Include="Material.h">
       <Filter>0_00_CyanEngine\10_Core</Filter>
     </ClInclude>
@@ -180,6 +179,7 @@
     </ClInclude>
     <ClInclude Include="SkinnedMeshRenderer.h" />
     <ClInclude Include="Animator.h" />
+    <ClInclude Include="AnimatorController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -280,7 +280,6 @@
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
-    <ClCompile Include="SkinnedData.cpp" />
     <ClCompile Include="Graphics.cpp">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClCompile>
@@ -288,6 +287,7 @@
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClCompile>
     <ClCompile Include="SkinnedMeshRenderer.cpp" />
+    <ClCompile Include="AnimatorController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">

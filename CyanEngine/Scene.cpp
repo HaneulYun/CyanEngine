@@ -22,7 +22,7 @@ void Scene::Start()
 	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
 	animData.LoadFbx("..\\CyanEngine\\Models\\animTest.fbx");
 
-	SkinnedData* mSkinnedInfo = new SkinnedData();
+	AnimatorController* mSkinnedInfo = new AnimatorController();
 	{
 		std::unordered_map<std::string, AnimationClip> animations;
 		animations["run"] = *animationClips["k"].get();
@@ -73,10 +73,10 @@ void Scene::Start()
 
 				Animator* anim = ritem->AddComponent<Animator>();
 				anim->SkinnedCBIndex = skinnedIndex++;
-				anim->SkinnedInfo = mSkinnedInfo;
+				anim->controller = mSkinnedInfo;
 				anim->FinalTransforms.resize(mSkinnedInfo->BoneCount());
 				anim->ClipName = "run";
-				anim->TimePos = Random::Range(0.0f, anim->SkinnedInfo->GetClipEndTime("run"));
+				anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime("run"));
 
 				renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
 				allRItems.push_back(ritem);

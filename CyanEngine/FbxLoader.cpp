@@ -142,7 +142,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		return;
 	loadedMesh = true;
 
-	std::vector<M3DLoader::SkinnedVertex> vertices;
+	std::vector<FrameResource::SkinnedVertex> vertices;
 	std::vector<USHORT> indices;
 
 	FbxMesh* mesh = node->GetMesh();
@@ -150,7 +150,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 	int verticesCount = mesh->GetControlPointsCount();
 	for (unsigned int i = 0; i < verticesCount; ++i)
 	{
-		M3DLoader::SkinnedVertex vertex;
+		FrameResource::SkinnedVertex vertex;
 		vertex.Pos.x = static_cast<float>(mesh->GetControlPointAt(i).mData[0]);
 		vertex.Pos.y = static_cast<float>(mesh->GetControlPointAt(i).mData[1]);
 		vertex.Pos.z = static_cast<float>(mesh->GetControlPointAt(i).mData[2]);
