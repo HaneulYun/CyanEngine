@@ -35,7 +35,6 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		CloseHandle(eventHandle);
 	}
 
-	Animator* anim{ nullptr };
 	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : Scene::scene->allRItems)
@@ -53,35 +52,35 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
 			objConstants.MaterialIndex = 0;// e->Mat->MatCBIndex;
+			objConstants.BoneTransformIndex = 0;
+			objConstants.BoneTransformStride = 0;
+			if (e->GetComponent<Animator>())
+			{
+				objConstants.BoneTransformIndex = e->GetComponent<Animator>()->SkinnedCBIndex;
+				objConstants.BoneTransformStride = e->GetComponent<Animator>()->SkinnedInfo->BoneCount();
+			}
 
 			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
 			--e->NumFramesDirty;
 		}
-
+	}
+	
+	for (auto& e : Scene::scene->allRItems)
+	{
 		if (e->GetComponent<Animator>())
 		{
-			anim = e->GetComponent<Animator>();
-		}
-	}
-	if (anim)
-	{
-		// UpdateSkinnedCBs
-		auto currSkinnedCB = currFrameResource->SkinnedCB.get();
-
-		// We only have one skinned model being animated.
-		anim->UpdateSkinnedAnimation(Time::deltaTime);
-
-		//std::copy(
-		//	std::begin(anim->FinalTransforms),
-		//	std::end(anim->FinalTransforms),
-		//	&skinnedConstants.BoneTransforms);
-
-		for (int i = 0; i < anim->FinalTransforms.size(); ++i)
-		{
-			SkinnedConstants skinnedConstants;
-			skinnedConstants.BoneTransforms = anim->FinalTransforms[i];
-			currSkinnedCB->CopyData(i, skinnedConstants);
+			int base = e->GetComponent<Animator>()->SkinnedCBIndex * e->GetComponent<Animator>()->SkinnedInfo->BoneCount();
+			auto currSkinnedCB = currFrameResource->SkinnedCB.get();
+	
+			e->GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);
+	
+			for (int i = 0; i < e->GetComponent<Animator>()->FinalTransforms.size(); ++i)
+			{
+				SkinnedConstants skinnedConstants;
+				skinnedConstants.BoneTransforms = e->GetComponent<Animator>()->FinalTransforms[i];
+				currSkinnedCB->CopyData(base + i, skinnedConstants);
+			}
 		}
 	}
 

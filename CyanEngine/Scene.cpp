@@ -19,8 +19,8 @@ void Scene::Start()
 
 	FbxModelData modelData;
 	FbxModelData animData;
-	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
-	animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
+	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
+	animData.LoadFbx("..\\CyanEngine\\Models\\animTest.fbx");
 
 	SkinnedData* mSkinnedInfo = new SkinnedData();
 	{
@@ -55,8 +55,9 @@ void Scene::Start()
 	{
 		UINT objCBIndex = allRItems.size();
 
-		int count = 2;
+		int count = 10;
 		float interval = 2.5f;
+		int skinnedIndex = 0;
 		for (int x = -count; x <= count; ++x)
 			for (int z = -count; z <= count; ++z)
 			{
@@ -71,11 +72,11 @@ void Scene::Start()
 				ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 				Animator* anim = ritem->AddComponent<Animator>();
-				anim->SkinnedCBIndex = 0;
+				anim->SkinnedCBIndex = skinnedIndex++;
 				anim->SkinnedInfo = mSkinnedInfo;
 				anim->FinalTransforms.resize(mSkinnedInfo->BoneCount());
 				anim->ClipName = "run";
-				anim->TimePos = 0.0f;
+				anim->TimePos = Random::Range(0.0f, anim->SkinnedInfo->GetClipEndTime("run"));
 
 				renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
 				allRItems.push_back(ritem);
@@ -102,7 +103,9 @@ void Scene::Start()
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		frameResources.push_back(std::make_unique<FrameResource>(
-			Graphics::Instance()->device.Get(), 1, (UINT)allRItems.size(), 256, (UINT)5));
+			Graphics::Instance()->device.Get(), 1,
+			(UINT)allRItems.size(),
+			(UINT)allRItems.size() * mSkinnedInfo->BoneCount(), (UINT)5));
 }
 
 void Scene::Update()
