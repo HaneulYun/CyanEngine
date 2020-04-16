@@ -1,21 +1,22 @@
 #pragma once
 
-enum class ShaderMode
-{
-	Standard, Skybox, Terrain, Billboard
-};
-
-//class Material : public Object
+//enum class ShaderMode
 //{
-//public:
-//	XMFLOAT4 albedo{ 1, 1, 1, 1 };
-//
-//public:
-//	Shader* shader{ nullptr };
-//	CTexture* mainTexture{ nullptr };
-//
-//public:
-//	Material(Material&) = default;
-//
-//	Material(const wchar_t* fileName = nullptr, ShaderMode mode = ShaderMode::Standard);
+//	Standard, Skybox, Terrain, Billboard
 //};
+
+struct Material
+{
+	std::string Name;
+
+	int MatCBIndex = -1;
+	int DiffuseSrvHeapIndex = -1;
+	int NormalSrvHeapIndex = -1;
+
+	int NumFramesDirty = NUM_FRAME_RESOURCES;
+
+	DirectX::XMFLOAT4 DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+	DirectX::XMFLOAT3 FresnelR0 = { 0.01f, 0.01f, 0.01f };
+	float Roughness = .25f;
+	DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
+};

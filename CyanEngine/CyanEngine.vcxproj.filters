@@ -283,9 +283,6 @@
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="SkinnedData.cpp" />
-    <ClCompile Include="Material.cpp">
-      <Filter>0_00_CyanEngine\10_Core</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics.cpp">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClCompile>

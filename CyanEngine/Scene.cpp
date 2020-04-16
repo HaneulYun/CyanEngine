@@ -103,7 +103,6 @@ void Scene::Start()
 
 				ritem->TexTransform = MathHelper::Identity4x4();
 				ritem->ObjCBIndex = objCBIndex++;
-				ritem->Mat = materials["material_0"].get();
 				ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 				ritem->SkinnedCBIndex = 0;
