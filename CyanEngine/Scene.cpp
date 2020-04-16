@@ -23,9 +23,9 @@ void Scene::Start()
 	{
 		SkinnedData* mSkinnedInfo = new SkinnedData();
 
-		M3DLoader::M3dMaterial mat{ "test" };
-		modelData.skinnedMats.clear();
-		modelData.skinnedMats.push_back(mat);
+		//M3DLoader::M3dMaterial mat{ "test" };
+		//modelData.skinnedMats.clear();
+		//modelData.skinnedMats.push_back(mat);
 
 		modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
 		animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
@@ -37,66 +37,33 @@ void Scene::Start()
 		mSkinnedModelInst = new SkinnedModelInstance();
 		mSkinnedModelInst->SkinnedInfo = mSkinnedInfo;
 		mSkinnedModelInst->FinalTransforms.resize(mSkinnedInfo->BoneCount());
-		//mSkinnedModelInst->ClipName = "Take1";
 		mSkinnedModelInst->ClipName = "run";
 		mSkinnedModelInst->TimePos = 0.0f;
-
-		UINT matCBIndex = 0;
-		UINT srvHeapIndex = 0;// mSkinnedSrvHeapStart;
-		for (UINT i = 0; i < modelData.skinnedMats.size(); ++i)
-		{
-			auto mat = std::make_unique<Material>();
-			mat->Name = modelData.skinnedMats[i].Name;
-			mat->MatCBIndex = matCBIndex;
-			mat->DiffuseSrvHeapIndex = srvHeapIndex;
-			mat->NormalSrvHeapIndex = srvHeapIndex;// srvHeapIndex++;
-			mat->DiffuseAlbedo = modelData.skinnedMats[i].DiffuseAlbedo;
-			mat->FresnelR0 = modelData.skinnedMats[i].FresnelR0;
-			mat->Roughness = modelData.skinnedMats[i].Roughness;
-
-			materials[mat->Name] = std::move(mat);
-		}
 	}
 
-	//for (int i = 0; i < modelData.skinnedMats.size(); ++i)
-	//{
-	//	std::string diffuseName = modelData.skinnedMats[i].DiffuseMapName;
-	//	std::wstring diffuseFilename = L"..\\CyanEngine\\Textures\\" + AnsiToWString(diffuseName);
-	//
-	//	diffuseName = diffuseName.substr(0, diffuseName.find_last_of("."));
-	//
-	//	textureData.push_back({ diffuseName, diffuseFilename });
-	//}
-	//
+	{
+		auto material = std::make_unique<Material>();
+		material->Name = "test";
+		material->MatCBIndex = 0;
+		material->DiffuseSrvHeapIndex = 0;
+		material->NormalSrvHeapIndex = 0;
+		material->DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
+		material->Roughness = 0.0f;
+		materials[material->Name] = std::move(material);
+	}
 	{
 		auto texture = std::make_unique<Texture>();
 		texture->Name = "test";
 		texture->Filename = L"..\\CyanEngine\\Textures\\grass.dds";
-		CreateDDSTextureFromFile12(
-			Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
-			texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
 		textures[texture->Name] = std::move(texture);
 	}
 
 	Graphics::Instance()->commandList->Close();
 	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
 	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-	//for (auto& d : textureData)
-	//{
-	//	if (textures.find(d.name) == std::end(textures))
-	//	{
-	//		auto texture = std::make_unique<Texture>();
-	//		texture->Name = d.name;
-	//		texture->Filename = d.fileName;
-	//
-	//		texName.push_back(d.name);
-	//
-	//		CreateDDSTextureFromFile12(
-	//			Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
-	//			texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-	//		textures[texture->Name] = std::move(texture);
-	//	}
-	//}
+
 	{
 		UINT objCBIndex = allRItems.size();
 
@@ -118,7 +85,7 @@ void Scene::Start()
 
 					ritem->TexTransform = MathHelper::Identity4x4();
 					ritem->ObjCBIndex = objCBIndex++;
-					//ritem->Mat = materials[modelData.skinnedMats[i].Name].get();
+					ritem->Mat = materials["test"].get();
 					ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 					ritem->SkinnedCBIndex = 0;

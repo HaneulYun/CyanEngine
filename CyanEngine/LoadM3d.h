@@ -35,19 +35,19 @@ public:
     //    UINT FaceCount = 0;
     //};
 
-    struct M3dMaterial
-    {
-        std::string Name;
-
-        DirectX::XMFLOAT4 DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
-        DirectX::XMFLOAT3 FresnelR0 = { 0.01f, 0.01f, 0.01f };
-        float Roughness = 0.8f;
-        bool AlphaClip = false;
-
-        std::string MaterialTypeName;
-        std::string DiffuseMapName;
-        std::string NormalMapName;
-    };
+    //struct M3dMaterial
+    //{
+    //    std::string Name;
+	//
+    //    DirectX::XMFLOAT4 DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+    //    DirectX::XMFLOAT3 FresnelR0 = { 0.01f, 0.01f, 0.01f };
+    //    float Roughness = 0.8f;
+    //    bool AlphaClip = false;
+	//
+    //    std::string MaterialTypeName;
+    //    std::string DiffuseMapName;
+    //    std::string NormalMapName;
+    //};
 
 	//bool LoadM3d(const std::string& filename, 
 	//	std::vector<Vertex>& vertices,
