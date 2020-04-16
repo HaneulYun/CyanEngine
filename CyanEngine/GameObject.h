@@ -1,7 +1,6 @@
 #pragma once
 
 class Scene;
-class SkinnedModelInstance;
 
 enum class CollisionType
 {

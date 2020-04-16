@@ -35,7 +35,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		CloseHandle(eventHandle);
 	}
 
-	SkinnedModelInstance* skinnedModelInst{ nullptr };
+	Animator* anim{ nullptr };
 	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
 	for (auto& e : Scene::scene->allRItems)
@@ -61,21 +61,21 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 		if (e->GetComponent<Animator>())
 		{
-			skinnedModelInst = e->GetComponent<Animator>()->SkinnedModelInst;
+			anim = e->GetComponent<Animator>();
 		}
 	}
-	if (skinnedModelInst)
+	if (anim)
 	{
 		// UpdateSkinnedCBs
 		auto currSkinnedCB = currFrameResource->SkinnedCB.get();
 
 		// We only have one skinned model being animated.
-		skinnedModelInst->UpdateSkinnedAnimation(Time::deltaTime);
+		anim->UpdateSkinnedAnimation(Time::deltaTime);
 
 		SkinnedConstants skinnedConstants;
 		std::copy(
-			std::begin(skinnedModelInst->FinalTransforms),
-			std::end(skinnedModelInst->FinalTransforms),
+			std::begin(anim->FinalTransforms),
+			std::end(anim->FinalTransforms),
 			&skinnedConstants.BoneTransforms[0]);
 
 		currSkinnedCB->CopyData(0, skinnedConstants);
@@ -200,7 +200,7 @@ void Graphics::Render()
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 
-		if (ri->GetComponent<Animator>()->SkinnedModelInst)
+		if (ri->GetComponent<Animator>())
 		{
 			D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress =
 				skinnedCB->GetGPUVirtualAddress() + ri->GetComponent<Animator>()->SkinnedCBIndex * skinnedCBByteSize;

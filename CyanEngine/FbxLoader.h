@@ -1,25 +1,5 @@
 #pragma once
 
-struct SkinnedModelInstance
-{
-	SkinnedData* SkinnedInfo = nullptr;
-	std::vector<DirectX::XMFLOAT4X4> FinalTransforms;
-	std::string ClipName;
-	float TimePos = 0.0f;
-
-	void UpdateSkinnedAnimation(float dt)
-	{
-		TimePos += dt;
-
-		float k = SkinnedInfo->GetClipEndTime(ClipName);
-
-		if (TimePos > SkinnedInfo->GetClipEndTime(ClipName))
-			TimePos = 0.0f;
-
-		SkinnedInfo->GetFinalTransforms(ClipName, TimePos, FinalTransforms);
-	}
-};
-
 enum class RenderLayer : int
 {
 	Opaque = 0,

@@ -19,22 +19,14 @@ void Scene::Start()
 
 	FbxModelData modelData;
 	FbxModelData animData;
-	SkinnedModelInstance* mSkinnedModelInst;
+	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
+	animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
+
+	SkinnedData* mSkinnedInfo = new SkinnedData();
 	{
-		SkinnedData* mSkinnedInfo = new SkinnedData();
-
-		modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
-		animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
-
 		std::unordered_map<std::string, AnimationClip> animations;
 		animations["run"] = *animationClips["k"].get();
-		mSkinnedInfo->Set(animData.parentIndexer, modelData.boneOffsets, animations);
-
-		mSkinnedModelInst = new SkinnedModelInstance();
-		mSkinnedModelInst->SkinnedInfo = mSkinnedInfo;
-		mSkinnedModelInst->FinalTransforms.resize(mSkinnedInfo->BoneCount());
-		mSkinnedModelInst->ClipName = "run";
-		mSkinnedModelInst->TimePos = 0.0f;
+		mSkinnedInfo->Set(modelData.parentIndexer, modelData.boneOffsets, animations);
 	}
 	for(int i = 0; i < 20; ++i)
 	{
@@ -78,8 +70,12 @@ void Scene::Start()
 				ritem->ObjCBIndex = objCBIndex++;
 				ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-				ritem->AddComponent<Animator>()->SkinnedModelInst = mSkinnedModelInst;
-				ritem->GetComponent<Animator>()->SkinnedCBIndex = 0;
+				Animator* anim = ritem->AddComponent<Animator>();
+				anim->SkinnedCBIndex = 0;
+				anim->SkinnedInfo = mSkinnedInfo;
+				anim->FinalTransforms.resize(mSkinnedInfo->BoneCount());
+				anim->ClipName = "run";
+				anim->TimePos = 0.0f;
 
 				renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
 				allRItems.push_back(ritem);
