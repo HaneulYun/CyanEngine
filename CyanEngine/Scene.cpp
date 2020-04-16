@@ -102,7 +102,7 @@ void Scene::Start()
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		frameResources.push_back(std::make_unique<FrameResource>(
-			Graphics::Instance()->device.Get(), 1, (UINT)allRItems.size(), 1, (UINT)5));
+			Graphics::Instance()->device.Get(), 1, (UINT)allRItems.size(), 256, (UINT)5));
 }
 
 void Scene::Update()

@@ -16,7 +16,7 @@ struct InstanceData
 
 struct SkinnedConstants
 {
-	DirectX::XMFLOAT4X4 BoneTransforms[256];
+	DirectX::XMFLOAT4X4 BoneTransforms;
 };
 
 struct PassConstants

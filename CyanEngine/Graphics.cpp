@@ -72,13 +72,17 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		// We only have one skinned model being animated.
 		anim->UpdateSkinnedAnimation(Time::deltaTime);
 
-		SkinnedConstants skinnedConstants;
-		std::copy(
-			std::begin(anim->FinalTransforms),
-			std::end(anim->FinalTransforms),
-			&skinnedConstants.BoneTransforms[0]);
+		//std::copy(
+		//	std::begin(anim->FinalTransforms),
+		//	std::end(anim->FinalTransforms),
+		//	&skinnedConstants.BoneTransforms);
 
-		currSkinnedCB->CopyData(0, skinnedConstants);
+		for (int i = 0; i < anim->FinalTransforms.size(); ++i)
+		{
+			SkinnedConstants skinnedConstants;
+			skinnedConstants.BoneTransforms = anim->FinalTransforms[i];
+			currSkinnedCB->CopyData(i, skinnedConstants);
+		}
 	}
 
 	// UpdateMaterialBuffer
@@ -169,6 +173,7 @@ void Graphics::Render()
 	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootShaderResourceView(5, currFrameResource->ObjectCB->Resource()->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootShaderResourceView(6, currFrameResource->SkinnedCB->Resource()->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
@@ -202,13 +207,13 @@ void Graphics::Render()
 
 		if (ri->GetComponent<Animator>())
 		{
-			D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress =
-				skinnedCB->GetGPUVirtualAddress() + ri->GetComponent<Animator>()->SkinnedCBIndex * skinnedCBByteSize;
-			commandList->SetGraphicsRootConstantBufferView(1, skinnedCBAddress);
+			//D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress =
+			//	skinnedCB->GetGPUVirtualAddress() + ri->GetComponent<Animator>()->SkinnedCBIndex * skinnedCBByteSize;
+			//commandList->SetGraphicsRootConstantBufferView(1, skinnedCBAddress);
 		}
 		else
 		{
-			commandList->SetGraphicsRootConstantBufferView(1, 0);
+			//commandList->SetGraphicsRootConstantBufferView(1, 0);
 		}
 
 		for (auto& submesh : ri->GetComponent<SkinnedMeshRenderer>()->mesh->DrawArgs)
@@ -446,13 +451,14 @@ void Graphics::LoadAssets()
 	CD3DX12_DESCRIPTOR_RANGE texTable;
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 0, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER rootParameters[6];
+	CD3DX12_ROOT_PARAMETER rootParameters[7];
 	rootParameters[0].InitAsConstantBufferView(0);
 	rootParameters[1].InitAsConstantBufferView(1);
 	rootParameters[2].InitAsConstantBufferView(2);
 	rootParameters[3].InitAsShaderResourceView(1, 1);
 	rootParameters[4].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootParameters[5].InitAsShaderResourceView(0, 1);
+	rootParameters[6].InitAsShaderResourceView(2, 1);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
 	{

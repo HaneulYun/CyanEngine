@@ -34,10 +34,16 @@ struct MaterialData
 	uint	 MatPad2;
 };
 
+struct BoneTransform
+{
+	float4x4 BoneTransforms;
+};
+
 Texture2D gDiffuseMap[4] : register(t0);
 
 StructuredBuffer<InstanceData> gInstanceData : register(t0, space1);
 StructuredBuffer<MaterialData> gMaterialData : register(t1, space1);
+StructuredBuffer<BoneTransform> gSkinnedData : register(t2, space1);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
@@ -46,20 +52,20 @@ SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
 
-cbuffer cbPerObject : register(b0)
-{
-	float4x4 gWorld;
-	float4x4 gTexTransform;
-	uint gMaterialIndex;
-	uint gObjPad0;
-	uint gObjPad1;
-	uint gObjPad2;
-};
+//cbuffer cbPerObject : register(b0)
+//{
+//	float4x4 gWorld;
+//	float4x4 gTexTransform;
+//	uint gMaterialIndex;
+//	uint gObjPad0;
+//	uint gObjPad1;
+//	uint gObjPad2;
+//};
 
-cbuffer cbSkinned : register(b1)
-{
-	float4x4 gBoneTransforms[256];
-}
+//cbuffer cbSkinned : register(b1)
+//{
+//	float4x4 gBoneTransforms[256];
+//}
 
 cbuffer cbPass : register(b2)
 {
@@ -132,9 +138,9 @@ PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
 	float3 tangentL = float3(0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < 4; ++i)
 	{
-		posL += weights[i] * mul(float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]]).xyz;
-		normalL += weights[i] * mul(vin.NormalL, (float3x3)gBoneTransforms[vin.BoneIndices[i]]);
-		tangentL += weights[i] * mul(vin.TangentL.xyz, (float3x3)gBoneTransforms[vin.BoneIndices[i]]);
+		posL += weights[i] * mul(float4(vin.PosL, 1.0f), gSkinnedData[vin.BoneIndices[i]].BoneTransforms).xyz;
+		normalL += weights[i] * mul(vin.NormalL, (float3x3)gSkinnedData[vin.BoneIndices[i]].BoneTransforms);
+		tangentL += weights[i] * mul(vin.TangentL.xyz, (float3x3)gSkinnedData[vin.BoneIndices[i]].BoneTransforms);
 	}
 
 	vin.PosL = posL;
