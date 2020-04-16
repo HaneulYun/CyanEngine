@@ -28,7 +28,7 @@ void FbxModelData::LoadFbx(const char* path)
 		FbxAnimStack* animStack = scene->FindMember<FbxAnimStack>(animStackNameArray[stackIndex]->Buffer());
 		scene->SetCurrentAnimationStack(animStack);
 
-		//FbxAnimLayer* animLayer = animStack->GetMember<FbxAnimLayer>();
+		FbxAnimLayer* animLayer = animStack->GetMember<FbxAnimLayer>();
 
 		FbxTakeInfo* takeInfo = scene->GetTakeInfo(*(animStackNameArray[stackIndex]));
 		FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
@@ -59,33 +59,80 @@ void FbxModelData::LoadFbx(const char* path)
 			clip->BoneAnimations[j] = boneAnim;
 		}
 
-		for (int j = 0; j < clip->BoneAnimations.size(); ++j)
+
+		for (unsigned int i = 0; i < clip->BoneAnimations.size(); ++i)
 		{
 			BoneAnimation boneAnim;
-			if (clip->BoneAnimations[j].Keyframes.size() == 0)
+
+			Keyframe keyframe{};
+
+			int transCount{};
+			int quatCount{};
+			int scaleCount{};
+
+			FbxAnimCurve* transX = nodes[i]->LclTranslation.GetCurve(animLayer, "X");
+			FbxAnimCurve* transY = nodes[i]->LclTranslation.GetCurve(animLayer, "Y");
+			FbxAnimCurve* transZ = nodes[i]->LclTranslation.GetCurve(animLayer, "Z");
+			if (transX)
 			{
-				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+				transCount = transX->KeyGetCount();
+				for (int j = 0; j < transCount; ++j)
 				{
-					FbxTime time;
-					time.SetFrame(i, FbxTime::eFrames24);
+					FbxTime fbxKeyTime = transX->KeyGetTime(j);
+					float keyTime = (float)fbxKeyTime.GetSecondDouble();
+					float x = static_cast<float>(transX->KeyGetValue(j));
+					float y = static_cast<float>(transY->KeyGetValue(j));
+					float z = static_cast<float>(transZ->KeyGetValue(j));
 
-					Keyframe keyframe;
-
-					FbxAMatrix localTransform = nodes[j]->EvaluateLocalTransform(time);
-
-					FbxVector4 t = localTransform.GetT();
-					FbxVector4 s = localTransform.GetS();
-					FbxQuaternion q = localTransform.GetQ();
-
-					keyframe.TimePos = i * 0.166;
-					keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
-					keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
-					keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
-
-					boneAnim.Keyframes.push_back(keyframe);
+					keyframe.TimePos = keyTime;
+					keyframe.Translation = { x, y, z };
 				}
-				clip->BoneAnimations[j] = boneAnim;
 			}
+
+			FbxAnimCurve* scaleX = nodes[i]->LclScaling.GetCurve(animLayer, "X");
+			FbxAnimCurve* scaleY = nodes[i]->LclScaling.GetCurve(animLayer, "Y");
+			FbxAnimCurve* scaleZ = nodes[i]->LclScaling.GetCurve(animLayer, "Z");
+			if (scaleX)
+			{
+				scaleCount = scaleX->KeyGetCount();
+				for (int j = 0; j < scaleCount; ++j)
+				{
+					FbxTime fbxKeyTime = scaleX->KeyGetTime(j);
+					float keyTime = (float)fbxKeyTime.GetSecondDouble();
+					float x = static_cast<float>(scaleX->KeyGetValue(j));
+					float y = static_cast<float>(scaleY->KeyGetValue(j));
+					float z = static_cast<float>(scaleZ->KeyGetValue(j));
+
+					keyframe.TimePos = keyTime;
+					keyframe.Scale = { x, y, z };
+				}
+			}
+
+			FbxAnimCurve* quatX = nodes[i]->LclRotation.GetCurve(animLayer, "X");
+			FbxAnimCurve* quatY = nodes[i]->LclRotation.GetCurve(animLayer, "Y");
+			FbxAnimCurve* quatZ = nodes[i]->LclRotation.GetCurve(animLayer, "Z");
+			if (quatX)
+			{
+				quatCount = quatX->KeyGetCount();
+				for (int j = 0; j < quatCount; ++j)
+				{
+					FbxTime fbxKeyTime = quatX->KeyGetTime(j);
+					float keyTime = (float)fbxKeyTime.GetSecondDouble();
+					float x = static_cast<float>(scaleX->KeyGetValue(j));
+					float y = static_cast<float>(scaleY->KeyGetValue(j));
+					float z = static_cast<float>(scaleZ->KeyGetValue(j));
+
+					keyframe.TimePos = keyTime;
+
+					FbxVector4 euler;
+					euler.Set(x, y, z);
+					FbxAMatrix transform;
+					transform.SetR(euler);
+					FbxQuaternion quat = transform.GetQ();
+					keyframe.RotationQuat = XMFLOAT4(quat.mData[0], quat.mData[1], quat.mData[2], quat.mData[3]);
+				}
+			}
+			int k = 0;
 		}
 		Scene::scene->animationClips["k"] = std::move(clip);
 	}
