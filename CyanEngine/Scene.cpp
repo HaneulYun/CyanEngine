@@ -19,8 +19,8 @@ void Scene::Start()
 
 	FbxModelData modelData;
 	FbxModelData animData;
-	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
-	animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
+	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
+	animData.LoadFbx("..\\CyanEngine\\Models\\animTest.fbx");
 
 	AnimatorController* mSkinnedInfo = new AnimatorController();
 	{
@@ -55,8 +55,8 @@ void Scene::Start()
 	{
 		UINT objCBIndex = allRItems.size();
 
-		int count = 10;
-		float interval = 2.5f;
+		int count = 3;
+		float interval = 5.0f;
 		int skinnedIndex = 0;
 		for (int x = -count; x <= count; ++x)
 			for (int z = -count; z <= count; ++z)
@@ -64,7 +64,7 @@ void Scene::Start()
 				auto ritem = CreateEmpty();
 				ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
 				ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
-				ritem->GetComponent<Transform>()->position = { 2.0f * x, 0.0f, 2.0f * z };
+				ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
 				ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
 
 				ritem->TexTransform = MathHelper::Identity4x4();
