@@ -17,9 +17,9 @@ struct InstanceData
 	float4x4 World;
 	float4x4 TexTransform;
 	uint MaterialIndex;
-	uint BoneTransformIndex;
 	uint BoneTransformStride;
 	uint ObjPad0;
+	uint ObjPad1;
 };
 
 struct MaterialData
@@ -138,7 +138,7 @@ PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
 	float3 tangentL = float3(0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < 4; ++i)
 	{
-		int boneIndex = vin.BoneIndices[i] + instData.BoneTransformIndex * instData.BoneTransformStride;
+		int boneIndex = vin.BoneIndices[i] + instanceID * instData.BoneTransformStride;
 		float4x4 boneTransform = gSkinnedData[boneIndex].BoneTransforms;
 		posL += weights[i] * mul(float4(vin.PosL, 1.0f), boneTransform).xyz;
 		normalL += weights[i] * mul(vin.NormalL, (float3x3)boneTransform);

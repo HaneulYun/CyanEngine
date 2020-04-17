@@ -3,6 +3,8 @@
 
 Scene* Scene::scene{ nullptr };
 
+std::string mSkinnedModelFilename = "ApprenticeSK";
+
 void SampleScene::BuildObjects()
 {
 	//*** Asset ***//
@@ -58,6 +60,18 @@ void SampleScene::BuildObjects()
 	//	material_skullMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
 	//	material_skullMat->Roughness = 0.3f;
 	//}
+	for (int i = 0; i < 20; ++i)
+	{
+		auto material = std::make_unique<Material>();
+		material->Name = "material_" + std::to_string(i);
+		material->MatCBIndex = i;
+		material->DiffuseSrvHeapIndex = 0;
+		material->NormalSrvHeapIndex = 0;
+		material->DiffuseAlbedo = RANDOM_COLOR;
+		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
+		material->Roughness = 0.0f;
+		materials[material->Name] = std::move(material);
+	}
 
 
 	//*** Game Object ***//
@@ -73,6 +87,32 @@ void SampleScene::BuildObjects()
 
 		mainCamera->AddComponent<CameraController>();
 	}
+
+	UINT objCBIndex = gameObjects.size();
+
+	int count = 3;
+	float interval = 5.0f;
+	int skinnedIndex = 0;
+	for (int x = -count; x <= count; ++x)
+		for (int z = -count; z <= count; ++z)
+		{
+			auto ritem = CreateEmpty();
+			ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
+			ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
+			ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
+			ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
+
+			ritem->TexTransform = MathHelper::Identity4x4();
+			ritem->ObjCBIndex = objCBIndex++;
+
+			auto anim = ritem->AddComponent<Animator>();
+			anim->controller = mSkinnedInfo;
+			anim->FinalTransforms.resize(mSkinnedInfo->BoneCount());
+			anim->ClipName = "run";
+			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime("run"));
+
+			renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
+		}
 
 	//{
 	//	GameObject* cube = CreateEmpty();

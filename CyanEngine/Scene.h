@@ -10,7 +10,7 @@ class Scene
 private:
 	bool isDirty{ true };
 
-protected:
+public:
 	std::deque<GameObject*> gameObjects;
 	std::map<Mesh*, RenderObjects> renderObjects[(int)RenderLayer::Count];
 
@@ -26,8 +26,10 @@ public:
 	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
 	std::unordered_map<std::string, std::unique_ptr<AnimationClip>> animationClips;
 
-	std::vector<GameObject*> allRItems;
+	//std::vector<GameObject*> allRItems;
 	std::vector<GameObject*> renderItemLayer[(int)RenderLayer::Count];
+
+	AnimatorController* mSkinnedInfo;
 
 public:
 	Scene();

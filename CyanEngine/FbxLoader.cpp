@@ -141,9 +141,9 @@ void FbxModelData::LoadFbx(const char* path)
 				{
 					FbxTime fbxKeyTime = quatX->KeyGetTime(j);
 					float keyTime = (float)fbxKeyTime.GetSecondDouble();
-					float x = static_cast<float>(scaleX->KeyGetValue(j));
-					float y = static_cast<float>(scaleY->KeyGetValue(j));
-					float z = static_cast<float>(scaleZ->KeyGetValue(j));
+					float x = static_cast<float>(quatX->KeyGetValue(j));
+					float y = static_cast<float>(quatY->KeyGetValue(j));
+					float z = static_cast<float>(quatZ->KeyGetValue(j));
 
 					keyframe.TimePos = keyTime;
 

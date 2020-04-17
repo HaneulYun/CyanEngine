@@ -22,8 +22,6 @@ public:
 		controller->GetFinalTransforms(ClipName, TimePos, FinalTransforms);
 	}
 
-	UINT SkinnedCBIndex = -1;
-
 private:
 	friend class GameObject;
 	friend class MonoBehavior<Animator>;

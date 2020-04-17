@@ -29,8 +29,6 @@ public:
 	int NumFramesDirty{ NUM_FRAME_RESOURCES };
 	UINT ObjCBIndex{ UINT(-1) };
 
-	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
-
 public:
 
 private:

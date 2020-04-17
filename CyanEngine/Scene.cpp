@@ -1,8 +1,6 @@
 #include "pch.h"
 #include "Scene.h"
 
-std::string mSkinnedModelFilename = "ApprenticeSK";
-
 Scene::Scene()
 {
 }
@@ -13,8 +11,6 @@ Scene::~Scene()
 
 void Scene::Start()
 {
-	BuildObjects();
-
 	Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
 
 	FbxModelData modelData;
@@ -22,24 +18,15 @@ void Scene::Start()
 	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
 	animData.LoadFbx("..\\CyanEngine\\Models\\animTest.fbx");
 
-	AnimatorController* mSkinnedInfo = new AnimatorController();
+	mSkinnedInfo = new AnimatorController();
 	{
 		std::unordered_map<std::string, AnimationClip> animations;
 		animations["run"] = *animationClips["k"].get();
 		mSkinnedInfo->Set(modelData.parentIndexer, modelData.boneOffsets, animations);
 	}
-	for(int i = 0; i < 20; ++i)
-	{
-		auto material = std::make_unique<Material>();
-		material->Name = "material_" + std::to_string(i);
-		material->MatCBIndex = i;
-		material->DiffuseSrvHeapIndex = 0;
-		material->NormalSrvHeapIndex = 0;
-		material->DiffuseAlbedo = RANDOM_COLOR;
-		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
-		material->Roughness = 0.0f;
-		materials[material->Name] = std::move(material);
-	}
+	
+	BuildObjects();
+
 	{
 		auto texture = std::make_unique<Texture>();
 		texture->Name = "texture";
@@ -52,36 +39,6 @@ void Scene::Start()
 	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
 	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-	{
-		UINT objCBIndex = allRItems.size();
-
-		int count = 3;
-		float interval = 5.0f;
-		int skinnedIndex = 0;
-		for (int x = -count; x <= count; ++x)
-			for (int z = -count; z <= count; ++z)
-			{
-				auto ritem = CreateEmpty();
-				ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
-				ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
-				ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
-				ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
-
-				ritem->TexTransform = MathHelper::Identity4x4();
-				ritem->ObjCBIndex = objCBIndex++;
-				ritem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
-				Animator* anim = ritem->AddComponent<Animator>();
-				anim->SkinnedCBIndex = skinnedIndex++;
-				anim->controller = mSkinnedInfo;
-				anim->FinalTransforms.resize(mSkinnedInfo->BoneCount());
-				anim->ClipName = "run";
-				anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime("run"));
-
-				renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
-				allRItems.push_back(ritem);
-			}
-	}
 	{
 		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());
 
@@ -104,8 +61,9 @@ void Scene::Start()
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		frameResources.push_back(std::make_unique<FrameResource>(
 			Graphics::Instance()->device.Get(), 1,
-			(UINT)allRItems.size(),
-			(UINT)allRItems.size() * mSkinnedInfo->BoneCount(), (UINT)5));
+			(UINT)gameObjects.size(),
+			(UINT)gameObjects.size() * mSkinnedInfo->BoneCount(),
+			(UINT)5));
 }
 
 void Scene::Update()

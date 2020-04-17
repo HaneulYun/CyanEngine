@@ -14,21 +14,23 @@ struct SubmeshGeometry
 class Mesh
 {
 public:
-	std::string Name;
+	std::string Name{ "Mesh" };
 
-	Microsoft::WRL::ComPtr<ID3DBlob> VertexBufferCPU = nullptr;
-	Microsoft::WRL::ComPtr<ID3DBlob> IndexBufferCPU = nullptr;
+	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> VertexBufferGPU = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> IndexBufferGPU = nullptr;
+	Microsoft::WRL::ComPtr<ID3DBlob> VertexBufferCPU{ nullptr };
+	Microsoft::WRL::ComPtr<ID3DBlob> IndexBufferCPU{ nullptr };
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> VertexBufferUploader = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> IndexBufferUploader = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> VertexBufferGPU{ nullptr };
+	Microsoft::WRL::ComPtr<ID3D12Resource> IndexBufferGPU{ nullptr };
 
-	UINT VertexByteStride = 0;
-	UINT VertexBufferByteSize = 0;
-	DXGI_FORMAT IndexFormat = DXGI_FORMAT_R16_UINT;
-	UINT IndexBufferByteSize = 0;
+	Microsoft::WRL::ComPtr<ID3D12Resource> VertexBufferUploader{ nullptr };
+	Microsoft::WRL::ComPtr<ID3D12Resource> IndexBufferUploader{ nullptr };
+
+	UINT VertexByteStride{ 0 };
+	UINT VertexBufferByteSize{ 0 };
+	DXGI_FORMAT IndexFormat{ DXGI_FORMAT_R16_UINT };
+	UINT IndexBufferByteSize{ 0 };
 
 	std::unordered_map<std::string, SubmeshGeometry> DrawArgs;
 

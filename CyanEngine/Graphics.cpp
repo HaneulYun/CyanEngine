@@ -37,7 +37,8 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 	// UpdateObjectCBs
 	auto currObjectCB = currFrameResource->ObjectCB.get();
-	for (auto& e : Scene::scene->allRItems)
+	auto currSkinnedCB = currFrameResource->SkinnedCB.get();
+	for (auto& e : Scene::scene->gameObjects)
 	{
 		if (e->NumFramesDirty > 0)
 		{
@@ -51,27 +52,19 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 			InstanceData objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
-			objConstants.MaterialIndex = 0;// e->Mat->MatCBIndex;
-			objConstants.BoneTransformIndex = 0;
+			objConstants.MaterialIndex = 0;
 			objConstants.BoneTransformStride = 0;
 			if (e->GetComponent<Animator>())
-			{
-				objConstants.BoneTransformIndex = e->GetComponent<Animator>()->SkinnedCBIndex;
 				objConstants.BoneTransformStride = e->GetComponent<Animator>()->controller->BoneCount();
-			}
 
-			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
+			if(e->ObjCBIndex != -1)
+				currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
 			--e->NumFramesDirty;
 		}
-	}
-	
-	for (auto& e : Scene::scene->allRItems)
-	{
 		if (e->GetComponent<Animator>())
 		{
-			int base = e->GetComponent<Animator>()->SkinnedCBIndex * e->GetComponent<Animator>()->controller->BoneCount();
-			auto currSkinnedCB = currFrameResource->SkinnedCB.get();
+			int base = e->ObjCBIndex * e->GetComponent<Animator>()->controller->BoneCount();
 	
 			e->GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);
 	
@@ -197,9 +190,13 @@ void Graphics::Render()
 
 		auto ri = renderItems[0];
 
-		commandList->IASetVertexBuffers(0, 1, &ri->GetComponent<SkinnedMeshRenderer>()->mesh->VertexBufferView());
-		commandList->IASetIndexBuffer(&ri->GetComponent<SkinnedMeshRenderer>()->mesh->IndexBufferView());
-		commandList->IASetPrimitiveTopology(ri->PrimitiveType);
+		auto renderer = ri->GetComponent<SkinnedMeshRenderer>();
+		if (renderer)
+		{
+			commandList->IASetVertexBuffers(0, 1, &renderer->mesh->VertexBufferView());
+			commandList->IASetIndexBuffer(&renderer->mesh->IndexBufferView());
+			commandList->IASetPrimitiveTopology(renderer->mesh->PrimitiveType);
+		}
 
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);

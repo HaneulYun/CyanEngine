@@ -9,9 +9,9 @@ struct InstanceData
     DirectX::XMFLOAT4X4 World = MathHelper::Identity4x4();
 	DirectX::XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
 	UINT MaterialIndex;
-	UINT BoneTransformIndex;
 	UINT BoneTransformStride;
 	UINT ObjPad0;
+	UINT ObjPad1;
 };
 
 struct SkinnedConstants
