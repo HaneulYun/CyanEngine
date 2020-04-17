@@ -19,6 +19,7 @@ void FbxModelData::LoadFbx(const char* path)
 	FbxArray<FbxString*> animStackNameArray;
 	scene->FillAnimStackNameArray(animStackNameArray);
 
+
 	int stackCount = animStackNameArray.GetCount();
 	for (int stackIndex = 0; stackIndex < stackCount; ++stackIndex)
 	{
@@ -26,6 +27,15 @@ void FbxModelData::LoadFbx(const char* path)
 		clip->BoneAnimations.resize(skeletonIndexer.size());
 
 		FbxAnimStack* animStack = scene->FindMember<FbxAnimStack>(animStackNameArray[stackIndex]->Buffer());
+
+		FbxAnimCurveFilterConstantKeyReducer* reducer = new FbxAnimCurveFilterConstantKeyReducer();
+		reducer->SetTranslationThreshold(0.5f);
+		reducer->SetRotationThreshold(0.5f);
+		reducer->SetScalingThreshold(0.5f);
+		reducer->SetDefaultThreshold(0.5f);
+		reducer->SetKeepFirstAndLastKeys(true);
+		reducer->Apply(animStack);
+
 		scene->SetCurrentAnimationStack(animStack);
 
 		FbxAnimLayer* animLayer = animStack->GetMember<FbxAnimLayer>();
@@ -59,24 +69,33 @@ void FbxModelData::LoadFbx(const char* path)
 			clip->BoneAnimations[j] = boneAnim;
 		}
 
-
 		for (unsigned int i = 0; i < clip->BoneAnimations.size(); ++i)
 		{
+			std::string name = nodes[i]->GetName();
+
 			BoneAnimation boneAnim;
 
 			Keyframe keyframe{};
 
-			int transCount{};
-			int quatCount{};
-			int scaleCount{};
+			int transCountX{};
+			int transCountY{};
+			int transCountZ{};
+			int quatCountX{};
+			int quatCountY{};
+			int quatCountZ{};
+			int scaleCountX{};
+			int scaleCountY{};
+			int scaleCountZ{};
 
 			FbxAnimCurve* transX = nodes[i]->LclTranslation.GetCurve(animLayer, "X");
 			FbxAnimCurve* transY = nodes[i]->LclTranslation.GetCurve(animLayer, "Y");
 			FbxAnimCurve* transZ = nodes[i]->LclTranslation.GetCurve(animLayer, "Z");
 			if (transX)
 			{
-				transCount = transX->KeyGetCount();
-				for (int j = 0; j < transCount; ++j)
+				transCountX = transX->KeyGetCount();
+				transCountY = transY->KeyGetCount();
+				transCountZ = transZ->KeyGetCount();
+				for (int j = 0; j < transCountX; ++j)
 				{
 					FbxTime fbxKeyTime = transX->KeyGetTime(j);
 					float keyTime = (float)fbxKeyTime.GetSecondDouble();
@@ -94,8 +113,10 @@ void FbxModelData::LoadFbx(const char* path)
 			FbxAnimCurve* scaleZ = nodes[i]->LclScaling.GetCurve(animLayer, "Z");
 			if (scaleX)
 			{
-				scaleCount = scaleX->KeyGetCount();
-				for (int j = 0; j < scaleCount; ++j)
+				scaleCountX = scaleX->KeyGetCount();
+				scaleCountY = scaleY->KeyGetCount();
+				scaleCountZ = scaleZ->KeyGetCount();
+				for (int j = 0; j < scaleCountX; ++j)
 				{
 					FbxTime fbxKeyTime = scaleX->KeyGetTime(j);
 					float keyTime = (float)fbxKeyTime.GetSecondDouble();
@@ -113,8 +134,10 @@ void FbxModelData::LoadFbx(const char* path)
 			FbxAnimCurve* quatZ = nodes[i]->LclRotation.GetCurve(animLayer, "Z");
 			if (quatX)
 			{
-				quatCount = quatX->KeyGetCount();
-				for (int j = 0; j < quatCount; ++j)
+				quatCountX = quatX->KeyGetCount();
+				quatCountY = quatY->KeyGetCount();
+				quatCountZ = quatZ->KeyGetCount();
+				for (int j = 0; j < quatCountX; ++j)
 				{
 					FbxTime fbxKeyTime = quatX->KeyGetTime(j);
 					float keyTime = (float)fbxKeyTime.GetSecondDouble();
