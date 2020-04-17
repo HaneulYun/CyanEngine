@@ -19,8 +19,8 @@ void Scene::Start()
 
 	FbxModelData modelData;
 	FbxModelData animData;
-	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
-	animData.LoadFbx("..\\CyanEngine\\Models\\animTest.fbx");
+	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
+	animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
 
 	AnimatorController* mSkinnedInfo = new AnimatorController();
 	{

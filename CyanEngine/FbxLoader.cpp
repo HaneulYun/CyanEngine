@@ -40,123 +40,50 @@ void FbxModelData::LoadFbx(const char* path)
 
 		FbxAnimLayer* animLayer = animStack->GetMember<FbxAnimLayer>();
 
-		FbxTakeInfo* takeInfo = scene->GetTakeInfo(*(animStackNameArray[stackIndex]));
-		FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
-		FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
-
-		for (unsigned int j = 0; j < clip->BoneAnimations.size(); ++j)
+		for (unsigned int i = 0; i < clip->BoneAnimations.size(); ++i)
 		{
 			BoneAnimation boneAnim;
-			for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+
+			std::vector<std::pair<int,FbxAnimCurve*>> curves;
+			FbxAnimCurve* curve;
+
+			curve = nodes[i]->LclTranslation.GetCurve(animLayer, "X"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclTranslation.GetCurve(animLayer, "Y"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclTranslation.GetCurve(animLayer, "Z"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclScaling.GetCurve(animLayer, "X"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclScaling.GetCurve(animLayer, "Y"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclScaling.GetCurve(animLayer, "Z"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclRotation.GetCurve(animLayer, "X"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclRotation.GetCurve(animLayer, "Y"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclRotation.GetCurve(animLayer, "Z"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+
+			if (!curves.size()) continue;
+
+			auto max = std::max_element(curves.begin(), curves.end());
+			int curveNum = std::distance(curves.begin(), max);
+			int maxCount = max->first;
+			for (int j = 0; j < maxCount; ++j)
 			{
-				FbxTime time;
-				time.SetFrame(i, FbxTime::eFrames24);
+				FbxTime fbxKeyTime = curves[curveNum].second->KeyGetTime(j);
+				float keyTime = (float)fbxKeyTime.GetSecondDouble();
 
 				Keyframe keyframe;
-
-				FbxAMatrix localTransform = nodes[j]->EvaluateLocalTransform(time);
+				FbxAMatrix localTransform = nodes[i]->EvaluateLocalTransform(fbxKeyTime);
 				FbxVector4 t = localTransform.GetT();
 				FbxVector4 s = localTransform.GetS();
 				FbxQuaternion q = localTransform.GetQ();
 
-				keyframe.TimePos = i * 0.166;
+				keyframe.TimePos = keyTime;
 				keyframe.Translation = XMFLOAT3(t.mData[0], t.mData[1], t.mData[2]);
 				keyframe.Scale = XMFLOAT3(s.mData[0], s.mData[1], s.mData[2]);
 				keyframe.RotationQuat = XMFLOAT4(q.mData[0], q.mData[1], q.mData[2], q.mData[3]);
 
 				boneAnim.Keyframes.push_back(keyframe);
 			}
-			clip->BoneAnimations[j] = boneAnim;
+			clip->BoneAnimations[i] = boneAnim;
 		}
+		
 
-		for (unsigned int i = 0; i < clip->BoneAnimations.size(); ++i)
-		{
-			std::string name = nodes[i]->GetName();
-
-			BoneAnimation boneAnim;
-
-			Keyframe keyframe{};
-
-			int transCountX{};
-			int transCountY{};
-			int transCountZ{};
-			int quatCountX{};
-			int quatCountY{};
-			int quatCountZ{};
-			int scaleCountX{};
-			int scaleCountY{};
-			int scaleCountZ{};
-
-			FbxAnimCurve* transX = nodes[i]->LclTranslation.GetCurve(animLayer, "X");
-			FbxAnimCurve* transY = nodes[i]->LclTranslation.GetCurve(animLayer, "Y");
-			FbxAnimCurve* transZ = nodes[i]->LclTranslation.GetCurve(animLayer, "Z");
-			if (transX)
-			{
-				transCountX = transX->KeyGetCount();
-				transCountY = transY->KeyGetCount();
-				transCountZ = transZ->KeyGetCount();
-				for (int j = 0; j < transCountX; ++j)
-				{
-					FbxTime fbxKeyTime = transX->KeyGetTime(j);
-					float keyTime = (float)fbxKeyTime.GetSecondDouble();
-					float x = static_cast<float>(transX->KeyGetValue(j));
-					float y = static_cast<float>(transY->KeyGetValue(j));
-					float z = static_cast<float>(transZ->KeyGetValue(j));
-
-					keyframe.TimePos = keyTime;
-					keyframe.Translation = { x, y, z };
-				}
-			}
-
-			FbxAnimCurve* scaleX = nodes[i]->LclScaling.GetCurve(animLayer, "X");
-			FbxAnimCurve* scaleY = nodes[i]->LclScaling.GetCurve(animLayer, "Y");
-			FbxAnimCurve* scaleZ = nodes[i]->LclScaling.GetCurve(animLayer, "Z");
-			if (scaleX)
-			{
-				scaleCountX = scaleX->KeyGetCount();
-				scaleCountY = scaleY->KeyGetCount();
-				scaleCountZ = scaleZ->KeyGetCount();
-				for (int j = 0; j < scaleCountX; ++j)
-				{
-					FbxTime fbxKeyTime = scaleX->KeyGetTime(j);
-					float keyTime = (float)fbxKeyTime.GetSecondDouble();
-					float x = static_cast<float>(scaleX->KeyGetValue(j));
-					float y = static_cast<float>(scaleY->KeyGetValue(j));
-					float z = static_cast<float>(scaleZ->KeyGetValue(j));
-
-					keyframe.TimePos = keyTime;
-					keyframe.Scale = { x, y, z };
-				}
-			}
-
-			FbxAnimCurve* quatX = nodes[i]->LclRotation.GetCurve(animLayer, "X");
-			FbxAnimCurve* quatY = nodes[i]->LclRotation.GetCurve(animLayer, "Y");
-			FbxAnimCurve* quatZ = nodes[i]->LclRotation.GetCurve(animLayer, "Z");
-			if (quatX)
-			{
-				quatCountX = quatX->KeyGetCount();
-				quatCountY = quatY->KeyGetCount();
-				quatCountZ = quatZ->KeyGetCount();
-				for (int j = 0; j < quatCountX; ++j)
-				{
-					FbxTime fbxKeyTime = quatX->KeyGetTime(j);
-					float keyTime = (float)fbxKeyTime.GetSecondDouble();
-					float x = static_cast<float>(scaleX->KeyGetValue(j));
-					float y = static_cast<float>(scaleY->KeyGetValue(j));
-					float z = static_cast<float>(scaleZ->KeyGetValue(j));
-
-					keyframe.TimePos = keyTime;
-
-					FbxVector4 euler;
-					euler.Set(x, y, z);
-					FbxAMatrix transform;
-					transform.SetR(euler);
-					FbxQuaternion quat = transform.GetQ();
-					keyframe.RotationQuat = XMFLOAT4(quat.mData[0], quat.mData[1], quat.mData[2], quat.mData[3]);
-				}
-			}
-			int k = 0;
-		}
 		Scene::scene->animationClips["k"] = std::move(clip);
 	}
 }
