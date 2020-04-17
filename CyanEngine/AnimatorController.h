@@ -30,7 +30,7 @@ struct AnimationClip
 
 class AnimatorController
 {
-private:
+public:
 	std::vector<int> mBoneHierarchy;
 	std::vector<XMFLOAT4X4> mBoneOffsets;
 	std::unordered_map<std::string, AnimationClip> mAnimations;
@@ -40,11 +40,6 @@ public:
 
 	float GetClipStartTime(const std::string& clipName) const { return mAnimations.find(clipName)->second.GetClipStartTime(); }
 	float GetClipEndTime(const std::string& clipName) const { return mAnimations.find(clipName)->second.GetClipEndTime(); }
-
-	void Set(
-		std::vector<int>& boneHierarchy,
-		std::vector<DirectX::XMFLOAT4X4>& boneOffsets,
-		std::unordered_map<std::string, AnimationClip>& animations);
 
 	void GetFinalTransforms(const std::string& clipName, float timePos,
 		std::vector<DirectX::XMFLOAT4X4>& finalTransforms) const;

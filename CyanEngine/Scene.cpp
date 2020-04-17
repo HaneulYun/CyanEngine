@@ -17,13 +17,6 @@ void Scene::Start()
 	FbxModelData animData;
 	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
 	animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
-
-	mSkinnedInfo = new AnimatorController();
-	{
-		std::unordered_map<std::string, AnimationClip> animations;
-		animations["run"] = *animationClips["k"].get();
-		mSkinnedInfo->Set(modelData.parentIndexer, modelData.boneOffsets, animations);
-	}
 	
 	BuildObjects();
 
@@ -60,13 +53,6 @@ void Scene::Start()
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1, (UINT)5));
-
-	//frameResources.push_back(std::make_unique<FrameResource>(
-	//	Graphics::Instance()->device.Get(), 1,
-	//	(UINT)gameObjects.size(),
-	//	(UINT)gameObjects.size() * mSkinnedInfo->BoneCount(),
-	//	(UINT)5,
-	//	(UINT)gameObjects.size() * 20));
 }
 
 void Scene::Update()

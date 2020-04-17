@@ -31,6 +31,11 @@ private:
 public:
 	~Animator() {}
 
-	void Start() {}
+	void Start()
+	{
+		controller->mBoneOffsets = gameObject->GetComponent<SkinnedMeshRenderer>()->mesh->BoneOffsets;
+		controller->mBoneHierarchy = gameObject->GetComponent<SkinnedMeshRenderer>()->mesh->ParentIndexer;
+		FinalTransforms.resize(controller->mBoneOffsets.size());
+	}
 	void Update() {}
 };

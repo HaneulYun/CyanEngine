@@ -258,6 +258,9 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 	FbxVector4 S = node->GetGeometricScaling(FbxNode::eSourcePivot);
 	FbxAMatrix geometryTransform = FbxAMatrix(T, R, S);
 
+	std::map<int, std::vector<BoneWeightData>> boneWeightData;
+	std::vector<XMFLOAT4X4> boneOffsets;
+
 	int deformerCount = mesh->GetDeformerCount();
 	for (unsigned int i = 0; i < deformerCount; ++i)
 	{
@@ -327,6 +330,9 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		std::string name = node->GetName();
 		auto mesh = std::make_unique<Mesh>();
 		mesh->Name = name;
+
+		mesh->BoneOffsets = boneOffsets;
+		mesh->ParentIndexer = parentIndexer;
 
 		ThrowIfFailed(D3DCreateBlob(vbByteSize, &mesh->VertexBufferCPU));
 		CopyMemory(mesh->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);

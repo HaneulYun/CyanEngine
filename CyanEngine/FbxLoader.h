@@ -28,10 +28,8 @@ struct FbxModelData
 	std::vector<SubmeshGeometry> submeshes;
 
 	std::map<int, FbxNode*> nodes;
-	std::map<int, std::vector<BoneWeightData>> boneWeightData;
 	std::vector<int> parentIndexer;
 	std::map<std::string, int> skeletonIndexer;
-	std::vector<XMFLOAT4X4> boneOffsets;
 
 	// Assets Management
 	void LoadFbx(const char* path);

@@ -71,15 +71,6 @@ void AnimationClip::Interpolate(float t, std::vector<XMFLOAT4X4>& boneTransforms
 		BoneAnimations[i].Interpolate(t, boneTransforms[i]);
 }
 
-void AnimatorController::Set(std::vector<int>& boneHierarchy,
-	std::vector<XMFLOAT4X4>& boneOffsets,
-	std::unordered_map<std::string, AnimationClip>& animations)
-{
-	mBoneHierarchy = boneHierarchy;
-	mBoneOffsets = boneOffsets;
-	mAnimations = animations;
-}
-
 void AnimatorController::GetFinalTransforms(const std::string& clipName, float timePos, std::vector<XMFLOAT4X4>& finalTransforms)const
 {
 	UINT numBones = mBoneOffsets.size();

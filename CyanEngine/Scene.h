@@ -44,9 +44,6 @@ public:
 	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
 	std::unordered_map<std::string, std::unique_ptr<AnimationClip>> animationClips;
 
-
-	AnimatorController* mSkinnedInfo;
-
 public:
 	Scene();
 	virtual ~Scene();
