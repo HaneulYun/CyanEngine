@@ -1,8 +1,29 @@
 #pragma once
 
+struct ObjectsResource
+{
+	bool isDirty{ true };
+
+	ObjectsResource(ID3D12Device* device,
+		UINT objectCount,
+		UINT skinnedObjectCount,
+		UINT matIndexCount);
+	ObjectsResource(const ObjectsResource&) = delete;
+	ObjectsResource& operator=(const ObjectsResource&) = delete;
+	~ObjectsResource() = default;
+
+	std::unique_ptr<UploadBuffer<InstanceData>> InstanceBuffer{ nullptr };
+	std::unique_ptr<UploadBuffer<SkinnnedData>> SkinnedBuffer{ nullptr };
+	std::unique_ptr<UploadBuffer<MatIndexData>> MatIndexBuffer{ nullptr };
+};
+
 struct RenderObjects
 {
+	bool isDirty{ true };
+
 	std::vector<GameObject*> gameObjects;
+
+	std::vector<std::unique_ptr<ObjectsResource>> objectsResources;
 };
 
 class Scene

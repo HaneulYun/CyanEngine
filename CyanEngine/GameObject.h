@@ -27,7 +27,6 @@ public:
 	XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
 
 	int NumFramesDirty{ NUM_FRAME_RESOURCES };
-	UINT ObjCBIndex{ UINT(-1) };
 
 public:
 

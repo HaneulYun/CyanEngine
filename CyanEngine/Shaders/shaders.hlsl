@@ -58,21 +58,6 @@ SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
 
-//cbuffer cbPerObject : register(b0)
-//{
-//	float4x4 gWorld;
-//	float4x4 gTexTransform;
-//	uint gMaterialIndex;
-//	uint gObjPad0;
-//	uint gObjPad1;
-//	uint gObjPad2;
-//};
-
-//cbuffer cbSkinned : register(b1)
-//{
-//	float4x4 gBoneTransforms[256];
-//}
-
 cbuffer cbPass : register(b2)
 {
 	float4x4 gView;

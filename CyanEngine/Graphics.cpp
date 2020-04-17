@@ -35,59 +35,94 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		CloseHandle(eventHandle);
 	}
 
-	// UpdateObjectCBs
-	auto currObjectCB = currFrameResource->ObjectCB.get();
-	auto currSkinnedCB = currFrameResource->SkinnedCB.get();
-	auto currMatIndexBuffer = currFrameResource->MatIndexBuffer.get();
-	for (auto& e : Scene::scene->gameObjects)
+	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 	{
-		if (e->NumFramesDirty > 0)
+		for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
 		{
-			XMMATRIX world;
-			auto transform = e->GetComponent<Transform>();
-			if (transform)
-				world = XMLoadFloat4x4(&transform->localToWorldMatrix);
+			auto& objects = renderSets.second.gameObjects;
+			if (!objects.size())
+				continue;
 
-			XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
-
-			InstanceData objConstants;
-			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
-			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
-			objConstants.MaterialIndexStride = 0;
-			if (e->GetComponent<SkinnedMeshRenderer>())
-				objConstants.MaterialIndexStride = e->GetComponent<SkinnedMeshRenderer>()->materials.size();
-
-			objConstants.BoneTransformStride = 0;
-			if (e->GetComponent<Animator>())
-				objConstants.BoneTransformStride = e->GetComponent<Animator>()->controller->BoneCount();
-
-			if(e->ObjCBIndex != -1)
-				currObjectCB->CopyData(e->ObjCBIndex, objConstants);
-
-			--e->NumFramesDirty;
-		}
-		if (e->GetComponent<Animator>())
-		{
-			int base = e->ObjCBIndex * e->GetComponent<Animator>()->controller->BoneCount();
-
-			e->GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);
-
-			for (int i = 0; i < e->GetComponent<Animator>()->FinalTransforms.size(); ++i)
+			if (renderSets.second.isDirty)
 			{
-				SkinnnedData skinnedConstants;
-				skinnedConstants.BoneTransforms = e->GetComponent<Animator>()->FinalTransforms[i];
-				currSkinnedCB->CopyData(base + i, skinnedConstants);
+				for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
+					renderSets.second.objectsResources.push_back(std::make_unique<ObjectsResource>(device.Get(), 1, 1, 1));
+				renderSets.second.isDirty = false;
 			}
-		}
-		if (e->GetComponent<SkinnedMeshRenderer>())
-		{
-			int base = e->ObjCBIndex * e->GetComponent<SkinnedMeshRenderer>()->materials.size();
+			auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
 
-			for (int i = 0; i < e->GetComponent<SkinnedMeshRenderer>()->materials.size(); ++i)
+			if (objectsResource->isDirty)
 			{
-				MatIndexData skinnedConstants;
-				skinnedConstants.MaterialIndex = e->GetComponent<SkinnedMeshRenderer>()->materials[i];
-				currMatIndexBuffer->CopyData(base + i, skinnedConstants);
+				int objectCount = renderSets.second.gameObjects.size();
+				int boneStride = 1;
+				int matIndexStride = 1;
+				if (objects[0]->GetComponent<Animator>())
+					boneStride = objects[0]->GetComponent<Animator>()->controller->BoneCount();
+				if (objects[0]->GetComponent<SkinnedMeshRenderer>())
+					matIndexStride = objects[0]->GetComponent<SkinnedMeshRenderer>()->materials.size();
+
+				objectsResource->InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(device.Get(), objectCount, false);
+				objectsResource->SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(device.Get(), objectCount * boneStride, false);
+				objectsResource->MatIndexBuffer = std::make_unique<UploadBuffer<MatIndexData>>(device.Get(), objectCount * matIndexStride, false);
+				objectsResource->isDirty = false;
+			}
+			auto instanceBuffer = objectsResource->InstanceBuffer.get();
+			auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
+			auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
+
+			int bufferIndex = 0;
+			for (auto& e : renderSets.second.gameObjects)
+			{
+				// instance data
+				if (e->NumFramesDirty > 0)
+				{
+					XMMATRIX world = XMLoadFloat4x4(&e->GetComponent<Transform>()->localToWorldMatrix);
+					XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
+
+					InstanceData objConstants;
+					XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+					XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+					objConstants.MaterialIndexStride = 0;
+					objConstants.BoneTransformStride = 0;
+
+					if (e->GetComponent<SkinnedMeshRenderer>())
+						objConstants.MaterialIndexStride = e->GetComponent<SkinnedMeshRenderer>()->materials.size();
+					if (e->GetComponent<Animator>())
+						objConstants.BoneTransformStride = e->GetComponent<Animator>()->controller->BoneCount();
+
+					instanceBuffer->CopyData(bufferIndex, objConstants);
+
+					--e->NumFramesDirty;
+				}
+
+				// skinned data
+				if (e->GetComponent<Animator>())
+				{
+					int baseindex = bufferIndex * e->GetComponent<Animator>()->controller->BoneCount();
+
+					e->GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);
+					for (int i = 0; i < e->GetComponent<Animator>()->FinalTransforms.size(); ++i)
+					{
+						SkinnnedData skinnedConstants;
+						skinnedConstants.BoneTransforms = e->GetComponent<Animator>()->FinalTransforms[i];
+						skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
+					}
+				}
+
+				// material data
+				if (e->GetComponent<SkinnedMeshRenderer>())
+				{
+					int baseindex = bufferIndex * e->GetComponent<SkinnedMeshRenderer>()->materials.size();
+
+					for (int i = 0; i < e->GetComponent<SkinnedMeshRenderer>()->materials.size(); ++i)
+					{
+						MatIndexData skinnedConstants;
+						skinnedConstants.MaterialIndex = e->GetComponent<SkinnedMeshRenderer>()->materials[i];
+						matIndexBuffer->CopyData(baseindex + i, skinnedConstants);
+					}
+				}
+
+				++bufferIndex;
 			}
 		}
 	}
@@ -179,14 +214,10 @@ void Graphics::Render()
 
 	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootShaderResourceView(5, currFrameResource->ObjectCB->Resource()->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootShaderResourceView(6, currFrameResource->SkinnedCB->Resource()->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
 	UINT skinnedCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(SkinnnedData));
-	auto objectCB = currFrameResource->ObjectCB->Resource();
-	auto skinnedCB = currFrameResource->SkinnedCB->Resource();
 
 	for(int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 	{
@@ -196,6 +227,14 @@ void Graphics::Render()
 			auto& objects = renderSets.second.gameObjects;
 			if (!objects.size())
 				continue;
+
+			auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
+			auto instanceBuffer = objectsResource->InstanceBuffer.get();
+			auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
+			auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
+
+			commandList->SetGraphicsRootShaderResourceView(5, instanceBuffer->Resource()->GetGPUVirtualAddress());
+			commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
 
 			if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 				commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
@@ -210,7 +249,7 @@ void Graphics::Render()
 			for (auto& submesh : mesh->DrawArgs)
 			{
 				commandList->SetGraphicsRootShaderResourceView(7,
-					currFrameResource->MatIndexBuffer->Resource()->GetGPUVirtualAddress()
+					matIndexBuffer->Resource()->GetGPUVirtualAddress()
 					+ sizeof(MatIndexData) * i++);
 				commandList->DrawIndexedInstanced(
 					submesh.second.IndexCount, objects.size(),

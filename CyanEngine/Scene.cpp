@@ -1,6 +1,14 @@
 #include "pch.h"
 #include "Scene.h"
 
+ObjectsResource::ObjectsResource(ID3D12Device* device,
+	UINT objectCount, UINT skinnedObjectCount, UINT matIndexCount)
+{
+	InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(device, objectCount, false);
+	SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(device, skinnedObjectCount, false);
+	MatIndexBuffer = std::make_unique<UploadBuffer<MatIndexData>>(device, matIndexCount, false);
+}
+
 Scene::Scene()
 {
 }
@@ -59,12 +67,14 @@ void Scene::Start()
 	}
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
-		frameResources.push_back(std::make_unique<FrameResource>(
-			Graphics::Instance()->device.Get(), 1,
-			(UINT)gameObjects.size(),
-			(UINT)gameObjects.size() * mSkinnedInfo->BoneCount(),
-			(UINT)5,
-			(UINT)gameObjects.size() * 20));
+		frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1, (UINT)5));
+
+	//frameResources.push_back(std::make_unique<FrameResource>(
+	//	Graphics::Instance()->device.Get(), 1,
+	//	(UINT)gameObjects.size(),
+	//	(UINT)gameObjects.size() * mSkinnedInfo->BoneCount(),
+	//	(UINT)5,
+	//	(UINT)gameObjects.size() * 20));
 }
 
 void Scene::Update()

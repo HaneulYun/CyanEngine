@@ -17,7 +17,7 @@ public:
 		float k = controller->GetClipEndTime(ClipName);
 
 		if (TimePos > controller->GetClipEndTime(ClipName))
-			TimePos = 0.0f;
+			TimePos -= controller->GetClipEndTime(ClipName);
 
 		controller->GetFinalTransforms(ClipName, TimePos, FinalTransforms);
 	}

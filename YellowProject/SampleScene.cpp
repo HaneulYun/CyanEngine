@@ -11,7 +11,7 @@ void SampleScene::BuildObjects()
 
 	//Material* material_defaultMaterial = new DefaultMaterial();
 	//
-	//Mesh* mesh_cube = new Cube();
+	Mesh* mesh_cube = new Cube();
 	//Mesh* mesh_grid = new Plane();
 	//Mesh* mesh_sphere = new Sphere();
 	//Mesh* mesh_cylinder = new Cylinder();
@@ -90,7 +90,7 @@ void SampleScene::BuildObjects()
 
 	UINT objCBIndex = gameObjects.size();
 
-	int count = 3;
+	int count = 1;
 	float interval = 5.0f;
 	int skinnedIndex = 0;
 	for (int x = -count; x <= count; ++x)
@@ -106,7 +106,7 @@ void SampleScene::BuildObjects()
 				renderer->materials.push_back(Random::Range(0, 16));
 
 			ritem->TexTransform = MathHelper::Identity4x4();
-			ritem->ObjCBIndex = objCBIndex++;
+			//ritem->ObjCBIndex = objCBIndex++;
 
 			auto anim = ritem->AddComponent<Animator>();
 			anim->controller = mSkinnedInfo;

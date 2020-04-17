@@ -78,18 +78,15 @@ struct FrameResource
 	};
 public:
     
-	FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT skinnedObjectCount, UINT materialCount, UINT matIndexCount);
+	FrameResource(ID3D12Device* device, UINT passCount, UINT materialCount);
 	FrameResource(const FrameResource&) = delete;
     FrameResource& operator=(const FrameResource&) = delete;
-    ~FrameResource();
+	~FrameResource() = default;
 
 	ComPtr<ID3D12CommandAllocator> CmdListAlloc{ nullptr };
 
 	std::unique_ptr<UploadBuffer<PassConstants>> PassCB{ nullptr };
-	std::unique_ptr<UploadBuffer<InstanceData>> ObjectCB{ nullptr };
-	std::unique_ptr<UploadBuffer<SkinnnedData>> SkinnedCB{ nullptr };
 	std::unique_ptr<UploadBuffer<MaterialData>> MaterialBuffer{ nullptr };
-	std::unique_ptr<UploadBuffer<MatIndexData>> MatIndexBuffer{ nullptr };
 
     UINT64 Fence = 0;
 };
