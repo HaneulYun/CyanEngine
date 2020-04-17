@@ -4,7 +4,6 @@ class SkinnedMeshRenderer : public Renderer
 {
 public:
 	Mesh* mesh{ nullptr };
-	std::deque<int> materials;
 
 private:
 	friend class GameObject;

@@ -181,7 +181,6 @@ void Graphics::Render()
 	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootShaderResourceView(5, currFrameResource->ObjectCB->Resource()->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootShaderResourceView(6, currFrameResource->SkinnedCB->Resource()->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootShaderResourceView(7, currFrameResource->MatIndexBuffer->Resource()->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
@@ -207,13 +206,12 @@ void Graphics::Render()
 			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
 			commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 
+			int i = 0;
 			for (auto& submesh : mesh->DrawArgs)
 			{
-				commandList->SetGraphicsRootShaderResourceView(
-					3,
-					matBuffer->GetGPUVirtualAddress() + 
-					objects[0]->GetComponent<SkinnedMeshRenderer>()->materials[submesh.second.MatIndex]
-					* sizeof(MaterialData));
+				commandList->SetGraphicsRootShaderResourceView(7,
+					currFrameResource->MatIndexBuffer->Resource()->GetGPUVirtualAddress()
+					+ sizeof(MatIndexData) * i++);
 				commandList->DrawIndexedInstanced(
 					submesh.second.IndexCount, objects.size(),
 					submesh.second.StartIndexLocation,
