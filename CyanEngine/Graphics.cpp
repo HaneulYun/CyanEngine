@@ -71,7 +71,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 			auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
 
 			int bufferIndex = 0;
-			for (auto& e : renderSets.second.gameObjects)
+			for (auto& e : objects)
 			{
 				// instance data
 				if (e->NumFramesDirty > 0)
