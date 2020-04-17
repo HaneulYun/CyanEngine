@@ -100,7 +100,7 @@ void SampleScene::BuildObjects()
 			ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
 			ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 			ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
-			ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
+			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
 
 			ritem->TexTransform = MathHelper::Identity4x4();
 			ritem->ObjCBIndex = objCBIndex++;
@@ -111,7 +111,7 @@ void SampleScene::BuildObjects()
 			anim->ClipName = "run";
 			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime("run"));
 
-			renderItemLayer[(int)RenderLayer::SkinnedOpaque].push_back(ritem);
+			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
 
 	//{

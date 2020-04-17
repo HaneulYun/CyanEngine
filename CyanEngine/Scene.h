@@ -12,7 +12,7 @@ private:
 
 public:
 	std::deque<GameObject*> gameObjects;
-	std::map<Mesh*, RenderObjects> renderObjects[(int)RenderLayer::Count];
+	std::map<Mesh*, RenderObjects> renderObjectsLayer[(int)RenderLayer::Count];
 
 	std::priority_queue<GameObject*> deletionQueue;
 
@@ -26,8 +26,6 @@ public:
 	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
 	std::unordered_map<std::string, std::unique_ptr<AnimationClip>> animationClips;
 
-	//std::vector<GameObject*> allRItems;
-	std::vector<GameObject*> renderItemLayer[(int)RenderLayer::Count];
 
 	AnimatorController* mSkinnedInfo;
 

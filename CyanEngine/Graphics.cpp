@@ -173,52 +173,34 @@ void Graphics::Render()
 	auto objectCB = currFrameResource->ObjectCB->Resource();
 	auto skinnedCB = currFrameResource->SkinnedCB->Resource();
 
-	static int cnt = 0;
-	if (Input::GetMouseButtonDown(0))
-		cnt = (cnt + 1) % 16;;
-
-	int k = 0;
-	for (auto& renderItems : Scene::scene->renderItemLayer)
+	for(int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 	{
-		if (k++ == (int)RenderLayer::SkinnedOpaque)
-			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
-		else
-			commandList->SetPipelineState(pipelineStates["opaque"].Get());
-
-		if (!renderItems.size())
-			continue;
-
-		auto ri = renderItems[0];
-
-		auto renderer = ri->GetComponent<SkinnedMeshRenderer>();
-		if (renderer)
+		for(auto& renderSets: Scene::scene->renderObjectsLayer[layerIndex])
 		{
-			commandList->IASetVertexBuffers(0, 1, &renderer->mesh->VertexBufferView());
-			commandList->IASetIndexBuffer(&renderer->mesh->IndexBufferView());
-			commandList->IASetPrimitiveTopology(renderer->mesh->PrimitiveType);
-		}
+			auto& mesh = renderSets.first;
+			auto& objects = renderSets.second.gameObjects;
+			if (!objects.size())
+				continue;
 
-		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
-		commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+			if (layerIndex == (int)RenderLayer::SkinnedOpaque)
+				commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
+			else
+				commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
-		if (ri->GetComponent<Animator>())
-		{
-			//D3D12_GPU_VIRTUAL_ADDRESS skinnedCBAddress =
-			//	skinnedCB->GetGPUVirtualAddress() + ri->GetComponent<Animator>()->SkinnedCBIndex * skinnedCBByteSize;
-			//commandList->SetGraphicsRootConstantBufferView(1, skinnedCBAddress);
-		}
-		else
-		{
-			//commandList->SetGraphicsRootConstantBufferView(1, 0);
-		}
+			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
+			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
+			commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 
-		for (auto& submesh : ri->GetComponent<SkinnedMeshRenderer>()->mesh->DrawArgs)
-		{
-			commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress() + submesh.second.MatIndex * sizeof(MaterialData));
-			commandList->DrawIndexedInstanced(
-				submesh.second.IndexCount, renderItems.size(),
-				submesh.second.StartIndexLocation,
-				submesh.second.BaseVertexLocation, 0);
+			for (auto& submesh : mesh->DrawArgs)
+			{
+				commandList->SetGraphicsRootShaderResourceView(
+					3,
+					matBuffer->GetGPUVirtualAddress() + submesh.second.MatIndex * sizeof(MaterialData));
+				commandList->DrawIndexedInstanced(
+					submesh.second.IndexCount, objects.size(),
+					submesh.second.StartIndexLocation,
+					submesh.second.BaseVertexLocation, 0);
+			}
 		}
 	}
 	PostRender();
