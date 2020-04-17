@@ -101,6 +101,9 @@ void SampleScene::BuildObjects()
 			ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 			ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
 			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
+			auto renderer = ritem->GetComponent<SkinnedMeshRenderer>();
+			for (auto& sm : mesh->DrawArgs)
+				renderer->materials.push_back(Random::Range(0, 16));
 
 			ritem->TexTransform = MathHelper::Identity4x4();
 			ritem->ObjCBIndex = objCBIndex++;

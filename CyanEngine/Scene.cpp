@@ -15,8 +15,8 @@ void Scene::Start()
 
 	FbxModelData modelData;
 	FbxModelData animData;
-	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
-	animData.LoadFbx("..\\CyanEngine\\Models\\animTest.fbx");
+	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
+	animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
 
 	mSkinnedInfo = new AnimatorController();
 	{
@@ -63,7 +63,8 @@ void Scene::Start()
 			Graphics::Instance()->device.Get(), 1,
 			(UINT)gameObjects.size(),
 			(UINT)gameObjects.size() * mSkinnedInfo->BoneCount(),
-			(UINT)5));
+			(UINT)5,
+			(UINT)gameObjects.size() * 20));
 }
 
 void Scene::Update()

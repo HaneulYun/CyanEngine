@@ -16,7 +16,7 @@ struct InstanceData
 {
 	float4x4 World;
 	float4x4 TexTransform;
-	uint MaterialIndex;
+	uint MaterialIndexStride;
 	uint BoneTransformStride;
 	uint ObjPad0;
 	uint ObjPad1;
@@ -34,6 +34,11 @@ struct MaterialData
 	uint	 MatPad2;
 };
 
+struct MatIndexData
+{
+	uint	MaterialIndex;
+};
+
 struct BoneTransform
 {
 	float4x4 BoneTransforms;
@@ -44,6 +49,7 @@ Texture2D gDiffuseMap[4] : register(t0);
 StructuredBuffer<InstanceData> gInstanceData : register(t0, space1);
 StructuredBuffer<MaterialData> gMaterialData : register(t1, space1);
 StructuredBuffer<BoneTransform> gSkinnedData : register(t2, space1);
+StructuredBuffer<MatIndexData> gMaterialIndexData : register(t3, space1);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
@@ -120,7 +126,7 @@ PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
 	InstanceData instData = gInstanceData[instanceID];
 	float4x4 world = instData.World;
 	float4x4 texTransform = instData.TexTransform;
-	uint matIndex = instData.MaterialIndex;
+	uint matIndex = gMaterialIndexData[instanceID * instData.MaterialIndexStride].MaterialIndex;
 
 	vout.MatIndex = matIndex;
 
