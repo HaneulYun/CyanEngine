@@ -46,7 +46,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 			if (renderSets.second.isDirty)
 			{
 				for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
-					renderSets.second.objectsResources.push_back(std::make_unique<ObjectsResource>(device.Get(), 1, 1, 1));
+					renderSets.second.objectsResources.push_back(std::make_unique<ObjectsResource>());
 				renderSets.second.isDirty = false;
 			}
 			auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
@@ -85,8 +85,11 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 					objConstants.MaterialIndexStride = 0;
 					objConstants.BoneTransformStride = 0;
 
-					if (e->GetComponent<SkinnedMeshRenderer>())
-						objConstants.MaterialIndexStride = e->GetComponent<SkinnedMeshRenderer>()->materials.size();
+					Renderer* renderer = e->GetComponent<Renderer>();
+					if (!renderer)
+						renderer = e->GetComponent<SkinnedMeshRenderer>();
+					if (renderer)
+						objConstants.MaterialIndexStride = renderer->materials.size();
 					if (e->GetComponent<Animator>())
 						objConstants.BoneTransformStride = e->GetComponent<Animator>()->controller->BoneCount();
 
@@ -110,18 +113,20 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 				}
 
 				// material data
-				if (e->GetComponent<SkinnedMeshRenderer>())
+				Renderer* renderer = e->GetComponent<Renderer>();
+				if (!renderer)
+					renderer = e->GetComponent<SkinnedMeshRenderer>();
+				if (renderer)
 				{
-					int baseindex = bufferIndex * e->GetComponent<SkinnedMeshRenderer>()->materials.size();
+					int baseindex = bufferIndex * renderer->materials.size();
 
-					for (int i = 0; i < e->GetComponent<SkinnedMeshRenderer>()->materials.size(); ++i)
+					for (int i = 0; i < renderer->materials.size(); ++i)
 					{
 						MatIndexData skinnedConstants;
-						skinnedConstants.MaterialIndex = e->GetComponent<SkinnedMeshRenderer>()->materials[i];
+						skinnedConstants.MaterialIndex = renderer->materials[i];
 						matIndexBuffer->CopyData(baseindex + i, skinnedConstants);
 					}
 				}
-
 				++bufferIndex;
 			}
 		}
@@ -266,7 +271,7 @@ void Graphics::RenderUI()
 {
 	D2D1_SIZE_F rtSize = renderTargets2d[frameIndex]->GetSize();
 	D2D1_RECT_F textRect = D2D1::RectF(0, 0, rtSize.width, rtSize.height);
-	static const WCHAR text[] = L"µÇ°Ù³Ä?";
+	static const WCHAR text[] = L"             ¤Ç¤·¤µ¤·¤Ç<(µÇ°Ù³Ä¤»))";
 
 	// Acquire our wrapped render target resource for the current back buffer.
 	device11On12->AcquireWrappedResources(wrappedBackBuffers[frameIndex].GetAddressOf(), 1);

@@ -4,10 +4,7 @@ struct ObjectsResource
 {
 	bool isDirty{ true };
 
-	ObjectsResource(ID3D12Device* device,
-		UINT objectCount,
-		UINT skinnedObjectCount,
-		UINT matIndexCount);
+	ObjectsResource() = default;
 	ObjectsResource(const ObjectsResource&) = delete;
 	ObjectsResource& operator=(const ObjectsResource&) = delete;
 	~ObjectsResource() = default;

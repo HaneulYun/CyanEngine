@@ -10,12 +10,12 @@ void SampleScene::BuildObjects()
 	//*** Asset ***//
 
 	//Material* material_defaultMaterial = new DefaultMaterial();
-	//
+	
 	Mesh* mesh_cube = new Cube();
-	//Mesh* mesh_grid = new Plane();
-	//Mesh* mesh_sphere = new Sphere();
-	//Mesh* mesh_cylinder = new Cylinder();
-	//
+	Mesh* mesh_grid = new Plane();
+	Mesh* mesh_sphere = new Sphere();
+	Mesh* mesh_cylinder = new Cylinder();
+	
 	//graphics->textureData.push_back({ "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds" });
 	//graphics->textureData.push_back({ "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds" });
 	//graphics->textureData.push_back({ "tileTex", L"..\\CyanEngine\\Textures\\tile.dds" });
@@ -117,40 +117,62 @@ void SampleScene::BuildObjects()
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
 
-	//{
-	//	GameObject* cube = CreateEmpty();
-	//	cube->GetComponent<Transform>()->position = Vector3(0, 1, 3);
-	//	cube->GetComponent<Transform>()->localScale = Vector3(2, 2, 2);
-	//	cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
-	//	cube->AddComponent<Renderer>()->material = material_defaultMaterial;
-	//}
-	//
-	//{
-	//	GameObject* grid = CreateEmpty();
-	//	grid->AddComponent<MeshFilter>()->mesh = mesh_grid;
-	//	grid->AddComponent<Renderer>()->material = material_defaultMaterial;
-	//}
-	//
-	//for (int i = 0; i < 5; ++i)
-	//{
-	//	GameObject* leftCylRItem = CreateEmpty();
-	//	leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
-	//	leftCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
-	//	leftCylRItem->AddComponent<Renderer>()->material = material_bricks0;
-	//
-	//	GameObject* rightCylRItem = CreateEmpty();
-	//	rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
-	//	rightCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
-	//	rightCylRItem->AddComponent<Renderer>()->material = material_bricks0;
-	//
-	//	GameObject* leftSphereRItem = CreateEmpty();
-	//	leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
-	//	leftSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
-	//	leftSphereRItem->AddComponent<Renderer>()->material = material_tile0;
-	//
-	//	GameObject* rightSphereRItem = CreateEmpty();
-	//	rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
-	//	rightSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
-	//	rightSphereRItem->AddComponent<Renderer>()->material = material_skullMat;
-	//}
+	for (int x = -count; x <= count; ++x)
+		for (int z = -count; z <= count; ++z)
+		{
+			auto ritem = CreateEmpty();
+			ritem->GetComponent<Transform>()->Scale({ 1, 1, 1 });
+			ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
+			auto mesh = ritem->AddComponent<MeshFilter>()->mesh = mesh_cube;
+			auto renderer = ritem->AddComponent<Renderer>();
+			for (auto& sm : mesh->DrawArgs)
+				renderer->materials.push_back(Random::Range(0, 16));
+
+			ritem->TexTransform = MathHelper::Identity4x4();
+
+			renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(ritem);
+		}
+
+	{
+		GameObject* cube = CreateEmpty();
+		cube->GetComponent<Transform>()->position = Vector3(0, 1, 3);
+		cube->GetComponent<Transform>()->localScale = Vector3(2, 2, 2);
+		cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
+		cube->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));
+		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_cube].gameObjects.push_back(cube);
+	}
+	
+	{
+		GameObject* grid = CreateEmpty();
+		grid->AddComponent<MeshFilter>()->mesh = mesh_grid;
+		grid->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));
+		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_grid].gameObjects.push_back(grid);
+	}
+
+	for (int i = 0; i < 500; ++i)
+	{
+		GameObject* leftCylRItem = CreateEmpty();
+		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
+		leftCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
+		leftCylRItem->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));// = material_bricks0;
+		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_cylinder].gameObjects.push_back(leftCylRItem);
+
+		GameObject* rightCylRItem = CreateEmpty();
+		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
+		rightCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
+		rightCylRItem->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));//material = material_bricks0;
+		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_cylinder].gameObjects.push_back(rightCylRItem);
+
+		GameObject* leftSphereRItem = CreateEmpty();
+		leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
+		leftSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
+		leftSphereRItem->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));//material = material_tile0;
+		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_sphere].gameObjects.push_back(leftSphereRItem);
+	
+		GameObject* rightSphereRItem = CreateEmpty();
+		rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
+		rightSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
+		rightSphereRItem->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));//material = material_skullMat;
+		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_sphere].gameObjects.push_back(rightSphereRItem);
+	}
 }

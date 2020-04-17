@@ -1,14 +1,6 @@
 #include "pch.h"
 #include "Scene.h"
 
-ObjectsResource::ObjectsResource(ID3D12Device* device,
-	UINT objectCount, UINT skinnedObjectCount, UINT matIndexCount)
-{
-	InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(device, objectCount, false);
-	SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(device, skinnedObjectCount, false);
-	MatIndexBuffer = std::make_unique<UploadBuffer<MatIndexData>>(device, matIndexCount, false);
-}
-
 Scene::Scene()
 {
 }
