@@ -44,7 +44,7 @@ struct AnimationControllerParameter
 	};
 };
 
-enum class AnimationControllerStateTransitionConditionOperatorType
+enum AnimationControllerStateTransitionConditionOperatorType
 {
 	Greater, Less, Equals, NotEqual
 };
@@ -59,14 +59,22 @@ struct AnimationControllerStateTransitionCondition
 		int Int;
 		bool Bool;
 	};
+
+	static AnimationControllerStateTransitionCondition CreateFloat(std::string name, 
+		AnimationControllerStateTransitionConditionOperatorType operatorType, float value)
+	{
+		AnimationControllerStateTransitionCondition condition{};
+		condition.ParameterName = name;
+		condition.operatorType = operatorType;
+		condition.Float = value;
+		return condition;
+	}
 };
 
 struct AnimationControllerStateTransition
 {
 	std::string Name;
-
 	std::string DestinationStateName;
-
 	std::vector<AnimationControllerStateTransitionCondition> conditions;
 };
 
@@ -108,5 +116,13 @@ public:
 		param.Type = AnimatorControllerParameterType::Float;
 		param.Float = value;
 		parameters[name] = param;
+	}
+	void AddTransition(std::string from, std::string to, AnimationControllerStateTransitionCondition condition)
+	{
+		AnimationControllerStateTransition transition{};
+		transition.DestinationStateName = to;
+		transition.conditions.push_back(condition);
+
+		states[from].transitionns.push_back(transition);
 	}
 };

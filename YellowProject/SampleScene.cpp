@@ -105,115 +105,15 @@ void SampleScene::BuildObjects()
 	controller->AddState("WalkRight_BowAnim", animationClips["WalkRight_BowAnim"].get());
 	controller->AddState("WalkLeft_BowAnim", animationClips["WalkLeft_BowAnim"].get());
 
-	{
-		{
-			AnimationControllerStateTransition transition{};
-			{
-				AnimationControllerStateTransitionCondition condition{};
-				condition.ParameterName = "Speed";
-				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Greater;
-				condition.Float = 0.1f;
+	controller->AddTransition("Idle_BowAnim", "Walk_BowAnim",		AnimationControllerStateTransitionCondition::CreateFloat("Speed", Greater, 0.1));
+	controller->AddTransition("Idle_BowAnim", "WalkBack_BowAnim",	AnimationControllerStateTransitionCondition::CreateFloat("Speed", Less, -0.1));
+	controller->AddTransition("Walk_BowAnim", "Idle_BowAnim",		AnimationControllerStateTransitionCondition::CreateFloat("Speed", Less, 0.1));
+	controller->AddTransition("WalkBack_BowAnim", "Idle_BowAnim",	AnimationControllerStateTransitionCondition::CreateFloat("Speed", Greater, -0.1));
 
-				transition.DestinationStateName = "Walk_BowAnim";
-				transition.conditions.push_back(condition);
-			}
-			controller->states["Idle_BowAnim"].transitionns.push_back(transition);
-		}
-		{
-			AnimationControllerStateTransition transition{};
-			{
-				AnimationControllerStateTransitionCondition condition{};
-				condition.ParameterName = "Speed";
-				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Less;
-				condition.Float = -0.1f;
-
-				transition.DestinationStateName = "WalkBack_BowAnim";
-				transition.conditions.push_back(condition);
-			}
-			controller->states["Idle_BowAnim"].transitionns.push_back(transition);
-		}
-		{
-			AnimationControllerStateTransition transition{};
-			{
-				AnimationControllerStateTransitionCondition condition{};
-				condition.ParameterName = "Speed";
-				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Less;
-				condition.Float = 0.1f;
-
-				transition.DestinationStateName = "Idle_BowAnim";
-				transition.conditions.push_back(condition);
-			}
-			controller->states["Walk_BowAnim"].transitionns.push_back(transition);
-		}
-		{
-			AnimationControllerStateTransition transition{};
-			{
-				AnimationControllerStateTransitionCondition condition{};
-				condition.ParameterName = "Speed";
-				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Greater;
-				condition.Float = -0.1f;
-
-				transition.DestinationStateName = "Idle_BowAnim";
-				transition.conditions.push_back(condition);
-			}
-			controller->states["WalkBack_BowAnim"].transitionns.push_back(transition);
-		}
-	}
-
-	{
-		{
-			AnimationControllerStateTransition transition{};
-			{
-				AnimationControllerStateTransitionCondition condition{};
-				condition.ParameterName = "HoriSpeed";
-				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Greater;
-				condition.Float = 0.1f;
-
-				transition.DestinationStateName = "WalkLeft_BowAnim";
-				transition.conditions.push_back(condition);
-			}
-			controller->states["Idle_BowAnim"].transitionns.push_back(transition);
-		}
-		{
-			AnimationControllerStateTransition transition{};
-			{
-				AnimationControllerStateTransitionCondition condition{};
-				condition.ParameterName = "HoriSpeed";
-				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Less;
-				condition.Float = -0.1f;
-
-				transition.DestinationStateName = "WalkRight_BowAnim";
-				transition.conditions.push_back(condition);
-			}
-			controller->states["Idle_BowAnim"].transitionns.push_back(transition);
-		}
-		{
-			AnimationControllerStateTransition transition{};
-			{
-				AnimationControllerStateTransitionCondition condition{};
-				condition.ParameterName = "HoriSpeed";
-				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Less;
-				condition.Float = 0.1f;
-
-				transition.DestinationStateName = "Idle_BowAnim";
-				transition.conditions.push_back(condition);
-			}
-			controller->states["WalkLeft_BowAnim"].transitionns.push_back(transition);
-		}
-		{
-			AnimationControllerStateTransition transition{};
-			{
-				AnimationControllerStateTransitionCondition condition{};
-				condition.ParameterName = "HoriSpeed";
-				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Greater;
-				condition.Float = -0.1f;
-
-				transition.DestinationStateName = "Idle_BowAnim";
-				transition.conditions.push_back(condition);
-			}
-			controller->states["WalkRight_BowAnim"].transitionns.push_back(transition);
-		}
-	}
+	controller->AddTransition("Idle_BowAnim", "WalkLeft_BowAnim",	AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Greater, 0.1));
+	controller->AddTransition("Idle_BowAnim", "WalkRight_BowAnim",	AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Less, -0.1));
+	controller->AddTransition("WalkLeft_BowAnim", "Idle_BowAnim",	AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Less, 0.1));
+	controller->AddTransition("WalkRight_BowAnim", "Idle_BowAnim",	AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Greater, -0.1));
 
 	//*** Game Object ***//
 
