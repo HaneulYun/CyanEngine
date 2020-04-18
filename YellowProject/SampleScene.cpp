@@ -8,99 +8,111 @@ std::string mSkinnedModelFilename = "ApprenticeSK";
 void SampleScene::BuildObjects()
 {
 	//*** Asset ***//
-	AddTexture(0, "none",		L"..\\CyanEngine\\Textures\\none.dds");
-	AddTexture(1, "polyArtTex",	L"..\\CyanEngine\\Textures\\PolyArtTex.dds");
-	AddTexture(2, "bricksTex",	L"..\\CyanEngine\\Textures\\bricks.dds");
-	AddTexture(3, "stoneTex",	L"..\\CyanEngine\\Textures\\stone.dds");
-	AddTexture(4, "tileTex",	L"..\\CyanEngine\\Textures\\tile.dds");
 
+	//*** Texture ***//
+	{
+		AddTexture(0, "none", L"..\\CyanEngine\\Textures\\none.dds");
+		AddTexture(1, "polyArtTex", L"..\\CyanEngine\\Textures\\PolyArtTex.dds");
+		AddTexture(2, "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds");
+		AddTexture(3, "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds");
+		AddTexture(4, "tileTex", L"..\\CyanEngine\\Textures\\tile.dds");
+	}
+
+	//*** Material ***//
+	{
+		for (int i = 1; i < 20; ++i)
+		{
+			auto material = std::make_unique<Material>();
+			material->Name = "material_" + std::to_string(i);
+			material->MatCBIndex = i;
+			material->DiffuseSrvHeapIndex = 0;
+			material->NormalSrvHeapIndex = 0;
+			material->DiffuseAlbedo = RANDOM_COLOR;
+			material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
+			material->Roughness = 0.0f;
+			materials[material->Name] = std::move(material);
+		}
+
+		{
+			auto material = std::make_unique<Material>();
+			material->Name = "PolyArt";
+			material->MatCBIndex = 0;
+			material->DiffuseSrvHeapIndex = 1;
+			material->NormalSrvHeapIndex = 0;
+			material->DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+			material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
+			material->Roughness = 0.0f;
+			materials[material->Name] = std::move(material);
+
+			auto material_bricks0 = std::make_unique<Material>();
+			material_bricks0->Name = "bricksMat";
+			material_bricks0->MatCBIndex = 1;
+			material_bricks0->DiffuseSrvHeapIndex = 2;
+			material_bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			material_bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+			material_bricks0->Roughness = 0.1f;
+			materials[material_bricks0->Name] = std::move(material_bricks0);
+
+			auto material_stone0 = std::make_unique<Material>();
+			material_stone0->Name = "stoneMat";
+			material_stone0->MatCBIndex = 2;
+			material_stone0->DiffuseSrvHeapIndex = 3;
+			material_stone0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			material_stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+			material_stone0->Roughness = 0.3f;
+			materials[material_stone0->Name] = std::move(material_stone0);
+
+			auto material_tile0 = std::make_unique<Material>();
+			material_tile0->Name = "tile0";
+			material_tile0->MatCBIndex = 3;
+			material_tile0->DiffuseSrvHeapIndex = 4;
+			material_tile0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			material_tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+			material_tile0->Roughness = 0.2f;
+			XMStoreFloat4x4(&material_tile0->MatTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
+			materials[material_tile0->Name] = std::move(material_tile0);
+		}
+	}
+	
+	//*** Mesh ***//
 	auto mesh_cube = new Cube();
 	auto mesh_grid = new Plane();
 	auto mesh_sphere = new Sphere();
 	auto mesh_cylinder = new Cylinder();
 
-	for (int i = 1; i < 20; ++i)
-	{
-		auto material = std::make_unique<Material>();
-		material->Name = "material_" + std::to_string(i);
-		material->MatCBIndex = i;
-		material->DiffuseSrvHeapIndex = 0;
-		material->NormalSrvHeapIndex = 0;
-		material->DiffuseAlbedo = RANDOM_COLOR;
-		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
-		material->Roughness = 0.0f;
-		materials[material->Name] = std::move(material);
-	}
-
-	{
-		auto material = std::make_unique<Material>();
-		material->Name = "PolyArt";
-		material->MatCBIndex = 0;
-		material->DiffuseSrvHeapIndex = 1;
-		material->NormalSrvHeapIndex = 0;
-		material->DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
-		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
-		material->Roughness = 0.0f;
-		materials[material->Name] = std::move(material);
-
-		auto material_bricks0 = std::make_unique<Material>();
-		material_bricks0->Name = "bricksMat";
-		material_bricks0->MatCBIndex = 1;
-		material_bricks0->DiffuseSrvHeapIndex = 2;
-		material_bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		material_bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-		material_bricks0->Roughness = 0.1f;
-		materials[material_bricks0->Name] = std::move(material_bricks0);
-	
-		auto material_stone0 = std::make_unique<Material>();
-		material_stone0->Name = "stoneMat";
-		material_stone0->MatCBIndex = 2;
-		material_stone0->DiffuseSrvHeapIndex = 3;
-		material_stone0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		material_stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-		material_stone0->Roughness = 0.3f;
-		materials[material_stone0->Name] = std::move(material_stone0);
-		
-		auto material_tile0 = std::make_unique<Material>();
-		material_tile0->Name = "tile0";
-		material_tile0->MatCBIndex = 3;
-		material_tile0->DiffuseSrvHeapIndex = 4;
-		material_tile0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		material_tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-		material_tile0->Roughness = 0.2f;
-		XMStoreFloat4x4(&material_tile0->MatTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
-		materials[material_tile0->Name] = std::move(material_tile0);
-	}
 
 	AnimatorController* controller = new AnimatorController();
-	controller->AddParameterFloat("Speed");
-	controller->AddParameterFloat("HoriSpeed");
+	//*** AnimatorController ***//
+	{
+		controller->AddParameterFloat("Speed");
+		controller->AddParameterFloat("HoriSpeed");
 
-	controller->AddState("Attack01_BowAnim", animationClips["Attack01_BowAnim"].get());
-	controller->AddState("Attack01Maintain_BowAnim", animationClips["Attack01Maintain_BowAnim"].get());
-	controller->AddState("Attack01RepeatFire_BowAnim", animationClips["Attack01RepeatFire_BowAnim"].get());
-	controller->AddState("Attack01Start_BowAnim", animationClips["Attack01Start_BowAnim"].get());
-	controller->AddState("Attack02Maintain_BowAnim", animationClips["Attack02Maintain_BowAnim"].get());
-	controller->AddState("Attack02RepeatFire_BowAnim", animationClips["Attack02RepeatFire_BowAnim"].get());
-	controller->AddState("Attack02Start_BowAnim", animationClips["Attack02Start_BowAnim"].get());
-	controller->AddState("DashBackward_BowAnim", animationClips["DashBackward_BowAnim"].get());
-	controller->AddState("DashForward_BowAnim", animationClips["DashForward_BowAnim"].get());
+		controller->AddState("Attack01_BowAnim", animationClips["Attack01_BowAnim"].get());
+		controller->AddState("Attack01Maintain_BowAnim", animationClips["Attack01Maintain_BowAnim"].get());
+		controller->AddState("Attack01RepeatFire_BowAnim", animationClips["Attack01RepeatFire_BowAnim"].get());
+		controller->AddState("Attack01Start_BowAnim", animationClips["Attack01Start_BowAnim"].get());
+		controller->AddState("Attack02Maintain_BowAnim", animationClips["Attack02Maintain_BowAnim"].get());
+		controller->AddState("Attack02RepeatFire_BowAnim", animationClips["Attack02RepeatFire_BowAnim"].get());
+		controller->AddState("Attack02Start_BowAnim", animationClips["Attack02Start_BowAnim"].get());
+		controller->AddState("DashBackward_BowAnim", animationClips["DashBackward_BowAnim"].get());
+		controller->AddState("DashForward_BowAnim", animationClips["DashForward_BowAnim"].get());
 
-	controller->AddState("Idle",		animationClips["Idle_BowAnim"].get());
-	controller->AddState("Walk",		animationClips["Walk_BowAnim"].get());
-	controller->AddState("WalkBack",	animationClips["WalkBack_BowAnim"].get());
-	controller->AddState("WalkRight",	animationClips["WalkRight_BowAnim"].get());
-	controller->AddState("WalkLeft",	animationClips["WalkLeft_BowAnim"].get());
+		controller->AddState("Idle", animationClips["Idle_BowAnim"].get());
+		controller->AddState("Walk", animationClips["Walk_BowAnim"].get());
+		controller->AddState("WalkBack", animationClips["WalkBack_BowAnim"].get());
+		controller->AddState("WalkRight", animationClips["WalkRight_BowAnim"].get());
+		controller->AddState("WalkLeft", animationClips["WalkLeft_BowAnim"].get());
 
-	controller->AddTransition("Idle",		"Walk",		AnimationControllerStateTransitionCondition::CreateFloat("Speed", Greater, 0.1));
-	controller->AddTransition("Idle",	"WalkBack",		AnimationControllerStateTransitionCondition::CreateFloat("Speed", Less, -0.1));
-	controller->AddTransition("Walk",		"Idle",		AnimationControllerStateTransitionCondition::CreateFloat("Speed", Less, 0.1));
-	controller->AddTransition("WalkBack",	"Idle",		AnimationControllerStateTransitionCondition::CreateFloat("Speed", Greater, -0.1));
+		controller->AddTransition("Idle", "Walk", AnimationControllerStateTransitionCondition::CreateFloat("Speed", Greater, 0.1));
+		controller->AddTransition("Idle", "WalkBack", AnimationControllerStateTransitionCondition::CreateFloat("Speed", Less, -0.1));
+		controller->AddTransition("Walk", "Idle", AnimationControllerStateTransitionCondition::CreateFloat("Speed", Less, 0.1));
+		controller->AddTransition("WalkBack", "Idle", AnimationControllerStateTransitionCondition::CreateFloat("Speed", Greater, -0.1));
 
-	controller->AddTransition("Idle",	"WalkLeft",		AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Greater, 0.1));
-	controller->AddTransition("Idle",	"WalkRight",	AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Less, -0.1));
-	controller->AddTransition("WalkLeft",	"Idle",		AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Less, 0.1));
-	controller->AddTransition("WalkRight",	"Idle",		AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Greater, -0.1));
+		controller->AddTransition("Idle", "WalkLeft", AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Greater, 0.1));
+		controller->AddTransition("Idle", "WalkRight", AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Less, -0.1));
+		controller->AddTransition("WalkLeft", "Idle", AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Less, 0.1));
+		controller->AddTransition("WalkRight", "Idle", AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Greater, -0.1));
+	}
 
 	//*** Game Object ***//
 
