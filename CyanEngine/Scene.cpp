@@ -48,43 +48,30 @@ void Scene::Start()
 	
 	BuildObjects();
 
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());
+	for (auto& d : textures)
 	{
-		auto texture = std::make_unique<Texture>();
-		texture->Name = "none";
-		texture->Filename = L"..\\CyanEngine\\Textures\\none.dds";
-		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-		textures[texture->Name] = std::move(texture);
-	}
-	{
-		auto texture = std::make_unique<Texture>();
-		texture->Name = "polyArtTex";
-		texture->Filename = L"..\\CyanEngine\\Textures\\PolyArtTex.dds";
-		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-		textures[texture->Name] = std::move(texture);
+		auto texture = d.second.get();
+		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
+			texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+	
+		srvDesc.Format = texture->Resource->GetDesc().Format;
+		srvDesc.Texture2D.MipLevels = texture->Resource->GetDesc().MipLevels;
+
+		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(),
+			texture->Index, Graphics::Instance()->srvDescriptorSize);
+		Graphics::Instance()->device->CreateShaderResourceView(texture->Resource.Get(), &srvDesc, handle);
 	}
 
 	Graphics::Instance()->commandList->Close();
 	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
 	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
-
-	{
-		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());
-
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-
-		for (auto& d : textures)
-		{
-			srvDesc.Format = d.second->Resource->GetDesc().Format;
-			srvDesc.Texture2D.MipLevels = d.second->Resource->GetDesc().MipLevels;
-			Graphics::Instance()->device->CreateShaderResourceView(d.second->Resource.Get(), &srvDesc, handle);
-		
-			handle.Offset(1, Graphics::Instance()->srvDescriptorSize);
-		}
-	}
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1, (UINT)5));

@@ -8,57 +8,16 @@ std::string mSkinnedModelFilename = "ApprenticeSK";
 void SampleScene::BuildObjects()
 {
 	//*** Asset ***//
-
-	//graphics->textureData.push_back({ "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds" });
-	//graphics->textureData.push_back({ "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds" });
-	//graphics->textureData.push_back({ "tileTex", L"..\\CyanEngine\\Textures\\tile.dds" });
-	//graphics->textureData.push_back({ "crateTex", L"..\\CyanEngine\\Textures\\WoodCrate01.dds" });
-	//graphics->textureData.push_back({ "defaultTex", L"..\\CyanEngine\\Textures\\white1x1.dds" });
-
-
+	AddTexture(0, "none",		L"..\\CyanEngine\\Textures\\none.dds");
+	AddTexture(1, "polyArtTex",	L"..\\CyanEngine\\Textures\\PolyArtTex.dds");
+	AddTexture(2, "bricksTex",	L"..\\CyanEngine\\Textures\\bricks.dds");
+	AddTexture(3, "stoneTex",	L"..\\CyanEngine\\Textures\\stone.dds");
+	AddTexture(4, "tileTex",	L"..\\CyanEngine\\Textures\\tile.dds");
 
 	auto mesh_cube = new Cube();
 	auto mesh_grid = new Plane();
 	auto mesh_sphere = new Sphere();
 	auto mesh_cylinder = new Cylinder();
-
-	auto material_bricks0 = std::make_unique<Material>();
-	auto material_stone0 = std::make_unique<Material>();
-	auto material_tile0 = std::make_unique<Material>();
-	auto material_skullMat = std::make_unique<Material>();
-	{
-		material_bricks0->Name = "bricks0";
-		material_bricks0->MatCBIndex = 0;
-		material_bricks0->DiffuseSrvHeapIndex = 0;
-		material_bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		material_bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-		material_bricks0->Roughness = 0.1f;
-		materials[material_bricks0->Name] = std::move(material_bricks0);
-	
-		material_stone0->Name = "stone0";
-		material_stone0->MatCBIndex = 1;
-		material_stone0->DiffuseSrvHeapIndex = 1;
-		material_stone0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		material_stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-		material_stone0->Roughness = 0.3f;
-		materials[material_stone0->Name] = std::move(material_stone0);
-		
-		material_tile0->Name = "tile0";
-		material_tile0->MatCBIndex = 2;
-		material_tile0->DiffuseSrvHeapIndex = 2;
-		material_tile0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		material_tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-		material_tile0->Roughness = 0.2f;
-		materials[material_tile0->Name] = std::move(material_tile0);
-		
-		material_skullMat->Name = "skullMat";
-		material_skullMat->MatCBIndex = 3;
-		material_skullMat->DiffuseSrvHeapIndex = 3;
-		material_skullMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		material_skullMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
-		material_skullMat->Roughness = 0.3f;
-		materials[material_skullMat->Name] = std::move(material_skullMat);
-	}
 
 	for (int i = 1; i < 20; ++i)
 	{
@@ -83,6 +42,34 @@ void SampleScene::BuildObjects()
 		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
 		material->Roughness = 0.0f;
 		materials[material->Name] = std::move(material);
+
+		auto material_bricks0 = std::make_unique<Material>();
+		material_bricks0->Name = "bricksMat";
+		material_bricks0->MatCBIndex = 1;
+		material_bricks0->DiffuseSrvHeapIndex = 2;
+		material_bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		material_bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+		material_bricks0->Roughness = 0.1f;
+		materials[material_bricks0->Name] = std::move(material_bricks0);
+	
+		auto material_stone0 = std::make_unique<Material>();
+		material_stone0->Name = "stoneMat";
+		material_stone0->MatCBIndex = 2;
+		material_stone0->DiffuseSrvHeapIndex = 3;
+		material_stone0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		material_stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+		material_stone0->Roughness = 0.3f;
+		materials[material_stone0->Name] = std::move(material_stone0);
+		
+		auto material_tile0 = std::make_unique<Material>();
+		material_tile0->Name = "tile0";
+		material_tile0->MatCBIndex = 3;
+		material_tile0->DiffuseSrvHeapIndex = 4;
+		material_tile0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		material_tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+		material_tile0->Roughness = 0.2f;
+		XMStoreFloat4x4(&material_tile0->MatTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
+		materials[material_tile0->Name] = std::move(material_tile0);
 	}
 
 	AnimatorController* controller = new AnimatorController();
@@ -260,29 +247,7 @@ void SampleScene::BuildObjects()
 	//	grid->AddComponent<MeshFilter>()->mesh = mesh_grid;
 	//	grid->AddComponent<Renderer>()->material = material_defaultMaterial;
 	//}
-	//
-	//for (int i = 0; i < 5; ++i)
-	//{
-	//	GameObject* leftCylRItem = CreateEmpty();
-	//	leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
-	//	leftCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
-	//	leftCylRItem->AddComponent<Renderer>()->material = material_bricks0;
-	//
-	//	GameObject* rightCylRItem = CreateEmpty();
-	//	rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
-	//	rightCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
-	//	rightCylRItem->AddComponent<Renderer>()->material = material_bricks0;
-	//
-	//	GameObject* leftSphereRItem = CreateEmpty();
-	//	leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
-	//	leftSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
-	//	leftSphereRItem->AddComponent<Renderer>()->material = material_tile0;
-	//
-	//	GameObject* rightSphereRItem = CreateEmpty();
-	//	rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
-	//	rightSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
-	//	rightSphereRItem->AddComponent<Renderer>()->material = material_skullMat;
-	//}
+
 	int xObjects = 4, yObjects = 4, zObjects = 4;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
@@ -305,7 +270,7 @@ void SampleScene::BuildObjects()
 	{
 		GameObject* grid = CreateEmpty();
 		grid->AddComponent<MeshFilter>()->mesh = mesh_grid;
-		grid->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));
+		grid->AddComponent<Renderer>()->materials.push_back(3);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_grid].gameObjects.push_back(grid);
 	}
 	
@@ -314,25 +279,25 @@ void SampleScene::BuildObjects()
 		GameObject* leftCylRItem = CreateEmpty();
 		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
 		leftCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
-		leftCylRItem->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));// = material_bricks0;
+		leftCylRItem->AddComponent<Renderer>()->materials.push_back(1);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_cylinder].gameObjects.push_back(leftCylRItem);
 	
 		GameObject* rightCylRItem = CreateEmpty();
 		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
 		rightCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
-		rightCylRItem->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));//material = material_bricks0;
+		rightCylRItem->AddComponent<Renderer>()->materials.push_back(1);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_cylinder].gameObjects.push_back(rightCylRItem);
 	
 		GameObject* leftSphereRItem = CreateEmpty();
 		leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
 		leftSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
-		leftSphereRItem->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));//material = material_tile0;
+		leftSphereRItem->AddComponent<Renderer>()->materials.push_back(2);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_sphere].gameObjects.push_back(leftSphereRItem);
 	
 		GameObject* rightSphereRItem = CreateEmpty();
 		rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
 		rightSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
-		rightSphereRItem->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));//material = material_skullMat;
+		rightSphereRItem->AddComponent<Renderer>()->materials.push_back(2);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_sphere].gameObjects.push_back(rightSphereRItem);
 	}
 }

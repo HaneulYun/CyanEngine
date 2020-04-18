@@ -23,6 +23,17 @@ struct RenderObjects
 	std::vector<std::unique_ptr<ObjectsResource>> objectsResources;
 };
 
+struct Texture
+{
+	std::string Name;
+	std::wstring Filename;
+
+	UINT Index;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> Resource = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> UploadHeap = nullptr;
+};
+
 class Scene
 {
 private:
@@ -64,4 +75,14 @@ public:
 
 	void PushDelete(GameObject*);
 	void Delete(GameObject*);
+
+	// Texture
+	void AddTexture(UINT index, std::string name, std::wstring fileName)
+	{
+		auto texture = std::make_unique<Texture>();
+		texture->Name = name;
+		texture->Filename = fileName;
+		texture->Index = index;
+		textures[texture->Name] = std::move(texture);
+	}
 };
