@@ -269,9 +269,8 @@ void Graphics::Render()
 
 void Graphics::RenderUI()
 {
-	D2D1_SIZE_F rtSize = renderTargets2d[frameIndex]->GetSize();
-	D2D1_RECT_F textRect = D2D1::RectF(0, 0, rtSize.width, rtSize.height);
-	static const WCHAR text[] = L"             ¤Ç¤·¤µ¤·¤Ç<(µÇ°Ù³Ä¤»))";
+	UINT width = CyanFW::Instance()->GetWidth();
+	UINT height = CyanFW::Instance()->GetHeight();
 
 	// Acquire our wrapped render target resource for the current back buffer.
 	device11On12->AcquireWrappedResources(wrappedBackBuffers[frameIndex].GetAddressOf(), 1);
@@ -280,13 +279,77 @@ void Graphics::RenderUI()
 	deviceContext->SetTarget(renderTargets2d[frameIndex].Get());
 	deviceContext->BeginDraw();
 	deviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
-	deviceContext->DrawText(
-		text,
-		_countof(text) - 1,
-		textFormat.Get(),
-		&textRect,
-		textBrush.Get()
-	);
+
+	// Draw Text
+	for (GameObject* gameObject : Scene::scene->textObjects)
+	{
+		Text* textComponent = gameObject->GetComponent<Text>();
+		//if (textComponent == nullptr) continue;
+
+		if (textComponent->brushIndex == -1)
+		{
+			for (int i = 0; i < textBrushes.size(); ++i)
+			{
+				if (!std::memcmp(&textComponent->color, &textBrushes[i]->GetColor(), sizeof(D2D1_COLOR_F)))
+				{
+					textComponent->brushIndex = i;
+					break;
+				}
+			}
+			if (textComponent->brushIndex == -1)
+			{
+				ComPtr<ID2D1SolidColorBrush> textBrush;
+				deviceContext->CreateSolidColorBrush(textComponent->color, &textBrush);
+				textComponent->brushIndex = textBrushes.size();
+				textBrushes.push_back(textBrush);
+			}
+		}
+
+		if (textComponent->formatIndex == -1)
+		{
+			for (int i = 0; i < textFormats.size(); ++i)
+			{
+				WCHAR name[15];
+				textFormats[i]->GetFontFamilyName(name, textFormats[i]->GetFontFamilyNameLength());
+
+				if (name == textComponent->font.c_str() &&
+					textFormats[i]->GetFontSize() == textComponent->fontSize &&
+					textFormats[i]->GetParagraphAlignment() == textComponent->paragraphAlignment &&
+					textFormats[i]->GetTextAlignment() == textComponent->alignment &&
+					textFormats[i]->GetFontWeight() == textComponent->weight &&
+					textFormats[i]->GetFontStyle() == textComponent->style)
+				{
+					textComponent->formatIndex = i;
+					break;
+				}
+			}
+			if (textComponent->formatIndex == -1)
+			{
+				ComPtr<IDWriteTextFormat> textFormat;
+				writeFactory->CreateTextFormat(
+					textComponent->font.c_str(),
+					NULL,
+					DWRITE_FONT_WEIGHT(textComponent->weight),
+					DWRITE_FONT_STYLE(textComponent->style),
+					DWRITE_FONT_STRETCH_NORMAL,
+					textComponent->fontSize,
+					L"ko-KR",
+					&textFormat
+				);
+				textComponent->formatIndex = textFormats.size();
+				textFormats.push_back(textFormat);
+			}
+		}
+
+		deviceContext->DrawText(
+			textComponent->text.c_str(),
+			textComponent->text.length(),
+			textFormats[textComponent->formatIndex].Get(),
+			&D2D1::RectF(textComponent->textBox.x * width, textComponent->textBox.y * height, textComponent->textBox.z * width, textComponent->textBox.w * height),
+			textBrushes[textComponent->brushIndex].Get()
+		);
+	}
+
 	deviceContext->EndDraw();
 
 	// Release our wrapped render target resource. Releasing 
@@ -549,22 +612,6 @@ void Graphics::LoadAssets()
 		{ "BONEINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
-	// Create D2D/DWrite objects for rendering text.
-	{
-		deviceContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &textBrush);
-		writeFactory->CreateTextFormat(
-			L"Verdana",
-			NULL,
-			DWRITE_FONT_WEIGHT_NORMAL,
-			DWRITE_FONT_STYLE_NORMAL,
-			DWRITE_FONT_STRETCH_NORMAL,
-			50,
-			L"en-us",
-			&textFormat
-		);
-		textFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
-		textFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-	}
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};

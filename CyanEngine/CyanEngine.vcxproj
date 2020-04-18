@@ -209,6 +209,7 @@
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="StandardShader.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="TextureShader.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Transform.h" />

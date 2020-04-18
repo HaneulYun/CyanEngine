@@ -177,6 +177,112 @@ void SampleScene::BuildObjects()
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
 
+	
+	{
+		GameObject* textobject = CreateEmpty();
+
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"돋움", { 0, 0, 1, 1 }, 20, {1,0,0,1});
+		text->text = L"되겟냐?ㅋㅋ";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"굴림", { 0.2, 0.2, 1, 1 }, 30, { 1,1,0,1 });
+		text->text = L"되는데용??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"궁서", { 0.4, 0.4, 1, 1 }, 35, {0,1,1,1});
+		text->text = L"안되는데용??";
+		text->SetFontStyleBold();
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"메이플스토리", { 0.6, 0.6, 1, 1 }, 40, { 0,0,1,1 });
+		text->text = L"되는데용??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"바탕", { 0.8, 0.8, 1, 1 }, 50, {1,0,1,1});
+		text->text = L"안되는데용??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"바탕", { 0.1, 0.1, 1, 1 }, 20, { 1,0.1,0.6,1 });
+		text->text = L"될까요??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"바탕", { 0.3, 0.3, 1, 1 }, 20, { 1,0.7,1,1 });
+		text->text = L"되겟냐??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"바탕", { 0.5, 0.5, 1, 1 }, 20, { 0.7,0,1,1 });
+		text->text = L"되냐??";
+		text->SetFontStyleBold();
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"바탕", { 0.7, 0.7, 1, 1 }, 20, { 0.6,0.6,1,1 });
+		text->text = L"안되냐??";
+		textObjects.push_back(textobject);
+	}
+
+	//{
+	//	GameObject* cube = CreateEmpty();
+	//	cube->GetComponent<Transform>()->position = Vector3(0, 1, 3);
+	//	cube->GetComponent<Transform>()->localScale = Vector3(2, 2, 2);
+	//	cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
+	//	cube->AddComponent<Renderer>()->material = material_defaultMaterial;
+	//}
+	//
+	//{
+	//	GameObject* grid = CreateEmpty();
+	//	grid->AddComponent<MeshFilter>()->mesh = mesh_grid;
+	//	grid->AddComponent<Renderer>()->material = material_defaultMaterial;
+	//}
+	//
+	//for (int i = 0; i < 5; ++i)
+	//{
+	//	GameObject* leftCylRItem = CreateEmpty();
+	//	leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
+	//	leftCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
+	//	leftCylRItem->AddComponent<Renderer>()->material = material_bricks0;
+	//
+	//	GameObject* rightCylRItem = CreateEmpty();
+	//	rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
+	//	rightCylRItem->AddComponent<MeshFilter>()->mesh = mesh_cylinder;
+	//	rightCylRItem->AddComponent<Renderer>()->material = material_bricks0;
+	//
+	//	GameObject* leftSphereRItem = CreateEmpty();
+	//	leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
+	//	leftSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
+	//	leftSphereRItem->AddComponent<Renderer>()->material = material_tile0;
+	//
+	//	GameObject* rightSphereRItem = CreateEmpty();
+	//	rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
+	//	rightSphereRItem->AddComponent<MeshFilter>()->mesh = mesh_sphere;
+	//	rightSphereRItem->AddComponent<Renderer>()->material = material_skullMat;
+	//}
 	int xObjects = 4, yObjects = 4, zObjects = 4;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
