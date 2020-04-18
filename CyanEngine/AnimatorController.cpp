@@ -71,13 +71,13 @@ void AnimationClip::Interpolate(float t, std::vector<XMFLOAT4X4>& boneTransforms
 		BoneAnimations[i].Interpolate(t, boneTransforms[i]);
 }
 
-void AnimatorController::GetFinalTransforms(const std::string& clipName, float timePos, std::vector<XMFLOAT4X4>& finalTransforms)const
+void AnimatorController::GetFinalTransforms(const AnimationState* state, float timePos, std::vector<XMFLOAT4X4>& finalTransforms)const
 {
 	UINT numBones = mBoneOffsets.size();
 	std::vector<XMFLOAT4X4> toParentTransforms(numBones);
 
-	auto clip = mAnimations.find(clipName);
-	clip->second.Interpolate(timePos, toParentTransforms);
+	auto clip = state->motion;
+	clip->Interpolate(timePos, toParentTransforms);
 
 	std::vector<XMFLOAT4X4> toRootTransforms(numBones);
 	toRootTransforms[0] = toParentTransforms[0];

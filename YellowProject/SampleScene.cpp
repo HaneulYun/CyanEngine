@@ -74,15 +74,15 @@ void SampleScene::BuildObjects()
 	}
 
 	AnimatorController* controller = new AnimatorController();
-	controller->mAnimations["Attack01_BowAnim"] = *animationClips["Attack01_BowAnim"].get();
-	controller->mAnimations["Attack01Maintain_BowAnim"] = *animationClips["Attack01Maintain_BowAnim"].get();
-	controller->mAnimations["Attack01RepeatFire_BowAnim"] = *animationClips["Attack01RepeatFire_BowAnim"].get();
-	controller->mAnimations["Attack01Start_BowAnim"] = *animationClips["Attack01Start_BowAnim"].get();
-	controller->mAnimations["Attack02Maintain_BowAnim"] = *animationClips["Attack02Maintain_BowAnim"].get();
-	controller->mAnimations["Attack02RepeatFire_BowAnim"] = *animationClips["Attack02RepeatFire_BowAnim"].get();
-	controller->mAnimations["Attack02Start_BowAnim"] = *animationClips["Attack02Start_BowAnim"].get();
-	controller->mAnimations["DashBackward_BowAnim"] = *animationClips["DashBackward_BowAnim"].get();
-	controller->mAnimations["DashForward_BowAnim"] = *animationClips["DashForward_BowAnim"].get();
+	controller->AddState("Attack01_BowAnim", animationClips["Attack01_BowAnim"].get());
+	controller->AddState("Attack01Maintain_BowAnim", animationClips["Attack01Maintain_BowAnim"].get());
+	controller->AddState("Attack01RepeatFire_BowAnim", animationClips["Attack01RepeatFire_BowAnim"].get());
+	controller->AddState("Attack01Start_BowAnim", animationClips["Attack01Start_BowAnim"].get());
+	controller->AddState("Attack02Maintain_BowAnim", animationClips["Attack02Maintain_BowAnim"].get());
+	controller->AddState("Attack02RepeatFire_BowAnim", animationClips["Attack02RepeatFire_BowAnim"].get());
+	controller->AddState("Attack02Start_BowAnim", animationClips["Attack02Start_BowAnim"].get());
+	controller->AddState("DashBackward_BowAnim", animationClips["DashBackward_BowAnim"].get());
+	controller->AddState("DashForward_BowAnim", animationClips["DashForward_BowAnim"].get());
 
 	//*** Game Object ***//
 
@@ -115,7 +115,7 @@ void SampleScene::BuildObjects()
 	int i = 0;
 
 	int count = 1;
-	float interval = 7.0f;
+	float interval = 3.0f;
 	int skinnedIndex = 0;
 	for (int x = -count; x <= count; ++x)
 		for (int z = -count; z <= count; ++z)
@@ -130,32 +130,14 @@ void SampleScene::BuildObjects()
 				renderer->materials.push_back(Random::Range(0, 16));
 	
 			ritem->TexTransform = MathHelper::Identity4x4();
-			//ritem->ObjCBIndex = objCBIndex++;
 	
 			auto anim = ritem->AddComponent<Animator>();
 			anim->controller = controller;
-			anim->ClipName = name[i++];
-			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->ClipName));
+			anim->state = &controller->states[name[i++]];
+			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->state));
 	
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
-
-	//count = 100;
-	//for (int x = -count; x <= count; ++x)
-	//	for (int z = -count; z <= count; ++z)
-	//	{
-	//		auto ritem = CreateEmpty();
-	//		ritem->GetComponent<Transform>()->Scale({ 1, 1, 1 });
-	//		ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
-	//		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = mesh_cube;
-	//		auto renderer = ritem->AddComponent<Renderer>();
-	//		for (auto& sm : mesh->DrawArgs)
-	//			renderer->materials.push_back(Random::Range(0, 16));
-	//
-	//		ritem->TexTransform = MathHelper::Identity4x4();
-	//
-	//		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(ritem);
-	//	}
 
 	int xObjects = 4, yObjects = 4, zObjects = 4;
 	for (int x = -xObjects; x <= xObjects; x++)
@@ -175,15 +157,6 @@ void SampleScene::BuildObjects()
 
 				renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(ritem);
 			}
-
-	{
-		GameObject* cube = CreateEmpty();
-		cube->GetComponent<Transform>()->position = Vector3(0, 1, 3);
-		cube->GetComponent<Transform>()->localScale = Vector3(2, 2, 2);
-		cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
-		cube->AddComponent<Renderer>()->materials.push_back(Random::Range(0, 16));
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh_cube].gameObjects.push_back(cube);
-	}
 	
 	{
 		GameObject* grid = CreateEmpty();
