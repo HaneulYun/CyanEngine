@@ -127,7 +127,7 @@ void SampleScene::BuildObjects()
 	int i = 0;
 
 	int count = 1;
-	float interval = 3.0f;
+	float interval = 7.0f;
 	int skinnedIndex = 0;
 	for (int x = -count; x <= count; ++x)
 		for (int z = -count; z <= count; ++z)
@@ -147,6 +147,11 @@ void SampleScene::BuildObjects()
 			anim->controller = controller;
 			anim->state = &controller->states[name[i++]];
 			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->state));
+
+			if (!x && !z)
+			{
+				ritem->AddComponent<CharacterController>();
+			}
 	
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
