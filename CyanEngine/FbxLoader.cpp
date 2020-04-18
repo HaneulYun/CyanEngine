@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "FbxLoader.h"
 
-void FbxModelData::LoadFbx(const char* path)
+void FbxModelData::LoadFbx(const char* path, std::string animName)
 {
 	FbxManager* manager = FbxManager::Create();
 
@@ -84,7 +84,7 @@ void FbxModelData::LoadFbx(const char* path)
 		}
 		
 
-		Scene::scene->animationClips["k"] = std::move(clip);
+		Scene::scene->animationClips[animName] = std::move(clip);
 	}
 }
 

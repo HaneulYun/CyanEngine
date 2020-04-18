@@ -32,7 +32,7 @@ struct FbxModelData
 	std::map<std::string, int> skeletonIndexer;
 
 	// Assets Management
-	void LoadFbx(const char* path);
+	void LoadFbx(const char* path, std::string animName = {});
 	void LoadFbxHierarchy(FbxNode* node);
 	void LoadFbxHierarchyRecursive(FbxNode* node, int parentIndex = -1);
 	void LoadFbxMesh(FbxNode* node);

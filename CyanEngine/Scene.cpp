@@ -14,9 +14,25 @@ void Scene::Start()
 	Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
 
 	FbxModelData modelData;
-	FbxModelData animData;
-	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest2.fbx");
-	animData.LoadFbx("..\\CyanEngine\\Models\\animTest2.fbx");
+	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
+	FbxModelData animData0;
+	animData0.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Attack01_BowAnim.fbx",			"Attack01_BowAnim");
+	FbxModelData animData1;
+	animData1.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Attack01Maintain_BowAnim.fbx",	"Attack01Maintain_BowAnim");
+	FbxModelData animData2;
+	animData2.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Attack01RepeatFire_BowAnim.fbx",	"Attack01RepeatFire_BowAnim");
+	FbxModelData animData3;
+	animData3.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Attack01Start_BowAnim.fbx",		"Attack01Start_BowAnim");
+	FbxModelData animData4;
+	animData4.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Attack02Maintain_BowAnim.fbx",	"Attack02Maintain_BowAnim");
+	FbxModelData animData5;
+	animData5.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Attack02RepeatFire_BowAnim.fbx",	"Attack02RepeatFire_BowAnim");
+	FbxModelData animData6;
+	animData6.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Attack02Start_BowAnim.fbx",		"Attack02Start_BowAnim");
+	FbxModelData animData7;
+	animData7.LoadFbx("..\\CyanEngine\\Models\\BowStance\\DashBackward_BowAnim.fbx",		"DashBackward_BowAnim");
+	FbxModelData animData8;
+	animData8.LoadFbx("..\\CyanEngine\\Models\\BowStance\\DashForward_BowAnim.fbx",			"DashForward_BowAnim");
 	
 	BuildObjects();
 

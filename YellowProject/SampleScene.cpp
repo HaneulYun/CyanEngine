@@ -74,7 +74,15 @@ void SampleScene::BuildObjects()
 	}
 
 	AnimatorController* controller = new AnimatorController();
-	controller->mAnimations["run"] = *animationClips["k"].get();
+	controller->mAnimations["Attack01_BowAnim"] = *animationClips["Attack01_BowAnim"].get();
+	controller->mAnimations["Attack01Maintain_BowAnim"] = *animationClips["Attack01Maintain_BowAnim"].get();
+	controller->mAnimations["Attack01RepeatFire_BowAnim"] = *animationClips["Attack01RepeatFire_BowAnim"].get();
+	controller->mAnimations["Attack01Start_BowAnim"] = *animationClips["Attack01Start_BowAnim"].get();
+	controller->mAnimations["Attack02Maintain_BowAnim"] = *animationClips["Attack02Maintain_BowAnim"].get();
+	controller->mAnimations["Attack02RepeatFire_BowAnim"] = *animationClips["Attack02RepeatFire_BowAnim"].get();
+	controller->mAnimations["Attack02Start_BowAnim"] = *animationClips["Attack02Start_BowAnim"].get();
+	controller->mAnimations["DashBackward_BowAnim"] = *animationClips["DashBackward_BowAnim"].get();
+	controller->mAnimations["DashForward_BowAnim"] = *animationClips["DashForward_BowAnim"].get();
 
 	//*** Game Object ***//
 
@@ -91,6 +99,20 @@ void SampleScene::BuildObjects()
 	}
 
 	UINT objCBIndex = gameObjects.size();
+
+	std::string name[9] {
+		"Attack01_BowAnim",
+		"Attack01Maintain_BowAnim",
+		"Attack01RepeatFire_BowAnim",
+		"Attack01Start_BowAnim",
+		"Attack02Maintain_BowAnim",
+		"Attack02RepeatFire_BowAnim",
+		"Attack02Start_BowAnim",
+		"DashBackward_BowAnim",
+		"DashForward_BowAnim",
+	};
+
+	int i = 0;
 
 	int count = 1;
 	float interval = 7.0f;
@@ -112,8 +134,8 @@ void SampleScene::BuildObjects()
 	
 			auto anim = ritem->AddComponent<Animator>();
 			anim->controller = controller;
-			anim->ClipName = "run";
-			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime("run"));
+			anim->ClipName = name[i++];
+			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->ClipName));
 	
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
