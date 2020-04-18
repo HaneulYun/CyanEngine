@@ -16,6 +16,7 @@ struct BoneAnimation
 	float GetEndTime() const { return Keyframes.back().TimePos; }
 
 	void Interpolate(float t, XMFLOAT4X4& M) const;
+	void Interpolate(float t, XMFLOAT3& T, XMFLOAT3& S, XMFLOAT4& R) const;
 };
 
 struct AnimationClip
@@ -24,8 +25,6 @@ struct AnimationClip
 
 	float GetClipStartTime() const;
 	float GetClipEndTime() const;
-
-	void Interpolate(float t, std::vector<DirectX::XMFLOAT4X4>& boneTransforms) const;
 };
 
 enum class AnimatorControllerParameterType
@@ -94,8 +93,9 @@ public:
 	float GetClipEndTime(const AnimationControllerState* state) const { return state->motion->GetClipEndTime(); }
 
 	void GetFinalTransforms(const AnimationControllerState* state, float timePos,
+		const AnimationControllerState* nextState, float nextTimePos, float lerpPercent,
 		std::vector<DirectX::XMFLOAT4X4>& finalTransforms) const;
-	bool Transition(AnimationControllerState*& state);
+	AnimationControllerState* Transition(AnimationControllerState* state);
 
 	void AddState(std::string name, AnimationClip* clip)
 	{
@@ -108,7 +108,5 @@ public:
 		param.Type = AnimatorControllerParameterType::Float;
 		param.Float = value;
 		parameters[name] = param;
-		//parameters[name] = AnimationControllerParameter{ name, AnimatorControllerParameterType::Float, param.Float = value };
 	}
-
 };

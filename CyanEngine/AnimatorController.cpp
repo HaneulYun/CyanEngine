@@ -1,23 +1,19 @@
 #include "pch.h"
 #include "AnimatorController.h"
 
-void BoneAnimation::Interpolate(float t, XMFLOAT4X4& M) const
+void BoneAnimation::Interpolate(float t, XMFLOAT3& T, XMFLOAT3& S, XMFLOAT4& R) const
 {
 	if (t <= Keyframes.front().TimePos)
 	{
-		XMVECTOR S = XMLoadFloat3(&Keyframes.front().Scale);
-		XMVECTOR P = XMLoadFloat3(&Keyframes.front().Translation);
-		XMVECTOR Q = XMLoadFloat4(&Keyframes.front().RotationQuat);
-		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-		XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
+		T = Keyframes.front().Translation;
+		S = Keyframes.front().Scale;
+		R = Keyframes.front().RotationQuat;
 	}
 	else if (t >= Keyframes.back().TimePos)
 	{
-		XMVECTOR S = XMLoadFloat3(&Keyframes.back().Scale);
-		XMVECTOR P = XMLoadFloat3(&Keyframes.back().Translation);
-		XMVECTOR Q = XMLoadFloat4(&Keyframes.back().RotationQuat);
-		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-		XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
+		T = Keyframes.back().Translation;
+		S = Keyframes.back().Scale;
+		R = Keyframes.back().RotationQuat;
 	}
 	else
 	{
@@ -27,22 +23,18 @@ void BoneAnimation::Interpolate(float t, XMFLOAT4X4& M) const
 			{
 				float lerpPercent = (t - Keyframes[i].TimePos) / (Keyframes[i + 1].TimePos - Keyframes[i].TimePos);
 
+				XMVECTOR t0 = XMLoadFloat3(&Keyframes[i].Translation);
+				XMVECTOR t1 = XMLoadFloat3(&Keyframes[i + 1].Translation);
+
 				XMVECTOR s0 = XMLoadFloat3(&Keyframes[i].Scale);
 				XMVECTOR s1 = XMLoadFloat3(&Keyframes[i + 1].Scale);
 
-				XMVECTOR p0 = XMLoadFloat3(&Keyframes[i].Translation);
-				XMVECTOR p1 = XMLoadFloat3(&Keyframes[i + 1].Translation);
+				XMVECTOR r0 = XMLoadFloat4(&Keyframes[i].RotationQuat);
+				XMVECTOR r1 = XMLoadFloat4(&Keyframes[i + 1].RotationQuat);
 
-				XMVECTOR q0 = XMLoadFloat4(&Keyframes[i].RotationQuat);
-				XMVECTOR q1 = XMLoadFloat4(&Keyframes[i + 1].RotationQuat);
-
-				XMVECTOR S = XMVectorLerp(s0, s1, lerpPercent);
-				XMVECTOR P = XMVectorLerp(p0, p1, lerpPercent);
-				XMVECTOR Q = XMQuaternionSlerp(q0, q1, lerpPercent);
-
-				XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-				XMStoreFloat4x4(&M, XMMatrixAffineTransformation(S, zero, Q, P));
-
+				XMStoreFloat3(&T, XMVectorLerp(t0, t1, lerpPercent));
+				XMStoreFloat3(&S, XMVectorLerp(s0, s1, lerpPercent));
+				XMStoreFloat4(&R, XMQuaternionSlerp(r0, r1, lerpPercent));
 				break;
 			}
 		}
@@ -65,19 +57,47 @@ float AnimationClip::GetClipEndTime() const
 	return t;
 }
 
-void AnimationClip::Interpolate(float t, std::vector<XMFLOAT4X4>& boneTransforms) const
-{
-	for (UINT i = 0; i < BoneAnimations.size(); ++i)
-		BoneAnimations[i].Interpolate(t, boneTransforms[i]);
-}
-
-void AnimatorController::GetFinalTransforms(const AnimationControllerState* state, float timePos, std::vector<XMFLOAT4X4>& finalTransforms)const
+void AnimatorController::GetFinalTransforms(const AnimationControllerState* state, float timePos,
+	const AnimationControllerState* nextState, float nextTimePos, float lerpPercent,
+	std::vector<XMFLOAT4X4>& finalTransforms)const
 {
 	UINT numBones = mBoneOffsets.size();
 	std::vector<XMFLOAT4X4> toParentTransforms(numBones);
 
-	auto clip = state->motion;
-	clip->Interpolate(timePos, toParentTransforms);
+	auto clip0 = state->motion;
+
+	for (UINT i = 0; i < numBones; ++i)
+	{
+		XMFLOAT3 T0, S0, T1, S1;
+		XMFLOAT4 R0, R1;
+		XMVECTOR t0, s0, r0, t1, s1, r1;
+		XMVECTOR T, S, Q;
+
+		clip0->BoneAnimations[i].Interpolate(timePos, T0, S0, R0);
+		t0 = XMLoadFloat3(&T0);
+		s0 = XMLoadFloat3(&S0);
+		r0 = XMLoadFloat4(&R0);
+
+		if (nextState)
+		{
+			nextState->motion->BoneAnimations[i].Interpolate(nextTimePos, T1, S1, R1);
+			t1 = XMLoadFloat3(&T1);
+			s1 = XMLoadFloat3(&S1);
+			r1 = XMLoadFloat4(&R1);
+
+			T = XMVectorLerp(t0, t1, lerpPercent);
+			S = XMVectorLerp(s0, s1, lerpPercent);
+			Q = XMQuaternionSlerp(r0, r1, lerpPercent);
+		}
+		else
+		{
+			T = XMLoadFloat3(&T0);
+			S = XMLoadFloat3(&S0);
+			Q = XMLoadFloat4(&R0);
+		}
+		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+		XMStoreFloat4x4(&toParentTransforms[i], XMMatrixAffineTransformation(S, zero, Q, T));
+	}
 
 	std::vector<XMFLOAT4X4> toRootTransforms(numBones);
 	toRootTransforms[0] = toParentTransforms[0];
@@ -99,7 +119,7 @@ void AnimatorController::GetFinalTransforms(const AnimationControllerState* stat
 	}
 }
 
-bool AnimatorController::Transition(AnimationControllerState*& state)
+AnimationControllerState* AnimatorController::Transition(AnimationControllerState* state)
 {
 	for (auto& transition : state->transitionns)
 	{
@@ -144,9 +164,8 @@ bool AnimatorController::Transition(AnimationControllerState*& state)
 		}
 		if (!flag)
 		{
-			state = &states[transition.DestinationStateName];
-			return true;
+			return &states[transition.DestinationStateName];
 		}
 	}
-	return false;
+	return nullptr;
 }
