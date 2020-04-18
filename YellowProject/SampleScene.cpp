@@ -140,6 +140,7 @@ void SampleScene::BuildObjects()
 		Text* text = textobject->AddComponent<Text>();
 		text->InitFontFormat(L"±Ã¼­", { 0.4, 0.4, 1, 1 }, 35, {0,1,1,1});
 		text->text = L"¾ÈµÇ´Âµ¥¿ë??";
+		text->SetFontStyleBold();
 		textObjects.push_back(textobject);
 	}
 	{
@@ -154,6 +155,35 @@ void SampleScene::BuildObjects()
 		Text* text = textobject->AddComponent<Text>();
 		text->InitFontFormat(L"¹ÙÅÁ", { 0.8, 0.8, 1, 1 }, 50, {1,0,1,1});
 		text->text = L"¾ÈµÇ´Âµ¥¿ë??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"¹ÙÅÁ", { 0.1, 0.1, 1, 1 }, 20, { 1,0.1,0.6,1 });
+		text->text = L"µÉ±î¿ä??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"¹ÙÅÁ", { 0.3, 0.3, 1, 1 }, 20, { 1,0.7,1,1 });
+		text->text = L"µÇ°Ù³Ä??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"¹ÙÅÁ", { 0.5, 0.5, 1, 1 }, 20, { 0.7,0,1,1 });
+		text->text = L"µÇ³Ä??";
+		text->SetFontStyleBold();
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"¹ÙÅÁ", { 0.7, 0.7, 1, 1 }, 20, { 0.6,0.6,1,1 });
+		text->text = L"¾ÈµÇ³Ä??";
 		textObjects.push_back(textobject);
 	}
 

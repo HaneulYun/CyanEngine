@@ -236,6 +236,7 @@ void Graphics::RenderUI()
 	deviceContext->BeginDraw();
 	deviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
 
+	// Draw Text
 	for (GameObject* gameObject : Scene::scene->textObjects)
 	{
 		Text* textComponent = gameObject->GetComponent<Text>();

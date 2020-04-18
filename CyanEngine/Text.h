@@ -60,12 +60,12 @@ public:
 	}
 	void SetFontStyleBold()
 	{
-		style = DWRITE_FONT_WEIGHT_BOLD;
+		weight = DWRITE_FONT_WEIGHT_BOLD;
 		formatIndex = -1;
 	}
 	void SetFontStyleNormal()
 	{
-		style = DWRITE_FONT_WEIGHT_NORMAL;
+		weight = DWRITE_FONT_WEIGHT_NORMAL;
 		formatIndex = -1;
 	}
 };
