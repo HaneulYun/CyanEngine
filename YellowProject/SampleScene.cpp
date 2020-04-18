@@ -60,7 +60,7 @@ void SampleScene::BuildObjects()
 	//	material_skullMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
 	//	material_skullMat->Roughness = 0.3f;
 	//}
-	for (int i = 0; i < 20; ++i)
+	for (int i = 1; i < 20; ++i)
 	{
 		auto material = std::make_unique<Material>();
 		material->Name = "material_" + std::to_string(i);
@@ -68,6 +68,18 @@ void SampleScene::BuildObjects()
 		material->DiffuseSrvHeapIndex = 0;
 		material->NormalSrvHeapIndex = 0;
 		material->DiffuseAlbedo = RANDOM_COLOR;
+		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
+		material->Roughness = 0.0f;
+		materials[material->Name] = std::move(material);
+	}
+
+	{
+		auto material = std::make_unique<Material>();
+		material->Name = "PolyArt";
+		material->MatCBIndex = 0;
+		material->DiffuseSrvHeapIndex = 1;
+		material->NormalSrvHeapIndex = 0;
+		material->DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
 		material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
 		material->Roughness = 0.0f;
 		materials[material->Name] = std::move(material);
@@ -127,7 +139,7 @@ void SampleScene::BuildObjects()
 			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
 			auto renderer = ritem->GetComponent<SkinnedMeshRenderer>();
 			for (auto& sm : mesh->DrawArgs)
-				renderer->materials.push_back(Random::Range(0, 16));
+				renderer->materials.push_back(0);
 	
 			ritem->TexTransform = MathHelper::Identity4x4();
 	
