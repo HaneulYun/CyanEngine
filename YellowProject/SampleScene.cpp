@@ -90,7 +90,7 @@ void SampleScene::BuildObjects()
 
 	UINT objCBIndex = gameObjects.size();
 
-	int count = 3;
+	int count = 1;
 	float interval = 5.0f;
 	int skinnedIndex = 0;
 	for (int x = -count; x <= count; ++x)
@@ -116,6 +116,46 @@ void SampleScene::BuildObjects()
 
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
+
+	
+	{
+		GameObject* textobject = CreateEmpty();
+
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"돋움", { 0, 0, 1, 1 }, 20, {1,0,0,1});
+		text->text = L"되겟냐?ㅋㅋ";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"굴림", { 0.2, 0.2, 1, 1 }, 30, { 1,1,0,1 });
+		text->text = L"되는데용??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"궁서", { 0.4, 0.4, 1, 1 }, 35, {0,1,1,1});
+		text->text = L"안되는데용??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"메이플스토리", { 0.6, 0.6, 1, 1 }, 40, { 0,0,1,1 });
+		text->text = L"되는데용??";
+		textObjects.push_back(textobject);
+	}
+	{
+		GameObject* textobject = CreateEmpty();
+		Text* text = textobject->AddComponent<Text>();
+		text->InitFontFormat(L"바탕", { 0.8, 0.8, 1, 1 }, 50, {1,0,1,1});
+		text->text = L"안되는데용??";
+		textObjects.push_back(textobject);
+	}
 
 	//{
 	//	GameObject* cube = CreateEmpty();

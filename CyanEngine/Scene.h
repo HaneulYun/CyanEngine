@@ -15,6 +15,7 @@ public:
 	std::map<Mesh*, RenderObjects> renderObjectsLayer[(int)RenderLayer::Count];
 
 	std::priority_queue<GameObject*> deletionQueue;
+	std::vector<GameObject*> textObjects;
 
 public:
 	static Scene* scene;

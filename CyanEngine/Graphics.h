@@ -16,9 +16,8 @@ public:
 	ComPtr<ID2D1Device2> d2dDevice;
 
 	ComPtr<IDWriteFactory> writeFactory;
-	ComPtr<ID2D1SolidColorBrush> textBrush;
-	ComPtr<IDWriteTextFormat> textFormat;
-
+	std::vector<ComPtr<ID2D1SolidColorBrush>> textBrushes;
+	std::vector<ComPtr<IDWriteTextFormat>> textFormats;
 
 	ComPtr<IDXGISwapChain3> swapChain;
 	ComPtr<ID3D12Device> device;

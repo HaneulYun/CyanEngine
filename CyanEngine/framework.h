@@ -116,6 +116,7 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 
+#include "Text.h"
 
 #include "ModelManager.h"
 #include "ShaderManager.h"

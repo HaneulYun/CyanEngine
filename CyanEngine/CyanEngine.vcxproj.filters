@@ -180,6 +180,7 @@
     <ClInclude Include="SkinnedMeshRenderer.h" />
     <ClInclude Include="Animator.h" />
     <ClInclude Include="AnimatorController.h" />
+    <ClInclude Include="Text.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
