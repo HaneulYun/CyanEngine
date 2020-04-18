@@ -33,6 +33,18 @@ void Scene::Start()
 	animData7.LoadFbx("..\\CyanEngine\\Models\\BowStance\\EquipmentChange_BowAnim.fbx",		"DashBackward_BowAnim");
 	FbxModelData animData8;
 	animData8.LoadFbx("..\\CyanEngine\\Models\\BowStance\\DashForward_BowAnim.fbx",			"DashForward_BowAnim");
+
+
+	FbxModelData animData10;
+	animData10.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Walk_BowAnim.fbx",		"Walk_BowAnim");
+	FbxModelData animData11;
+	animData11.LoadFbx("..\\CyanEngine\\Models\\BowStance\\WalkBack_BowAnim.fbx",	"WalkBack_BowAnim");
+	FbxModelData animData12;
+	animData12.LoadFbx("..\\CyanEngine\\Models\\BowStance\\WalkRight_BowAnim.fbx",	"WalkRight_BowAnim");
+	FbxModelData animData13;
+	animData13.LoadFbx("..\\CyanEngine\\Models\\BowStance\\WalkLeft_BowAnim.fbx",	"WalkLeft_BowAnim");
+	FbxModelData animData14;
+	animData14.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Idle_BowAnim.fbx",		"Idle_BowAnim");
 	
 	BuildObjects();
 

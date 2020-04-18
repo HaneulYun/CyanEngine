@@ -4,9 +4,11 @@
 class CharacterController : public MonoBehavior<CharacterController>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
+	Animator* anim{ nullptr };
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
-	float speed = 1.0f;
+	float speed = 0.0f;
+	float hori_speed = 0.0f;
 
 private:
 	friend class GameObject;
@@ -19,18 +21,91 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
+		anim = gameObject->GetComponent<Animator>();
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
 		if (Input::GetKey(KeyCode::W))
-			gameObject->transform->position += Vector3(0, 0, 1) * speed* Time::deltaTime;
+		{
+			if (speed < 2.0f)
+			{
+				speed += 1.0f * Time::deltaTime;
+				if (speed > 1.0f)
+					speed = 1.0f;
+			}
+		}
+		else
+		{
+			if (speed > 0.0f)
+			{
+				speed -= 2.0f * Time::deltaTime;
+				if (speed < 0.0f)
+					speed = 0.0f;
+			}
+		}
+		
 		if (Input::GetKey(KeyCode::S))
-			gameObject->transform->position -= Vector3(0, 0, 1) * speed* Time::deltaTime;
+		{
+			if (speed > -2.0f)
+			{
+				speed -= 1.0f * Time::deltaTime;
+				if (speed < -1.0f)
+					speed = -1.0f;
+			}
+		}
+		else
+		{
+			if (speed < 0.0f)
+			{
+				speed += 2.0f * Time::deltaTime;
+				if (speed > 0.0f)
+					speed = 0.0f;
+			}
+		}
+		
 		if (Input::GetKey(KeyCode::D))
-			gameObject->transform->position += Vector3(1, 0, 0) * speed* Time::deltaTime;
+		{
+			if (hori_speed < 2.0f)
+			{
+				hori_speed += 1.0f * Time::deltaTime;
+				if (hori_speed > 1.0f)
+					hori_speed = 1.0f;
+			}
+		}
+		else
+		{
+			if (hori_speed > 0.0f)
+			{
+				hori_speed -= 2.0f * Time::deltaTime;
+				if (hori_speed < 0.0f)
+					hori_speed = 0.0f;
+			}
+		}
+		
 		if (Input::GetKey(KeyCode::A))
-			gameObject->transform->position -= Vector3(1, 0, 0) * speed* Time::deltaTime;
+		{
+			if (hori_speed > -2.0f)
+			{
+				hori_speed -= 1.0f * Time::deltaTime;
+				if (hori_speed < -1.0f)
+					hori_speed = -1.0f;
+			}
+		}
+		else
+		{
+			if (hori_speed < 0.0f)
+			{
+				hori_speed += 2.0f * Time::deltaTime;
+				if (hori_speed > 0.0f)
+					hori_speed = 0.0f;
+			}
+		}
+
+		gameObject->transform->position += Vector3(hori_speed, 0, speed) * Time::deltaTime;
+		anim->SetFloat("Speed", speed);
+		anim->SetFloat("HoriSpeed", hori_speed);
+
 		gameObject->NumFramesDirty = NUM_FRAME_RESOURCES;
 	}
 

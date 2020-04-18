@@ -10,12 +10,12 @@ void SampleScene::BuildObjects()
 	//*** Asset ***//
 
 	//Material* material_defaultMaterial = new DefaultMaterial();
-	
+
 	Mesh* mesh_cube = new Cube();
 	Mesh* mesh_grid = new Plane();
 	Mesh* mesh_sphere = new Sphere();
 	Mesh* mesh_cylinder = new Cylinder();
-	
+
 	//graphics->textureData.push_back({ "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds" });
 	//graphics->textureData.push_back({ "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds" });
 	//graphics->textureData.push_back({ "tileTex", L"..\\CyanEngine\\Textures\\tile.dds" });
@@ -86,6 +86,9 @@ void SampleScene::BuildObjects()
 	}
 
 	AnimatorController* controller = new AnimatorController();
+	controller->AddParameterFloat("Speed");
+	controller->AddParameterFloat("HoriSpeed");
+
 	controller->AddState("Attack01_BowAnim", animationClips["Attack01_BowAnim"].get());
 	controller->AddState("Attack01Maintain_BowAnim", animationClips["Attack01Maintain_BowAnim"].get());
 	controller->AddState("Attack01RepeatFire_BowAnim", animationClips["Attack01RepeatFire_BowAnim"].get());
@@ -95,6 +98,122 @@ void SampleScene::BuildObjects()
 	controller->AddState("Attack02Start_BowAnim", animationClips["Attack02Start_BowAnim"].get());
 	controller->AddState("DashBackward_BowAnim", animationClips["DashBackward_BowAnim"].get());
 	controller->AddState("DashForward_BowAnim", animationClips["DashForward_BowAnim"].get());
+
+	controller->AddState("Idle_BowAnim", animationClips["Idle_BowAnim"].get());
+	controller->AddState("Walk_BowAnim", animationClips["Walk_BowAnim"].get());
+	controller->AddState("WalkBack_BowAnim", animationClips["WalkBack_BowAnim"].get());
+	controller->AddState("WalkRight_BowAnim", animationClips["WalkRight_BowAnim"].get());
+	controller->AddState("WalkLeft_BowAnim", animationClips["WalkLeft_BowAnim"].get());
+
+	{
+		{
+			AnimationControllerStateTransition transition{};
+			{
+				AnimationControllerStateTransitionCondition condition{};
+				condition.ParameterName = "Speed";
+				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Greater;
+				condition.Float = 0.1f;
+
+				transition.DestinationStateName = "Walk_BowAnim";
+				transition.conditions.push_back(condition);
+			}
+			controller->states["Idle_BowAnim"].transitionns.push_back(transition);
+		}
+		{
+			AnimationControllerStateTransition transition{};
+			{
+				AnimationControllerStateTransitionCondition condition{};
+				condition.ParameterName = "Speed";
+				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Less;
+				condition.Float = -0.1f;
+
+				transition.DestinationStateName = "WalkBack_BowAnim";
+				transition.conditions.push_back(condition);
+			}
+			controller->states["Idle_BowAnim"].transitionns.push_back(transition);
+		}
+		{
+			AnimationControllerStateTransition transition{};
+			{
+				AnimationControllerStateTransitionCondition condition{};
+				condition.ParameterName = "Speed";
+				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Less;
+				condition.Float = 0.1f;
+
+				transition.DestinationStateName = "Idle_BowAnim";
+				transition.conditions.push_back(condition);
+			}
+			controller->states["Walk_BowAnim"].transitionns.push_back(transition);
+		}
+		{
+			AnimationControllerStateTransition transition{};
+			{
+				AnimationControllerStateTransitionCondition condition{};
+				condition.ParameterName = "Speed";
+				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Greater;
+				condition.Float = -0.1f;
+
+				transition.DestinationStateName = "Idle_BowAnim";
+				transition.conditions.push_back(condition);
+			}
+			controller->states["WalkBack_BowAnim"].transitionns.push_back(transition);
+		}
+	}
+
+	{
+		{
+			AnimationControllerStateTransition transition{};
+			{
+				AnimationControllerStateTransitionCondition condition{};
+				condition.ParameterName = "HoriSpeed";
+				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Greater;
+				condition.Float = 0.1f;
+
+				transition.DestinationStateName = "WalkLeft_BowAnim";
+				transition.conditions.push_back(condition);
+			}
+			controller->states["Idle_BowAnim"].transitionns.push_back(transition);
+		}
+		{
+			AnimationControllerStateTransition transition{};
+			{
+				AnimationControllerStateTransitionCondition condition{};
+				condition.ParameterName = "HoriSpeed";
+				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Less;
+				condition.Float = -0.1f;
+
+				transition.DestinationStateName = "WalkRight_BowAnim";
+				transition.conditions.push_back(condition);
+			}
+			controller->states["Idle_BowAnim"].transitionns.push_back(transition);
+		}
+		{
+			AnimationControllerStateTransition transition{};
+			{
+				AnimationControllerStateTransitionCondition condition{};
+				condition.ParameterName = "HoriSpeed";
+				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Less;
+				condition.Float = 0.1f;
+
+				transition.DestinationStateName = "Idle_BowAnim";
+				transition.conditions.push_back(condition);
+			}
+			controller->states["WalkLeft_BowAnim"].transitionns.push_back(transition);
+		}
+		{
+			AnimationControllerStateTransition transition{};
+			{
+				AnimationControllerStateTransitionCondition condition{};
+				condition.ParameterName = "HoriSpeed";
+				condition.operatorType = AnimationControllerStateTransitionConditionOperatorType::Greater;
+				condition.Float = -0.1f;
+
+				transition.DestinationStateName = "Idle_BowAnim";
+				transition.conditions.push_back(condition);
+			}
+			controller->states["WalkRight_BowAnim"].transitionns.push_back(transition);
+		}
+	}
 
 	//*** Game Object ***//
 
@@ -150,6 +269,8 @@ void SampleScene::BuildObjects()
 
 			if (!x && !z)
 			{
+				anim->state = &controller->states["Idle_BowAnim"];
+				anim->TimePos = 0;
 				ritem->AddComponent<CharacterController>();
 			}
 	

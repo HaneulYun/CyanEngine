@@ -7,17 +7,24 @@ public:
 
 public:
 	std::vector<DirectX::XMFLOAT4X4> FinalTransforms;
-	AnimationState* state;
+	AnimationControllerState* state;
 	float TimePos = 0.0f;
 
 	void UpdateSkinnedAnimation(float dt)
 	{
+
 		TimePos += dt;
 
 		if (TimePos > controller->GetClipEndTime(state))
 			TimePos -= controller->GetClipEndTime(state);
 
+		if (controller->Transition(state))
+			TimePos = 0;
 		controller->GetFinalTransforms(state, TimePos, FinalTransforms);
+	}
+	void SetFloat(std::string name, float value)
+	{
+		controller->parameters[name].Float = value;
 	}
 
 private:

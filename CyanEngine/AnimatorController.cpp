@@ -71,7 +71,7 @@ void AnimationClip::Interpolate(float t, std::vector<XMFLOAT4X4>& boneTransforms
 		BoneAnimations[i].Interpolate(t, boneTransforms[i]);
 }
 
-void AnimatorController::GetFinalTransforms(const AnimationState* state, float timePos, std::vector<XMFLOAT4X4>& finalTransforms)const
+void AnimatorController::GetFinalTransforms(const AnimationControllerState* state, float timePos, std::vector<XMFLOAT4X4>& finalTransforms)const
 {
 	UINT numBones = mBoneOffsets.size();
 	std::vector<XMFLOAT4X4> toParentTransforms(numBones);
@@ -97,4 +97,56 @@ void AnimatorController::GetFinalTransforms(const AnimationState* state, float t
 		XMMATRIX finalTransform = XMMatrixMultiply(offset, toRoot);
 		XMStoreFloat4x4(&finalTransforms[i], XMMatrixTranspose(finalTransform));
 	}
+}
+
+bool AnimatorController::Transition(AnimationControllerState*& state)
+{
+	for (auto& transition : state->transitionns)
+	{
+		bool flag = false;
+		for (auto& condition : transition.conditions)
+		{
+			auto& parameter = parameters[condition.ParameterName];
+			switch (parameter.Type)
+			{
+			case AnimatorControllerParameterType::Float:
+				switch (condition.operatorType)
+				{
+				case AnimationControllerStateTransitionConditionOperatorType::Greater:
+					flag += !(parameter.Float > condition.Float);
+					break;
+				case AnimationControllerStateTransitionConditionOperatorType::Less:
+					flag += !(parameter.Float < condition.Float);
+					break;
+				}
+				break;
+			case AnimatorControllerParameterType::Int:
+				switch (condition.operatorType)
+				{
+				case AnimationControllerStateTransitionConditionOperatorType::Greater:
+					flag += !(parameter.Int > condition.Int);
+					break;
+				case AnimationControllerStateTransitionConditionOperatorType::Less:
+					flag += !(parameter.Int > condition.Int);
+					break;
+				case AnimationControllerStateTransitionConditionOperatorType::Equals:
+					flag += !(parameter.Int > condition.Int);
+					break;
+				case AnimationControllerStateTransitionConditionOperatorType::NotEqual:
+					flag += !(parameter.Int > condition.Int);
+					break;
+				}
+				break;
+			case AnimatorControllerParameterType::Bool:
+				flag += !(parameter.Bool == condition.Bool);
+				break;
+			}
+		}
+		if (!flag)
+		{
+			state = &states[transition.DestinationStateName];
+			return true;
+		}
+	}
+	return false;
 }
