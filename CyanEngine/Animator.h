@@ -33,17 +33,13 @@ public:
 				iter = pastStates.erase(iter);
 			else
 			{
-				iter->TimePos += dt;
-				if (iter->TimePos > controller->GetClipEndTime(iter->state))
-					iter->TimePos -= controller->GetClipEndTime(iter->state);
+				iter->TimePos = fmod(iter->TimePos + dt, controller->GetClipEndTime(iter->state));
 				iter->TransitionWeight = min(iter->TransitionWeight, iter->TransitionTimePost / 0.25f);
 				++iter;
 			}
 		}
 
-		TimePos += dt;
-		if (TimePos > controller->GetClipEndTime(state))
-			TimePos -= controller->GetClipEndTime(state);
+		TimePos = fmod(TimePos + dt, controller->GetClipEndTime(state));
 		controller->GetFinalTransforms(state, TimePos, pastStates, FinalTransforms);
 	}
 	void SetFloat(std::string name, float value)
