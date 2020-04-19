@@ -591,9 +591,9 @@ void Graphics::LoadAssets()
 		"SKINNED", "1",
 		NULL, NULL
 	};
-	ComPtr<ID3DBlob> vertexShader_skinned = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", skinnedDefines, "VSMain", "vs_5_1");
-	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
-	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"..\\CyanEngine\\shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_1");
+	ComPtr<ID3DBlob> vertexShader_skinned = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", skinnedDefines, "VSMain", "vs_5_1");
+	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
+	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_1");
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{

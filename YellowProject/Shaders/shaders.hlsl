@@ -10,7 +10,7 @@
 #define NUM_SPOT_LIGHTS 0
 #endif
 
-#include "..\\CyanEngine\\shaders\\LightingUtil.hlsl"
+#include "shaders\\LightingUtil.hlsl"
 
 struct InstanceData
 {
