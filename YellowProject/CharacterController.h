@@ -28,7 +28,7 @@ public:
 	{
 		if (Input::GetKey(KeyCode::W))
 		{
-			if (speed < 2.0f)
+			if (speed < 4.0f)
 			{
 				speed += 1.0f * Time::deltaTime;
 				if (speed > 1.0f)
@@ -47,7 +47,7 @@ public:
 		
 		if (Input::GetKey(KeyCode::S))
 		{
-			if (speed > -2.0f)
+			if (speed > -4.0f)
 			{
 				speed -= 1.0f * Time::deltaTime;
 				if (speed < -1.0f)
@@ -66,7 +66,7 @@ public:
 		
 		if (Input::GetKey(KeyCode::D))
 		{
-			if (hori_speed < 2.0f)
+			if (hori_speed < 4.0f)
 			{
 				hori_speed += 1.0f * Time::deltaTime;
 				if (hori_speed > 1.0f)
@@ -77,7 +77,7 @@ public:
 		{
 			if (hori_speed > 0.0f)
 			{
-				hori_speed -= 2.0f * Time::deltaTime;
+				hori_speed -= 4.0f * Time::deltaTime;
 				if (hori_speed < 0.0f)
 					hori_speed = 0.0f;
 			}
@@ -85,7 +85,7 @@ public:
 		
 		if (Input::GetKey(KeyCode::A))
 		{
-			if (hori_speed > -2.0f)
+			if (hori_speed > -3.0f)
 			{
 				hori_speed -= 1.0f * Time::deltaTime;
 				if (hori_speed < -1.0f)

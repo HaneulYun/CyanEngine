@@ -93,4 +93,28 @@ public:
 		GeometryType_Cylinder, GeometryType_Plane
 	};
 	void Create(GeometryType type);
+	static std::unique_ptr<Mesh> CreateCube()
+	{
+		auto v = std::make_unique<Mesh>();
+		v->Create(GeometryType::GeometryType_Cube);
+		return std::move(v);
+	}
+	static std::unique_ptr<Mesh> CreateSphere()
+	{
+		auto v = std::make_unique<Mesh>();
+		v->Create(GeometryType::GeometryType_Sphere);
+		return std::move(v);
+	}
+	static std::unique_ptr<Mesh> CreateCylinder()
+	{
+		auto v = std::make_unique<Mesh>();
+		v->Create(GeometryType::GeometryType_Cylinder);
+		return std::move(v);
+	}
+	static std::unique_ptr<Mesh> CreatePlane()
+	{
+		auto v = std::make_unique<Mesh>();
+		v->Create(GeometryType::GeometryType_Plane);
+		return std::move(v);
+	}
 };

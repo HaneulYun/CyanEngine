@@ -246,9 +246,9 @@ void Graphics::Render()
 			else
 				commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
+			commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
 			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
-			commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 
 			int i = 0;
 			for (auto& submesh : mesh->DrawArgs)

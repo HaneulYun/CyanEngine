@@ -1,34 +1,6 @@
 #pragma once
 #include "Vertex.h"
 
-class Cube : public Mesh
-{
-public:
-	Cube();
-	virtual ~Cube() {};
-};
-
-class Sphere : public Mesh
-{
-public:
-	Sphere();
-	virtual ~Sphere() {};
-};
-
-class Cylinder : public Mesh
-{
-public:
-	Cylinder();
-	virtual ~Cylinder() {};
-};
-
-class Plane : public Mesh
-{
-public:
-	Plane();
-	virtual ~Plane() {};
-};
-
 class ModelMesh : public Mesh
 {
 public:
@@ -37,27 +9,6 @@ public:
 };
 
 //***********************************************
-
-class TriangleMesh : public Mesh
-{
-public:
-	TriangleMesh();
-	virtual ~TriangleMesh() { }
-};
-
-class Quad : public Mesh
-{
-public:
-	Quad(float width = 1.f, float depth = 1.f);
-	virtual ~Quad() { }
-};
-
-class CubeMeshDiffused : public Mesh
-{
-public:
-	CubeMeshDiffused(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
-	virtual ~CubeMeshDiffused() { }
-};
 
 class MeshIlluminated : public Mesh
 {
@@ -72,23 +23,15 @@ public:
 	void CalculateVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* pxmf3Positions, int nVertices, UINT* pnIndices, int nIndices);
 };
 
-class CubeMeshIlluminated : public MeshIlluminated
-{
-public:
-	CubeMeshIlluminated(float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
-	virtual ~CubeMeshIlluminated() { }
-};
-
 class CHeightMapImage
 {
 private:
-	//높이 맵 이미지 픽셀(8-비트)들의 이차원 배열이다. 각 픽셀은 0~255의 값을 갖는다.
 	BYTE *m_pHeightMapPixels;
-	//높이 맵 이미지의 가로와 세로 크기이다.
+
 	int m_nWidth;
 	int m_nLength;
-	//높이 맵 이미지를 실제로 몇 배 확대하여 사용할 것인가를 나타내는 스케일 벡터이다.
 	XMFLOAT3 m_xmf3Scale;
+
 public:
 	CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale);
 	~CHeightMapImage(void);
@@ -203,20 +146,6 @@ protected:
 public:
 	virtual void Render(int nSubSet);
 	virtual void Render(UINT nInstances, int nSubSet);
-};
-
-class CCubeMeshTextured : public Mesh
-{
-public:
-	CCubeMeshTextured(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f);
-	virtual ~CCubeMeshTextured() {}
-};
-
-class CTexturedRectMesh : public Mesh
-{
-public:
-	CTexturedRectMesh(float fWidth = 1.0f, float fHeight = 1.0f, float fDepth = 1.0f, float fxPosition = 0.0f, float fyPosition = 0.0f, float fzPosition = 0.0f);
-	virtual ~CTexturedRectMesh();
 };
 
 class WaveMesh : public Mesh
