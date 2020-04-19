@@ -10,53 +10,41 @@ public:
 	AnimationControllerState* state{ nullptr };
 	float TimePos = 0.0f;
 
-	AnimationControllerState* nextState{ nullptr };
-	float nextTimePos = 0.0f;
-	float transitionTime = 0.0f;
+	std::vector<PastState> pastStates;
 
 	void UpdateSkinnedAnimation(float dt)
 	{
-		AnimationControllerState* transitionState;
-		if(nextState)
-			transitionState = controller->Transition(nextState);
-		else
-			transitionState = controller->Transition(state);
-
+		AnimationControllerState* transitionState = controller->Transition(state);
+		
 		if (transitionState)
 		{
-			Debug::Log((transitionState->Name + "\n").c_str());
-			if (nextState)
-				state = nextState;
-			nextState = transitionState;
-			transitionTime = 0.0;
+			float transitionWeight = 1.0f;
+			for (auto& pastState : pastStates)
+				transitionWeight -= pastState.TransitionWeight;
+			pastStates.push_back({ state, TimePos, transitionWeight });
+			state = transitionState;
+			TimePos = 0.0f;
 		}
 
-		float lerpPercent = 0;
-		if (nextState)
+		for (auto iter = pastStates.begin(); iter != pastStates.end();)
 		{
-			nextTimePos += dt;
-			transitionTime += dt;
-			if (nextTimePos > controller->GetClipEndTime(nextState))
-				nextTimePos -= controller->GetClipEndTime(nextState);
-
-			lerpPercent = transitionTime / 0.25;
-		}
-		if (lerpPercent > 1)
-		{
-			state = nextState;
-			nextState = nullptr;
-			
-			TimePos = nextTimePos;
-			nextTimePos = 0;
-			
-			transitionTime = 0;
+			iter->TransitionTimePost -= dt;
+			if (iter->TransitionTimePost < 0.0f)
+				iter = pastStates.erase(iter);
+			else
+			{
+				iter->TimePos += dt;
+				if (iter->TimePos > controller->GetClipEndTime(iter->state))
+					iter->TimePos -= controller->GetClipEndTime(iter->state);
+				iter->TransitionWeight = min(iter->TransitionWeight, iter->TransitionTimePost / 0.25f);
+				++iter;
+			}
 		}
 
 		TimePos += dt;
 		if (TimePos > controller->GetClipEndTime(state))
 			TimePos -= controller->GetClipEndTime(state);
-		controller->GetFinalTransforms(state, TimePos, 
-			nextState, nextTimePos, lerpPercent, FinalTransforms);
+		controller->GetFinalTransforms(state, TimePos, pastStates, FinalTransforms);
 	}
 	void SetFloat(std::string name, float value)
 	{

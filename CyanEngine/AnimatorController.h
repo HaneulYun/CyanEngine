@@ -86,6 +86,14 @@ struct AnimationControllerState
 	std::vector< AnimationControllerStateTransition> transitionns;
 };
 
+struct PastState
+{
+	AnimationControllerState* state{ nullptr };
+	float TimePos{ 0.0f };
+	float TransitionWeight{ 1.0f };
+	float TransitionTimePost{ 0.25f };
+};
+
 class AnimatorController
 {
 public:
@@ -101,8 +109,7 @@ public:
 	float GetClipEndTime(const AnimationControllerState* state) const { return state->motion->GetClipEndTime(); }
 
 	void GetFinalTransforms(const AnimationControllerState* state, float timePos,
-		const AnimationControllerState* nextState, float nextTimePos, float lerpPercent,
-		std::vector<DirectX::XMFLOAT4X4>& finalTransforms) const;
+		std::vector<PastState>& pastStates, std::vector<XMFLOAT4X4>& finalTransforms) const;
 	AnimationControllerState* Transition(AnimationControllerState* state);
 
 	void AddState(std::string name, AnimationClip* clip)
