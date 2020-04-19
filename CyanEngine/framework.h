@@ -33,7 +33,7 @@ using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
-#define _WITH_TERRAIN_TESSELATION
+//#define _WITH_TERRAIN_TESSELATION
 
 #ifdef _WITH_TERRAIN_TESSELATION
 #define _WITH_TERRAIN_PARTITION

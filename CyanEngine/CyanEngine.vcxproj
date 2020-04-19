@@ -214,7 +214,6 @@
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UploadBuffer.h" />
     <ClInclude Include="Vector3.h" />
-    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimatorController.cpp" />

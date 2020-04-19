@@ -79,6 +79,8 @@ void SampleScene::BuildObjects()
 	geometries["Cylinder"] = Mesh::CreateCylinder();
 	AddFbxForAnimation("ApprenticeSK", "..\\CyanEngine\\Models\\modelTest.fbx");
 
+	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"..\\CyanEngine\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
+	CHeightMapGridMesh* gridMesh = new CHeightMapGridMesh(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, m_pHeightMapImage);
 
 	//*** Animation ***//
 	{
@@ -299,9 +301,10 @@ void SampleScene::BuildObjects()
 	
 	{
 		GameObject* grid = CreateEmpty();
-		auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();
+		grid->GetComponent<Transform>()->position -= {128, 20, 128};
+		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;// geometries["Plane"].get();
 		grid->AddComponent<Renderer>()->materials.push_back(3);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
+		renderObjectsLayer[(int)RenderLayer::Opaque][gridMesh].gameObjects.push_back(grid);
 	}
 	
 	for (int i = 0; i < 5; ++i)

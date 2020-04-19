@@ -84,9 +84,6 @@
     <ClInclude Include="Vector3.h">
       <Filter>0_00_CyanEngine\21_Math</Filter>
     </ClInclude>
-    <ClInclude Include="Vertex.h">
-      <Filter>0_00_CyanEngine\43_Meshes</Filter>
-    </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClInclude>

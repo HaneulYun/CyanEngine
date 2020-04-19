@@ -641,8 +641,6 @@ void Graphics::LoadAssets()
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
 
 	WaitForPreviousFrame();
-
-	//gnCbvSrvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 //--------------//

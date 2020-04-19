@@ -1,125 +1,23 @@
 #include "pch.h"
 #include "Meshs.h"
 
-ModelMesh::ModelMesh()
-{
-	Name = "Plane";
-	Create(GeometryType::GeometryType_Plane);
-}
-
-//***********************************************
-
-void MeshIlluminated::CalculateTriangleListVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* pxmf3Positions, int nVertices)
-{
-	int nPrimitives = nVertices / 3;
-	UINT nIndex0, nIndex1, nIndex2;
-	for (int i = 0; i < nPrimitives; i++)
-	{
-		nIndex0 = i * 3 + 0;
-		nIndex1 = i * 3 + 1;
-		nIndex2 = i * 3 + 2;
-		XMFLOAT3 xmf3Edge01 = NS_Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
-		XMFLOAT3 xmf3Edge02 = NS_Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
-		pxmf3Normals[nIndex0] = pxmf3Normals[nIndex1] = pxmf3Normals[nIndex2] = NS_Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
-	}
-}
-
-void MeshIlluminated::CalculateTriangleListVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* pxmf3Positions, UINT nVertices, UINT* pnIndices, UINT nIndices)
-{
-	UINT nPrimitives = (pnIndices) ? (nIndices / 3) : (nVertices / 3);
-	XMFLOAT3 xmf3SumOfNormal, xmf3Edge01, xmf3Edge02, xmf3Normal;
-	UINT nIndex0, nIndex1, nIndex2;
-	for (UINT j = 0; j < nVertices; j++)
-	{
-		xmf3SumOfNormal = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		for (UINT i = 0; i < nPrimitives; i++)
-		{
-			nIndex0 = pnIndices[i * 3 + 0];
-			nIndex1 = pnIndices[i * 3 + 1];
-			nIndex2 = pnIndices[i * 3 + 2];
-			if (pnIndices && ((nIndex0 == j) || (nIndex1 == j) || (nIndex2 == j)))
-			{
-				xmf3Edge01 = NS_Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
-				xmf3Edge02 = NS_Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
-				xmf3Normal = NS_Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, false);
-				xmf3SumOfNormal = NS_Vector3::Add(xmf3SumOfNormal, xmf3Normal);
-			}
-		}
-		pxmf3Normals[j] = NS_Vector3::Normalize(xmf3SumOfNormal);
-	}
-}
-
-void MeshIlluminated::CalculateTriangleStripVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* pxmf3Positions, UINT nVertices, UINT* pnIndices, UINT nIndices)
-{
-	UINT nPrimitives = (pnIndices) ? (nIndices - 2) : (nVertices - 2);
-	XMFLOAT3 xmf3SumOfNormal(0.0f, 0.0f, 0.0f);
-	UINT nIndex0, nIndex1, nIndex2;
-	for (UINT j = 0; j < nVertices; j++)
-	{
-		xmf3SumOfNormal = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		for (UINT i = 0; i < nPrimitives; i++)
-		{
-			nIndex0 = ((i % 2) == 0) ? (i + 0) : (i + 1);
-			if (pnIndices)
-				nIndex0 = pnIndices[nIndex0];
-			nIndex1 = ((i % 2) == 0) ? (i + 1) : (i + 0);
-			if (pnIndices)
-				nIndex1 = pnIndices[nIndex1];
-			nIndex2 = (pnIndices) ? pnIndices[i + 2] : (i + 2);
-
-			if ((nIndex0 == j) || (nIndex1 == j) || (nIndex2 == j))
-			{
-				XMFLOAT3 xmf3Edge01 = NS_Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0]);
-				XMFLOAT3 xmf3Edge02 = NS_Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0]);
-				XMFLOAT3 xmf3Normal = NS_Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
-				xmf3SumOfNormal = NS_Vector3::Add(xmf3SumOfNormal, xmf3Normal);
-			}
-		}
-		pxmf3Normals[j] = NS_Vector3::Normalize(xmf3SumOfNormal);
-	}
-}
-
-void MeshIlluminated::CalculateVertexNormals(XMFLOAT3* pxmf3Normals, XMFLOAT3* pxmf3Positions, int nVertices, UINT* pnIndices, int nIndices)
-{
-	switch (m_d3dPrimitiveTopology)
-	{
-	case D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST:
-		if (pnIndices)
-			CalculateTriangleListVertexNormals(pxmf3Normals, pxmf3Positions, nVertices, pnIndices, nIndices);
-		else
-			CalculateTriangleListVertexNormals(pxmf3Normals, pxmf3Positions, nVertices);
-		break;
-	case D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP:
-		CalculateTriangleStripVertexNormals(pxmf3Normals, pxmf3Positions, nVertices, pnIndices, nIndices);
-		break;
-	default:
-		break;
-	}
-}
-
 CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale)
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;
 	m_xmf3Scale = xmf3Scale;
-	BYTE* pHeightMapPixels = new BYTE[m_nWidth * m_nLength];
 
-	//파일을 열고 읽는다. 높이 맵 이미지는 파일 헤더가 없는 RAW 이미지이다.
+	BYTE* pHeightMapPixels = new BYTE[m_nWidth * m_nLength];
 	HANDLE hFile = ::CreateFile(pFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, NULL);
 	DWORD dwBytesRead;
 	::ReadFile(hFile, pHeightMapPixels, (m_nWidth * m_nLength), &dwBytesRead, NULL);
 	::CloseHandle(hFile);
 
-	/*이미지의 y-축과 지형의 z-축이 방향이 반대이므로 이미지를 상하대칭 시켜 저장한다.
-	그러면 다음 그림과 같이 이미지의 좌표축과 지형의 좌표축의 방향이 일치하게 된다.*/
 	m_pHeightMapPixels = new BYTE[m_nWidth * m_nLength];
 	for (int y = 0; y < m_nLength; y++)
-	{
 		for (int x = 0; x < m_nWidth; x++)
-		{
 			m_pHeightMapPixels[x + ((m_nLength - 1 - y) * m_nWidth)] = pHeightMapPixels[x + (y * m_nWidth)];
-		}
-	}
+
 	if (pHeightMapPixels)
 		delete[] pHeightMapPixels;
 }
@@ -133,40 +31,29 @@ CHeightMapImage::~CHeightMapImage()
 
 XMFLOAT3 CHeightMapImage::GetHeightMapNormal(int x, int z)
 {
-	//x-좌표와 z-좌표가 높이 맵의 범위를 벗어나면 지형의 법선 벡터는 y-축 방향 벡터이다.
 	if ((x < 0.0f) || (z < 0.0f) || (x >= m_nWidth) || (z >= m_nLength))
 		return(XMFLOAT3(0.0f, 1.0f, 0.0f));
 
-	/*높이 맵에서 (x, z) 좌표의 픽셀 값과 인접한 두 개의 점 (x+1, z), (z, z+1)에 대한 픽셀 값을 사용하여 법선 벡터를 계산한다.*/
 	int nHeightMapIndex = x + (z * m_nWidth);
 	int xHeightMapAdd = (x < (m_nWidth - 1)) ? 1 : -1;
 	int zHeightMapAdd = (z < (m_nLength - 1)) ? m_nWidth : -m_nWidth;
 
-	//(x, z), (x+1, z), (z, z+1)의 픽셀에서 지형의 높이를 구한다.
 	float y1 = (float)m_pHeightMapPixels[nHeightMapIndex] * m_xmf3Scale.y;
 	float y2 = (float)m_pHeightMapPixels[nHeightMapIndex + xHeightMapAdd] * m_xmf3Scale.y;
 	float y3 = (float)m_pHeightMapPixels[nHeightMapIndex + zHeightMapAdd] * m_xmf3Scale.y;
 
-	//xmf3Edge1은 (0, y3, m_xmf3Scale.z) - (0, y1, 0) 벡터이다.
 	XMFLOAT3 xmf3Edge1 = XMFLOAT3(0.0f, y3 - y1, m_xmf3Scale.z);
-
-	//xmf3Edge2는 (m_xmf3Scale.x, y2, 0) - (0, y1, 0) 벡터이다.
 	XMFLOAT3 xmf3Edge2 = XMFLOAT3(m_xmf3Scale.x, y2 - y1, 0.0f);
-
-	//법선 벡터는 xmf3Edge1과 xmf3Edge2의 외적을 정규화하면 된다.
 	XMFLOAT3 xmf3Normal = NS_Vector3::CrossProduct(xmf3Edge1, xmf3Edge2, true);
 
 	return(xmf3Normal);
 }
 
-#define _WITH_APPROXIMATE_OPPOSITE_CORNER
 float CHeightMapImage::GetHeight(float fx, float fz)
 {
-	/*지형의 좌표 (fx, fz)는 이미지 좌표계이다. 높이 맵의 x-좌표와 z-좌표가 높이 맵의 범위를 벗어나면 지형의 높이는 0이다.*/
 	if ((fx < 0.0f) || (fz < 0.0f) || (fx >= m_nWidth) || (fz >= m_nLength))
 		return(0.0f);
 
-	//높이 맵의 좌표의 정수 부분과 소수 부분을 계산한다.
 	int x = (int)fx;
 	int z = (int)fz;
 	float fxPercent = fx - x;
@@ -176,17 +63,9 @@ float CHeightMapImage::GetHeight(float fx, float fz)
 	float fTopLeft = (float)m_pHeightMapPixels[x + ((z + 1) * m_nWidth)];
 	float fTopRight = (float)m_pHeightMapPixels[(x + 1) + ((z + 1) * m_nWidth)];
 
-#ifdef _WITH_APPROXIMATE_OPPOSITE_CORNER
-	//z-좌표가 1, 3, 5, ...인 경우 인덱스가 오른쪽에서 왼쪽으로 나열된다.
 	bool bRightToLeft = ((z % 2) != 0);
 	if (bRightToLeft)
 	{
-		/*지형의 삼각형들이 오른쪽에서 왼쪽 방향으로 나열되는 경우이다.
-		다음 그림의 오른쪽은 (fzPercent < fxPercent)인 경우이다.
-		이 경우 TopLeft의 픽셀 값은 (fTopLeft = fTopRight + (fBottomLeft - fBottomRight))로 근사한다.
-		다음 그림의 왼쪽은 (fzPercent ≥ fxPercent)인 경우이다.
-		이 경우 BottomRight의 픽셀 값은 (fBottomRight = fBottomLeft + (fTopRight - fTopLeft))로 근사한다.*/
-
 		if (fzPercent >= fxPercent)
 			fBottomRight = fBottomLeft + (fTopRight - fTopLeft);
 		else
@@ -194,19 +73,12 @@ float CHeightMapImage::GetHeight(float fx, float fz)
 	}
 	else
 	{
-		/*지형의 삼각형들이 왼쪽에서 오른쪽 방향으로 나열되는 경우이다.
-		다음 그림의 왼쪽은 (fzPercent < (1.0f - fxPercent))인 경우이다.
-		이 경우 TopRight의 픽셀 값은 (fTopRight = fTopLeft + (fBottomRight - fBottomLeft))로 근사한다.
-		다음 그림의 오른쪽은 (fzPercent ≥ (1.0f - fxPercent))인 경우이다.
-		이 경우 BottomLeft의 픽셀 값은 (fBottomLeft = fTopLeft + (fBottomRight - fTopRight))로 근사한다.*/
-
 		if (fzPercent < (1.0f - fxPercent))
 			fTopRight = fTopLeft + (fBottomRight - fBottomLeft);
 		else
 			fBottomLeft = fTopLeft + (fBottomRight - fTopRight);
 	}
-#endif
-	//사각형의 네 점을 보간하여 높이(픽셀 값)를 계산한다.
+
 	float fTopHeight = fTopLeft * (1 - fxPercent) + fTopRight * fxPercent;
 	float fBottomHeight = fBottomLeft * (1 - fxPercent) + fBottomRight * fxPercent;
 	float fHeight = fBottomHeight * (1 - fzPercent) + fTopHeight * fzPercent;
@@ -216,7 +88,7 @@ float CHeightMapImage::GetHeight(float fx, float fz)
 
 CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext)
 {
-	m_nStride = sizeof(CDiffused2TexturedVertex);
+	VertexByteStride = sizeof(FrameResource::Vertex);
 
 	m_nWidth = nWidth;
 	m_nLength = nLength;
@@ -226,11 +98,13 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST;
 	m_nVertices = 25;
 #else
-	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-	m_nVertices = nWidth * nLength;
+	PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 #endif
 
-	CDiffused2TexturedVertex* pVertices = new CDiffused2TexturedVertex[m_nVertices];
+	std::vector<FrameResource::Vertex> vertices;
+	std::vector<UINT> indices;
+
+	vertices.resize(nWidth * nLength);
 
 	CHeightMapImage* pHeightMapImage = (CHeightMapImage*)pContext;
 	int cxHeightMap = pHeightMapImage->GetHeightMapWidth();
@@ -257,25 +131,18 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 		for (int x = xStart; x < (xStart + nWidth); x++, i++)
 		{
 			fHeight = OnGetHeight(x, z, pContext);
-			pVertices[i].position = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
-			pVertices[i].color = NS_Vector4::Add(OnGetColor(x, z, pContext), xmf4Color);
-			pVertices[i].uv0 = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
-			pVertices[i].uv1 = XMFLOAT2(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f));
+			vertices[i].Pos = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
+			vertices[i].Normal = ((CHeightMapImage*)pContext)->GetHeightMapNormal(x, z);
+			vertices[i].TexC = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
+			vertices[i].TangentU = XMFLOAT3(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f), 0);
 			if (fHeight < fMinHeight) fMinHeight = fHeight;
 			if (fHeight > fMaxHeight) fMaxHeight = fHeight;
 		}
 	}
 #endif
 
-	vertexBuffer = ::CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
-	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = m_nStride;
-	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
-	delete[] pVertices;
-
-#ifndef _WITH_TERRAIN_TESSELATION
-	m_nIndices = ((nWidth * 2) * (nLength - 1)) + ((nLength - 1) - 1);
-	UINT* pnIndices = new UINT[m_nIndices];
+//#ifndef _WITH_TERRAIN_TESSELATION
+	indices.resize(((nWidth * 2) * (nLength - 1)) + ((nLength - 1) - 1));
 	for (int j = 0, z = 0; z < nLength - 1; z++)
 	{
 		if ((z % 2) == 0)
@@ -283,9 +150,9 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 			for (int x = 0; x < nWidth; x++)
 			{
 				if ((x == 0) && (z > 0))
-					pnIndices[j++] = (UINT)(x + (z * nWidth));
-				pnIndices[j++] = (UINT)(x + (z * nWidth));
-				pnIndices[j++] = (UINT)((x + (z * nWidth)) + nWidth);
+					indices[j++] = (UINT)(x + (z * nWidth));
+				indices[j++] = (UINT)(x + (z * nWidth));
+				indices[j++] = (UINT)((x + (z * nWidth)) + nWidth);
 			}
 		}
 		else
@@ -293,25 +160,45 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 			for (int x = nWidth - 1; x >= 0; x--)
 			{
 				if (x == (nWidth - 1))
-					pnIndices[j++] = (UINT)(x + (z * nWidth));
-				pnIndices[j++] = (UINT)(x + (z * nWidth));
-				pnIndices[j++] = (UINT)((x + (z * nWidth)) + nWidth);
+					indices[j++] = (UINT)(x + (z * nWidth));
+				indices[j++] = (UINT)(x + (z * nWidth));
+				indices[j++] = (UINT)((x + (z * nWidth)) + nWidth);
 			}
 		}
 	}
-	indexBuffer = ::CreateBufferResource(pnIndices, sizeof(UINT) * m_nIndices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &indexUploadBuffer);
-	indexBufferView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
-	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
-	indexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
-	delete[] pnIndices;
-#endif
+//#endif
+
+	const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::Vertex);
+	const UINT ibByteSize = (UINT)indices.size() * sizeof(UINT);
+
+	D3DCreateBlob(vbByteSize, &VertexBufferCPU);
+	CopyMemory(VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+	D3DCreateBlob(ibByteSize, &IndexBufferCPU);
+	CopyMemory(IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+	auto device = Graphics::Instance()->device;
+	auto commandList = Graphics::Instance()->commandList;
+
+	VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, VertexBufferUploader);
+	IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, IndexBufferUploader);
+
+	VertexByteStride = sizeof(FrameResource::Vertex);
+	VertexBufferByteSize = vbByteSize;
+	IndexFormat = DXGI_FORMAT_R32_UINT;
+	IndexBufferByteSize = ibByteSize;
+
+	SubmeshGeometry submesh;
+	submesh.IndexCount = (UINT)indices.size();
+	submesh.StartIndexLocation = 0;
+	submesh.BaseVertexLocation = 0;
+
+	DrawArgs["submesh"] = submesh;
 }
 
 CHeightMapGridMesh::~CHeightMapGridMesh()
 {
 }
 
-//높이 맵 이미지의 픽셀 값을 지형의 높이로 반환한다.
 float CHeightMapGridMesh::OnGetHeight(int x, int z, void *pContext)
 {
 	CHeightMapImage* pHeightMapImage = (CHeightMapImage*)pContext;
@@ -350,287 +237,4 @@ XMFLOAT4 CHeightMapGridMesh::OnGetColor(int x, int z, void* pContext)
 
 	XMFLOAT4 xmf4Color = NS_Vector4::Multiply(fScale, xmf4IncidentLightColor);
 	return(xmf4Color);
-}
-
-CMeshFromFile::CMeshFromFile(CMeshLoadInfo* pMeshInfo)
-{
-	m_nVertices = pMeshInfo->m_nVertices;
-	m_nType = pMeshInfo->m_nType;
-	
-	m_pd3dPositionBuffer = ::CreateBufferResource(pMeshInfo->m_pxmf3Positions, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
-	
-	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
-	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
-	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
-	
-	m_nSubMeshes = pMeshInfo->m_nSubMeshes;
-	if (m_nSubMeshes > 0)
-	{
-		m_ppd3dSubSetIndexBuffers = new ID3D12Resource * [m_nSubMeshes];
-		m_ppd3dSubSetIndexUploadBuffers = new ID3D12Resource * [m_nSubMeshes];
-		m_pd3dSubSetIndexBufferViews = new D3D12_INDEX_BUFFER_VIEW[m_nSubMeshes];
-	
-		m_pnSubSetIndices = new int[m_nSubMeshes];
-	
-		for (int i = 0; i < m_nSubMeshes; i++)
-		{
-			m_pnSubSetIndices[i] = pMeshInfo->m_pnSubSetIndices[i];
-			m_ppd3dSubSetIndexBuffers[i] = ::CreateBufferResource(pMeshInfo->m_ppnSubSetIndices[i], sizeof(UINT) * m_pnSubSetIndices[i], D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_ppd3dSubSetIndexUploadBuffers[i]);
-	
-			m_pd3dSubSetIndexBufferViews[i].BufferLocation = m_ppd3dSubSetIndexBuffers[i]->GetGPUVirtualAddress();
-			m_pd3dSubSetIndexBufferViews[i].Format = DXGI_FORMAT_R32_UINT;
-			m_pd3dSubSetIndexBufferViews[i].SizeInBytes = sizeof(UINT) * pMeshInfo->m_pnSubSetIndices[i];
-		}
-	}
-}
-
-CMeshFromFile::~CMeshFromFile()
-{
-	if (m_pd3dPositionBuffer) m_pd3dPositionBuffer->Release();
-
-	if (m_nSubMeshes > 0)
-	{
-		for (int i = 0; i < m_nSubMeshes; i++)
-		{
-			if (m_ppd3dSubSetIndexBuffers[i]) m_ppd3dSubSetIndexBuffers[i]->Release();
-		}
-		if (m_ppd3dSubSetIndexBuffers) delete[] m_ppd3dSubSetIndexBuffers;
-		if (m_pd3dSubSetIndexBufferViews) delete[] m_pd3dSubSetIndexBufferViews;
-
-		if (m_pnSubSetIndices) delete[] m_pnSubSetIndices;
-	}
-}
-
-void CMeshFromFile::ReleaseUploadBuffers()
-{
-	//Mesh::ReleaseUploadBuffers();
-
-	if (m_pd3dPositionUploadBuffer) m_pd3dPositionUploadBuffer->Release();
-	m_pd3dPositionUploadBuffer = NULL;
-
-	if ((m_nSubMeshes > 0) && m_ppd3dSubSetIndexUploadBuffers)
-	{
-		for (int i = 0; i < m_nSubMeshes; i++)
-		{
-			if (m_ppd3dSubSetIndexUploadBuffers[i]) m_ppd3dSubSetIndexUploadBuffers[i]->Release();
-		}
-		if (m_ppd3dSubSetIndexUploadBuffers) delete[] m_ppd3dSubSetIndexUploadBuffers;
-		m_ppd3dSubSetIndexUploadBuffers = NULL;
-	}
-}
-
-void CMeshFromFile::Render(int nSubSet)
-{
-	Graphics::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	Graphics::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
-	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
-	{
-		Graphics::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
-		Graphics::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
-	}
-	else
-	{
-		Graphics::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
-	}
-}
-
-CMeshIlluminatedFromFile::CMeshIlluminatedFromFile(CMeshLoadInfo* pMeshInfo) : 
-	CMeshFromFile::CMeshFromFile(pMeshInfo)
-{
-	m_pd3dNormalBuffer = ::CreateBufferResource(pMeshInfo->m_pxmf3Normals, sizeof(XMFLOAT3) * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dNormalUploadBuffer);
-
-	m_d3dNormalBufferView.BufferLocation = m_pd3dNormalBuffer->GetGPUVirtualAddress();
-	m_d3dNormalBufferView.StrideInBytes = sizeof(XMFLOAT3);
-	m_d3dNormalBufferView.SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
-}
-
-CMeshIlluminatedFromFile::~CMeshIlluminatedFromFile()
-{
-	if (m_pd3dNormalBuffer) m_pd3dNormalBuffer->Release();
-}
-
-void CMeshIlluminatedFromFile::ReleaseUploadBuffers()
-{
-	CMeshFromFile::ReleaseUploadBuffers();
-
-	if (m_pd3dNormalUploadBuffer) m_pd3dNormalUploadBuffer->Release();
-	m_pd3dNormalUploadBuffer = NULL;
-}
-
-void CMeshIlluminatedFromFile::Render(int nSubSet)
-{
-	Graphics::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
-	Graphics::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
-	{
-		Graphics::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
-		Graphics::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], 1, 0, 0, 0);
-	}
-	else
-	{
-		Graphics::Instance()->commandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
-	}
-}
-
-void CMeshIlluminatedFromFile::Render(UINT nInstances, int nSubSet)
-{
-	Graphics::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dPositionBufferView);
-	Graphics::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	if ((m_nSubMeshes > 0) && (nSubSet < m_nSubMeshes))
-	{
-		Graphics::Instance()->commandList->IASetIndexBuffer(&(m_pd3dSubSetIndexBufferViews[nSubSet]));
-		Graphics::Instance()->commandList->DrawIndexedInstanced(m_pnSubSetIndices[nSubSet], nInstances, 0, 0, 0);
-	}
-	else
-	{
-		Graphics::Instance()->commandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
-	}
-}
-
-CRawFormatImage::CRawFormatImage(LPCTSTR pFileName, int nWidth, int nLength, bool bFlipY)
-{
-	m_nWidth = nWidth;
-	m_nLength = nLength;
-
-	BYTE* pRawImagePixels = new BYTE[m_nWidth * m_nLength];
-
-	HANDLE hFile = ::CreateFile(pFileName, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, NULL);
-	DWORD dwBytesRead;
-	::ReadFile(hFile, pRawImagePixels, (m_nWidth * m_nLength), &dwBytesRead, NULL);
-	::CloseHandle(hFile);
-
-	if (bFlipY)
-	{
-		m_pRawImagePixels = new BYTE[m_nWidth * m_nLength];
-		for (int z = 0; z < m_nLength; z++)
-		{
-			for (int x = 0; x < m_nWidth; x++)
-			{
-				m_pRawImagePixels[x + ((m_nLength - 1 - z) * m_nWidth)] = pRawImagePixels[x + (z * m_nWidth)];
-			}
-		}
-	}
-	else
-	{
-		m_pRawImagePixels = pRawImagePixels;
-	}
-}
-
-CRawFormatImage::~CRawFormatImage()
-{
-	if (m_pRawImagePixels) delete[] m_pRawImagePixels;
-	m_pRawImagePixels = NULL;
-}
-
-WaveMesh::WaveMesh(float fWidth, float fHeight, float fDepth, float fxPosition, float fyPosition, float fzPosition)
-{
-	m_nVertices = 6;
-	m_nStride = sizeof(CTexturedVertex);
-	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
-	CTexturedVertex pVertices[6];
-
-	float fx = (fWidth * 0.5f) + fxPosition, fy = (fHeight * 0.5f) + fyPosition, fz = (fDepth * 0.5f) + fzPosition;
-
-	if (fWidth == 0.0f)
-	{
-		if (fxPosition > 0.0f)
-		{
-			pVertices[0] = CTexturedVertex(XMFLOAT3(fx, +fy, -fz), XMFLOAT2(1.0f, 0.0f));
-			pVertices[1] = CTexturedVertex(XMFLOAT3(fx, -fy, -fz), XMFLOAT2(1.0f, 1.0f));
-			pVertices[2] = CTexturedVertex(XMFLOAT3(fx, -fy, +fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[3] = CTexturedVertex(XMFLOAT3(fx, -fy, +fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[4] = CTexturedVertex(XMFLOAT3(fx, +fy, +fz), XMFLOAT2(0.0f, 0.0f));
-			pVertices[5] = CTexturedVertex(XMFLOAT3(fx, +fy, -fz), XMFLOAT2(1.0f, 0.0f));
-		}
-		else
-		{
-			pVertices[0] = CTexturedVertex(XMFLOAT3(fx, +fy, +fz), XMFLOAT2(1.0f, 0.0f));
-			pVertices[1] = CTexturedVertex(XMFLOAT3(fx, -fy, +fz), XMFLOAT2(1.0f, 1.0f));
-			pVertices[2] = CTexturedVertex(XMFLOAT3(fx, -fy, -fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[3] = CTexturedVertex(XMFLOAT3(fx, -fy, -fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[4] = CTexturedVertex(XMFLOAT3(fx, +fy, -fz), XMFLOAT2(0.0f, 0.0f));
-			pVertices[5] = CTexturedVertex(XMFLOAT3(fx, +fy, +fz), XMFLOAT2(1.0f, 0.0f));
-		}
-	}
-	else if (fHeight == 0.0f)
-	{
-		if (fyPosition > 0.0f)
-		{
-			pVertices[0] = CTexturedVertex(XMFLOAT3(+fx, fy, -fz), XMFLOAT2(1.0f, 0.0f));
-			pVertices[1] = CTexturedVertex(XMFLOAT3(+fx, fy, +fz), XMFLOAT2(1.0f, 1.0f));
-			pVertices[2] = CTexturedVertex(XMFLOAT3(-fx, fy, +fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[3] = CTexturedVertex(XMFLOAT3(-fx, fy, +fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[4] = CTexturedVertex(XMFLOAT3(-fx, fy, -fz), XMFLOAT2(0.0f, 0.0f));
-			pVertices[5] = CTexturedVertex(XMFLOAT3(+fx, fy, -fz), XMFLOAT2(1.0f, 0.0f));
-		}
-		else
-		{
-			pVertices[0] = CTexturedVertex(XMFLOAT3(+fx, fy, +fz), XMFLOAT2(1.0f, 0.0f));
-			pVertices[1] = CTexturedVertex(XMFLOAT3(+fx, fy, -fz), XMFLOAT2(1.0f, 1.0f));
-			pVertices[2] = CTexturedVertex(XMFLOAT3(-fx, fy, -fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[3] = CTexturedVertex(XMFLOAT3(-fx, fy, -fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[4] = CTexturedVertex(XMFLOAT3(-fx, fy, +fz), XMFLOAT2(0.0f, 0.0f));
-			pVertices[5] = CTexturedVertex(XMFLOAT3(+fx, fy, +fz), XMFLOAT2(1.0f, 0.0f));
-		}
-	}
-	else if (fDepth == 0.0f)
-	{
-		if (fzPosition > 0.0f)
-		{
-			pVertices[0] = CTexturedVertex(XMFLOAT3(+fx, +fy, fz), XMFLOAT2(1.0f, 0.0f));
-			pVertices[1] = CTexturedVertex(XMFLOAT3(+fx, -fy, fz), XMFLOAT2(1.0f, 1.0f));
-			pVertices[2] = CTexturedVertex(XMFLOAT3(-fx, -fy, fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[3] = CTexturedVertex(XMFLOAT3(-fx, -fy, fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[4] = CTexturedVertex(XMFLOAT3(-fx, +fy, fz), XMFLOAT2(0.0f, 0.0f));
-			pVertices[5] = CTexturedVertex(XMFLOAT3(+fx, +fy, fz), XMFLOAT2(1.0f, 0.0f));
-		}
-		else
-		{
-			pVertices[0] = CTexturedVertex(XMFLOAT3(-fx, +fy, fz), XMFLOAT2(1.0f, 0.0f));
-			pVertices[1] = CTexturedVertex(XMFLOAT3(-fx, -fy, fz), XMFLOAT2(1.0f, 1.0f));
-			pVertices[2] = CTexturedVertex(XMFLOAT3(+fx, -fy, fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[3] = CTexturedVertex(XMFLOAT3(+fx, -fy, fz), XMFLOAT2(0.0f, 1.0f));
-			pVertices[4] = CTexturedVertex(XMFLOAT3(+fx, +fy, fz), XMFLOAT2(0.0f, 0.0f));
-			pVertices[5] = CTexturedVertex(XMFLOAT3(-fx, +fy, fz), XMFLOAT2(1.0f, 0.0f));
-		}
-	}
-
-	vertexBuffer = CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
-
-	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = m_nStride;
-	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
-}
-
-MeshFromFbx::MeshFromFbx(FbxMesh* fbxMesh)
-{
-	int triangleCount = fbxMesh->GetPolygonCount();
-	m_nVertices = triangleCount * 3;
-	m_nStride = sizeof(DiffusedVertex);
-	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-
-	DiffusedVertex* pVertices = new DiffusedVertex[m_nVertices];
-
-	FbxVector4* vertices = fbxMesh->GetControlPoints();
-
-	for (int i = 0; i < triangleCount; ++i)
-	{
-		for (int j = 0; j < 3; ++j)
-		{
-			int ctrlPointIndex = fbxMesh->GetPolygonVertex(i, j);
-
-			float x = vertices[ctrlPointIndex].mData[0];
-			float y = vertices[ctrlPointIndex].mData[1];
-			float z = vertices[ctrlPointIndex].mData[2];
-
-			pVertices[i * 3 + j] = DiffusedVertex(XMFLOAT3(x, y, z), XMFLOAT4(Colors::White));
-		}
-	}
-
-	vertexBuffer = CreateBufferResource(pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &vertexUploadBuffer);
-
-	vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-	vertexBufferView.StrideInBytes = m_nStride;
-	vertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 }
