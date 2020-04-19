@@ -180,7 +180,6 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="DefaultMaterial.h" />
     <ClInclude Include="FbxLoader.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="framework.h" />
@@ -230,7 +229,6 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="DefaultMaterial.cpp" />
     <ClCompile Include="FbxLoader.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="framework.cpp" />

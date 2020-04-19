@@ -10,9 +10,6 @@
     <Filter Include="0_00_CyanEngine\90_PATTERN">
       <UniqueIdentifier>{554ca85f-d882-4f3c-a855-931b01dcb805}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\41_Components">
-      <UniqueIdentifier>{1b9adc8f-b973-44a8-87ab-9e9e73313bec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine\43_Meshes">
       <UniqueIdentifier>{c6a5e6c6-5702-463a-af85-cc74b835a3b8}</UniqueIdentifier>
     </Filter>
@@ -52,6 +49,12 @@
     <Filter Include="0_00_CyanEngine\21_Math">
       <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\12_GraphicsComponent">
+      <UniqueIdentifier>{088748de-42c3-4051-9b78-2bb77a8e8345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\13_FixedComponent">
+      <UniqueIdentifier>{1b9adc8f-b973-44a8-87ab-9e9e73313bec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -75,20 +78,8 @@
     <ClInclude Include="Singleton.h">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
     </ClInclude>
-    <ClInclude Include="MeshFilter.h">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClInclude>
-    <ClInclude Include="DefaultMaterial.h">
-      <Filter>0_00_CyanEngine\44_Materials</Filter>
-    </ClInclude>
     <ClInclude Include="Transform.h">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="Vector3.h">
       <Filter>0_00_CyanEngine\21_Math</Filter>
@@ -97,7 +88,7 @@
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
     </ClInclude>
     <ClInclude Include="Terrain.h">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="MonoBehavior.h">
       <Filter>0_00_CyanEngine\11_Core</Filter>
@@ -115,10 +106,10 @@
       <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="BoxCollider.h">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="DDSTextureLoader12.h">
       <Filter>0_00_CyanEngine\80_API</Filter>
@@ -127,7 +118,7 @@
       <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClInclude>
     <ClInclude Include="SphereCollider.h">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
@@ -164,7 +155,6 @@
     </ClInclude>
     <ClInclude Include="UploadBuffer.h" />
     <ClInclude Include="d3dUtil.h" />
-    <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="DDSTextureLoader.h" />
@@ -177,10 +167,30 @@
     <ClInclude Include="FbxLoader.h">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="SkinnedMeshRenderer.h" />
-    <ClInclude Include="Animator.h" />
-    <ClInclude Include="AnimatorController.h" />
-    <ClInclude Include="Text.h" />
+    <ClInclude Include="Renderer.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshFilter.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimatorController.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Text.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedMeshRenderer.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryGenerator.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -204,20 +214,11 @@
     <ClCompile Include="Singleton.cpp">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
     </ClCompile>
-    <ClCompile Include="DefaultMaterial.cpp">
-      <Filter>0_00_CyanEngine\44_Materials</Filter>
-    </ClCompile>
     <ClCompile Include="Transform.cpp">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="Terrain.cpp">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="ModelManager.cpp">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
@@ -232,10 +233,10 @@
       <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClCompile>
     <ClCompile Include="Collider.cpp">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="BoxCollider.cpp">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader12.cpp">
       <Filter>0_00_CyanEngine\80_API</Filter>
@@ -244,7 +245,7 @@
       <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClCompile>
     <ClCompile Include="SphereCollider.cpp">
-      <Filter>0_00_CyanEngine\41_Components</Filter>
+      <Filter>0_00_CyanEngine\13_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
@@ -277,7 +278,6 @@
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
     <ClCompile Include="d3dUtil.cpp" />
-    <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
@@ -287,8 +287,21 @@
     <ClCompile Include="FbxLoader.cpp">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="SkinnedMeshRenderer.cpp" />
-    <ClCompile Include="AnimatorController.cpp" />
+    <ClCompile Include="Renderer.cpp">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimatorController.cpp">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedMeshRenderer.cpp">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryGenerator.cpp">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Texture.hlsl">
