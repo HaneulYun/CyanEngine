@@ -12,60 +12,24 @@ Scene::~Scene()
 void Scene::Start()
 {
 	Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
-
-	FbxModelData modelData;
-	modelData.LoadFbx("..\\CyanEngine\\Models\\modelTest.fbx");
-	FbxModelData animData0;
-	animData0.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Idle_BowAnim.fbx",			"Attack01_BowAnim");
-	FbxModelData animData1;
-	animData1.LoadFbx("..\\CyanEngine\\Models\\BowStance\\DieRecover_BowAnim.fbx",	"Attack01Maintain_BowAnim");
-	FbxModelData animData2;
-	animData2.LoadFbx("..\\CyanEngine\\Models\\BowStance\\JumpEnd_BowAnim.fbx",	"Attack01RepeatFire_BowAnim");
-	FbxModelData animData3;
-	animData3.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Sprint_BowAnim.fbx",		"Attack01Start_BowAnim");
-	FbxModelData animData4;
-	animData4.LoadFbx("..\\CyanEngine\\Models\\BowStance\\WalkBack_BowAnim.fbx",	"Attack02Maintain_BowAnim");
-	FbxModelData animData5;
-	animData5.LoadFbx("..\\CyanEngine\\Models\\BowStance\\RollBack_Bow.fbx",	"Attack02RepeatFire_BowAnim");
-	FbxModelData animData6;
-	animData6.LoadFbx("..\\CyanEngine\\Models\\BowStance\\GetHit_BowAnim.fbx",		"Attack02Start_BowAnim");
-	FbxModelData animData7;
-	animData7.LoadFbx("..\\CyanEngine\\Models\\BowStance\\EquipmentChange_BowAnim.fbx",		"DashBackward_BowAnim");
-	FbxModelData animData8;
-	animData8.LoadFbx("..\\CyanEngine\\Models\\BowStance\\DashForward_BowAnim.fbx",			"DashForward_BowAnim");
-
-
-	FbxModelData animData10;
-	animData10.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Walk_BowAnim.fbx",		"Walk_BowAnim");
-	FbxModelData animData11;
-	animData11.LoadFbx("..\\CyanEngine\\Models\\BowStance\\WalkBack_BowAnim.fbx",	"WalkBack_BowAnim");
-	FbxModelData animData12;
-	animData12.LoadFbx("..\\CyanEngine\\Models\\BowStance\\WalkRight_BowAnim.fbx",	"WalkRight_BowAnim");
-	FbxModelData animData13;
-	animData13.LoadFbx("..\\CyanEngine\\Models\\BowStance\\WalkLeft_BowAnim.fbx",	"WalkLeft_BowAnim");
-	FbxModelData animData14;
-	animData14.LoadFbx("..\\CyanEngine\\Models\\BowStance\\Idle_BowAnim.fbx",		"Idle_BowAnim");
 	
 	BuildObjects();
 
+	auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-
-	auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());
-	for (auto& d : textures)
+	for (auto& data : textures)
 	{
-		auto texture = d.second.get();
-		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
-			texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
-	
+		auto texture = data.second.get();
+
+		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), texture->Index, Graphics::Instance()->srvDescriptorSize);
+		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
 		srvDesc.Format = texture->Resource->GetDesc().Format;
 		srvDesc.Texture2D.MipLevels = texture->Resource->GetDesc().MipLevels;
 
-		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(),
-			texture->Index, Graphics::Instance()->srvDescriptorSize);
 		Graphics::Instance()->device->CreateShaderResourceView(texture->Resource.Get(), &srvDesc, handle);
 	}
 

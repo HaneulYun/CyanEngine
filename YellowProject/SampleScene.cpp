@@ -3,19 +3,17 @@
 
 Scene* Scene::scene{ nullptr };
 
-std::string mSkinnedModelFilename = "ApprenticeSK";
-
 void SampleScene::BuildObjects()
 {
-	//*** Asset ***//
+	///*** Asset ***///
 
 	//*** Texture ***//
 	{
-		AddTexture(0, "none", L"..\\CyanEngine\\Textures\\none.dds");
-		AddTexture(1, "polyArtTex", L"..\\CyanEngine\\Textures\\PolyArtTex.dds");
-		AddTexture(2, "bricksTex", L"..\\CyanEngine\\Textures\\bricks.dds");
-		AddTexture(3, "stoneTex", L"..\\CyanEngine\\Textures\\stone.dds");
-		AddTexture(4, "tileTex", L"..\\CyanEngine\\Textures\\tile.dds");
+		AddTexture(0, "none",		L"..\\CyanEngine\\Textures\\none.dds");
+		AddTexture(1, "polyArtTex",	L"..\\CyanEngine\\Textures\\PolyArtTex.dds");
+		AddTexture(2, "bricksTex",	L"..\\CyanEngine\\Textures\\bricks.dds");
+		AddTexture(3, "stoneTex",	L"..\\CyanEngine\\Textures\\stone.dds");
+		AddTexture(4, "tileTex",	L"..\\CyanEngine\\Textures\\tile.dds");
 	}
 
 	//*** Material ***//
@@ -79,13 +77,31 @@ void SampleScene::BuildObjects()
 	auto mesh_grid = new Plane();
 	auto mesh_sphere = new Sphere();
 	auto mesh_cylinder = new Cylinder();
+	AddFbxForAnimation("ApprenticeSK", "..\\CyanEngine\\Models\\modelTest.fbx");
 
+
+	//*** Animation ***//
+	{
+		AddFbxForAnimation("Attack01_BowAnim",				"..\\CyanEngine\\Models\\BowStance\\Attack01_BowAnim.fbx");
+		AddFbxForAnimation("Attack01Maintain_BowAnim",		"..\\CyanEngine\\Models\\BowStance\\Attack01Maintain_BowAnim.fbx");
+		AddFbxForAnimation("Attack01RepeatFire_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\Attack01RepeatFire_BowAnim.fbx");
+		AddFbxForAnimation("Attack01Start_BowAnim",			"..\\CyanEngine\\Models\\BowStance\\Attack01Start_BowAnim.fbx");
+		AddFbxForAnimation("Attack02Maintain_BowAnim",		"..\\CyanEngine\\Models\\BowStance\\Attack02Maintain_BowAnim.fbx");
+		AddFbxForAnimation("Attack02RepeatFire_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\Attack02RepeatFire_BowAnim.fbx");
+		AddFbxForAnimation("Attack02Start_BowAnim",			"..\\CyanEngine\\Models\\BowStance\\Attack02Start_BowAnim.fbx");
+		AddFbxForAnimation("DashBackward_BowAnim",			"..\\CyanEngine\\Models\\BowStance\\DashBackward_BowAnim.fbx");
+		AddFbxForAnimation("DashForward_BowAnim",			"..\\CyanEngine\\Models\\BowStance\\DashForward_BowAnim.fbx");
+
+		AddFbxForAnimation("Walk_BowAnim",		"..\\CyanEngine\\Models\\BowStance\\Walk_BowAnim.fbx");
+		AddFbxForAnimation("WalkBack_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\WalkBack_BowAnim.fbx");
+		AddFbxForAnimation("WalkRight_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\WalkRight_BowAnim.fbx");
+		AddFbxForAnimation("WalkLeft_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\WalkLeft_BowAnim.fbx");
+		AddFbxForAnimation("Idle_BowAnim",		"..\\CyanEngine\\Models\\BowStance\\Idle_BowAnim.fbx");
+	}
 
 	AnimatorController* controller = new AnimatorController();
 	//*** AnimatorController ***//
 	{
-		controller->AddParameterFloat("Speed");
-		controller->AddParameterFloat("HoriSpeed");
 
 		controller->AddState("Attack01_BowAnim", animationClips["Attack01_BowAnim"].get());
 		controller->AddState("Attack01Maintain_BowAnim", animationClips["Attack01Maintain_BowAnim"].get());
@@ -97,24 +113,27 @@ void SampleScene::BuildObjects()
 		controller->AddState("DashBackward_BowAnim", animationClips["DashBackward_BowAnim"].get());
 		controller->AddState("DashForward_BowAnim", animationClips["DashForward_BowAnim"].get());
 
-		controller->AddState("Idle", animationClips["Idle_BowAnim"].get());
-		controller->AddState("Walk", animationClips["Walk_BowAnim"].get());
-		controller->AddState("WalkBack", animationClips["WalkBack_BowAnim"].get());
-		controller->AddState("WalkRight", animationClips["WalkRight_BowAnim"].get());
-		controller->AddState("WalkLeft", animationClips["WalkLeft_BowAnim"].get());
+		controller->AddParameterFloat("Speed");
+		controller->AddParameterFloat("HoriSpeed");
 
-		controller->AddTransition("Idle", "Walk", AnimationControllerStateTransitionCondition::CreateFloat("Speed", Greater, 0.1));
-		controller->AddTransition("Idle", "WalkBack", AnimationControllerStateTransitionCondition::CreateFloat("Speed", Less, -0.1));
-		controller->AddTransition("Walk", "Idle", AnimationControllerStateTransitionCondition::CreateFloat("Speed", Less, 0.1));
-		controller->AddTransition("WalkBack", "Idle", AnimationControllerStateTransitionCondition::CreateFloat("Speed", Greater, -0.1));
+		controller->AddState("Idle",		animationClips["Idle_BowAnim"].get());
+		controller->AddState("Walk",		animationClips["Walk_BowAnim"].get());
+		controller->AddState("WalkBack",	animationClips["WalkBack_BowAnim"].get());
+		controller->AddState("WalkRight",	animationClips["WalkRight_BowAnim"].get());
+		controller->AddState("WalkLeft",	animationClips["WalkLeft_BowAnim"].get());
 
-		controller->AddTransition("Idle", "WalkLeft", AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Greater, 0.1));
-		controller->AddTransition("Idle", "WalkRight", AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Less, -0.1));
-		controller->AddTransition("WalkLeft", "Idle", AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Less, 0.1));
-		controller->AddTransition("WalkRight", "Idle", AnimationControllerStateTransitionCondition::CreateFloat("HoriSpeed", Greater, -0.1));
+		controller->AddTransition("Idle", "Walk",		TransitionCondition::CreateFloat("Speed", Greater, 0.1));
+		controller->AddTransition("Idle", "WalkBack",	TransitionCondition::CreateFloat("Speed", Less, -0.1));
+		controller->AddTransition("Walk", "Idle",		TransitionCondition::CreateFloat("Speed", Less, 0.1));
+		controller->AddTransition("WalkBack", "Idle",	TransitionCondition::CreateFloat("Speed", Greater, -0.1));
+
+		controller->AddTransition("Idle", "WalkLeft",	TransitionCondition::CreateFloat("HoriSpeed", Greater, 0.1));
+		controller->AddTransition("Idle", "WalkRight",	TransitionCondition::CreateFloat("HoriSpeed", Less, -0.1));
+		controller->AddTransition("WalkLeft", "Idle",	TransitionCondition::CreateFloat("HoriSpeed", Less, 0.1));
+		controller->AddTransition("WalkRight", "Idle",	TransitionCondition::CreateFloat("HoriSpeed", Greater, -0.1));
 	}
 
-	//*** Game Object ***//
+	///*** Game Object ***///
 
 	GameObject* mainCamera = CreateEmpty();
 	{
@@ -146,7 +165,6 @@ void SampleScene::BuildObjects()
 
 	int count = 1;
 	float interval = 7.0f;
-	int skinnedIndex = 0;
 	for (int x = -count; x <= count; ++x)
 		for (int z = -count; z <= count; ++z)
 		{
@@ -154,7 +172,7 @@ void SampleScene::BuildObjects()
 			ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
 			ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 			ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
-			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries[mSkinnedModelFilename].get();
+			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries["ApprenticeSK"].get();
 			auto renderer = ritem->GetComponent<SkinnedMeshRenderer>();
 			for (auto& sm : mesh->DrawArgs)
 				renderer->materials.push_back(0);

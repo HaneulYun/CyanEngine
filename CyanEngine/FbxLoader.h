@@ -9,19 +9,14 @@ enum class RenderLayer : int
 	Count
 };
 
-//struct TextureData
-//{
-//	std::string name;
-//	std::wstring fileName;
-//};
-
+struct BoneWeightData
+{
+	unsigned int boneIndex;
+	double weight;
+};
 struct FbxModelData
 {
-	struct BoneWeightData
-	{
-		unsigned int boneIndex;
-		double weight;
-	};
+	std::string name{};
 
 	bool loadedMesh{ false };
 
@@ -32,7 +27,8 @@ struct FbxModelData
 	std::map<std::string, int> skeletonIndexer;
 
 	// Assets Management
-	void LoadFbx(const char* path, std::string animName = {});
+	void SetName(std::string name) { this->name = name; }
+	void LoadFbx(const char* path);
 	void LoadFbxHierarchy(FbxNode* node);
 	void LoadFbxHierarchyRecursive(FbxNode* node, int parentIndex = -1);
 	void LoadFbxMesh(FbxNode* node);

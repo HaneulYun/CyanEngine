@@ -7,9 +7,6 @@
     <Filter Include="0_00_CyanEngine\00_CyanFW">
       <UniqueIdentifier>{b57abeb9-d8b9-4cb0-8d31-57462a1ad71b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\20_Scene">
-      <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine\90_PATTERN">
       <UniqueIdentifier>{554ca85f-d882-4f3c-a855-931b01dcb805}</UniqueIdentifier>
     </Filter>
@@ -28,12 +25,6 @@
     <Filter Include="0_00_CyanEngine\30_Manager">
       <UniqueIdentifier>{49fd7a77-e251-4134-81a5-4118fe56c241}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\11_Interface">
-      <UniqueIdentifier>{01839377-33fb-4f77-ac2e-7c2ac006ab2a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="0_00_CyanEngine\12_Math">
-      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
-    </Filter>
     <Filter Include="shaders">
       <UniqueIdentifier>{761e2aee-8ba3-4d70-ae2b-b8ae022c7bcf}</UniqueIdentifier>
     </Filter>
@@ -46,28 +37,37 @@
     <Filter Include="shaders\older">
       <UniqueIdentifier>{8c041714-154e-44f0-a198-dae01265649a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\10_Core">
-      <UniqueIdentifier>{41597c93-ee10-4479-9512-8b498090fa31}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine\01_Graphics">
       <UniqueIdentifier>{53165671-5924-414f-906b-b69e0320206a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\10_Scene">
+      <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\20_Interface">
+      <UniqueIdentifier>{01839377-33fb-4f77-ac2e-7c2ac006ab2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\11_Core">
+      <UniqueIdentifier>{41597c93-ee10-4479-9512-8b498090fa31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\21_Math">
+      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
-      <Filter>0_00_CyanEngine\20_Scene</Filter>
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClInclude>
     <ClInclude Include="CyanFW.h">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
-      <Filter>0_00_CyanEngine\10_Core</Filter>
+      <Filter>0_00_CyanEngine\11_Core</Filter>
     </ClInclude>
     <ClInclude Include="Component.h">
-      <Filter>0_00_CyanEngine\10_Core</Filter>
+      <Filter>0_00_CyanEngine\11_Core</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
-      <Filter>0_00_CyanEngine\10_Core</Filter>
+      <Filter>0_00_CyanEngine\11_Core</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
@@ -91,7 +91,7 @@
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
     <ClInclude Include="Vector3.h">
-      <Filter>0_00_CyanEngine\12_Math</Filter>
+      <Filter>0_00_CyanEngine\21_Math</Filter>
     </ClInclude>
     <ClInclude Include="Vertex.h">
       <Filter>0_00_CyanEngine\43_Meshes</Filter>
@@ -100,19 +100,19 @@
       <Filter>0_00_CyanEngine\41_Components</Filter>
     </ClInclude>
     <ClInclude Include="MonoBehavior.h">
-      <Filter>0_00_CyanEngine\10_Core</Filter>
+      <Filter>0_00_CyanEngine\11_Core</Filter>
     </ClInclude>
     <ClInclude Include="ModelManager.h">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
-      <Filter>0_00_CyanEngine\11_Interface</Filter>
+      <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClInclude>
     <ClInclude Include="Random.h">
-      <Filter>0_00_CyanEngine\11_Interface</Filter>
+      <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClInclude>
     <ClInclude Include="Time.h">
-      <Filter>0_00_CyanEngine\11_Interface</Filter>
+      <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h">
       <Filter>0_00_CyanEngine\41_Components</Filter>
@@ -133,7 +133,7 @@
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClInclude>
     <ClInclude Include="Debug.h">
-      <Filter>0_00_CyanEngine\11_Interface</Filter>
+      <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClInclude>
     <ClInclude Include="StandardShader.h">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
@@ -169,7 +169,7 @@
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="Material.h">
-      <Filter>0_00_CyanEngine\10_Core</Filter>
+      <Filter>0_00_CyanEngine\11_Core</Filter>
     </ClInclude>
     <ClInclude Include="Graphics.h">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
@@ -184,19 +184,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
-      <Filter>0_00_CyanEngine\20_Scene</Filter>
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClCompile>
     <ClCompile Include="CyanFW.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
-      <Filter>0_00_CyanEngine\10_Core</Filter>
+      <Filter>0_00_CyanEngine\11_Core</Filter>
     </ClCompile>
     <ClCompile Include="Component.cpp">
-      <Filter>0_00_CyanEngine\10_Core</Filter>
+      <Filter>0_00_CyanEngine\11_Core</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
-      <Filter>0_00_CyanEngine\10_Core</Filter>
+      <Filter>0_00_CyanEngine\11_Core</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
       <Filter>0_00_CyanEngine\30_Manager</Filter>
@@ -223,13 +223,13 @@
       <Filter>0_00_CyanEngine\30_Manager</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
-      <Filter>0_00_CyanEngine\11_Interface</Filter>
+      <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClCompile>
     <ClCompile Include="Random.cpp">
-      <Filter>0_00_CyanEngine\11_Interface</Filter>
+      <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClCompile>
     <ClCompile Include="Time.cpp">
-      <Filter>0_00_CyanEngine\11_Interface</Filter>
+      <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClCompile>
     <ClCompile Include="Collider.cpp">
       <Filter>0_00_CyanEngine\41_Components</Filter>
@@ -250,7 +250,7 @@
       <Filter>0_00_CyanEngine\42_Shaders</Filter>
     </ClCompile>
     <ClCompile Include="Debug.cpp">
-      <Filter>0_00_CyanEngine\11_Interface</Filter>
+      <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClCompile>
     <ClCompile Include="StandardShader.cpp">
       <Filter>0_00_CyanEngine\42_Shaders</Filter>

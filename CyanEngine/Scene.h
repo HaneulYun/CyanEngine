@@ -76,7 +76,7 @@ public:
 	void PushDelete(GameObject*);
 	void Delete(GameObject*);
 
-	// Texture
+	// Asset Managerment
 	void AddTexture(UINT index, std::string name, std::wstring fileName)
 	{
 		auto texture = std::make_unique<Texture>();
@@ -84,5 +84,17 @@ public:
 		texture->Filename = fileName;
 		texture->Index = index;
 		textures[texture->Name] = std::move(texture);
+	}
+	void AddFbxForMesh(std::string name, std::string fileNmae)
+	{
+		FbxModelData data;
+		data.SetName(name);
+		data.LoadFbx(fileNmae.c_str());
+	}
+	void AddFbxForAnimation(std::string name, std::string fileNmae)
+	{
+		FbxModelData data;
+		data.SetName(name);
+		data.LoadFbx(fileNmae.c_str());
 	}
 };

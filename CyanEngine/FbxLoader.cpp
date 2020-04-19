@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "FbxLoader.h"
 
-void FbxModelData::LoadFbx(const char* path, std::string animName)
+void FbxModelData::LoadFbx(const char* path)
 {
 	FbxManager* manager = FbxManager::Create();
 
@@ -84,7 +84,7 @@ void FbxModelData::LoadFbx(const char* path, std::string animName)
 		}
 		
 
-		Scene::scene->animationClips[animName] = std::move(clip);
+		Scene::scene->animationClips[name] = std::move(clip);
 	}
 }
 
@@ -371,6 +371,6 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 			mesh->DrawArgs[name] = submesh;
 		}
-		Scene::scene->geometries["ApprenticeSK"] = std::move(mesh);
+		Scene::scene->geometries[name] = std::move(mesh);
 	}
 }

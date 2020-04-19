@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Graphics.h"
 
-extern UINT gnCbvSrvDescriptorIncrementSize;
+//extern UINT gnCbvSrvDescriptorIncrementSize;
 
 Graphics::Graphics()
 {
@@ -642,7 +642,7 @@ void Graphics::LoadAssets()
 
 	WaitForPreviousFrame();
 
-	gnCbvSrvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	//gnCbvSrvDescriptorIncrementSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 //--------------//

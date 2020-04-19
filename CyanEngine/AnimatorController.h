@@ -70,6 +70,7 @@ struct AnimationControllerStateTransitionCondition
 		return condition;
 	}
 };
+typedef AnimationControllerStateTransitionCondition TransitionCondition;
 
 struct AnimationControllerStateTransition
 {
