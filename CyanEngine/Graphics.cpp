@@ -165,16 +165,6 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		XMVECTOR pos = XMLoadFloat3(&transform->position.xmf3);
 		XMVECTOR lookAt = XMLoadFloat3(&vLookAt.xmf3);
 		XMVECTOR up{ 0, 1, 0 };
-
-		{
-			XMFLOAT3 k;
-			XMStoreFloat3(&k, pos);
-
-			Debug::Log((std::to_string(k.x) + " " +
-				std::to_string(k.y) + " " +
-				std::to_string(k.z) + "\n").c_str());
-		}
-
 		XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
 		XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
 		XMMATRIX ViewProj = view * proj;
