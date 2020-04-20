@@ -236,46 +236,61 @@ void Graphics::Render()
 
 	for(int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 	{
-		for(auto& renderSets: Scene::scene->renderObjectsLayer[layerIndex])
-		{
-			auto& mesh = renderSets.first;
-			auto& objects = renderSets.second.gameObjects;
-			if (!objects.size())
-				continue;
-
-			auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
-			auto instanceBuffer = objectsResource->InstanceBuffer.get();
-			auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
-			auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
-
-			commandList->SetGraphicsRootShaderResourceView(5, instanceBuffer->Resource()->GetGPUVirtualAddress());
-			commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
-
-			if (layerIndex == (int)RenderLayer::SkinnedOpaque)
-				commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
-			else
-				commandList->SetPipelineState(pipelineStates["opaque"].Get());
-
-			commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
-			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
-			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
-
-			int i = 0;
-			for (auto& submesh : mesh->DrawArgs)
-			{
-				commandList->SetGraphicsRootShaderResourceView(7,
-					matIndexBuffer->Resource()->GetGPUVirtualAddress()
-					+ sizeof(MatIndexData) * i++);
-				commandList->DrawIndexedInstanced(
-					submesh.second.IndexCount, objects.size(),
-					submesh.second.StartIndexLocation,
-					submesh.second.BaseVertexLocation, 0);
-			}
-		}
+		if (layerIndex == (int)RenderLayer::Sky)
+			continue;
+		RenderObjects(layerIndex);
 	}
+	RenderObjects((int)RenderLayer::Sky);
+
 	PostRender();
 }
 
+void Graphics::RenderObjects(int layerIndex)
+{
+	for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
+	{
+		auto& mesh = renderSets.first;
+		auto& objects = renderSets.second.gameObjects;
+		if (!objects.size())
+			continue;
+
+		auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
+		auto instanceBuffer = objectsResource->InstanceBuffer.get();
+		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
+		auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
+
+		commandList->SetGraphicsRootShaderResourceView(5, instanceBuffer->Resource()->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
+
+		if (layerIndex == (int)RenderLayer::SkinnedOpaque)
+			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
+		else if (layerIndex == (int)RenderLayer::Sky)
+		{
+			CD3DX12_GPU_DESCRIPTOR_HANDLE skyTexDescriptor(srvHeap->GetGPUDescriptorHandleForHeapStart());
+			skyTexDescriptor.Offset(5, srvDescriptorSize);
+			commandList->SetGraphicsRootDescriptorTable(8, skyTexDescriptor);
+			commandList->SetPipelineState(pipelineStates["sky"].Get());
+		}
+		else
+			commandList->SetPipelineState(pipelineStates["opaque"].Get());
+
+		commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
+		commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
+		commandList->IASetIndexBuffer(&mesh->IndexBufferView());
+
+		int i = 0;
+		for (auto& submesh : mesh->DrawArgs)
+		{
+			commandList->SetGraphicsRootShaderResourceView(7,
+				matIndexBuffer->Resource()->GetGPUVirtualAddress()
+				+ sizeof(MatIndexData) * i++);
+			commandList->DrawIndexedInstanced(
+				submesh.second.IndexCount, objects.size(),
+				submesh.second.StartIndexLocation,
+				submesh.second.BaseVertexLocation, 0);
+		}
+	}
+}
 
 void Graphics::RenderUI()
 {
@@ -559,18 +574,22 @@ void Graphics::LoadAssets()
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{};
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
-	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 0, 0, 0);
+	CD3DX12_DESCRIPTOR_RANGE texTable0;
+	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 1, 0, 0);
+	
+	CD3DX12_DESCRIPTOR_RANGE texTable1;
+	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER rootParameters[8];
+	CD3DX12_ROOT_PARAMETER rootParameters[9];
 	rootParameters[0].InitAsConstantBufferView(0);
 	rootParameters[1].InitAsConstantBufferView(1);
 	rootParameters[2].InitAsConstantBufferView(2);
 	rootParameters[3].InitAsShaderResourceView(1, 1);
-	rootParameters[4].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[4].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootParameters[5].InitAsShaderResourceView(0, 1);
 	rootParameters[6].InitAsShaderResourceView(2, 1);
 	rootParameters[7].InitAsShaderResourceView(3, 1);
+	rootParameters[8].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
 	{
@@ -605,6 +624,10 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_1");
 
+	ComPtr<ID3DBlob> skyVS = d3dUtil::CompileShader(L"shaders\\sky.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> skyPS = d3dUtil::CompileShader(L"shaders\\sky.hlsl", nullptr, "PS", "ps_5_1");
+
+
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -624,28 +647,37 @@ void Graphics::LoadAssets()
 
 
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
-	pipelineStateDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
-	pipelineStateDesc.pRootSignature = rootSignature.Get();
-	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-	pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
-	pipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	pipelineStateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	pipelineStateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	pipelineStateDesc.SampleMask = UINT_MAX;
-	pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	pipelineStateDesc.NumRenderTargets = 1;
-	pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	pipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	pipelineStateDesc.SampleDesc.Count = 1;
-	device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineStates["opaque"]));
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc{};
+	opaquePsoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
+	opaquePsoDesc.pRootSignature = rootSignature.Get();
+	opaquePsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
+	opaquePsoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	opaquePsoDesc.SampleMask = UINT_MAX;
+	opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	opaquePsoDesc.NumRenderTargets = 1;
+	opaquePsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	opaquePsoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	opaquePsoDesc.SampleDesc.Count = 1;
+	device->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&pipelineStates["opaque"]));
 
-	pipelineStateDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
-	pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinned.Get());
-	device->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&pipelineStates["skinnedOpaque"]));
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC skinnedPsoDesc = opaquePsoDesc;
+	skinnedPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
+	skinnedPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinned.Get());
+	device->CreateGraphicsPipelineState(&skinnedPsoDesc, IID_PPV_ARGS(&pipelineStates["skinnedOpaque"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = opaquePsoDesc;
+	skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	skyPsoDesc.VS = CD3DX12_SHADER_BYTECODE(skyVS.Get());
+	skyPsoDesc.PS = CD3DX12_SHADER_BYTECODE(skyPS.Get());
+	device->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&pipelineStates["sky"]));
+
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 9;
+	descriptorHeapDesc.NumDescriptors = 6;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));

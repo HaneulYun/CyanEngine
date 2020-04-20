@@ -9,7 +9,7 @@ void SampleScene::BuildObjects()
 
 	//*** Texture ***//
 	{
-		AddTexture(0, "none",		L"Textures\\grasscube1024.dds");
+		AddTexture(0, "none",		L"Textures\\none.dds");
 		AddTexture(1, "polyArtTex",	L"Textures\\PolyArtTex.dds");
 		AddTexture(2, "bricksTex",	L"Textures\\bricks.dds");
 		AddTexture(3, "stoneTex",	L"Textures\\stone.dds");
@@ -18,7 +18,7 @@ void SampleScene::BuildObjects()
 
 	//*** Material ***//
 	{
-		for (int i = 1; i < 20; ++i)
+		for (int i = 5; i < 10; ++i)
 		{
 			auto material = std::make_unique<Material>();
 			material->Name = "material_" + std::to_string(i);
@@ -69,6 +69,17 @@ void SampleScene::BuildObjects()
 			material_tile0->Roughness = 0.2f;
 			XMStoreFloat4x4(&material_tile0->MatTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
 			materials[material_tile0->Name] = std::move(material_tile0);
+		}
+
+		{
+			auto material = std::make_unique<Material>();
+			material->Name = "sky";
+			material->MatCBIndex = 4;
+			material->DiffuseSrvHeapIndex = 5;
+			material->DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
+			material->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+			material->Roughness = 1.0f;
+			materials[material->Name] = std::move(material);
 		}
 	}
 	
@@ -145,6 +156,17 @@ void SampleScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
+	//{
+	//	auto ritem = CreateEmpty();
+	//	ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
+	//	auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
+	//	auto renderer = ritem->AddComponent<Renderer>();
+	//	for (auto& sm : mesh->DrawArgs)
+	//		renderer->materials.push_back(4);
+	//
+	//	renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(ritem);
+	//}
+
 	UINT objCBIndex = gameObjects.size();
 
 	std::string name[9] {
@@ -175,13 +197,11 @@ void SampleScene::BuildObjects()
 			for (auto& sm : mesh->DrawArgs)
 				renderer->materials.push_back(0);
 	
-			ritem->TexTransform = MathHelper::Identity4x4();
-	
 			auto anim = ritem->AddComponent<Animator>();
 			anim->controller = controller;
 			anim->state = &controller->states[name[i++]];
 			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->state));
-
+	
 			if (!x && !z)
 			{
 				anim->state = &controller->states["Idle"];
@@ -191,12 +211,12 @@ void SampleScene::BuildObjects()
 	
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
-
+	
 	
 	{
 		{
 			GameObject* textobject = CreateEmpty();
-
+	
 			Text* text = textobject->AddComponent<Text>();
 			text->InitFontFormat(L"µ¸¿ò", { 0, 0, 1, 1 }, 20, { 1,0,0,1 });
 			text->text = L"µÇ°Ù³Ä?¤»¤»";
@@ -204,7 +224,7 @@ void SampleScene::BuildObjects()
 		}
 		{
 			GameObject* textobject = CreateEmpty();
-
+	
 			Text* text = textobject->AddComponent<Text>();
 			text->InitFontFormat(L"±¼¸²", { 0.2, 0.2, 1, 1 }, 30, { 1,1,0,1 });
 			text->text = L"µÇ´Âµ¥¿ë??";
@@ -212,7 +232,7 @@ void SampleScene::BuildObjects()
 		}
 		{
 			GameObject* textobject = CreateEmpty();
-
+	
 			Text* text = textobject->AddComponent<Text>();
 			text->InitFontFormat(L"±Ã¼­", { 0.4, 0.4, 1, 1 }, 35, { 0,1,1,1 });
 			text->text = L"¾ÈµÇ´Âµ¥¿ë??";
@@ -263,7 +283,7 @@ void SampleScene::BuildObjects()
 			textObjects.push_back(textobject);
 		}
 	}
-
+	
 	int xObjects = 4, yObjects = 4, zObjects = 4;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
@@ -275,11 +295,10 @@ void SampleScene::BuildObjects()
 				auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
 				auto renderer = ritem->AddComponent<Renderer>();
 				for (auto& sm : mesh->DrawArgs)
-					renderer->materials.push_back(Random::Range(0, 16));
-
-				ritem->TexTransform = MathHelper::Identity4x4();
+					renderer->materials.push_back(Random::Range(5, 9));
+	
 				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 10;
-
+	
 				renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(ritem);
 			}
 	

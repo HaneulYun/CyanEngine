@@ -76,7 +76,6 @@ float4 PSMain(PSInput input) : SV_TARGET
 	float roughness = matData.Roughness;
 	uint diffuseTexIndex = matData.DiffuseMapIndex;
 
-
 	diffuseAlbedo *= gDiffuseMap[diffuseTexIndex].Sample(gsamAnisotropicWrap, input.TexC); 
 
 	input.NormalW = normalize(input.NormalW);

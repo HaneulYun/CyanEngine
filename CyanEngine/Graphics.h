@@ -68,8 +68,9 @@ public:
 	void Update(std::vector<std::unique_ptr<FrameResource>>& frameResources);
 	void PreRender();
 	void Render();
-	void PostRender();
+	void RenderObjects(int layerIndex);
 	void RenderUI();
+	void PostRender();
 	void Destroy();
 
 	//--------------//

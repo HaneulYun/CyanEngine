@@ -13,6 +13,13 @@ void Scene::Start()
 {
 	Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
 	
+	auto skyTex = std::make_unique<Texture>();
+	{
+		skyTex->Name = "skyTex";
+		skyTex->Filename = L"Textures\\grasscube1024.dds";
+		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
+			skyTex->Filename.c_str(), skyTex->Resource, skyTex->UploadHeap);
+	}
 	BuildObjects();
 
 	auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());
@@ -32,13 +39,22 @@ void Scene::Start()
 
 		Graphics::Instance()->device->CreateShaderResourceView(texture->Resource.Get(), &srvDesc, handle);
 	}
+	handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 5, Graphics::Instance()->srvDescriptorSize);
+
+	
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+	srvDesc.TextureCube.MostDetailedMip = 0;
+	srvDesc.TextureCube.MipLevels = skyTex->Resource->GetDesc().MipLevels;
+	srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+	srvDesc.Format = skyTex->Resource->GetDesc().Format;
+	Graphics::Instance()->device->CreateShaderResourceView(skyTex->Resource.Get(), &srvDesc, handle);
 
 	Graphics::Instance()->commandList->Close();
 	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
 	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
-		frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1, (UINT)5));
+		frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1, (UINT)10));
 }
 
 void Scene::Update()

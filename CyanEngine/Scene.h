@@ -14,7 +14,7 @@ struct ObjectsResource
 	std::unique_ptr<UploadBuffer<MatIndexData>> MatIndexBuffer{ nullptr };
 };
 
-struct RenderObjects
+struct RenderSets
 {
 	bool isDirty{ true };
 
@@ -41,7 +41,7 @@ private:
 
 public:
 	std::deque<GameObject*> gameObjects;
-	std::map<Mesh*, RenderObjects> renderObjectsLayer[(int)RenderLayer::Count];
+	std::map<Mesh*, RenderSets> renderObjectsLayer[(int)RenderLayer::Count];
 
 	std::priority_queue<GameObject*> deletionQueue;
 	std::vector<GameObject*> textObjects;
