@@ -9,7 +9,7 @@ void SampleScene::BuildObjects()
 
 	//*** Texture ***//
 	{
-		AddTexture(0, "none",		L"Textures\\none.dds");
+		AddTexture(0, "none",		L"Textures\\grasscube1024.dds");
 		AddTexture(1, "polyArtTex",	L"Textures\\PolyArtTex.dds");
 		AddTexture(2, "bricksTex",	L"Textures\\bricks.dds");
 		AddTexture(3, "stoneTex",	L"Textures\\stone.dds");
@@ -194,72 +194,74 @@ void SampleScene::BuildObjects()
 
 	
 	{
-		GameObject* textobject = CreateEmpty();
+		{
+			GameObject* textobject = CreateEmpty();
 
-		Text* text = textobject->AddComponent<Text>();
-		text->InitFontFormat(L"돋움", { 0, 0, 1, 1 }, 20, {1,0,0,1});
-		text->text = L"되겟냐?ㅋㅋ";
-		textObjects.push_back(textobject);
-	}
-	{
-		GameObject* textobject = CreateEmpty();
+			Text* text = textobject->AddComponent<Text>();
+			text->InitFontFormat(L"돋움", { 0, 0, 1, 1 }, 20, { 1,0,0,1 });
+			text->text = L"되겟냐?ㅋㅋ";
+			textObjects.push_back(textobject);
+		}
+		{
+			GameObject* textobject = CreateEmpty();
 
-		Text* text = textobject->AddComponent<Text>();
-		text->InitFontFormat(L"굴림", { 0.2, 0.2, 1, 1 }, 30, { 1,1,0,1 });
-		text->text = L"되는데용??";
-		textObjects.push_back(textobject);
-	}
-	{
-		GameObject* textobject = CreateEmpty();
+			Text* text = textobject->AddComponent<Text>();
+			text->InitFontFormat(L"굴림", { 0.2, 0.2, 1, 1 }, 30, { 1,1,0,1 });
+			text->text = L"되는데용??";
+			textObjects.push_back(textobject);
+		}
+		{
+			GameObject* textobject = CreateEmpty();
 
-		Text* text = textobject->AddComponent<Text>();
-		text->InitFontFormat(L"궁서", { 0.4, 0.4, 1, 1 }, 35, {0,1,1,1});
-		text->text = L"안되는데용??";
-		text->SetFontStyleBold();
-		textObjects.push_back(textobject);
-	}
-	{
-		GameObject* textobject = CreateEmpty();
-		Text* text = textobject->AddComponent<Text>();
-		text->InitFontFormat(L"메이플스토리", { 0.6, 0.6, 1, 1 }, 40, { 0,0,1,1 });
-		text->text = L"되는데용??";
-		textObjects.push_back(textobject);
-	}
-	{
-		GameObject* textobject = CreateEmpty();
-		Text* text = textobject->AddComponent<Text>();
-		text->InitFontFormat(L"바탕", { 0.8, 0.8, 1, 1 }, 50, {1,0,1,1});
-		text->text = L"안되는데용??";
-		textObjects.push_back(textobject);
-	}
-	{
-		GameObject* textobject = CreateEmpty();
-		Text* text = textobject->AddComponent<Text>();
-		text->InitFontFormat(L"바탕", { 0.1, 0.1, 1, 1 }, 20, { 1,0.1,0.6,1 });
-		text->text = L"될까요??";
-		textObjects.push_back(textobject);
-	}
-	{
-		GameObject* textobject = CreateEmpty();
-		Text* text = textobject->AddComponent<Text>();
-		text->InitFontFormat(L"바탕", { 0.3, 0.3, 1, 1 }, 20, { 1,0.7,1,1 });
-		text->text = L"되겟냐??";
-		textObjects.push_back(textobject);
-	}
-	{
-		GameObject* textobject = CreateEmpty();
-		Text* text = textobject->AddComponent<Text>();
-		text->InitFontFormat(L"바탕", { 0.5, 0.5, 1, 1 }, 20, { 0.7,0,1,1 });
-		text->text = L"되냐??";
-		text->SetFontStyleBold();
-		textObjects.push_back(textobject);
-	}
-	{
-		GameObject* textobject = CreateEmpty();
-		Text* text = textobject->AddComponent<Text>();
-		text->InitFontFormat(L"바탕", { 0.7, 0.7, 1, 1 }, 20, { 0.6,0.6,1,1 });
-		text->text = L"안되냐??";
-		textObjects.push_back(textobject);
+			Text* text = textobject->AddComponent<Text>();
+			text->InitFontFormat(L"궁서", { 0.4, 0.4, 1, 1 }, 35, { 0,1,1,1 });
+			text->text = L"안되는데용??";
+			text->SetFontStyleBold();
+			textObjects.push_back(textobject);
+		}
+		{
+			GameObject* textobject = CreateEmpty();
+			Text* text = textobject->AddComponent<Text>();
+			text->InitFontFormat(L"메이플스토리", { 0.6, 0.6, 1, 1 }, 40, { 0,0,1,1 });
+			text->text = L"되는데용??";
+			textObjects.push_back(textobject);
+		}
+		{
+			GameObject* textobject = CreateEmpty();
+			Text* text = textobject->AddComponent<Text>();
+			text->InitFontFormat(L"바탕", { 0.8, 0.8, 1, 1 }, 50, { 1,0,1,1 });
+			text->text = L"안되는데용??";
+			textObjects.push_back(textobject);
+		}
+		{
+			GameObject* textobject = CreateEmpty();
+			Text* text = textobject->AddComponent<Text>();
+			text->InitFontFormat(L"바탕", { 0.1, 0.1, 1, 1 }, 20, { 1,0.1,0.6,1 });
+			text->text = L"될까요??";
+			textObjects.push_back(textobject);
+		}
+		{
+			GameObject* textobject = CreateEmpty();
+			Text* text = textobject->AddComponent<Text>();
+			text->InitFontFormat(L"바탕", { 0.3, 0.3, 1, 1 }, 20, { 1,0.7,1,1 });
+			text->text = L"되겟냐??";
+			textObjects.push_back(textobject);
+		}
+		{
+			GameObject* textobject = CreateEmpty();
+			Text* text = textobject->AddComponent<Text>();
+			text->InitFontFormat(L"바탕", { 0.5, 0.5, 1, 1 }, 20, { 0.7,0,1,1 });
+			text->text = L"되냐??";
+			text->SetFontStyleBold();
+			textObjects.push_back(textobject);
+		}
+		{
+			GameObject* textobject = CreateEmpty();
+			Text* text = textobject->AddComponent<Text>();
+			text->InitFontFormat(L"바탕", { 0.7, 0.7, 1, 1 }, 20, { 0.6,0.6,1,1 });
+			text->text = L"안되냐??";
+			textObjects.push_back(textobject);
+		}
 	}
 
 	int xObjects = 4, yObjects = 4, zObjects = 4;
@@ -268,7 +270,7 @@ void SampleScene::BuildObjects()
 			for (int z = -zObjects; z <= zObjects; z++)
 			{
 				auto ritem = CreateEmpty();
-				ritem->GetComponent<Transform>()->Scale({ 1, 1, 1 });
+				ritem->GetComponent<Transform>()->Scale({ 5, 5, 5 });
 				ritem->GetComponent<Transform>()->position = { 20.0f * x, 20.0f * y, 20.0f * z };
 				auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
 				auto renderer = ritem->AddComponent<Renderer>();
