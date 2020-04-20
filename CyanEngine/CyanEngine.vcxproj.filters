@@ -318,33 +318,4 @@
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Texture.hlsl">
-      <Filter>shaders\older</Filter>
-    </FxCompile>
-    <FxCompile Include="Billboard.hlsl">
-      <Filter>shaders\older</Filter>
-    </FxCompile>
-    <FxCompile Include="Light.hlsl">
-      <Filter>shaders\older</Filter>
-    </FxCompile>
-    <FxCompile Include="Lighting.hlsl">
-      <Filter>shaders\older</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders.hlsl">
-      <Filter>shaders\older</Filter>
-    </FxCompile>
-    <FxCompile Include="Standard.hlsl">
-      <Filter>shaders\older</Filter>
-    </FxCompile>
-    <FxCompile Include="Terrain.hlsl">
-      <Filter>shaders\older</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\shaders.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\LightingUtil.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
-  </ItemGroup>
 </Project>

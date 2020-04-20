@@ -9,11 +9,11 @@ void SampleScene::BuildObjects()
 
 	//*** Texture ***//
 	{
-		AddTexture(0, "none",		L"..\\CyanEngine\\Textures\\none.dds");
-		AddTexture(1, "polyArtTex",	L"..\\CyanEngine\\Textures\\PolyArtTex.dds");
-		AddTexture(2, "bricksTex",	L"..\\CyanEngine\\Textures\\bricks.dds");
-		AddTexture(3, "stoneTex",	L"..\\CyanEngine\\Textures\\stone.dds");
-		AddTexture(4, "tileTex",	L"..\\CyanEngine\\Textures\\tile.dds");
+		AddTexture(0, "none",		L"Textures\\none.dds");
+		AddTexture(1, "polyArtTex",	L"Textures\\PolyArtTex.dds");
+		AddTexture(2, "bricksTex",	L"Textures\\bricks.dds");
+		AddTexture(3, "stoneTex",	L"Textures\\stone.dds");
+		AddTexture(4, "tileTex",	L"Textures\\tile.dds");
 	}
 
 	//*** Material ***//
@@ -77,28 +77,28 @@ void SampleScene::BuildObjects()
 	geometries["Plane"] = Mesh::CreatePlane();
 	geometries["Sphere"] = Mesh::CreateSphere();
 	geometries["Cylinder"] = Mesh::CreateCylinder();
-	AddFbxForAnimation("ApprenticeSK", "..\\CyanEngine\\Models\\modelTest.fbx");
+	AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 
-	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"..\\CyanEngine\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
+	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
 	CHeightMapGridMesh* gridMesh = new CHeightMapGridMesh(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, m_pHeightMapImage);
 
 	//*** Animation ***//
 	{
-		AddFbxForAnimation("Attack01_BowAnim",				"..\\CyanEngine\\Models\\BowStance\\Attack01_BowAnim.fbx");
-		AddFbxForAnimation("Attack01Maintain_BowAnim",		"..\\CyanEngine\\Models\\BowStance\\Attack01Maintain_BowAnim.fbx");
-		AddFbxForAnimation("Attack01RepeatFire_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\Attack01RepeatFire_BowAnim.fbx");
-		AddFbxForAnimation("Attack01Start_BowAnim",			"..\\CyanEngine\\Models\\BowStance\\Attack01Start_BowAnim.fbx");
-		AddFbxForAnimation("Attack02Maintain_BowAnim",		"..\\CyanEngine\\Models\\BowStance\\Attack02Maintain_BowAnim.fbx");
-		AddFbxForAnimation("Attack02RepeatFire_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\Attack02RepeatFire_BowAnim.fbx");
-		AddFbxForAnimation("Attack02Start_BowAnim",			"..\\CyanEngine\\Models\\BowStance\\Attack02Start_BowAnim.fbx");
-		AddFbxForAnimation("DashBackward_BowAnim",			"..\\CyanEngine\\Models\\BowStance\\DashBackward_BowAnim.fbx");
-		AddFbxForAnimation("DashForward_BowAnim",			"..\\CyanEngine\\Models\\BowStance\\DashForward_BowAnim.fbx");
+		AddFbxForAnimation("Attack01_BowAnim",				"Models\\BowStance\\Attack01_BowAnim.fbx");
+		AddFbxForAnimation("Attack01Maintain_BowAnim",		"Models\\BowStance\\Attack01Maintain_BowAnim.fbx");
+		AddFbxForAnimation("Attack01RepeatFire_BowAnim",	"Models\\BowStance\\Attack01RepeatFire_BowAnim.fbx");
+		AddFbxForAnimation("Attack01Start_BowAnim",			"Models\\BowStance\\Attack01Start_BowAnim.fbx");
+		AddFbxForAnimation("Attack02Maintain_BowAnim",		"Models\\BowStance\\Attack02Maintain_BowAnim.fbx");
+		AddFbxForAnimation("Attack02RepeatFire_BowAnim",	"Models\\BowStance\\Attack02RepeatFire_BowAnim.fbx");
+		AddFbxForAnimation("Attack02Start_BowAnim",			"Models\\BowStance\\Attack02Start_BowAnim.fbx");
+		AddFbxForAnimation("DashBackward_BowAnim",			"Models\\BowStance\\DashBackward_BowAnim.fbx");
+		AddFbxForAnimation("DashForward_BowAnim",			"Models\\BowStance\\DashForward_BowAnim.fbx");
 
-		AddFbxForAnimation("Walk_BowAnim",		"..\\CyanEngine\\Models\\BowStance\\Walk_BowAnim.fbx");
-		AddFbxForAnimation("WalkBack_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\WalkBack_BowAnim.fbx");
-		AddFbxForAnimation("WalkRight_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\WalkRight_BowAnim.fbx");
-		AddFbxForAnimation("WalkLeft_BowAnim",	"..\\CyanEngine\\Models\\BowStance\\WalkLeft_BowAnim.fbx");
-		AddFbxForAnimation("Idle_BowAnim",		"..\\CyanEngine\\Models\\BowStance\\Idle_BowAnim.fbx");
+		AddFbxForAnimation("Walk_BowAnim",					"Models\\BowStance\\Walk_BowAnim.fbx");
+		AddFbxForAnimation("WalkBack_BowAnim",				"Models\\BowStance\\WalkBack_BowAnim.fbx");
+		AddFbxForAnimation("WalkRight_BowAnim",				"Models\\BowStance\\WalkRight_BowAnim.fbx");
+		AddFbxForAnimation("WalkLeft_BowAnim",				"Models\\BowStance\\WalkLeft_BowAnim.fbx");
+		AddFbxForAnimation("Idle_BowAnim",					"Models\\BowStance\\Idle_BowAnim.fbx");
 	}
 
 	AnimatorController* controller = new AnimatorController();
@@ -284,7 +284,7 @@ void SampleScene::BuildObjects()
 	{
 		GameObject* grid = CreateEmpty();
 		grid->GetComponent<Transform>()->position -= {128, 20, 128};
-		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;// geometries["Plane"].get();
+		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;
 		grid->AddComponent<Renderer>()->materials.push_back(3);
 		renderObjectsLayer[(int)RenderLayer::Opaque][gridMesh].gameObjects.push_back(grid);
 	}
