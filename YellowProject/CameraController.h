@@ -31,7 +31,8 @@ public:
 		float z = mRadius * sinf(mPhi) * sinf(mTheta);
 		float y = mRadius * cosf(mPhi);
 
-		gameObject->GetComponent<Camera>()->pos = XMFLOAT3(x, y, z);
+		gameObject->GetComponent<Transform>()->position = { x, y, z };
+		gameObject->GetComponent<Transform>()->forward = (Vector3(0, 0, 0) - Vector3(x, y, z)).Normalize();
 
 		if (Input::GetMouseButtonDown(0))
 		{

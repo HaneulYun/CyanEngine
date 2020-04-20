@@ -140,10 +140,6 @@ void SampleScene::BuildObjects()
 	GameObject* mainCamera = CreateEmpty();
 	{
 		Camera* camera = mainCamera->AddComponent<Camera>();
-		camera->SetViewport(0, 0, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight(), 0.0f, 1.0f);
-		camera->SetScissorRect(0, 0, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight());
-		camera->GenerateProjectionMatrix(0.3f, 10000.0f, CyanFW::Instance()->GetAspectRatio() , XMConvertToDegrees(0.25f * PI));
-		camera->GenerateViewMatrix(XMFLOAT3(0.0f, 0.0f, -15.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 		camera->main = camera;
 
 		mainCamera->AddComponent<CameraController>();
@@ -265,20 +261,6 @@ void SampleScene::BuildObjects()
 		text->text = L"¾ÈµÇ³Ä??";
 		textObjects.push_back(textobject);
 	}
-
-	//{
-	//	GameObject* cube = CreateEmpty();
-	//	cube->GetComponent<Transform>()->position = Vector3(0, 1, 3);
-	//	cube->GetComponent<Transform>()->localScale = Vector3(2, 2, 2);
-	//	cube->AddComponent<MeshFilter>()->mesh = mesh_cube;
-	//	cube->AddComponent<Renderer>()->material = material_defaultMaterial;
-	//}
-	//
-	//{
-	//	GameObject* grid = CreateEmpty();
-	//	grid->AddComponent<MeshFilter>()->mesh = mesh_grid;
-	//	grid->AddComponent<Renderer>()->material = material_defaultMaterial;
-	//}
 
 	int xObjects = 4, yObjects = 4, zObjects = 4;
 	for (int x = -xObjects; x <= xObjects; x++)

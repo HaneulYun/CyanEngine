@@ -158,16 +158,28 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 	{
 		PassConstants passConstants;
 
-		XMMATRIX world = XMLoadFloat4x4(&Camera::main->gameObject->GetMatrix());
-		XMVECTOR pos = XMVector3Transform(XMLoadFloat3(&Camera::main->pos), world);
-		XMVECTOR lookAt = XMVector3Transform(XMLoadFloat3(&Camera::main->lookAt), world);
+		auto transform = Camera::main->gameObject->GetComponent<Transform>();
+		auto vLookAt = transform->position + transform->forward.Normalized();
+		
+		XMMATRIX world = XMLoadFloat4x4(&transform->localToWorldMatrix);
+		XMVECTOR pos = XMLoadFloat3(&transform->position.xmf3);
+		XMVECTOR lookAt = XMLoadFloat3(&vLookAt.xmf3);
 		XMVECTOR up{ 0, 1, 0 };
+
+		{
+			XMFLOAT3 k;
+			XMStoreFloat3(&k, pos);
+
+			Debug::Log((std::to_string(k.x) + " " +
+				std::to_string(k.y) + " " +
+				std::to_string(k.z) + "\n").c_str());
+		}
 
 		XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
 		XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
-		XMMATRIX worldViewProj = view * proj;
+		XMMATRIX ViewProj = view * proj;
 
-		XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
+		XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(ViewProj));
 
 		float mSunTheta = 1.25f * XM_PI;
 		float mSunPhi = XM_PIDIV4;
@@ -207,7 +219,15 @@ void Graphics::Render()
 {
 	PreRender();
 
-	Camera::main->SetViewportsAndScissorRects(commandList.Get());
+	D3D12_VIEWPORT viewport{
+		Camera::main->viewport.x,  Camera::main->viewport.y,
+		Camera::main->viewport.w * CyanFW::Instance()->GetWidth(),
+		Camera::main->viewport.h * CyanFW::Instance()->GetHeight(),
+		0.0f, 1.0f
+	};
+	D3D12_RECT scissorRect{ 0.0f, 0.0f, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight() };
+	commandList->RSSetViewports(1, &viewport);
+	commandList->RSSetScissorRects(1, &scissorRect);
 
 	ID3D12DescriptorHeap* heaps[]{ srvHeap.Get() };
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
