@@ -79,7 +79,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 				// instance data
 				if (e->NumFramesDirty > 0)
 				{
-					XMMATRIX world = XMLoadFloat4x4(&e->GetComponent<Transform>()->localToWorldMatrix);
+					XMMATRIX world = XMLoadFloat4x4(&e->GetMatrix());
 					XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
 
 					InstanceData objConstants;
