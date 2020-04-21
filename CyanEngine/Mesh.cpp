@@ -19,6 +19,8 @@ void Mesh::Create(GeometryType type)
 			box = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20); break;
 		case GeometryType::GeometryType_Plane:
 			box = geoGen.CreateGrid(20.0f, 30.0f, 60, 40); break;
+		case GeometryType::GeometryType_Quad:
+			box = geoGen.CreateQuad(-0.5, 0.5, 1, 1, 0); break;
 		}
 
 		vertices.resize(box.Vertices.size());
