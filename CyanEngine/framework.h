@@ -21,6 +21,10 @@
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 
+#include <d2d1_3.h>
+#include <dwrite.h>
+#include <d3d11on12.h>
+
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>

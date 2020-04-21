@@ -16,6 +16,7 @@ void Graphics::Initialize()
 	sceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	sceneBounds.Radius = sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
 	InitDirect3D();
+	InitDirect2D();
 	LoadAssets();
 	CreateDepthStencilView();
 }
@@ -453,15 +454,11 @@ void Graphics::RenderUI()
 	UINT width = CyanFW::Instance()->GetWidth();
 	UINT height = CyanFW::Instance()->GetHeight();
 
-	// Acquire our wrapped render target resource for the current back buffer.
 	device11On12->AcquireWrappedResources(wrappedBackBuffers[frameIndex].GetAddressOf(), 1);
-
-	// Render text directly to the back buffer.
 	deviceContext->SetTarget(renderTargets2d[frameIndex].Get());
 	deviceContext->BeginDraw();
 	deviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
 
-	// Draw Text
 	for (GameObject* gameObject : Scene::scene->textObjects)
 	{
 		Text* textComponent = gameObject->GetComponent<Text>();
@@ -522,23 +519,15 @@ void Graphics::RenderUI()
 			}
 		}
 
-		deviceContext->DrawText(
-			textComponent->text.c_str(),
-			textComponent->text.length(),
-			textFormats[textComponent->formatIndex].Get(),
+		deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(),
 			&D2D1::RectF(textComponent->textBox.x * width, textComponent->textBox.y * height, textComponent->textBox.z * width, textComponent->textBox.w * height),
 			textBrushes[textComponent->brushIndex].Get()
 		);
 	}
 
 	deviceContext->EndDraw();
-
-	// Release our wrapped render target resource. Releasing 
-	// transitions the back buffer resource to the state specified
-	// as the OutState when the wrapped resource was created.
 	device11On12->ReleaseWrappedResources(wrappedBackBuffers[frameIndex].GetAddressOf(), 1);
 
-	// Flush to submit the 11 command list to the shared command queue.
 	d11DeviceContext->Flush();
 }
 
@@ -654,6 +643,19 @@ void Graphics::InitDirect3D()
 
 	shadowMap = std::make_unique<ShadowMap>(device.Get(), 2048, 2048);
 
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
+	for (UINT i = 0; i < FrameCount; ++i)
+	{
+		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
+		device->CreateRenderTargetView(renderTargets[i].Get(), nullptr, rtvHandle);
+
+		rtvHandle.Offset(1, rtvDescriptorSize);
+	}
+
+}
+
+void Graphics::InitDirect2D()
+{
 	// Create an 11 device wrapped around the 12 device and share
 	// 12's command queue.
 
@@ -661,20 +663,8 @@ void Graphics::InitDirect3D()
 	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {};
 
 	ComPtr<ID3D11Device> d3d11Device;
-	D3D11On12CreateDevice(
-		device.Get(),
-		d3d11DeviceFlags,
-		nullptr,
-		0,
-		reinterpret_cast<IUnknown**>(commandQueue.GetAddressOf()),
-		1,
-		0,
-		&d3d11Device,
-		&d11DeviceContext,
-		nullptr
-	);
-
-	// Query the 11On12 device from the 11 device.
+	D3D11On12CreateDevice(device.Get(), d3d11DeviceFlags, nullptr, 0, reinterpret_cast<IUnknown**>(commandQueue.GetAddressOf()),
+		1, 0, &d3d11Device, &d11DeviceContext, nullptr);
 	d3d11Device.As(&device11On12);
 
 	// Create D2D/DWrite components.
@@ -694,19 +684,12 @@ void Graphics::InitDirect3D()
 	float dpiX;
 	float dpiY;
 	d2dFactory->GetDesktopDpi(&dpiX, &dpiY);
-	D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(
-		D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-		D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED),
-		dpiX,
-		dpiY
-	);
+	D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+		D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpiX, dpiY);
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
-		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
-		device->CreateRenderTargetView(renderTargets[i].Get(), nullptr, rtvHandle);
-
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
 		device11On12->CreateWrappedResource(
 			renderTargets[i].Get(),
@@ -723,9 +706,8 @@ void Graphics::InitDirect3D()
 			&bitmapProperties,
 			&renderTargets2d[i]
 		);
-
-		rtvHandle.Offset(1, rtvDescriptorSize);
 	}
+
 
 }
 

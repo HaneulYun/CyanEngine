@@ -14,8 +14,8 @@ public:
 	int weight;
 	int style;
 
-	int brushIndex = -1;
-	int formatIndex = -1;
+	int brushIndex{ -1 };
+	int formatIndex{ -1 };
 
 private:
 	friend class GameObject;
@@ -41,9 +41,6 @@ public:
 		this->alignment = alignment;
 		this->weight = weight;
 		this->style = style;
-
-		brushIndex = -1;
-		formatIndex = -1;
 	}
 
 	void SetAlignmentLeftTop() 

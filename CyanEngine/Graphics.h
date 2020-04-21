@@ -89,6 +89,7 @@ public:
 
 	//--------------//
 	void InitDirect3D();
+	void InitDirect2D();
 	void LoadAssets();
 
 	void CreateDepthStencilView();
