@@ -91,14 +91,11 @@ float4 PSMain(PSInput input) : SV_TARGET
 
 	float4 litColor = ambient + directLight;
 
-	litColor.a = diffuseAlbedo.a;
-
-
 	float3 r = reflect(-toEyeW, input.NormalW);
 	float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
 	float3 fresnelFactor = SchlickFresnel(fresnelR0, input.NormalW, r);
 	litColor.rgb += shininess * fresnelFactor * reflectionColor.rgb;
-
+	
 	litColor.a = diffuseAlbedo.a;
 
 	return litColor;

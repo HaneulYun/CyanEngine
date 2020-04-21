@@ -26,7 +26,7 @@ void SampleScene::BuildObjects()
 			material->DiffuseSrvHeapIndex = 0;
 			material->NormalSrvHeapIndex = 0;
 			material->DiffuseAlbedo = RANDOM_COLOR;
-			material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
+			material->FresnelR0 = XMFLOAT3(0.98f, 0.97f, 0.95f);
 			material->Roughness = 0.0f;
 			materials[material->Name] = std::move(material);
 		}
@@ -37,7 +37,7 @@ void SampleScene::BuildObjects()
 			material->MatCBIndex = 0;
 			material->DiffuseSrvHeapIndex = 1;
 			material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
-			material->Roughness = 0.0f;
+			material->Roughness = 0.9f;
 			materials[material->Name] = std::move(material);
 
 			auto material_bricks0 = std::make_unique<Material>();
@@ -294,17 +294,17 @@ void SampleScene::BuildObjects()
 				for (auto& sm : mesh->DrawArgs)
 					renderer->materials.push_back(Random::Range(5, 9));
 	
-				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 10;
+				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 2;
 	
 				renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(ritem);
 			}
 	
 	{
 		GameObject* grid = CreateEmpty();
-		grid->GetComponent<Transform>()->position -= {128, 20, 128};
-		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;
+		//grid->GetComponent<Transform>()->position -= {128, 20, 128};
+		auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();;
 		grid->AddComponent<Renderer>()->materials.push_back(3);
-		renderObjectsLayer[(int)RenderLayer::Opaque][gridMesh].gameObjects.push_back(grid);
+		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
 	}
 	
 	for (int i = 0; i < 5; ++i)
