@@ -50,6 +50,7 @@ StructuredBuffer<BoneTransform> gSkinnedData : register(t2, space1);
 StructuredBuffer<MatIndexData> gMaterialIndexData : register(t3, space1);
 
 TextureCube gCubeMap : register(t0);
+Texture2D gShadowMap : register(t1);
 Texture2D gDiffuseMap[5] : register(t2);
 
 SamplerState gsamPointWrap        : register(s0);
@@ -58,6 +59,7 @@ SamplerState gsamLinearWrap       : register(s2);
 SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
+SamplerComparisonState gsamShadow : register(s6);
 
 cbuffer cbPass : register(b2)
 {
@@ -67,6 +69,7 @@ cbuffer cbPass : register(b2)
 	float4x4 gInvProj;
 	float4x4 gViewProj;
 	float4x4 gInvViewProj;
+	float4x4 gShadowTransform;
 
 	float3 gEyePosW;
 	float  cbPerObjectPad1;

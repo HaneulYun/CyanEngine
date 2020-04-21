@@ -192,6 +192,7 @@
     <ClInclude Include="MathHelper.h">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClInclude>
+	<ClInclude Include="ShadowMap.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -311,5 +312,6 @@
     <ClCompile Include="MathHelper.cpp">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClCompile>
+	<ClCompile Include="ShadowMap.cpp" />
   </ItemGroup>
 </Project>

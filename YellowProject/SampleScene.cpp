@@ -180,7 +180,7 @@ void SampleScene::BuildObjects()
 
 	int i = 0;
 
-	int count = 1;
+	int count = 0;
 	float interval = 7.0f;
 	for (int x = -count; x <= count; ++x)
 		for (int z = -count; z <= count; ++z)

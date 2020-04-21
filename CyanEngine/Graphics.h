@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FrameResource.h"
+#include "ShadowMap.h"
 
 class Graphics : public Singleton<Graphics>
 {
@@ -58,6 +59,18 @@ private:
 
 	Camera* m_pCamera{ nullptr };
 
+	/*shadow*/
+	std::unique_ptr<ShadowMap> shadowMap;
+	DirectX::BoundingSphere sceneBounds;
+
+	float lightRotationAngle = 0.0f;
+	XMFLOAT3 baseLightDirections[3] = {
+		XMFLOAT3(0.57735f, -0.57735f, 0.57735f),
+		XMFLOAT3(-0.57735f, -0.57735f, 0.57735f),
+		XMFLOAT3(0.0f, -0.707f, -0.707f)
+	};
+	XMFLOAT3 rotatedLightDirections[3];
+
 public:
 	Graphics();
 	virtual ~Graphics();
@@ -71,6 +84,7 @@ public:
 	void RenderObjects(int layerIndex);
 	void RenderUI();
 	void PostRender();
+	void RenderShadowMap();
 	void Destroy();
 
 	//--------------//
