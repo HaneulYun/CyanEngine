@@ -321,9 +321,9 @@ void Graphics::RenderShadowMap()
 			commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
 
 			if (layerIndex == (int)RenderLayer::SkinnedOpaque)
-				commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
+				commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());
 			else
-				commandList->SetPipelineState(pipelineStates["opaque"].Get());
+				commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
 
 			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
 			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
@@ -766,8 +766,9 @@ void Graphics::LoadAssets()
 		NULL, NULL
 	};
 
-	ComPtr<ID3DBlob> vertexShader_shadow = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "VS_Shadow", "vs_5_1");
-	ComPtr<ID3DBlob> pixelShader_shadow= d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "PS_Shadow", "ps_5_1");
+	ComPtr<ID3DBlob> vertexShader_skinnedShadow = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", skinnedDefines, "VS_Shadow", "vs_5_1");
+	ComPtr<ID3DBlob> vertexShader_shadow = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "VS_Shadow", "vs_5_1");
+	ComPtr<ID3DBlob> pixelShader_shadow= d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "PS_Shadow", "ps_5_1");
 	
 	ComPtr<ID3DBlob> vertexShader_skinned = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", skinnedDefines, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
@@ -838,6 +839,10 @@ void Graphics::LoadAssets()
 	shadowPsoDesc.NumRenderTargets = 0;
 	device->CreateGraphicsPipelineState(&shadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_opaque"]));
 
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC skinnedShadowPsoDesc = shadowPsoDesc;
+	skinnedShadowPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
+	skinnedShadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinnedShadow.Get());
+	device->CreateGraphicsPipelineState(&skinnedShadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_skinnedOpaque"]));
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = 7;

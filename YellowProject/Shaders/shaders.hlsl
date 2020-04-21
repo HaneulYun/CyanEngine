@@ -144,37 +144,3 @@ float4 PSMain(PSInput input) : SV_TARGET
 
 	return litColor;
 }
-
-PSInput VS_Shadow(VSInput vin, uint instanceID : SV_InstanceID)
-{
-	PSInput vout;
-
-	InstanceData instData = gInstanceData[instanceID];
-	float4x4 world = instData.World;
-	float4x4 texTransform = instData.TexTransform;
-	uint matIndex = gMaterialIndexData[instanceID * instData.MaterialIndexStride].MaterialIndex;
-
-	vout.MatIndex = matIndex;
-
-	MaterialData matData = gMaterialData[matIndex];
-
-	vout.PosW = mul(float4(vin.PosL, 1.0f), world).xyz;
-	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj);
-	vout.TexC = mul(mul(float4(vin.TexC, 0.0f, 1.0f), texTransform), matData.MatTransform).xy;
-
-	return vout;
-}
-
-void PS_Shadow(PSInput input)
-{
-	MaterialData matData = gMaterialData[input.MatIndex];
-	float4 diffuseAlbedo = matData.DiffuseAlbedo;
-	uint diffuseTexIndex = matData.DiffuseMapIndex;
-
-
-	diffuseAlbedo *= gDiffuseMap[diffuseTexIndex].Sample(gsamAnisotropicWrap, input.TexC);
-
-#ifdef ALPHA_TEST
-	clip(diffuseAlbedo.a - 0.1f);
-#endif
-}
