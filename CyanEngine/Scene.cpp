@@ -19,7 +19,7 @@ void Scene::Start()
 		skyTex->Filename = L"Textures\\grasscube1024.dds";
 		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(),
 			skyTex->Filename.c_str(), skyTex->Resource, skyTex->UploadHeap);
-		skyTex->Index = 5;
+		skyTex->Index = 0;
 	}
 	BuildObjects();
 
@@ -32,7 +32,7 @@ void Scene::Start()
 	for (auto& data : textures)
 	{
 		auto texture = data.second.get();
-
+		texture->Index += 2;
 		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), texture->Index, Graphics::Instance()->srvDescriptorSize);
 		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
 		srvDesc.Format = texture->Resource->GetDesc().Format;
@@ -40,7 +40,7 @@ void Scene::Start()
 
 		Graphics::Instance()->device->CreateShaderResourceView(texture->Resource.Get(), &srvDesc, handle);
 	}
-	handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 5, Graphics::Instance()->srvDescriptorSize);
+	handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 0, Graphics::Instance()->srvDescriptorSize);
 	
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 	srvDesc.TextureCube.MostDetailedMip = 0;
