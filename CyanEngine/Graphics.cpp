@@ -348,8 +348,8 @@ void Graphics::RenderShadowMap()
 
 void Graphics::PreRender()
 {
-	currFrameResource->CmdListAlloc->Reset();
-	commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
+	//currFrameResource->CmdListAlloc->Reset();
+	//commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -858,7 +858,7 @@ void Graphics::LoadAssets()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 6;
+	descriptorHeapDesc.NumDescriptors = 7;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
