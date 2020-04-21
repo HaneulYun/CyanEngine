@@ -204,6 +204,7 @@
     <ClInclude Include="scripts.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SkinnedMeshRenderer.h" />
     <ClInclude Include="SphereCollider.h" />
@@ -255,6 +256,7 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="SkinnedMeshRenderer.cpp" />
     <ClCompile Include="SphereCollider.cpp" />

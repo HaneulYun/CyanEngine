@@ -65,7 +65,7 @@ void Scene::Start()
 		srvDesc.Texture2D.MipLevels = texture->Resource->GetDesc().MipLevels;
 
 		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(),
-			texture->Index, Graphics::Instance()->srvDescriptorSize);
+			texture->Index + 1, Graphics::Instance()->srvDescriptorSize);
 		Graphics::Instance()->device->CreateShaderResourceView(texture->Resource.Get(), &srvDesc, handle);
 	}
 

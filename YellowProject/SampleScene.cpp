@@ -144,7 +144,7 @@ void SampleScene::BuildObjects()
 
 	int i = 0;
 
-	int count = 1;
+	int count = 0;
 	float interval = 7.0f;
 	int skinnedIndex = 0;
 	for (int x = -count; x <= count; ++x)
