@@ -156,16 +156,16 @@ void SampleScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
-	//{
-	//	auto ritem = CreateEmpty();
-	//	ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
-	//	auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
-	//	auto renderer = ritem->AddComponent<Renderer>();
-	//	for (auto& sm : mesh->DrawArgs)
-	//		renderer->materials.push_back(4);
-	//
-	//	renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(ritem);
-	//}
+	{
+		auto ritem = CreateEmpty();
+		ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
+		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
+		auto renderer = ritem->AddComponent<Renderer>();
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(4);
+	
+		renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(ritem);
+	}
 
 	UINT objCBIndex = gameObjects.size();
 

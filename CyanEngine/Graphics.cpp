@@ -229,7 +229,10 @@ void Graphics::Render()
 
 	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
+	commandList->SetGraphicsRootDescriptorTable(8, srvHeap->GetGPUDescriptorHandleForHeapStart());
+	CD3DX12_GPU_DESCRIPTOR_HANDLE skyTexDescriptor(srvHeap->GetGPUDescriptorHandleForHeapStart());
+	skyTexDescriptor.Offset(5, srvDescriptorSize);
+	commandList->SetGraphicsRootDescriptorTable(4, skyTexDescriptor);
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
 	UINT skinnedCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(SkinnnedData));
@@ -265,12 +268,7 @@ void Graphics::RenderObjects(int layerIndex)
 		if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
 		else if (layerIndex == (int)RenderLayer::Sky)
-		{
-			CD3DX12_GPU_DESCRIPTOR_HANDLE skyTexDescriptor(srvHeap->GetGPUDescriptorHandleForHeapStart());
-			skyTexDescriptor.Offset(5, srvDescriptorSize);
-			commandList->SetGraphicsRootDescriptorTable(8, skyTexDescriptor);
 			commandList->SetPipelineState(pipelineStates["sky"].Get());
-		}
 		else
 			commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
@@ -575,10 +573,10 @@ void Graphics::LoadAssets()
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
 	CD3DX12_DESCRIPTOR_RANGE texTable0;
-	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 1, 0, 0);
+	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, 0);
 	
 	CD3DX12_DESCRIPTOR_RANGE texTable1;
-	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, 0);
+	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 9, 1, 0, 0);
 
 	CD3DX12_ROOT_PARAMETER rootParameters[9];
 	rootParameters[0].InitAsConstantBufferView(0);
