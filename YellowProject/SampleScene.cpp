@@ -11,7 +11,7 @@ void SampleScene::BuildObjects()
 	{
 		AddTexture(0, "none",		L"Textures\\none.dds");
 		AddTexture(1, "polyArtTex",	L"Textures\\PolyArtTex.dds");
-		AddTexture(2, "bricksTex",	L"Textures\\bricks.dds");
+		AddTexture(2, "bricksTex",	L"Textures\\bricks2.dds");
 		AddTexture(3, "stoneTex",	L"Textures\\stone.dds");
 		AddTexture(4, "tileTex",	L"Textures\\tile.dds");
 	}
@@ -36,8 +36,6 @@ void SampleScene::BuildObjects()
 			material->Name = "PolyArt";
 			material->MatCBIndex = 0;
 			material->DiffuseSrvHeapIndex = 1;
-			material->NormalSrvHeapIndex = 0;
-			material->DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
 			material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
 			material->Roughness = 0.0f;
 			materials[material->Name] = std::move(material);
@@ -46,7 +44,6 @@ void SampleScene::BuildObjects()
 			material_bricks0->Name = "bricksMat";
 			material_bricks0->MatCBIndex = 1;
 			material_bricks0->DiffuseSrvHeapIndex = 2;
-			material_bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			material_bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 			material_bricks0->Roughness = 0.1f;
 			materials[material_bricks0->Name] = std::move(material_bricks0);
@@ -54,19 +51,19 @@ void SampleScene::BuildObjects()
 			auto material_stone0 = std::make_unique<Material>();
 			material_stone0->Name = "stoneMat";
 			material_stone0->MatCBIndex = 2;
-			material_stone0->DiffuseSrvHeapIndex = 3;
-			material_stone0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-			material_stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-			material_stone0->Roughness = 0.3f;
+			material_stone0->DiffuseSrvHeapIndex = 0;
+			material_stone0->DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 0.1f, 1.0f);
+			material_stone0->FresnelR0 = XMFLOAT3(0.98f, 0.97f, 0.95f);
+			material_stone0->Roughness = 0.1f;
 			materials[material_stone0->Name] = std::move(material_stone0);
 
 			auto material_tile0 = std::make_unique<Material>();
 			material_tile0->Name = "tile0";
 			material_tile0->MatCBIndex = 3;
 			material_tile0->DiffuseSrvHeapIndex = 4;
-			material_tile0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-			material_tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-			material_tile0->Roughness = 0.2f;
+			material_tile0->DiffuseAlbedo = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
+			material_tile0->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
+			material_tile0->Roughness = 0.1f;
 			XMStoreFloat4x4(&material_tile0->MatTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
 			materials[material_tile0->Name] = std::move(material_tile0);
 		}
@@ -159,7 +156,7 @@ void SampleScene::BuildObjects()
 	{
 		auto ritem = CreateEmpty();
 		ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
-		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
+		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
 		auto renderer = ritem->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
 			renderer->materials.push_back(4);
