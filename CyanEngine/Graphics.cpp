@@ -320,8 +320,9 @@ void Graphics::RenderShadowMap()
 			commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
 
 			if (layerIndex == (int)RenderLayer::SkinnedOpaque)
-				//commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
 				commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());
+			else
+				commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
 
 			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
 			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
@@ -347,8 +348,8 @@ void Graphics::RenderShadowMap()
 
 void Graphics::PreRender()
 {
-	currFrameResource->CmdListAlloc->Reset();
-	commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
+	//currFrameResource->CmdListAlloc->Reset();
+	//commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -857,6 +858,7 @@ void Graphics::LoadAssets()
 	device->CreateGraphicsPipelineState(&shadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_opaque"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC skinnedShadowPsoDesc = shadowPsoDesc;
+	skinnedShadowPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
 	skinnedShadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinnedShadow.Get());
 	device->CreateGraphicsPipelineState(&skinnedShadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_skinnedOpaque"]));
 
