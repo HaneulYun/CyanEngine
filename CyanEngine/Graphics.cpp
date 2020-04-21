@@ -13,8 +13,8 @@ Graphics::~Graphics()
 
 void Graphics::Initialize()
 {
-	mSceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mSceneBounds.Radius = sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
+	sceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	sceneBounds.Radius = sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
 	InitDirect3D();
 	LoadAssets();
 	CreateDepthStencilView();
@@ -157,87 +157,79 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 	}
 
 	// Animate the lights
-	mLightRotationAngle += 0.1f * Time::deltaTime;
+	lightRotationAngle += 0.1f * Time::deltaTime;
 
-	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
+	XMMATRIX R = XMMatrixRotationY(lightRotationAngle);
 	for (int i = 0; i < 3; ++i)
 	{
-		XMVECTOR lightDir = XMLoadFloat3(&mBaseLightDirections[i]);
+		XMVECTOR lightDir = XMLoadFloat3(&baseLightDirections[i]);
 		lightDir = XMVector3TransformNormal(lightDir, R);
-		XMStoreFloat3(&mRotatedLightDirections[i], lightDir);
+		XMStoreFloat3(&rotatedLightDirections[i], lightDir);
 	}
 
 	// Update ShadowTransform
-	{
-		// Only the first "main" light casts a shadow.
-		// 첫번쨰 주 광원만 그림자를 드리운다.
-		XMVECTOR lightDir = XMLoadFloat3(&mRotatedLightDirections[0]);
-		XMVECTOR lightPos = -2.0f * mSceneBounds.Radius * lightDir;
-		XMVECTOR targetPos = XMLoadFloat3(&mSceneBounds.Center);
-		XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-		XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
 
-		XMStoreFloat3(&mLightPosW, lightPos);
+	// Only the first "main" light casts a shadow.
+	XMVECTOR lightDir = XMLoadFloat3(&rotatedLightDirections[0]);
+	XMVECTOR lightPos = -2.0f * sceneBounds.Radius * lightDir;
+	XMVECTOR targetPos = XMLoadFloat3(&sceneBounds.Center);
+	XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
 
-		// Transform bounding sphere to light space.
-		XMFLOAT3 sphereCenterLS;
-		XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
+	XMFLOAT3 lightPosW;
+	XMStoreFloat3(&lightPosW, lightPos);
 
-		// Ortho frustum in light space encloses scene.
-		// 장면을 감싸는 직교투영 광원 공간 입체. (직육면체)
-		float l = sphereCenterLS.x - mSceneBounds.Radius;
-		float b = sphereCenterLS.y - mSceneBounds.Radius;
-		float n = sphereCenterLS.z - mSceneBounds.Radius;
-		float r = sphereCenterLS.x + mSceneBounds.Radius;
-		float t = sphereCenterLS.y + mSceneBounds.Radius;
-		float f = sphereCenterLS.z + mSceneBounds.Radius;
+	// Transform bounding sphere to light space.
+	XMFLOAT3 sphereCenterLS;
+	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
 
-		mLightNearZ = n;
-		mLightFarZ = f;
-		XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(
+		sphereCenterLS.x - sceneBounds.Radius, sphereCenterLS.x + sceneBounds.Radius, sphereCenterLS.y - sceneBounds.Radius,
+		sphereCenterLS.y + sceneBounds.Radius, sphereCenterLS.z - sceneBounds.Radius, sphereCenterLS.z + sceneBounds.Radius);
 
-		// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
-		XMMATRIX T(
-			0.5f, 0.0f, 0.0f, 0.0f,
-			0.0f, -0.5f, 0.0f, 0.0f,
-			0.0f, 0.0f, 1.0f, 0.0f,
-			0.5f, 0.5f, 0.0f, 1.0f);
+	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
+	XMMATRIX T(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f);
 
-		XMMATRIX S = lightView * lightProj * T;
-		XMStoreFloat4x4(&mLightView, lightView);
-		XMStoreFloat4x4(&mLightProj, lightProj);
-		XMStoreFloat4x4(&mShadowTransform, S);
-	}
+	XMMATRIX S = lightView * lightProj * T;
+
+	XMFLOAT4X4 f4x4lightView = MathHelper::Identity4x4();
+	XMFLOAT4X4 f4x4lightProj = MathHelper::Identity4x4();
+	XMFLOAT4X4 f4x4shadowTransform = MathHelper::Identity4x4();
+	XMStoreFloat4x4(&f4x4lightView, lightView);
+	XMStoreFloat4x4(&f4x4lightProj, lightProj);
+	XMStoreFloat4x4(&f4x4shadowTransform, S);
 
 	// UpdateShadowPassCB
-	{
-		PassConstants mShadowPassCB;
+	PassConstants mShadowPassCB;
 
-		XMMATRIX view = XMLoadFloat4x4(&mLightView);
-		XMMATRIX proj = XMLoadFloat4x4(&mLightProj);
+	XMMATRIX view = XMLoadFloat4x4(&f4x4lightView);
+	XMMATRIX proj = XMLoadFloat4x4(&f4x4lightProj);
 
-		XMMATRIX viewProj = XMMatrixMultiply(view, proj);
-		XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
-		XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
-		XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
+	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
+	XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
+	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
 
-		UINT w = mShadowMap->Width();
-		UINT h = mShadowMap->Height();
+	UINT w = shadowMap->Width();
+	UINT h = shadowMap->Height();
 
-		XMStoreFloat4x4(&mShadowPassCB.View, XMMatrixTranspose(view));
-		XMStoreFloat4x4(&mShadowPassCB.InvView, XMMatrixTranspose(invView));
-		XMStoreFloat4x4(&mShadowPassCB.Proj, XMMatrixTranspose(proj));
-		XMStoreFloat4x4(&mShadowPassCB.InvProj, XMMatrixTranspose(invProj));
-		XMStoreFloat4x4(&mShadowPassCB.ViewProj, XMMatrixTranspose(viewProj));
-		XMStoreFloat4x4(&mShadowPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
-		mShadowPassCB.EyePosW = mLightPosW;
-		mShadowPassCB.RenderTargetSize = XMFLOAT2((float)w, (float)h);
-		mShadowPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / w, 1.0f / h);
-		mShadowPassCB.NearZ = mLightNearZ;
-		mShadowPassCB.FarZ = mLightFarZ;
+	XMStoreFloat4x4(&mShadowPassCB.View, XMMatrixTranspose(view));
+	XMStoreFloat4x4(&mShadowPassCB.InvView, XMMatrixTranspose(invView));
+	XMStoreFloat4x4(&mShadowPassCB.Proj, XMMatrixTranspose(proj));
+	XMStoreFloat4x4(&mShadowPassCB.InvProj, XMMatrixTranspose(invProj));
+	XMStoreFloat4x4(&mShadowPassCB.ViewProj, XMMatrixTranspose(viewProj));
+	XMStoreFloat4x4(&mShadowPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+	mShadowPassCB.EyePosW = lightPosW;
+	mShadowPassCB.RenderTargetSize = XMFLOAT2((float)w, (float)h);
+	mShadowPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / w, 1.0f / h);
+	mShadowPassCB.NearZ = sphereCenterLS.z - sceneBounds.Radius;
+	mShadowPassCB.FarZ = sphereCenterLS.z + sceneBounds.Radius;
 
-		currFrameResource->PassCB->CopyData(1, mShadowPassCB);
-	}
+	currFrameResource->PassCB->CopyData(1, mShadowPassCB);
 
 	{
 		PassConstants passConstants;
@@ -253,7 +245,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 		XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(worldViewProj));
 
-		XMMATRIX shadowTransform = XMLoadFloat4x4(&mShadowTransform);
+		XMMATRIX shadowTransform = XMLoadFloat4x4(&f4x4shadowTransform);
 		XMStoreFloat4x4(&passConstants.ShadowTransform, XMMatrixTranspose(shadowTransform));
 
 		float mSunTheta = 1.25f * XM_PI;
@@ -261,11 +253,11 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 		XMStoreFloat3(&passConstants.EyePosW, pos);
 		passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
-		passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+		passConstants.Lights[0].Direction = rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
 		passConstants.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
-		passConstants.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+		passConstants.Lights[1].Direction = rotatedLightDirections[1];// { -0.57735f, -0.57735f, 0.57735f };
 		passConstants.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
-		passConstants.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+		passConstants.Lights[2].Direction = rotatedLightDirections[2];// { 0.0f, -0.707f, -0.707f };
 		passConstants.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
 
 		currFrameResource->PassCB->CopyData(0, passConstants);
@@ -273,7 +265,6 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 }
 
-// 광원의 시점에서 본 장면을 그림자 맵에 렌더링
 void Graphics::RenderShadowMap()
 {
 	currFrameResource->CmdListAlloc->Reset();
@@ -283,27 +274,22 @@ void Graphics::RenderShadowMap()
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 
-	//commandList->SetPipelineState(pipelineStates["opaque"].Get());
-
 	auto matBuffer = currFrameResource->MaterialBuffer->Resource();
 	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
+	commandList->RSSetViewports(1, &shadowMap->Viewport());
+	commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
 
-	//RenderShadowMap()
-	commandList->RSSetViewports(1, &mShadowMap->Viewport());
-	commandList->RSSetScissorRects(1, &mShadowMap->ScissorRect());
-
-	// Change to DEPTH_WRITE.
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(),
 		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
 
-	commandList->ClearDepthStencilView(mShadowMap->Dsv(),
+	commandList->ClearDepthStencilView(shadowMap->Dsv(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-	commandList->OMSetRenderTargets(0, nullptr, false, &mShadowMap->Dsv());
+	commandList->OMSetRenderTargets(0, nullptr, false, &shadowMap->Dsv());
 
 	auto passCB = currFrameResource->PassCB->Resource();
 	D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
@@ -354,7 +340,7 @@ void Graphics::RenderShadowMap()
 		}
 	}
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(),
 		D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 }
 
@@ -379,6 +365,7 @@ void Graphics::PreRender()
 void Graphics::Render()
 {
 	RenderShadowMap();
+
 	PreRender();
 
 	Camera::main->SetViewportsAndScissorRects(commandList.Get());
@@ -390,11 +377,10 @@ void Graphics::Render()
 
 	auto passCB = currFrameResource->PassCB->Resource();
 	//auto matBuffer = currFrameResource->MaterialBuffer->Resource();
-	//
+	
 	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 	//commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
 	//commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
-	//commandList->SetGraphicsRootShaderResourceView(8, mShadowMap->Resource()->GetGPUVirtualAddress());
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
 	UINT skinnedCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(SkinnnedData));
@@ -646,7 +632,7 @@ void Graphics::InitDirect3D()
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 
-	mShadowMap = std::make_unique<ShadowMap>(device.Get(), 2048, 2048);
+	shadowMap = std::make_unique<ShadowMap>(device.Get(), 2048, 2048);
 
 	// Create an 11 device wrapped around the 12 device and share
 	// 12's command queue.
@@ -842,7 +828,7 @@ void Graphics::LoadAssets()
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
 
-	mShadowMap->BuildDescriptors(
+	shadowMap->BuildDescriptors(
 		CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart(), 0, srvDescriptorSize),
 		CD3DX12_GPU_DESCRIPTOR_HANDLE(srvHeap->GetGPUDescriptorHandleForHeapStart(), 0, srvDescriptorSize),
 		CD3DX12_CPU_DESCRIPTOR_HANDLE(dsvHeap->GetCPUDescriptorHandleForHeapStart(), 1, dsvDescriptorSize));
