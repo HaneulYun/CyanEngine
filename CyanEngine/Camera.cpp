@@ -11,7 +11,7 @@ Camera::Camera()
 
 void Camera::Start()
 {
-	projection = NS_Matrix4x4::PerspectiveFovLH(45, CyanFW::Instance()->GetAspectRatio(), Near, Far);
+	projection = NS_Matrix4x4::PerspectiveFovLH(XMConvertToRadians(FOV), CyanFW::Instance()->GetAspectRatio(), Near, Far);
 }
 
 Vector3 Camera::ScreenToWorldPoint(Vector3 position)
