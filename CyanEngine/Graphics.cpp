@@ -263,6 +263,9 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		passConstants.Lights[2].Direction = rotatedLightDirections[2];// { 0.0f, -0.707f, -0.707f };
 		passConstants.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
 
+		passConstants.RenderTargetSize.x = CyanFW::Instance()->GetWidth();
+		passConstants.RenderTargetSize.y = CyanFW::Instance()->GetHeight();
+
 		currFrameResource->PassCB->CopyData(0, passConstants);
 	}
 
@@ -783,8 +786,8 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> skyVS = d3dUtil::CompileShader(L"shaders\\sky.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> skyPS = d3dUtil::CompileShader(L"shaders\\sky.hlsl", nullptr, "PS", "ps_5_1");
 
-	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
-	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_1");
+	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "VSMain", "vs_5_1");
+	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "PSMain", "ps_5_1");
 
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
@@ -833,7 +836,12 @@ void Graphics::LoadAssets()
 	skyPsoDesc.VS = CD3DX12_SHADER_BYTECODE(skyVS.Get());
 	skyPsoDesc.PS = CD3DX12_SHADER_BYTECODE(skyPS.Get());
 	skyPsoDesc.DepthStencilState.StencilEnable = true;
-	skyPsoDesc.DepthStencilState.StencilReadMask = 1;
+	skyPsoDesc.DepthStencilState.StencilReadMask = 0x01;
+	skyPsoDesc.DepthStencilState.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	skyPsoDesc.DepthStencilState.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	skyPsoDesc.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	skyPsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL;
+	skyPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
 	device->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&pipelineStates["sky"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC uiPsoDesc = opaquePsoDesc;
@@ -843,7 +851,7 @@ void Graphics::LoadAssets()
 	uiPsoDesc.DepthStencilState.StencilEnable = true;
 	uiPsoDesc.DepthStencilState.StencilReadMask = 0x01;
 	uiPsoDesc.DepthStencilState.StencilWriteMask = 0x01;
-	uiPsoDesc.DepthStencilState.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	uiPsoDesc.DepthStencilState.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
 	uiPsoDesc.DepthStencilState.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
 	uiPsoDesc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 	uiPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;

@@ -159,10 +159,10 @@ void SampleScene::BuildObjects()
 	GameObject* Image = CreateEmpty();
 	{
 		GameObject* grid = CreateEmpty();
-		grid->GetComponent<Transform>()->Scale({ 4, 4, 4 });
-		grid->GetComponent<Transform>()->position = { 0, 5, 0 };
+		grid->GetComponent<Transform>()->Scale({ 200, 50, 1 });
+		grid->GetComponent<Transform>()->position = { 110, 565, 0 };
 		auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		grid->AddComponent<Renderer>()->materials.push_back(3);
+		grid->AddComponent<Renderer>()->materials.push_back(5);
 		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(grid);
 	}
 
