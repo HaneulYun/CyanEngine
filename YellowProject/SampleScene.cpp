@@ -105,46 +105,26 @@ void SampleScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
+	CreateImage();
 	{
-		GameObject* ImageObject = CreateUI();
-		ImageObject->AddComponent<Image>();
-		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		ImageObject->AddComponent<Renderer>()->materials.push_back(0);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+		GameObject* ImageObject = CreateImage();
+		auto rectTransform = ImageObject->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 0 };
+		rectTransform->pivot = { 0, 0 };
+		rectTransform->posX = 10;
+		rectTransform->posY = 10;
+		rectTransform->width = 400;
+		rectTransform->height = 40;
 	}
-
 	{
-		GameObject* ImageObject = CreateUI();
-		ImageObject->AddComponent<Image>();
-		auto img = ImageObject->GetComponent<RectTransform>();
-		{
-			img->anchorMin = { 0, 0 };
-			img->pivot = { 0, 0 };
-			img->posX = 10;
-			img->posY = 10;
-			img->width = 400;
-			img->height = 40;
-		}
-		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		ImageObject->AddComponent<Renderer>()->materials.push_back(0);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
-	}
-	
-	{
-		GameObject* ImageObject = CreateUI();
-		ImageObject->AddComponent<Image>();
-		auto img = ImageObject->GetComponent<RectTransform>();
-		{
-			img->anchorMin = { 0, 1 };
-			img->pivot = { 0, 1 };
-			img->posX = 10;
-			img->posY = -10;
-			img->width = 80;
-			img->height = 320;
-		}
-		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		ImageObject->AddComponent<Renderer>()->materials.push_back(0);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+		GameObject* ImageObject = CreateImage();
+		auto rectTransform = ImageObject->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 1 };
+		rectTransform->pivot = { 0, 1 };
+		rectTransform->posX = 10;
+		rectTransform->posY = -10;
+		rectTransform->width = 80;
+		rectTransform->height = 320;
 	}
 
 	{

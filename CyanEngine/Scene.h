@@ -75,6 +75,7 @@ public:
 	GameObject* DuplicatePrefab(GameObject*);
 
 	GameObject* CreateUI();
+	GameObject* CreateImage();
 
 	void PushDelete(GameObject*);
 	void Delete(GameObject*);
