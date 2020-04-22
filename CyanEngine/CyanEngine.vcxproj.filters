@@ -186,13 +186,16 @@
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClInclude>
-    <ClInclude Include="FrameResource.h">
-      <Filter>0_00_CyanEngine\80_Util</Filter>
-    </ClInclude>
     <ClInclude Include="MathHelper.h">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClInclude>
-	<ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="FrameResource.h">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -306,12 +309,12 @@
     <ClCompile Include="DDSTextureLoader.cpp">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClCompile>
-    <ClCompile Include="FrameResource.cpp">
-      <Filter>0_00_CyanEngine\80_Util</Filter>
-    </ClCompile>
     <ClCompile Include="MathHelper.cpp">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClCompile>
-	<ClCompile Include="ShadowMap.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
+    <ClCompile Include="FrameResource.cpp">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

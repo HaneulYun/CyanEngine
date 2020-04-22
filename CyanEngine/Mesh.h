@@ -71,7 +71,7 @@ public:
 
 	enum class GeometryType {
 		GeometryType_Cube, GeometryType_Sphere,
-		GeometryType_Cylinder, GeometryType_Plane
+		GeometryType_Cylinder, GeometryType_Plane, GeometryType_Quad
 	};
 	void Create(GeometryType type);
 	static std::unique_ptr<Mesh> CreateCube()
@@ -96,6 +96,12 @@ public:
 	{
 		auto v = std::make_unique<Mesh>();
 		v->Create(GeometryType::GeometryType_Plane);
+		return std::move(v);
+	}
+	static std::unique_ptr<Mesh> CreateQuad()
+	{
+		auto v = std::make_unique<Mesh>();
+		v->Create(GeometryType::GeometryType_Quad);
 		return std::move(v);
 	}
 };

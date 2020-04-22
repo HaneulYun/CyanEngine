@@ -81,11 +81,15 @@ void SampleScene::BuildObjects()
 	}
 	
 	//*** Mesh ***//
-	geometries["Cube"] = Mesh::CreateCube();
-	geometries["Plane"] = Mesh::CreatePlane();
-	geometries["Sphere"] = Mesh::CreateSphere();
-	geometries["Cylinder"] = Mesh::CreateCylinder();
-	AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
+
+	geometries["Image"] = Mesh::CreateQuad();
+	{
+		geometries["Cube"] = Mesh::CreateCube();
+		geometries["Plane"] = Mesh::CreatePlane();
+		geometries["Sphere"] = Mesh::CreateSphere();
+		geometries["Cylinder"] = Mesh::CreateCylinder();
+		AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
+	}
 
 	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
 	CHeightMapGridMesh* gridMesh = new CHeightMapGridMesh(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, m_pHeightMapImage);
@@ -112,7 +116,6 @@ void SampleScene::BuildObjects()
 	AnimatorController* controller = new AnimatorController();
 	//*** AnimatorController ***//
 	{
-
 		controller->AddState("Attack01_BowAnim", animationClips["Attack01_BowAnim"].get());
 		controller->AddState("Attack01Maintain_BowAnim", animationClips["Attack01Maintain_BowAnim"].get());
 		controller->AddState("Attack01RepeatFire_BowAnim", animationClips["Attack01RepeatFire_BowAnim"].get());
@@ -154,6 +157,46 @@ void SampleScene::BuildObjects()
 	}
 
 	{
+		GameObject* ImageObject = CreateEmpty();
+		ImageObject->AddComponent<Image>();
+		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
+		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+	}
+
+	{
+		GameObject* ImageObject = CreateEmpty();
+		auto img = ImageObject->AddComponent<Image>();
+		{
+			img->anchorMin = { 0, 0 };
+			img->pivot = { 0, 0 };
+			img->posX = 10;
+			img->posY = 10;
+			img->width = 400;
+			img->height = 40;
+		}
+		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
+		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+	}
+
+	{
+		GameObject* ImageObject = CreateEmpty();
+		auto img = ImageObject->AddComponent<Image>();
+		{
+			img->anchorMin = { 0, 1 };
+			img->pivot = { 0, 1 };
+			img->posX = 10;
+			img->posY = -10;
+			img->width = 80;
+			img->height = 320;
+		}
+		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
+		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+	}
+
+	{
 		auto ritem = CreateEmpty();
 		ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
 		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
@@ -163,8 +206,6 @@ void SampleScene::BuildObjects()
 	
 		renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(ritem);
 	}
-
-	UINT objCBIndex = gameObjects.size();
 
 	std::string name[9] {
 		"Attack01_BowAnim",
@@ -179,7 +220,6 @@ void SampleScene::BuildObjects()
 	};
 
 	int i = 0;
-
 	int count = 0;
 	float interval = 7.0f;
 	for (int x = -count; x <= count; ++x)

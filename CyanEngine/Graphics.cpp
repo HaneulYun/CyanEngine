@@ -79,7 +79,25 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 				// instance data
 				if (e->NumFramesDirty > 0)
 				{
-					XMMATRIX world = XMLoadFloat4x4(&e->GetMatrix());
+					XMFLOAT4X4 worldTransform = e->GetMatrix();
+					if (layerIndex == (int)RenderLayer::UI)
+					{
+						auto image = e->GetComponent<Image>();
+						worldTransform._11 = image->width;
+						worldTransform._22 = image->height;
+						worldTransform._41 = image->posX;
+						worldTransform._42 = image->posY;
+						worldTransform._43 = image->posZ;
+
+						worldTransform._14 = image->pivot.x;
+						worldTransform._24 = image->pivot.y;
+
+						worldTransform._12 = image->anchorMin.x;
+						worldTransform._13 = image->anchorMax.x;
+						worldTransform._21 = image->anchorMin.y;
+						worldTransform._23 = image->anchorMax.y;
+					}
+					XMMATRIX world = XMLoadFloat4x4(&worldTransform);
 					XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
 
 					InstanceData objConstants;
@@ -263,6 +281,9 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		passConstants.Lights[2].Direction = rotatedLightDirections[2];// { 0.0f, -0.707f, -0.707f };
 		passConstants.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
 
+		passConstants.RenderTargetSize.x = CyanFW::Instance()->GetWidth();
+		passConstants.RenderTargetSize.y = CyanFW::Instance()->GetHeight();
+
 		currFrameResource->PassCB->CopyData(0, passConstants);
 	}
 
@@ -305,6 +326,14 @@ void Graphics::RenderShadowMap()
 	// For each render item...
 	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 	{
+		if (layerIndex == (int)RenderLayer::Sky ||
+			layerIndex == (int)RenderLayer::UI)
+			continue;
+		else if (layerIndex == (int)RenderLayer::SkinnedOpaque)
+			commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());
+		else
+			commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
+
 		for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
 		{
 			auto& mesh = renderSets.first;
@@ -319,11 +348,6 @@ void Graphics::RenderShadowMap()
 
 			commandList->SetGraphicsRootShaderResourceView(5, instanceBuffer->Resource()->GetGPUVirtualAddress());
 			commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
-
-			if (layerIndex == (int)RenderLayer::SkinnedOpaque)
-				commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());
-			else
-				commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
 
 			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
 			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
@@ -409,6 +433,18 @@ void Graphics::Render()
 
 void Graphics::RenderObjects(int layerIndex)
 {
+	if (layerIndex == (int)RenderLayer::SkinnedOpaque)
+		commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
+	else if (layerIndex == (int)RenderLayer::Sky)
+		commandList->SetPipelineState(pipelineStates["sky"].Get());
+	else if (layerIndex == (int)RenderLayer::UI)
+	{
+		commandList->OMSetStencilRef(1);
+		commandList->SetPipelineState(pipelineStates["ui"].Get());
+	}
+	else
+		commandList->SetPipelineState(pipelineStates["opaque"].Get());
+
 	for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
 	{
 		auto& mesh = renderSets.first;
@@ -423,13 +459,6 @@ void Graphics::RenderObjects(int layerIndex)
 
 		commandList->SetGraphicsRootShaderResourceView(5, instanceBuffer->Resource()->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
-
-		if (layerIndex == (int)RenderLayer::SkinnedOpaque)
-			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
-		else if (layerIndex == (int)RenderLayer::Sky)
-			commandList->SetPipelineState(pipelineStates["sky"].Get());
-		else
-			commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
 		commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 		commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
@@ -707,8 +736,6 @@ void Graphics::InitDirect2D()
 			&renderTargets2d[i]
 		);
 	}
-
-
 }
 
 void Graphics::LoadAssets()
@@ -777,6 +804,9 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> skyVS = d3dUtil::CompileShader(L"shaders\\sky.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> skyPS = d3dUtil::CompileShader(L"shaders\\sky.hlsl", nullptr, "PS", "ps_5_1");
 
+	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "VSMain", "vs_5_1");
+	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "PSMain", "ps_5_1");
+
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
@@ -823,8 +853,29 @@ void Graphics::LoadAssets()
 	skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 	skyPsoDesc.VS = CD3DX12_SHADER_BYTECODE(skyVS.Get());
 	skyPsoDesc.PS = CD3DX12_SHADER_BYTECODE(skyPS.Get());
+	skyPsoDesc.DepthStencilState.StencilEnable = true;
+	skyPsoDesc.DepthStencilState.StencilReadMask = 0x01;
+	skyPsoDesc.DepthStencilState.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	skyPsoDesc.DepthStencilState.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	skyPsoDesc.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	skyPsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL;
+	skyPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
 	device->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&pipelineStates["sky"]));
 
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC uiPsoDesc = opaquePsoDesc;
+	uiPsoDesc.VS = CD3DX12_SHADER_BYTECODE(uiVS.Get());
+	uiPsoDesc.PS = CD3DX12_SHADER_BYTECODE(uiPS.Get());
+	uiPsoDesc.DepthStencilState.DepthEnable = false;
+	uiPsoDesc.DepthStencilState.StencilEnable = true;
+	uiPsoDesc.DepthStencilState.StencilReadMask = 0x01;
+	uiPsoDesc.DepthStencilState.StencilWriteMask = 0x01;
+	uiPsoDesc.DepthStencilState.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	uiPsoDesc.DepthStencilState.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	uiPsoDesc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+	uiPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	uiPsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+
+	device->CreateGraphicsPipelineState(&uiPsoDesc, IID_PPV_ARGS(&pipelineStates["ui"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC shadowPsoDesc = opaquePsoDesc;
 	// PSO for shadow map pass.
