@@ -156,14 +156,44 @@ void SampleScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
-	GameObject* Image = CreateEmpty();
 	{
-		GameObject* grid = CreateEmpty();
-		grid->GetComponent<Transform>()->Scale({ 200, 50, 1 });
-		grid->GetComponent<Transform>()->position = { 110, 565, 0 };
-		auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		grid->AddComponent<Renderer>()->materials.push_back(5);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(grid);
+		GameObject* ImageObject = CreateEmpty();
+		ImageObject->AddComponent<Image>();
+		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
+		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+	}
+
+	{
+		GameObject* ImageObject = CreateEmpty();
+		auto img = ImageObject->AddComponent<Image>();
+		{
+			img->anchorMin = { 0, 0 };
+			img->pivot = { 0, 0 };
+			img->posX = 10;
+			img->posY = 10;
+			img->width = 400;
+			img->height = 40;
+		}
+		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
+		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+	}
+
+	{
+		GameObject* ImageObject = CreateEmpty();
+		auto img = ImageObject->AddComponent<Image>();
+		{
+			img->anchorMin = { 0, 1 };
+			img->pivot = { 0, 1 };
+			img->posX = 10;
+			img->posY = -10;
+			img->width = 80;
+			img->height = 320;
+		}
+		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
+		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
 	}
 
 	{

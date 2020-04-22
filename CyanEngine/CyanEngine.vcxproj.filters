@@ -193,6 +193,9 @@
     <ClInclude Include="FrameResource.h">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">

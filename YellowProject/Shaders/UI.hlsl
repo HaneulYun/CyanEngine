@@ -24,8 +24,9 @@ PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
 
 	uint matIndex = gMaterialIndexData[instanceID * instData.MaterialIndexStride].MaterialIndex;
 
+	float4x4 mat = gInstanceData[instanceID].World;
 
-	float2 pos = (vin.PosL.xy * gInstanceData[instanceID].World._11_22 + gInstanceData[instanceID].World._41_42) / gRenderTargetSize * 2 - 1;
+	float2 pos = (((vin.PosL.xy - mat._14_24) * mat._11_22 + mat._41_42) / gRenderTargetSize - 0.5 + mat._12_21) * 2;
 
 	vout.MatIndex = matIndex;
 	vout.PosH = float4(pos, 0, 1);
