@@ -142,7 +142,10 @@ GameObject* Scene::AddGameObject(GameObject* gameObject)
 
 GameObject* Scene::CreateEmpty(bool addition)
 {
-	return new GameObject(addition);
+	GameObject::E_ObjectType type = GameObject::E_ObjectInstance;
+	if(!addition)
+		type = GameObject::E_ObjectPrefab;
+	return new GameObject(type);
 }
 
 GameObject* Scene::Duplicate(GameObject* gameObject)
@@ -157,7 +160,13 @@ GameObject* Scene::CreateEmptyPrefab()
 
 GameObject* Scene::DuplicatePrefab(GameObject* gameObject)
 {
-	return new GameObject(gameObject, false);
+	GameObject::E_ObjectType type = GameObject::E_ObjectPrefab;
+	return new GameObject(gameObject, type);
+}
+
+GameObject* Scene::CreateUI()
+{
+	return new GameObject(GameObject::E_UI);
 }
 
 void Scene::PushDelete(GameObject* gameObject)

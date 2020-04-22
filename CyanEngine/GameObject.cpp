@@ -1,18 +1,21 @@
 #include "pch.h"
 #include "GameObject.h"
 
-GameObject::GameObject(bool addition)
+GameObject::GameObject(E_ObjectType type)
 {
 	scene = Scene::scene;
 
-	transform = new Transform();
+	if(type == E_UI)
+		transform = new RectTransform();
+	else
+		transform = new Transform();
 	components.push_back(transform);
 
-	if (addition && scene)
+	if (type && scene)
 		scene->AddGameObject(this);
 }
 
-GameObject::GameObject(GameObject* original, bool addition)
+GameObject::GameObject(GameObject* original, E_ObjectType type)
 {
 	scene = Scene::scene;
 
@@ -20,7 +23,12 @@ GameObject::GameObject(GameObject* original, bool addition)
 		for (GameObject* child : original->children)
 			AddChild(new GameObject(child));
 	else
-		transform = new Transform();
+	{
+		if (type == E_UI)
+			transform = new RectTransform();
+		else
+			transform = new Transform();
+	}
 
 	if (original)
 		for (Component* component : original->components)
@@ -28,7 +36,7 @@ GameObject::GameObject(GameObject* original, bool addition)
 	else
 		components.push_back(transform);
 
-	if (addition && scene)
+	if (type && scene)
 		scene->AddGameObject(this);
 }
 

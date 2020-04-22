@@ -157,7 +157,7 @@ void SampleScene::BuildObjects()
 	}
 
 	{
-		GameObject* ImageObject = CreateEmpty();
+		GameObject* ImageObject = CreateUI();
 		ImageObject->AddComponent<Image>();
 		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
 		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
@@ -165,8 +165,9 @@ void SampleScene::BuildObjects()
 	}
 
 	{
-		GameObject* ImageObject = CreateEmpty();
-		auto img = ImageObject->AddComponent<Image>();
+		GameObject* ImageObject = CreateUI();
+		ImageObject->AddComponent<Image>();
+		auto img = ImageObject->GetComponent<RectTransform>();
 		{
 			img->anchorMin = { 0, 0 };
 			img->pivot = { 0, 0 };
@@ -179,10 +180,11 @@ void SampleScene::BuildObjects()
 		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
 		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
 	}
-
+	
 	{
-		GameObject* ImageObject = CreateEmpty();
-		auto img = ImageObject->AddComponent<Image>();
+		GameObject* ImageObject = CreateUI();
+		ImageObject->AddComponent<Image>();
+		auto img = ImageObject->GetComponent<RectTransform>();
 		{
 			img->anchorMin = { 0, 1 };
 			img->pivot = { 0, 1 };

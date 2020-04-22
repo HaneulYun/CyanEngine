@@ -68,10 +68,13 @@ public:
 
 	// GameObject Management
 	GameObject* AddGameObject(GameObject*);
+
 	GameObject* CreateEmpty(bool = true);
 	GameObject* Duplicate(GameObject*);
 	GameObject* CreateEmptyPrefab();
 	GameObject* DuplicatePrefab(GameObject*);
+
+	GameObject* CreateUI();
 
 	void PushDelete(GameObject*);
 	void Delete(GameObject*);
