@@ -88,6 +88,21 @@ public:
 		texture->Index = index;
 		textures[texture->Name] = std::move(texture);
 	}
+	void AddMaterial(UINT index, std::string name, int diffuse = -1, int noromal = -1,
+		XMFLOAT4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f }, XMFLOAT3 fresnel = { 0.01f, 0.01f, 0.01f },
+		float roughness = 1.0f, XMFLOAT4X4 matTransform = MathHelper::Identity4x4())
+	{
+		auto material = std::make_unique<Material>();
+		material->Name = name;
+		material->MatCBIndex = index;
+		material->DiffuseSrvHeapIndex = diffuse;
+		material->NormalSrvHeapIndex = noromal;
+		material->DiffuseAlbedo = albedo;
+		material->FresnelR0 = fresnel;
+		material->Roughness = roughness;
+		material->MatTransform = matTransform;
+		materials[material->Name] = std::move(material);
+	}
 	void AddFbxForMesh(std::string name, std::string fileNmae)
 	{
 		FbxModelData data;
