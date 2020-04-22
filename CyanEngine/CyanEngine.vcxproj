@@ -198,6 +198,7 @@
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="RectTransform.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Scene.h" />
@@ -262,7 +263,6 @@
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="Time.cpp" />
-    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

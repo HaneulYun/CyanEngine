@@ -18,72 +18,21 @@ void SampleScene::BuildObjects()
 
 	//*** Material ***//
 	{
-		for (int i = 5; i < 10; ++i)
-		{
-			auto material = std::make_unique<Material>();
-			material->Name = "material_" + std::to_string(i);
-			material->MatCBIndex = i;
-			material->DiffuseSrvHeapIndex = 0;
-			material->NormalSrvHeapIndex = 0;
-			material->DiffuseAlbedo = RANDOM_COLOR;
-			material->FresnelR0 = XMFLOAT3(0.98f, 0.97f, 0.95f);
-			material->Roughness = 0.0f;
-			materials[material->Name] = std::move(material);
-		}
-
-		{
-			auto material = std::make_unique<Material>();
-			material->Name = "PolyArt";
-			material->MatCBIndex = 0;
-			material->DiffuseSrvHeapIndex = 1;
-			material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
-			material->Roughness = 0.9f;
-			materials[material->Name] = std::move(material);
-
-			auto material_bricks0 = std::make_unique<Material>();
-			material_bricks0->Name = "bricksMat";
-			material_bricks0->MatCBIndex = 1;
-			material_bricks0->DiffuseSrvHeapIndex = 2;
-			material_bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-			material_bricks0->Roughness = 0.1f;
-			materials[material_bricks0->Name] = std::move(material_bricks0);
-
-			auto material_stone0 = std::make_unique<Material>();
-			material_stone0->Name = "stoneMat";
-			material_stone0->MatCBIndex = 2;
-			material_stone0->DiffuseSrvHeapIndex = 0;
-			material_stone0->DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 0.1f, 1.0f);
-			material_stone0->FresnelR0 = XMFLOAT3(0.98f, 0.97f, 0.95f);
-			material_stone0->Roughness = 0.1f;
-			materials[material_stone0->Name] = std::move(material_stone0);
-
-			auto material_tile0 = std::make_unique<Material>();
-			material_tile0->Name = "tile0";
-			material_tile0->MatCBIndex = 3;
-			material_tile0->DiffuseSrvHeapIndex = 4;
-			material_tile0->DiffuseAlbedo = XMFLOAT4(0.9f, 0.9f, 0.9f, 1.0f);
-			material_tile0->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
-			material_tile0->Roughness = 0.1f;
-			XMStoreFloat4x4(&material_tile0->MatTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
-			materials[material_tile0->Name] = std::move(material_tile0);
-		}
-
-		{
-			auto material = std::make_unique<Material>();
-			material->Name = "sky";
-			material->MatCBIndex = 4;
-			material->DiffuseSrvHeapIndex = 5;
-			material->DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
-			material->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-			material->Roughness = 1.0f;
-			materials[material->Name] = std::move(material);
-		}
+		AddMaterial(0, "none", 0);
+		AddMaterial(1, "PolyArt", 1, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
+		AddMaterial(2, "bricksMat", 2, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
+		AddMaterial(3, "stoneMat", 0, -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
+		XMFLOAT4X4 mat;
+		XMStoreFloat4x4(&mat, XMMatrixScaling(8.0f, 8.0f, 1.0f));
+		AddMaterial(4, "tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, mat);
+		AddMaterial(5, "sky", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 1.0f);
+		for (int i = 0; i < 5; ++i)
+			AddMaterial(5 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
 	}
 	
 	//*** Mesh ***//
-
-	geometries["Image"] = Mesh::CreateQuad();
 	{
+		geometries["Image"] = Mesh::CreateQuad();
 		geometries["Cube"] = Mesh::CreateCube();
 		geometries["Plane"] = Mesh::CreatePlane();
 		geometries["Sphere"] = Mesh::CreateSphere();
@@ -156,44 +105,26 @@ void SampleScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
+	CreateImage();
 	{
-		GameObject* ImageObject = CreateEmpty();
-		ImageObject->AddComponent<Image>();
-		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+		GameObject* ImageObject = CreateImage();
+		auto rectTransform = ImageObject->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 0 };
+		rectTransform->pivot = { 0, 0 };
+		rectTransform->posX = 10;
+		rectTransform->posY = 10;
+		rectTransform->width = 400;
+		rectTransform->height = 40;
 	}
-
 	{
-		GameObject* ImageObject = CreateEmpty();
-		auto img = ImageObject->AddComponent<Image>();
-		{
-			img->anchorMin = { 0, 0 };
-			img->pivot = { 0, 0 };
-			img->posX = 10;
-			img->posY = 10;
-			img->width = 400;
-			img->height = 40;
-		}
-		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
-	}
-
-	{
-		GameObject* ImageObject = CreateEmpty();
-		auto img = ImageObject->AddComponent<Image>();
-		{
-			img->anchorMin = { 0, 1 };
-			img->pivot = { 0, 1 };
-			img->posX = 10;
-			img->posY = -10;
-			img->width = 80;
-			img->height = 320;
-		}
-		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+		GameObject* ImageObject = CreateImage();
+		auto rectTransform = ImageObject->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 1 };
+		rectTransform->pivot = { 0, 1 };
+		rectTransform->posX = 10;
+		rectTransform->posY = -10;
+		rectTransform->width = 80;
+		rectTransform->height = 320;
 	}
 
 	{
@@ -202,7 +133,7 @@ void SampleScene::BuildObjects()
 		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
 		auto renderer = ritem->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(4);
+			renderer->materials.push_back(5);
 	
 		renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(ritem);
 	}
@@ -232,7 +163,7 @@ void SampleScene::BuildObjects()
 			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries["ApprenticeSK"].get();
 			auto renderer = ritem->GetComponent<SkinnedMeshRenderer>();
 			for (auto& sm : mesh->DrawArgs)
-				renderer->materials.push_back(0);
+				renderer->materials.push_back(1);
 	
 			auto anim = ritem->AddComponent<Animator>();
 			anim->controller = controller;
@@ -332,7 +263,7 @@ void SampleScene::BuildObjects()
 				auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
 				auto renderer = ritem->AddComponent<Renderer>();
 				for (auto& sm : mesh->DrawArgs)
-					renderer->materials.push_back(Random::Range(5, 9));
+					renderer->materials.push_back(Random::Range(6, 9));
 	
 				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 2;
 	
@@ -343,7 +274,7 @@ void SampleScene::BuildObjects()
 		GameObject* grid = CreateEmpty();
 		//grid->GetComponent<Transform>()->position -= {128, 20, 128};
 		auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();;
-		grid->AddComponent<Renderer>()->materials.push_back(3);
+		grid->AddComponent<Renderer>()->materials.push_back(4);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
 	}
 	
@@ -352,25 +283,25 @@ void SampleScene::BuildObjects()
 		GameObject* leftCylRItem = CreateEmpty();
 		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
 		auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
-		leftCylRItem->AddComponent<Renderer>()->materials.push_back(1);
+		leftCylRItem->AddComponent<Renderer>()->materials.push_back(2);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(leftCylRItem);
 	
 		GameObject* rightCylRItem = CreateEmpty();
 		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
 		mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
-		rightCylRItem->AddComponent<Renderer>()->materials.push_back(1);
+		rightCylRItem->AddComponent<Renderer>()->materials.push_back(2);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(rightCylRItem);
 	
 		GameObject* leftSphereRItem = CreateEmpty();
 		leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
 		mesh = leftSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
-		leftSphereRItem->AddComponent<Renderer>()->materials.push_back(2);
+		leftSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(leftSphereRItem);
 	
 		GameObject* rightSphereRItem = CreateEmpty();
 		rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
 		mesh = rightSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
-		rightSphereRItem->AddComponent<Renderer>()->materials.push_back(2);
+		rightSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(rightSphereRItem);
 	}
 }

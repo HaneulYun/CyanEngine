@@ -79,10 +79,11 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 				// instance data
 				if (e->NumFramesDirty > 0)
 				{
-					XMFLOAT4X4 worldTransform = e->GetMatrix();
+					XMFLOAT4X4 worldTransform;
 					if (layerIndex == (int)RenderLayer::UI)
 					{
-						auto image = e->GetComponent<Image>();
+						worldTransform = e->GetComponent<RectTransform>()->localToWorldMatrix;
+						auto image = e->GetComponent<RectTransform>();
 						worldTransform._11 = image->width;
 						worldTransform._22 = image->height;
 						worldTransform._41 = image->posX;
@@ -96,6 +97,10 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 						worldTransform._13 = image->anchorMax.x;
 						worldTransform._21 = image->anchorMin.y;
 						worldTransform._23 = image->anchorMax.y;
+					}
+					else
+					{
+						worldTransform = e->GetMatrix();
 					}
 					XMMATRIX world = XMLoadFloat4x4(&worldTransform);
 					XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);

@@ -43,7 +43,6 @@ using Microsoft::WRL::ComPtr;
 #define _WITH_TERRAIN_PARTITION
 #endif
 
-//#pragma comment(lib, "libfbxsdk.lib")
 #pragma comment(lib, "libfbxsdk-md.lib")
 #pragma comment(lib, "libxml2-md.lib")
 #pragma comment(lib, "zlib-md.lib")
@@ -59,11 +58,7 @@ using Microsoft::WRL::ComPtr;
 #define FRAME_BUFFER_HEIGHT 900
 #define PI (3.141592f)
 
-//typedef XMFLOAT3 Vector3;
-
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
-
-//#define SAFE_DELETE(p) { if(p) { delete p; p = nullptr; } }
 
 ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
 ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates);
@@ -74,75 +69,6 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include <map>
 
 #define NUM_FRAME_RESOURCES 3
-
-#include "d3dx12.h"
-#include "d3dUtil.h"
-#include "MathHelper.h"
-#include "UploadBuffer.h"
-#include "GeometryGenerator.h"
-
-#include "Singleton.h"
-
-#include "Vector3.h"
-
-#include "Debug.h"
-#include "Time.h"
-#include "Input.h"
-#include "Random.h"
-
-#include "CTexture.h"
-
-#include "Object.h"
-#include "Shader.h"
-#include "StandardShader.h"
-
-#include "Mesh.h"
-#include "Meshs.h"
-
-#include "Material.h"
-#include "TextureShader.h"
-
-#include "Component.h"
-#include "MonoBehavior.h"
-
-#include "Transform.h"
-#include "MeshFilter.h"
-#include "Renderer.h"
-#include "SkinnedMeshRenderer.h"
-#include "Camera.h"
-#include "Terrain.h"
-
-#include "AnimatorController.h"
-#include "Animator.h"
-
-#include "Collider.h"
-#include "BoxCollider.h"
-#include "SphereCollider.h"
-
-#include "Image.h"
-#include "Text.h"
-
-#include "ModelManager.h"
-#include "ShaderManager.h"
-#include "Graphics.h"
-#include "ObjectManager.h"
-
-#include "GameObject.h"
-
-#include "FbxLoader.h"
-#include "Scene.h"
-
-#include "CyanFW.h"
-#include "CyanApp.h"
-
-
-#define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
-
-#define MAX_LIGHTS			8
-#define MAX_MATERIALS		8
-#define POINT_LIGHT			1
-#define SPOT_LIGHT			2
-#define DIRECTIONAL_LIGHT	3
 
 namespace NS_Vector4
 {
@@ -211,3 +137,73 @@ namespace NS_Matrix4x4
 		return(xmmtx4x4Result);
 	}
 }
+
+#include "d3dx12.h"
+#include "d3dUtil.h"
+#include "MathHelper.h"
+#include "UploadBuffer.h"
+#include "GeometryGenerator.h"
+
+#include "Singleton.h"
+
+#include "Vector3.h"
+
+#include "Debug.h"
+#include "Time.h"
+#include "Input.h"
+#include "Random.h"
+
+#include "CTexture.h"
+
+#include "Object.h"
+#include "Shader.h"
+#include "StandardShader.h"
+
+#include "Mesh.h"
+#include "Meshs.h"
+
+#include "Material.h"
+#include "TextureShader.h"
+
+#include "Component.h"
+#include "MonoBehavior.h"
+
+#include "Transform.h"
+#include "MeshFilter.h"
+#include "Renderer.h"
+#include "SkinnedMeshRenderer.h"
+#include "Camera.h"
+#include "Terrain.h"
+
+#include "AnimatorController.h"
+#include "Animator.h"
+
+#include "Collider.h"
+#include "BoxCollider.h"
+#include "SphereCollider.h"
+
+#include "RectTransform.h"
+#include "Image.h"
+#include "Text.h"
+
+#include "ModelManager.h"
+#include "ShaderManager.h"
+#include "Graphics.h"
+#include "ObjectManager.h"
+
+#include "GameObject.h"
+
+#include "FbxLoader.h"
+#include "Scene.h"
+
+#include "CyanFW.h"
+#include "CyanApp.h"
+
+
+#define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+
+#define MAX_LIGHTS			8
+#define MAX_MATERIALS		8
+#define POINT_LIGHT			1
+#define SPOT_LIGHT			2
+#define DIRECTIONAL_LIGHT	3

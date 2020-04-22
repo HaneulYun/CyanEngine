@@ -28,16 +28,15 @@ public:
 
 	int NumFramesDirty{ NUM_FRAME_RESOURCES };
 
-public:
-
 private:
 	friend class Scene;
 	friend class Object;
 	friend class ModelManager;
 
+	enum E_ObjectType { E_ObjectPrefab, E_ObjectInstance, E_UI, E_COUNT };
 public:
-	GameObject(bool = true);
-	GameObject(GameObject* , bool = true);
+	GameObject(E_ObjectType = E_ObjectInstance);
+	GameObject(GameObject* , E_ObjectType = E_ObjectInstance);
 	~GameObject();
 
 	void Start();
