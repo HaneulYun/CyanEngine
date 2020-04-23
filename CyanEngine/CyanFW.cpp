@@ -32,6 +32,11 @@ void CyanFW::OnFrameAdvance()
 {
 	Time::Instance()->Tick();
 
+	if (sceneManager->nextScene)
+	{
+		Scene::scene = sceneManager->scene = sceneManager->nextScene;
+		sceneManager->nextScene = nullptr;
+	}
 	sceneManager->scene->Update();
 	graphics->Update(sceneManager->scene->frameResources);
 	graphics->Render();

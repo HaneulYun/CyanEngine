@@ -7,6 +7,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
 
 	SceneManager* sceneManager = SceneManager::Instance();
 	sceneManager->scenes["mainScene"] = new SampleScene();
+	sceneManager->scenes["materialScene"] = new MaterialScene();
 	Scene::scene = sceneManager->scene = sceneManager->scenes["mainScene"];
 
 	return CyanApp::Run(cyanFW, hInstance, nCmdShow);

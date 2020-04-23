@@ -5,7 +5,7 @@ class SampleScene : public Scene
 {
 public:
 	SampleScene() : Scene() {}
-	virtual ~SampleScene() {}
+	~SampleScene() {}
 
 	virtual void BuildObjects();
 };
