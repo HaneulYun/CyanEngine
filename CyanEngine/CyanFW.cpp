@@ -22,21 +22,18 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 	if (!graphics)
 		(graphics = Graphics::Instance())->Initialize();
+	if (!sceneManager)
+		sceneManager = SceneManager::Instance();
 
 	return true;
-}
-
-void CyanFW::OnSetScene(Scene* newScene)
-{
-	Scene::scene = scene = newScene;
 }
 
 void CyanFW::OnFrameAdvance()
 {
 	Time::Instance()->Tick();
 
-	scene->Update();
-	graphics->Update(scene->frameResources);
+	sceneManager->scene->Update();
+	graphics->Update(sceneManager->scene->frameResources);
 	graphics->Render();
 
 	Input::Update();

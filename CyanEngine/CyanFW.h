@@ -1,5 +1,7 @@
 #pragma once
 
+class SceneManager;
+
 class CyanFW : public Singleton<CyanFW>
 {
 private:
@@ -11,7 +13,7 @@ private:
 
 public:
 	Graphics* graphics{ nullptr };
-	Scene* scene{ nullptr };
+	SceneManager* sceneManager{ nullptr };
 
 	_TCHAR m_pszFrameRate[50];
 
@@ -20,7 +22,6 @@ public:
 	virtual ~CyanFW();
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
-	void OnSetScene(Scene* newScene);
 	void OnFrameAdvance();
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

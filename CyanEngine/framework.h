@@ -196,6 +196,7 @@ namespace NS_Matrix4x4
 
 #include "FbxLoader.h"
 #include "Scene.h"
+#include "SceneManager.h"
 
 #include "CyanFW.h"
 #include "CyanApp.h"

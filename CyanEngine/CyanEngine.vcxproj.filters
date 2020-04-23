@@ -208,6 +208,9 @@
     <ClInclude Include="Button.h">
       <Filter>0_00_CyanEngine\13_UIComponent</Filter>
     </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -324,6 +327,9 @@
     </ClCompile>
     <ClCompile Include="AnimatorController.cpp">
       <Filter>0_00_CyanEngine\15_AniimationComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

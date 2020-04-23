@@ -19,6 +19,8 @@ struct FbxModelData
 {
 	std::string name{};
 
+	Scene* scene;
+
 	bool loadedMesh{ false };
 
 	std::vector<SubmeshGeometry> submeshes;
@@ -29,6 +31,7 @@ struct FbxModelData
 
 	// Assets Management
 	void SetName(std::string name) { this->name = name; }
+	void SetScene(Scene* scene) { this->scene = scene; }
 	void LoadFbx(const char* path);
 	void LoadFbxHierarchy(FbxNode* node);
 	void LoadFbxHierarchyRecursive(FbxNode* node, int parentIndex = -1);
