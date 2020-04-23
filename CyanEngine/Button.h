@@ -1,10 +1,20 @@
 #pragma once
 
+struct FuncData
+{
+	void(*func)(void*);
+	void* data;
+	
+	static FuncData Make(void* data, void(*func)(void*))
+	{
+		return { func, data };
+	}
+};
+
 class Button : public MonoBehavior<Button>
 {
-private:
-
 public:
+	std::vector<FuncData> funcData;
 
 private:
 	friend class GameObject;
@@ -30,7 +40,8 @@ public:
 			Vector3 screen = Camera::main->ScreenToViewportPoint(Input::mousePosition);
 			if (!IsPointInRect(screen))
 				return;
-			Debug::Log("Click!");
+			for (auto& v : funcData)
+				v.func(v.data);
 		}
 	}
 

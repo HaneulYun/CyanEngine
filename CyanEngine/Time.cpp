@@ -75,7 +75,7 @@ void Time::Tick(float fLockFPS)
 	if (m_nSampleCount > 0)
 		m_fTimeElapsed /= m_nSampleCount;
 
-	deltaTime = m_fTimeElapsed;
+	deltaTime = fTimeElapsed;
 }
 
 unsigned long Time::GetFrameRate(LPTSTR lpszString, int nCharacters)

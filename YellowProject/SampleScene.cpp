@@ -106,7 +106,11 @@ void SampleScene::BuildObjects()
 
 	GameObject* ImageObject = CreateImage();
 	{
-		ImageObject->AddComponent<Button>();
+		ImageObject->AddComponent<Button>()->funcData.push_back(
+			FuncData::Make(nullptr, [](void*) {
+				Debug::Log("이게 되네;;\n");
+				})
+		);
 	}
 
 	{
@@ -177,7 +181,13 @@ void SampleScene::BuildObjects()
 			{
 				anim->state = &controller->states["Idle"];
 				anim->TimePos = 0;
-				ritem->AddComponent<CharacterController>();
+				auto ref = ritem->AddComponent<CharacterController>();
+
+				ImageObject->GetComponent<Button>()->funcData.push_back(
+					FuncData::Make(ref, [](void* k) {
+						static_cast<CharacterController*>(k)->test();
+						})
+				);
 			}
 	
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
