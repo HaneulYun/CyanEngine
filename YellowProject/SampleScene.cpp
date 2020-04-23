@@ -156,45 +156,45 @@ void SampleScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
-	{
-		GameObject* ImageObject = CreateEmpty();
-		ImageObject->AddComponent<Image>();
-		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
-	}
-
-	{
-		GameObject* ImageObject = CreateEmpty();
-		auto img = ImageObject->AddComponent<Image>();
-		{
-			img->anchorMin = { 0, 0 };
-			img->pivot = { 0, 0 };
-			img->posX = 10;
-			img->posY = 10;
-			img->width = 400;
-			img->height = 40;
-		}
-		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
-	}
-
-	{
-		GameObject* ImageObject = CreateEmpty();
-		auto img = ImageObject->AddComponent<Image>();
-		{
-			img->anchorMin = { 0, 1 };
-			img->pivot = { 0, 1 };
-			img->posX = 10;
-			img->posY = -10;
-			img->width = 80;
-			img->height = 320;
-		}
-		auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-		ImageObject->AddComponent<Renderer>()->materials.push_back(5);
-		renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
-	}
+	//{
+	//	GameObject* ImageObject = CreateEmpty();
+	//	ImageObject->AddComponent<Image>();
+	//	auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+	//	ImageObject->AddComponent<Renderer>()->materials.push_back(5);
+	//	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+	//}
+	//
+	//{
+	//	GameObject* ImageObject = CreateEmpty();
+	//	auto img = ImageObject->AddComponent<Image>();
+	//	{
+	//		img->anchorMin = { 0, 0 };
+	//		img->pivot = { 0, 0 };
+	//		img->posX = 10;
+	//		img->posY = 10;
+	//		img->width = 400;
+	//		img->height = 40;
+	//	}
+	//	auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+	//	ImageObject->AddComponent<Renderer>()->materials.push_back(5);
+	//	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+	//}
+	//
+	//{
+	//	GameObject* ImageObject = CreateEmpty();
+	//	auto img = ImageObject->AddComponent<Image>();
+	//	{
+	//		img->anchorMin = { 0, 1 };
+	//		img->pivot = { 0, 1 };
+	//		img->posX = 10;
+	//		img->posY = -10;
+	//		img->width = 80;
+	//		img->height = 320;
+	//	}
+	//	auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+	//	ImageObject->AddComponent<Renderer>()->materials.push_back(5);
+	//	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
+	//}
 
 	{
 		auto ritem = CreateEmpty();
@@ -320,13 +320,14 @@ void SampleScene::BuildObjects()
 			textObjects.push_back(textobject);
 		}
 	}
-	
-	int xObjects = 4, yObjects = 4, zObjects = 4;
+	GameObject* prefab;
+	int xObjects = 0, yObjects = 0, zObjects = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
 			for (int z = -zObjects; z <= zObjects; z++)
 			{
 				auto ritem = CreateEmpty();
+				prefab = ritem;
 				ritem->GetComponent<Transform>()->Scale({ 5, 5, 5 });
 				ritem->GetComponent<Transform>()->position = { 20.0f * x, 20.0f * y, 20.0f * z };
 				auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
@@ -337,6 +338,7 @@ void SampleScene::BuildObjects()
 				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 2;
 	
 				renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(ritem);
+				
 			}
 	
 	{
@@ -345,6 +347,9 @@ void SampleScene::BuildObjects()
 		auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();;
 		grid->AddComponent<Renderer>()->materials.push_back(3);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
+		TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
+		tp->terrain = grid;
+		tp->prefab = prefab;
 	}
 	
 	for (int i = 0; i < 5; ++i)

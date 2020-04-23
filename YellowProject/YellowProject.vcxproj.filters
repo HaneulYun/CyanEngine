@@ -63,6 +63,9 @@
     <ClInclude Include="CharacterController.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="TerrainPicking.h">
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
