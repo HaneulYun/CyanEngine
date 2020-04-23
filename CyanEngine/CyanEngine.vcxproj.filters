@@ -205,6 +205,9 @@
     <ClInclude Include="AnimatorController.h">
       <Filter>0_00_CyanEngine\15_AniimationComponent</Filter>
     </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>0_00_CyanEngine\13_UIComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">

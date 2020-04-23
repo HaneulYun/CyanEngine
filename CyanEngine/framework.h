@@ -185,6 +185,7 @@ namespace NS_Matrix4x4
 #include "RectTransform.h"
 #include "Image.h"
 #include "Text.h"
+#include "Button.h"
 
 #include "ModelManager.h"
 #include "ShaderManager.h"

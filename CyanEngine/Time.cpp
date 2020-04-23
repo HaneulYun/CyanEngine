@@ -56,7 +56,8 @@ void Time::Tick(float fLockFPS)
 	{
 		::memmove(&m_fFrameTime[1], m_fFrameTime, (MAX_SAMPLE_COUNT - 1) * sizeof(float));
 		m_fFrameTime[0] = fTimeElapsed;
-		if (m_nSampleCount < MAX_SAMPLE_COUNT) m_nSampleCount++;
+		if (m_nSampleCount < MAX_SAMPLE_COUNT)
+			m_nSampleCount++;
 	}
 
 	m_nFramesPerSecond++;
@@ -74,7 +75,7 @@ void Time::Tick(float fLockFPS)
 	if (m_nSampleCount > 0)
 		m_fTimeElapsed /= m_nSampleCount;
 
-	deltaTime = m_fTimeElapsed;
+	deltaTime = fTimeElapsed;
 }
 
 unsigned long Time::GetFrameRate(LPTSTR lpszString, int nCharacters)

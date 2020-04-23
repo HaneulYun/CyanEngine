@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CyanFW.h"
+
 struct Vector2
 {
 	float x;
@@ -53,5 +55,11 @@ public:
 
 	void Update()
 	{
+		localToWorldMatrix._11 = width / CyanFW::Instance()->GetWidth() * 2;
+		localToWorldMatrix._22 = height / CyanFW::Instance()->GetHeight() * 2;
+
+		localToWorldMatrix._41 = (anchorMin.x + (posX - width * pivot.x) / CyanFW::Instance()->GetWidth()) * 2 - 1;
+		localToWorldMatrix._42 = (anchorMin.y + (posY - height * pivot.y) / CyanFW::Instance()->GetHeight()) * 2 - 1;
+		localToWorldMatrix._43 = posZ;
 	}
 };
