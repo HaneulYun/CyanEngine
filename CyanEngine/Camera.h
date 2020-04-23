@@ -32,4 +32,5 @@ public:
 	void Start();
 	
 	Vector3 ScreenToWorldPoint(Vector3 position);
+	Vector3 ScreenToViewportPoint(Vector3 position);
 };

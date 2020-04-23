@@ -26,3 +26,12 @@ Vector3 Camera::ScreenToWorldPoint(Vector3 position)
 
 	return vector;
 }
+
+Vector3 Camera::ScreenToViewportPoint(Vector3 position)
+{
+	position.x = position.x / CyanFW::Instance()->GetWidth() * 2 - 1;
+	position.y = position.y / CyanFW::Instance()->GetHeight() * 2 - 1;
+	position.y = -position.y;
+
+	return position;
+}
