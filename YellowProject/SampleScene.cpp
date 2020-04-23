@@ -6,58 +6,58 @@ void SampleScene::BuildObjects()
 	///*** Asset ***///
 	//*** Texture ***//
 	{
-			AddTexture(0, "none", L"Textures\\none.dds");
-			AddTexture(1, "polyArtTex", L"Textures\\PolyArtTex.dds");
-			AddTexture(2, "bricksTex", L"Textures\\bricks2.dds");
-			AddTexture(3, "stoneTex", L"Textures\\stone.dds");
-			AddTexture(4, "tileTex", L"Textures\\tile.dds");
-		}
+		AddTexture(0, "none", L"Textures\\none.dds");
+		AddTexture(1, "polyArtTex", L"Textures\\PolyArtTex.dds");
+		AddTexture(2, "bricksTex", L"Textures\\bricks2.dds");
+		AddTexture(3, "stoneTex", L"Textures\\stone.dds");
+		AddTexture(4, "tileTex", L"Textures\\tile.dds");
+	}
 
 	//*** Material ***//
 	{
-			AddMaterial(0, "none", 0);
-			AddMaterial(1, "PolyArt", 1, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
-			AddMaterial(2, "bricksMat", 2, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
-			AddMaterial(3, "stoneMat", 0, -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
-			XMFLOAT4X4 mat;
-			XMStoreFloat4x4(&mat, XMMatrixScaling(8.0f, 8.0f, 1.0f));
-			AddMaterial(4, "tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, mat);
-			AddMaterial(5, "sky", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 1.0f);
-			for (int i = 0; i < 5; ++i)
-				AddMaterial(5 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
-		}
+		AddMaterial(0, "none", 0);
+		AddMaterial(1, "PolyArt", 1, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
+		AddMaterial(2, "bricksMat", 2, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
+		AddMaterial(3, "stoneMat", 0, -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
+		XMFLOAT4X4 mat;
+		XMStoreFloat4x4(&mat, XMMatrixScaling(8.0f, 8.0f, 1.0f));
+		AddMaterial(4, "tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, mat);
+		AddMaterial(5, "sky", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 1.0f);
+		for (int i = 0; i < 5; ++i)
+			AddMaterial(5 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
+	}
 
 	//*** Mesh ***//
 	{
-			geometries["Image"] = Mesh::CreateQuad();
-			geometries["Cube"] = Mesh::CreateCube();
-			geometries["Plane"] = Mesh::CreatePlane();
-			geometries["Sphere"] = Mesh::CreateSphere();
-			geometries["Cylinder"] = Mesh::CreateCylinder();
-			AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
-		}
+		geometries["Image"] = Mesh::CreateQuad();
+		geometries["Cube"] = Mesh::CreateCube();
+		geometries["Plane"] = Mesh::CreatePlane();
+		geometries["Sphere"] = Mesh::CreateSphere();
+		geometries["Cylinder"] = Mesh::CreateCylinder();
+		AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
+	}
 
 	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
 	CHeightMapGridMesh* gridMesh = new CHeightMapGridMesh(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, m_pHeightMapImage);
 
 	//*** Animation ***//
 	{
-			AddFbxForAnimation("Attack01_BowAnim", "Models\\BowStance\\Attack01_BowAnim.fbx");
-			AddFbxForAnimation("Attack01Maintain_BowAnim", "Models\\BowStance\\Attack01Maintain_BowAnim.fbx");
-			AddFbxForAnimation("Attack01RepeatFire_BowAnim", "Models\\BowStance\\Attack01RepeatFire_BowAnim.fbx");
-			AddFbxForAnimation("Attack01Start_BowAnim", "Models\\BowStance\\Attack01Start_BowAnim.fbx");
-			AddFbxForAnimation("Attack02Maintain_BowAnim", "Models\\BowStance\\Attack02Maintain_BowAnim.fbx");
-			AddFbxForAnimation("Attack02RepeatFire_BowAnim", "Models\\BowStance\\Attack02RepeatFire_BowAnim.fbx");
-			AddFbxForAnimation("Attack02Start_BowAnim", "Models\\BowStance\\Attack02Start_BowAnim.fbx");
-			AddFbxForAnimation("DashBackward_BowAnim", "Models\\BowStance\\DashBackward_BowAnim.fbx");
-			AddFbxForAnimation("DashForward_BowAnim", "Models\\BowStance\\DashForward_BowAnim.fbx");
+		AddFbxForAnimation("Attack01_BowAnim", "Models\\BowStance\\Attack01_BowAnim.fbx");
+		AddFbxForAnimation("Attack01Maintain_BowAnim", "Models\\BowStance\\Attack01Maintain_BowAnim.fbx");
+		AddFbxForAnimation("Attack01RepeatFire_BowAnim", "Models\\BowStance\\Attack01RepeatFire_BowAnim.fbx");
+		AddFbxForAnimation("Attack01Start_BowAnim", "Models\\BowStance\\Attack01Start_BowAnim.fbx");
+		AddFbxForAnimation("Attack02Maintain_BowAnim", "Models\\BowStance\\Attack02Maintain_BowAnim.fbx");
+		AddFbxForAnimation("Attack02RepeatFire_BowAnim", "Models\\BowStance\\Attack02RepeatFire_BowAnim.fbx");
+		AddFbxForAnimation("Attack02Start_BowAnim", "Models\\BowStance\\Attack02Start_BowAnim.fbx");
+		AddFbxForAnimation("DashBackward_BowAnim", "Models\\BowStance\\DashBackward_BowAnim.fbx");
+		AddFbxForAnimation("DashForward_BowAnim", "Models\\BowStance\\DashForward_BowAnim.fbx");
 
-			AddFbxForAnimation("Walk_BowAnim", "Models\\BowStance\\Walk_BowAnim.fbx");
-			AddFbxForAnimation("WalkBack_BowAnim", "Models\\BowStance\\WalkBack_BowAnim.fbx");
-			AddFbxForAnimation("WalkRight_BowAnim", "Models\\BowStance\\WalkRight_BowAnim.fbx");
-			AddFbxForAnimation("WalkLeft_BowAnim", "Models\\BowStance\\WalkLeft_BowAnim.fbx");
-			AddFbxForAnimation("Idle_BowAnim", "Models\\BowStance\\Idle_BowAnim.fbx");
-		}
+		AddFbxForAnimation("Walk_BowAnim", "Models\\BowStance\\Walk_BowAnim.fbx");
+		AddFbxForAnimation("WalkBack_BowAnim", "Models\\BowStance\\WalkBack_BowAnim.fbx");
+		AddFbxForAnimation("WalkRight_BowAnim", "Models\\BowStance\\WalkRight_BowAnim.fbx");
+		AddFbxForAnimation("WalkLeft_BowAnim", "Models\\BowStance\\WalkLeft_BowAnim.fbx");
+		AddFbxForAnimation("Idle_BowAnim", "Models\\BowStance\\Idle_BowAnim.fbx");
+	}
 
 	AnimatorController* controller = new AnimatorController();
 	//*** AnimatorController ***//
@@ -97,7 +97,7 @@ void SampleScene::BuildObjects()
 	GameObject* mainCamera = CreateEmpty();
 	{
 		Camera* camera = mainCamera->AddComponent<Camera>();
-		camera->main = camera;
+		scene->camera = camera->main = camera;
 
 		mainCamera->AddComponent<CameraController>();
 	}

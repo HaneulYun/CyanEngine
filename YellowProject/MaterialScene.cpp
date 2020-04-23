@@ -97,7 +97,7 @@ void MaterialScene::BuildObjects()
 	GameObject* mainCamera = CreateEmpty();
 	{
 		Camera* camera = mainCamera->AddComponent<Camera>();
-		camera->main = camera;
+		scene->camera = camera->main = camera;
 
 		mainCamera->AddComponent<CameraController>();
 	}

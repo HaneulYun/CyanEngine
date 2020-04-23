@@ -48,6 +48,7 @@ public:
 
 public:
 	static Scene* scene;
+	Camera* camera{ nullptr };
 
 	std::vector<std::unique_ptr<FrameResource>> frameResources;
 
