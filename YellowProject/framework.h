@@ -11,3 +11,4 @@
 #include <tchar.h>
 
 #include "SampleScene.h"
+#include "MaterialScene.h"

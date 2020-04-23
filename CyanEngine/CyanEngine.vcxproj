@@ -207,6 +207,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="scripts.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderManager.h" />
@@ -258,6 +259,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="ShadowMap.cpp" />

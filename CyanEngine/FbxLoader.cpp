@@ -84,7 +84,7 @@ void FbxModelData::LoadFbx(const char* path)
 		}
 		
 
-		Scene::scene->animationClips[name] = std::move(clip);
+		this->scene->animationClips[name] = std::move(clip);
 	}
 }
 
@@ -371,6 +371,6 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 			mesh->DrawArgs[name] = submesh;
 		}
-		Scene::scene->geometries[name] = std::move(mesh);
+		this->scene->geometries[name] = std::move(mesh);
 	}
 }

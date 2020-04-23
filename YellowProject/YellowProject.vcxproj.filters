@@ -63,6 +63,9 @@
     <ClInclude Include="CharacterController.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialScene.h">
+      <Filter>Assets\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
@@ -72,6 +75,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SampleScene.cpp">
+      <Filter>Assets\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
   </ItemGroup>

@@ -48,6 +48,7 @@ public:
 
 public:
 	static Scene* scene;
+	Camera* camera{ nullptr };
 
 	std::vector<std::unique_ptr<FrameResource>> frameResources;
 
@@ -107,12 +108,14 @@ public:
 	void AddFbxForMesh(std::string name, std::string fileNmae)
 	{
 		FbxModelData data;
+		data.SetScene(this);
 		data.SetName(name);
 		data.LoadFbx(fileNmae.c_str());
 	}
 	void AddFbxForAnimation(std::string name, std::string fileNmae)
 	{
 		FbxModelData data;
+		data.SetScene(this);
 		data.SetName(name);
 		data.LoadFbx(fileNmae.c_str());
 	}

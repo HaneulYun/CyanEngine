@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "SampleScene.h"
+#include "MaterialScene.h"
 
-void SampleScene::BuildObjects()
+void MaterialScene::BuildObjects()
 {
 	///*** Asset ***///
 	//*** Texture ***//
@@ -107,7 +107,7 @@ void SampleScene::BuildObjects()
 		ImageObject->AddComponent<Button>()->AddEvent(
 			[](void*) {
 				Debug::Log("이게 되네;;\n");
-				SceneManager::LoadScene("materialScene");
+				SceneManager::LoadScene("mainScene");
 			});
 	}
 
@@ -139,11 +139,11 @@ void SampleScene::BuildObjects()
 		auto renderer = ritem->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
 			renderer->materials.push_back(5);
-	
+
 		renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(ritem);
 	}
 
-	std::string name[9] {
+	std::string name[9]{
 		"Attack01_BowAnim",
 		"Attack01Maintain_BowAnim",
 		"Attack01RepeatFire_BowAnim",
@@ -169,12 +169,12 @@ void SampleScene::BuildObjects()
 			auto renderer = ritem->GetComponent<SkinnedMeshRenderer>();
 			for (auto& sm : mesh->DrawArgs)
 				renderer->materials.push_back(1);
-	
+
 			auto anim = ritem->AddComponent<Animator>();
 			anim->controller = controller;
 			anim->state = &controller->states[name[i++]];
 			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->state));
-	
+
 			if (!x && !z)
 			{
 				anim->state = &controller->states["Idle"];
@@ -186,15 +186,15 @@ void SampleScene::BuildObjects()
 						static_cast<CharacterController*>(k)->test();
 					}, ref);
 			}
-	
+
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
-	
-	
+
+
 	{
 		{
 			GameObject* textobject = CreateEmpty();
-	
+
 			Text* text = textobject->AddComponent<Text>();
 			text->InitFontFormat(L"돋움", { 0, 0, 1, 1 }, 20, { 1,0,0,1 });
 			text->text = L"되겟냐?ㅋㅋ";
@@ -202,7 +202,7 @@ void SampleScene::BuildObjects()
 		}
 		{
 			GameObject* textobject = CreateEmpty();
-	
+
 			Text* text = textobject->AddComponent<Text>();
 			text->InitFontFormat(L"굴림", { 0.2, 0.2, 1, 1 }, 30, { 1,1,0,1 });
 			text->text = L"되는데용??";
@@ -210,7 +210,7 @@ void SampleScene::BuildObjects()
 		}
 		{
 			GameObject* textobject = CreateEmpty();
-	
+
 			Text* text = textobject->AddComponent<Text>();
 			text->InitFontFormat(L"궁서", { 0.4, 0.4, 1, 1 }, 35, { 0,1,1,1 });
 			text->text = L"안되는데용??";
@@ -261,7 +261,7 @@ void SampleScene::BuildObjects()
 			textObjects.push_back(textobject);
 		}
 	}
-	
+
 	int xObjects = 4, yObjects = 4, zObjects = 4;
 	for (int x = -xObjects; x <= xObjects; x++)
 		for (int y = -yObjects; y <= yObjects; y++)
@@ -274,44 +274,44 @@ void SampleScene::BuildObjects()
 				auto renderer = ritem->AddComponent<Renderer>();
 				for (auto& sm : mesh->DrawArgs)
 					renderer->materials.push_back(Random::Range(6, 9));
-	
+
 				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 2;
-	
+
 				renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(ritem);
 			}
-	
-	{
-		GameObject* grid = CreateEmpty();
-		//grid->GetComponent<Transform>()->position -= {128, 20, 128};
-		auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();;
-		grid->AddComponent<Renderer>()->materials.push_back(4);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
-	}
-	
-	for (int i = 0; i < 5; ++i)
-	{
-		GameObject* leftCylRItem = CreateEmpty();
-		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
-		auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
-		leftCylRItem->AddComponent<Renderer>()->materials.push_back(2);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(leftCylRItem);
-	
-		GameObject* rightCylRItem = CreateEmpty();
-		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
-		mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
-		rightCylRItem->AddComponent<Renderer>()->materials.push_back(2);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(rightCylRItem);
-	
-		GameObject* leftSphereRItem = CreateEmpty();
-		leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
-		mesh = leftSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
-		leftSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(leftSphereRItem);
-	
-		GameObject* rightSphereRItem = CreateEmpty();
-		rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
-		mesh = rightSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
-		rightSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(rightSphereRItem);
-	}
+
+	//{
+	//	GameObject* grid = CreateEmpty();
+	//	//grid->GetComponent<Transform>()->position -= {128, 20, 128};
+	//	auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();;
+	//	grid->AddComponent<Renderer>()->materials.push_back(4);
+	//	renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
+	//}
+	//
+	//for (int i = 0; i < 5; ++i)
+	//{
+	//	GameObject* leftCylRItem = CreateEmpty();
+	//	leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
+	//	auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
+	//	leftCylRItem->AddComponent<Renderer>()->materials.push_back(2);
+	//	renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(leftCylRItem);
+	//
+	//	GameObject* rightCylRItem = CreateEmpty();
+	//	rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
+	//	mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
+	//	rightCylRItem->AddComponent<Renderer>()->materials.push_back(2);
+	//	renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(rightCylRItem);
+	//
+	//	GameObject* leftSphereRItem = CreateEmpty();
+	//	leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
+	//	mesh = leftSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
+	//	leftSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
+	//	renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(leftSphereRItem);
+	//
+	//	GameObject* rightSphereRItem = CreateEmpty();
+	//	rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
+	//	mesh = rightSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
+	//	rightSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
+	//	renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(rightSphereRItem);
+	//}
 }
