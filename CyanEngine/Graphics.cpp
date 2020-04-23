@@ -84,19 +84,12 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 					{
 						worldTransform = e->GetComponent<RectTransform>()->localToWorldMatrix;
 						auto image = e->GetComponent<RectTransform>();
-						worldTransform._11 = image->width;
-						worldTransform._22 = image->height;
-						worldTransform._41 = image->posX;
-						worldTransform._42 = image->posY;
+						worldTransform._11 = image->width / CyanFW::Instance()->GetWidth() * 2;
+						worldTransform._22 = image->height / CyanFW::Instance()->GetHeight() * 2;
+
+						worldTransform._41 = (image->anchorMin.x + (image->posX - image->width * image->pivot.x) / CyanFW::Instance()->GetWidth()) * 2 - 1;
+						worldTransform._42 = (image->anchorMin.y + (image->posY - image->height * image->pivot.y) / CyanFW::Instance()->GetHeight()) * 2 - 1;
 						worldTransform._43 = image->posZ;
-
-						worldTransform._14 = image->pivot.x;
-						worldTransform._24 = image->pivot.y;
-
-						worldTransform._12 = image->anchorMin.x;
-						worldTransform._13 = image->anchorMax.x;
-						worldTransform._21 = image->anchorMin.y;
-						worldTransform._23 = image->anchorMax.y;
 					}
 					else
 					{
