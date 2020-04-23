@@ -181,6 +181,9 @@
     <ClInclude Include="SceneManager.h">
       <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Matrix4x4.h">
+      <Filter>0_00_CyanEngine\21_Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">

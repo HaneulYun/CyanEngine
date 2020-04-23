@@ -193,6 +193,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Meshs.h" />
     <ClInclude Include="MeshFilter.h" />
