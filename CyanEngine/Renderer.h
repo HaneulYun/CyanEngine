@@ -2,7 +2,7 @@
 
 class Graphics;
 
-class Renderer : public Component
+class Renderer : public MonoBehavior<Renderer>
 {
 private:
 	Graphics* graphics{ nullptr };
@@ -12,15 +12,10 @@ public:
 
 protected:
 	friend class GameObject;
+	friend class MonoBehavior<Renderer>;
 	Renderer();
 	Renderer(Renderer&) = default;
 
 public:
-	~Renderer();
-
-	void Start() override;
-	void Update() override;
-
-	virtual Component* Duplicate() { return new Renderer; };
-	virtual Component* Duplicate(Component* component) { return new Renderer(*(Renderer*)component); }
+	~Renderer() {}
 };

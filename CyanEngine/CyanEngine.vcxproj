@@ -178,7 +178,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="CTexture.h" />
     <ClInclude Include="CyanApp.h" />
     <ClInclude Include="CyanFW.h" />
     <ClInclude Include="d3dUtil.h" />
@@ -197,10 +196,8 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Meshs.h" />
     <ClInclude Include="MeshFilter.h" />
-    <ClInclude Include="ModelManager.h" />
     <ClInclude Include="MonoBehavior.h" />
     <ClInclude Include="Object.h" />
-    <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="RectTransform.h" />
@@ -209,16 +206,12 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="scripts.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SkinnedMeshRenderer.h" />
     <ClInclude Include="SphereCollider.h" />
-    <ClInclude Include="StandardShader.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Text.h" />
-    <ClInclude Include="TextureShader.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UploadBuffer.h" />
@@ -230,7 +223,6 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="CTexture.cpp" />
     <ClCompile Include="CyanApp.cpp" />
     <ClCompile Include="CyanFW.cpp" />
     <ClCompile Include="d3dUtil.cpp" />
@@ -246,9 +238,7 @@
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Meshs.cpp" />
-    <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="Object.cpp" />
-    <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -260,15 +250,10 @@
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Singleton.cpp" />
-    <ClCompile Include="SkinnedMeshRenderer.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
-    <ClCompile Include="StandardShader.cpp" />
     <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="Time.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

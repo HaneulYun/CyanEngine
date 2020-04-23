@@ -153,17 +153,13 @@ namespace NS_Matrix4x4
 #include "Input.h"
 #include "Random.h"
 
-#include "CTexture.h"
 
 #include "Object.h"
-#include "Shader.h"
-#include "StandardShader.h"
 
 #include "Mesh.h"
 #include "Meshs.h"
 
 #include "Material.h"
-#include "TextureShader.h"
 
 #include "Component.h"
 #include "MonoBehavior.h"
@@ -187,10 +183,7 @@ namespace NS_Matrix4x4
 #include "Text.h"
 #include "Button.h"
 
-#include "ModelManager.h"
-#include "ShaderManager.h"
 #include "Graphics.h"
-#include "ObjectManager.h"
 
 #include "GameObject.h"
 
