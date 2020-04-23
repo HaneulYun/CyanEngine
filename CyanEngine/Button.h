@@ -1,20 +1,9 @@
 #pragma once
 
-struct FuncData
-{
-	void(*func)(void*);
-	void* data;
-	
-	static FuncData Make(void* data, void(*func)(void*))
-	{
-		return { func, data };
-	}
-};
-
 class Button : public MonoBehavior<Button>
 {
 public:
-	std::vector<FuncData> funcData;
+	std::vector<std::pair<void(*)(void*), void*>> events;
 
 private:
 	friend class GameObject;
@@ -40,8 +29,8 @@ public:
 			Vector3 screen = Camera::main->ScreenToViewportPoint(Input::mousePosition);
 			if (!IsPointInRect(screen))
 				return;
-			for (auto& v : funcData)
-				v.func(v.data);
+			for (auto& e : events)
+				e.first(e.second);
 		}
 	}
 
@@ -60,5 +49,10 @@ public:
 			position.y < rightBottom.y || position.y > leftTop.y)
 			return false;
 		return true;
+	}
+
+	void AddEvent(void(*func)(void*), void* data = nullptr)
+	{
+		events.emplace_back(std::make_pair(func, data));
 	}
 };
