@@ -175,7 +175,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 	// Only the first "main" light casts a shadow.
 	Vector3 lightDir = rotatedLightDirections[0];
-	Vector3 lightPos = (lightDir * (2.0f * sceneBounds.Radius));
+	Vector3 lightPos = (lightDir * (-2.0f * sceneBounds.Radius));
 	Vector3 targetPos; targetPos.xmf3 = sceneBounds.Center;
 	Vector3 lightUp{ 0.0f, 1.0f, 0.0f};
 	Matrix4x4 lightView = Matrix4x4::MatrixLookAtLH(lightPos, targetPos, lightUp);
@@ -217,11 +217,11 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 	UINT h = shadowMap->Height();
 
 	mShadowPassCB.View = view.Transpose();
-	mShadowPassCB.InvView, invView.Transpose();
-	mShadowPassCB.Proj, proj.Transpose();
-	mShadowPassCB.InvProj, invProj.Transpose();
-	mShadowPassCB.ViewProj, viewProj.Transpose();
-	mShadowPassCB.InvViewProj, invViewProj.Transpose();
+	mShadowPassCB.InvView = invView.Transpose();
+	mShadowPassCB.Proj = proj.Transpose();
+	mShadowPassCB.InvProj = invProj.Transpose();
+	mShadowPassCB.ViewProj = viewProj.Transpose();
+	mShadowPassCB.InvViewProj = invViewProj.Transpose();
 	mShadowPassCB.EyePosW = lightPosW;
 	mShadowPassCB.RenderTargetSize = XMFLOAT2((float)w, (float)h);
 	mShadowPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / w, 1.0f / h);
