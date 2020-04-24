@@ -28,10 +28,7 @@ public:
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
-		if (Input::GetMouseButtonUp(2))
-		{
-			Pick(Input::mousePosition.x, Input::mousePosition.y);
-		}
+		Pick(Input::mousePosition.x, Input::mousePosition.y);
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
@@ -55,47 +52,43 @@ public:
 		if (IntersectPlane(rayOrigin, rayDir, XMFLOAT3{ 0,0,0 }, XMFLOAT3{ 1,0,0 }, XMFLOAT3{ 0,0,1 }))
 		{
 			std::vector<XMFLOAT3> vertices;
-			XMFLOAT3 point;// = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
+			XMFLOAT3 point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
 
-			// origin 으로부터 dT 사이에 있는 점들 수집
-			for (int i = 1; i < dT + 1; ++i)
+			for (float i = 1; i < dT + 1; i += 0.5)
 			{
-				point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, i));
+				XMFLOAT3 p = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, i));		
+				if ((int)point.x == (int)p.x && (int)point.z == (int)p.z)
+					continue;
 
+				point = p;
 				float x, y, z;
+				if (std::ceil(point.x) > 256 || std::ceil(point.z) > 256)
+					continue;
+
 				x = std::floor(point.x);
 				z = std::floor(point.z);
-				y = mesh->OnGetHeight(x, z, heightMap);
-				vertices.push_back({ x,y,z });
+				vertices.push_back({ x,mesh->OnGetHeight(x, z, heightMap),z });
+				vertices.push_back({ x + 1,mesh->OnGetHeight(x + 1, z + 1, heightMap),z + 1 });
+				vertices.push_back({ x + 1,mesh->OnGetHeight(x + 1, z, heightMap),z });
 
-				x = std::ceil(point.x);
-				z = std::ceil(point.z);
-				y = mesh->OnGetHeight(x, z, heightMap);
-				vertices.push_back({ x,y,z });
-
-				if (point.x > point.z)
-				{
-					x = std::ceil(point.x);
-					z = std::floor(point.z);
-				}
-				else
-				{
-					x = std::floor(point.x);
-					z = std::ceil(point.z);
-				}
-				y = mesh->OnGetHeight(x, z, heightMap);
-				vertices.push_back({ x,y,z });
-
+				vertices.push_back({ x,mesh->OnGetHeight(x, z, heightMap),z });
+				vertices.push_back({ x,mesh->OnGetHeight(x, z + 1, heightMap),z + 1 });
+				vertices.push_back({ x + 1,mesh->OnGetHeight(x + 1, z + 1, heightMap),z + 1 });
+				
 			}
 			IntersectVertices(rayOrigin, rayDir, vertices);
 			point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
+
 			point = NS_Vector3::TransformCoord(point, terrain->transform->localToWorldMatrix);
 
-			GameObject* go = Scene::scene->Duplicate(prefab);
-			Scene::scene->AddGameObject(go);
-			go->transform->position = { point.x, point.y, point.z };
-			Mesh* mesh = static_cast<MeshFilter*>(go->meshFilter)->mesh;
-			Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
+			prefab->transform->position = { point.x, point.y, point.z };
+			if (Input::GetMouseButtonUp(2))
+			{
+				GameObject* go = Scene::scene->Duplicate(prefab);
+				Scene::scene->AddGameObject(go);
+				Mesh* mesh = static_cast<MeshFilter*>(go->meshFilter)->mesh;
+				Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
+			}
 		}
 	}
 
@@ -145,4 +138,5 @@ public:
 			}
 		}
 	}
+
 };
