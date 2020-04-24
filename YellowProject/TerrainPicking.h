@@ -35,48 +35,47 @@ public:
 
 	void Pick(int sx, int sy)
 	{
-		XMFLOAT4X4 proj = Camera::main->projection;
+		Vector3 screenPos{ (float)sx, (float)sy, 1.0f };
 
-		float vx = (+2.0f * sx / CyanFW::Instance()->GetWidth() - 1.0f) / proj(0, 0);
-		float vy = (-2.0f * sy / CyanFW::Instance()->GetHeight() + 1.0f) / proj(1, 1);
+		XMFLOAT3 rayOrigin{ 0.0f, 0.0f, 0.0f }; 
+		XMFLOAT3 rayDir = Camera::main->ScreenToWorldPoint(screenPos).xmf3;
 
-		XMFLOAT3 rayOrigin{ 0.0f, 0.0f, 0.0f };
-		XMFLOAT3 rayDir{ vx, vy, 1.0f };
-
-		auto transform = Camera::main->gameObject->GetComponent<Transform>();
-		auto vLookAt = transform->position + transform->forward.Normalized();
-		XMVECTOR pos = XMLoadFloat3(&transform->position.xmf3);
-		XMVECTOR lookAt = XMLoadFloat3(&vLookAt.xmf3);
-		XMVECTOR up{ 0, 1, 0 };
-		XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
-		XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
-
-		Mesh* geo = static_cast<MeshFilter*>(terrain->meshFilter)->mesh;
-
-		XMMATRIX world = XMLoadFloat4x4(&terrain->World);
-		XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(world), world);
-
+		XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&Camera::main->view)), XMLoadFloat4x4(&Camera::main->view));
+		XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&terrain->World)), XMLoadFloat4x4(&terrain->World));
 		XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
 
 		rayOrigin = NS_Vector3::TransformCoord(rayOrigin, toLocal);
-		rayDir = NS_Vector3::TransformNormal(rayDir, toLocal);
+		rayDir = NS_Vector3::TransformNormal(rayDir, invWorld);
 
 		rayDir = NS_Vector3::Normalize(rayDir);
 
-		XMFLOAT3 planeNormal{ 0.0f, 1.0f, 0.0f };
-		float dot = NS_Vector3::DotProduct(planeNormal, rayDir);
-
-		XMFLOAT3 point;
-
+		//if (IntersectPlane(rayOrigin, rayDir, XMFLOAT3{ 0,0,0 }, XMFLOAT3{ 1,0,0 }, XMFLOAT3{ 0,0,1 }))
+		//{
+		//	XMFLOAT3 point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
+		//	point = NS_Vector3::TransformCoord(point, terrain->World);
+		//	
+		//	GameObject* go = Scene::scene->Duplicate(prefab);
+		//	Scene::scene->AddGameObject(go);
+		//	go->transform->position = { point.x, point.y,point.z };
+		//	Mesh* mesh = static_cast<MeshFilter*>(go->meshFilter)->mesh;
+		//	Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
+		//}
 		if (IntersectPlane(rayOrigin, rayDir, XMFLOAT3{ 0,0,0 }, XMFLOAT3{ 1,0,0 }, XMFLOAT3{ 0,0,1 }))
 		{
-			point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
-			GameObject* go{ prefab };
+			//IntersectTri(rayOrigin, rayDir);
+
+			XMFLOAT3 point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
+			point = NS_Vector3::TransformCoord(point, terrain->World);
+
+
+
+			GameObject* go = Scene::scene->Duplicate(prefab);
 			Scene::scene->AddGameObject(go);
 			go->transform->position = { point.x, point.y,point.z };
 			Mesh* mesh = static_cast<MeshFilter*>(go->meshFilter)->mesh;
 			Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
 		}
+
 	}
 
 	bool IntersectPlane(XMFLOAT3 rayOrigin, XMFLOAT3 rayDirection, XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2)
@@ -101,5 +100,49 @@ public:
 
 		return true;
 		
+	}
+
+	void IntersectTri(XMFLOAT3 rayOrigin, XMFLOAT3 rayDirection)
+	{
+		Mesh* geo = (static_cast<MeshFilter*>(terrain->meshFilter))->mesh;
+		auto vertices = (FrameResource::Vertex*)geo->VertexBufferCPU->GetBufferPointer();
+		auto indices = (UINT*)geo->IndexBufferCPU->GetBufferPointer();
+		int a = (sizeof(UINT));
+		UINT triCount = geo->IndexBufferByteSize / a - 2;
+
+		float tmin = MathHelper::Infinity;
+		for (UINT i = 0; i < triCount; ++i)
+		{
+			UINT i0;
+			UINT i1;
+			UINT i2;
+			if (i % 2 == 0)
+			{
+				i0 = indices[i + 0];
+				i1 = indices[i + 2];
+				i2 = indices[i + 1];
+			}
+			else
+			{
+				i0 = indices[i + 0];
+				i1 = indices[i + 1];
+				i2 = indices[i + 2];
+			}
+
+			XMVECTOR v0 = XMLoadFloat3(&vertices[i0].Pos);
+			XMVECTOR v1 = XMLoadFloat3(&vertices[i1].Pos);
+			XMVECTOR v2 = XMLoadFloat3(&vertices[i2].Pos);
+
+			float t = 0.0f;
+			if (TriangleTests::Intersects(XMLoadFloat3(&rayOrigin), XMLoadFloat3(&rayDirection), v0, v1, v2, t))
+			{
+				if (t < tmin)
+				{
+					tmin = t;
+				}
+			}
+		}
+		dT = tmin;
+
 	}
 };

@@ -343,8 +343,8 @@ void SampleScene::BuildObjects()
 	
 	{
 		GameObject* grid = CreateEmpty();
-		//grid->GetComponent<Transform>()->position -= {128, 20, 128};
-		auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();;
+		grid->GetComponent<Transform>()->position -= {128, 10, 128};
+		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;
 		grid->AddComponent<Renderer>()->materials.push_back(3);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
 		TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
