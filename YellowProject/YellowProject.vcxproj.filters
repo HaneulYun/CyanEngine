@@ -66,6 +66,9 @@
     <ClInclude Include="MaterialScene.h">
       <Filter>Assets\Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="MenuScene.h">
+      <Filter>Assets\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
@@ -78,6 +81,9 @@
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="MaterialScene.cpp">
+      <Filter>Assets\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
   </ItemGroup>

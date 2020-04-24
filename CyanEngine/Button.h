@@ -40,7 +40,7 @@ public:
 		if (rect = gameObject->GetComponent<RectTransform>(); !rect)
 			return false;
 
-		Matrix4x4 mat = rect->localToWorldMatrix;
+		Matrix4x4 mat = RectTransform::Transform(gameObject->GetMatrix());;
 
 		Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
 		Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };
