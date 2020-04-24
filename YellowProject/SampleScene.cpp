@@ -200,10 +200,9 @@ void SampleScene::BuildObjects()
 			rectTransform->anchorMax = { 1, 1 };
 		
 			Text* text = textobject->AddComponent<Text>();
-			text->font = L"µ¸À½";
-			text->fontSize = 20;
-			text->color = { 1, 0, 0, 1 };
 			text->text = L"µÇ°Ù³Ä?¤»¤»";
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 			textObjects.push_back(textobject);
 		}
 		//{

@@ -514,13 +514,15 @@ void Graphics::RenderUI()
 				writeFactory->CreateTextFormat(
 					textComponent->font.c_str(),
 					NULL,
-					DWRITE_FONT_WEIGHT(textComponent->fontWeight),
-					DWRITE_FONT_STYLE(textComponent->style),
+					textComponent->fontWeight,
+					textComponent->style,
 					DWRITE_FONT_STRETCH_NORMAL,
 					textComponent->fontSize,
 					L"ko-KR",
 					&textFormat
 				);
+				textFormat->SetTextAlignment(textComponent->textAlignment);
+				textFormat->SetParagraphAlignment(textComponent->paragraphAlignment);
 				textComponent->formatIndex = textFormats.size();
 				textFormats.push_back(textFormat);
 			}
