@@ -51,6 +51,15 @@ struct Vector4
 
 	Vector4(Vector4&&) = default;
 	Vector4& operator=(Vector4&&) = default;
+
+	Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
+
+	static Vector4 QuaternionSlerp(Vector4 q0, Vector4 q1, float t)
+	{
+		Vector4 result;
+		XMStoreFloat4(&result.xmf4, XMQuaternionSlerp(XMLoadFloat4(&q0.xmf4), XMLoadFloat4(&q1.xmf4), t));
+		return result;
+	}
 };
 
 struct Vector3
@@ -156,6 +165,12 @@ struct Vector3
 	}
 	Vector3& operator/=(const Vector3& rhs);
 
+	static Vector3 Lerp(Vector3 v0, Vector3 v1, float t)
+	{
+		Vector3 result;
+		XMStoreFloat3(&result.xmf3, XMVectorLerp(XMLoadFloat3(&v0.xmf3), XMLoadFloat3(&v1.xmf3), t));
+		return result;
+	}
 	Vector3 TransformCoord(const Matrix4x4& mtx);
 	Vector3 TransformNormal(const Matrix4x4& mtx);
 };

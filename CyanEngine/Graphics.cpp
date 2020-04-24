@@ -147,13 +147,13 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		Material* mat = e.second.get();
 		if (mat->NumFramesDirty > 0)
 		{
-			XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
+			Matrix4x4 matTransform = mat->MatTransform;
 
 			MaterialData matData;
 			matData.DiffuseAlbedo = mat->DiffuseAlbedo;
 			matData.FresnelR0 = mat->FresnelR0;
 			matData.Roughness = mat->Roughness;
-			XMStoreFloat4x4(&matData.MatTransform, XMMatrixTranspose(matTransform));
+			matData.MatTransform = matTransform.Transpose();
 			matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
 
 			currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
@@ -223,8 +223,8 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 	mShadowPassCB.ViewProj = viewProj.Transpose();
 	mShadowPassCB.InvViewProj = invViewProj.Transpose();
 	mShadowPassCB.EyePosW = lightPosW;
-	mShadowPassCB.RenderTargetSize = XMFLOAT2((float)w, (float)h);
-	mShadowPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / w, 1.0f / h);
+	mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
+	mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
 	mShadowPassCB.NearZ = sphereCenterLS.z - sceneBounds.Radius;
 	mShadowPassCB.FarZ = sphereCenterLS.z + sceneBounds.Radius;
 

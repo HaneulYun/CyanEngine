@@ -58,10 +58,10 @@ float AnimationClip::GetClipEndTime() const
 }
 
 void AnimatorController::GetFinalTransforms(const AnimationControllerState* state, float timePos,
-	std::vector<PastState>& pastStates, std::vector<XMFLOAT4X4>& finalTransforms) const
+	std::vector<PastState>& pastStates, std::vector<Matrix4x4>& finalTransforms) const
 {
 	UINT numBones = mBoneOffsets.size();
-	std::vector<XMFLOAT4X4> toParentTransforms(numBones);
+	std::vector<Matrix4x4> toParentTransforms(numBones);
 
 	auto clip = state->motion;
 
@@ -77,13 +77,15 @@ void AnimatorController::GetFinalTransforms(const AnimationControllerState* stat
 		XMFLOAT3 T, S;
 		XMFLOAT4 R;
 
-		XMVECTOR DesT, DesS, DesR;
-		XMVECTOR SrcT, SrcS, SrcR;
+		Vector3 DesT, DesS;
+		Vector3 SrcT, SrcS;
+		Vector4 DesR;
+		Vector4 SrcR;
 
 		state->motion->BoneAnimations[i].Interpolate(timePos, T, S, R);
-		DesT = XMLoadFloat3(&T);
-		DesS = XMLoadFloat3(&S);
-		DesR = XMLoadFloat4(&R);
+		DesT.xmf3 = T;
+		DesS.xmf3 = S;
+		DesR.xmf4 = R;
 		for (auto& pastState : pastStates)
 		{
 			if(!i)
@@ -91,36 +93,36 @@ void AnimatorController::GetFinalTransforms(const AnimationControllerState* stat
 
 			pastState.state->motion->BoneAnimations[i].Interpolate(pastState.TimePos, T, S, R);
 			lerpPercent = pastState.TransitionWeight / weightTotal;
-			SrcT = XMLoadFloat3(&T);
-			SrcS = XMLoadFloat3(&S);
-			SrcR = XMLoadFloat4(&R);
+			SrcT.xmf3 = T;
+			SrcS.xmf3 = S;
+			SrcR.xmf4 = R;
 		
-			DesT = XMVectorLerp(DesT, SrcT, lerpPercent);
-			DesS = XMVectorLerp(DesS, SrcS, lerpPercent);
-			DesR = XMQuaternionSlerp(DesR, SrcR, lerpPercent);
+			DesT = Vector3::Lerp(DesT, SrcT, lerpPercent);
+			DesS = Vector3::Lerp(DesS, SrcS, lerpPercent);
+			DesR = Vector4::QuaternionSlerp(DesR, SrcR, lerpPercent);
 		}
 
-		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-		XMStoreFloat4x4(&toParentTransforms[i], XMMatrixAffineTransformation(DesS, zero, DesR, DesT));
+		Vector4 zero{ 0, 0, 0, 1 };
+		toParentTransforms[i] = Matrix4x4::MatrixAffineTransformation(DesS, zero, DesR, DesT);
 	}
 
-	std::vector<XMFLOAT4X4> toRootTransforms(numBones);
+	std::vector<Matrix4x4> toRootTransforms(numBones);
 	toRootTransforms[0] = toParentTransforms[0];
 	for (UINT i = 1; i < numBones; ++i)
 	{
 		int parentIndex = mBoneHierarchy[i];
-		XMMATRIX parentToRoot = XMLoadFloat4x4(&toRootTransforms[parentIndex]);
-		XMMATRIX toParent = XMLoadFloat4x4(&toParentTransforms[i]);
-		XMMATRIX toRoot = XMMatrixMultiply(toParent, parentToRoot);
-		XMStoreFloat4x4(&toRootTransforms[i], toRoot);
+		Matrix4x4 parentToRoot = toRootTransforms[parentIndex];
+		Matrix4x4 toParent = toParentTransforms[i];
+		Matrix4x4 toRoot = toParent * parentToRoot;
+		toRootTransforms[i] = toRoot;
 	}
 
 	for (UINT i = 0; i < numBones; ++i)
 	{
-		XMMATRIX offset = XMLoadFloat4x4(&mBoneOffsets[i]);
-		XMMATRIX toRoot = XMLoadFloat4x4(&toRootTransforms[i]);
-		XMMATRIX finalTransform = XMMatrixMultiply(offset, toRoot);
-		XMStoreFloat4x4(&finalTransforms[i], XMMatrixTranspose(finalTransform));
+		Matrix4x4 offset = mBoneOffsets[i];
+		Matrix4x4 toRoot = toRootTransforms[i];
+		Matrix4x4 finalTransform = offset * toRoot;
+		finalTransforms[i] = finalTransform.Transpose();
 	}
 }
 

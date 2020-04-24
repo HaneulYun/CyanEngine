@@ -26,9 +26,9 @@ void Mesh::Create(GeometryType type)
 		vertices.resize(box.Vertices.size());
 		for (size_t i = 0; i < box.Vertices.size(); ++i)
 		{
-			vertices[i].Pos = box.Vertices[i].Position;
-			vertices[i].Normal = box.Vertices[i].Normal;
-			vertices[i].TexC = box.Vertices[i].TexC;
+			vertices[i].Pos.xmf3 = box.Vertices[i].Position;
+			vertices[i].Normal.xmf3 = box.Vertices[i].Normal;
+			vertices[i].TexC.xmf2 = box.Vertices[i].TexC;
 		}
 		indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
 	}

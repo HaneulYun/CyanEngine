@@ -86,7 +86,6 @@ namespace NS_Vector4
 	}
 }
 
-#include "MathHelper.h"
 #include "Vector3.h"
 #include "Matrix4x4.h"
 
@@ -145,7 +144,7 @@ namespace NS_Vector4
 #include "CyanApp.h"
 
 
-#define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+#define RANDOM_COLOR Vector4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
 #define MAX_LIGHTS			8
 #define MAX_MATERIALS		8

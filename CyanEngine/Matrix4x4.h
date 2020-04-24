@@ -122,10 +122,22 @@ struct Matrix4x4
 		XMStoreFloat4x4(&result.xmf4x4, XMMatrixRotationAxis(XMLoadFloat3(&axis.xmf3), angle));
 		return result;
 	}
+	static Matrix4x4 MatrixScaling(float scaleX, float scaleY, float scaleZ)
+	{
+		Matrix4x4 result;
+		XMStoreFloat4x4(&result.xmf4x4, XMMatrixScaling(scaleX, scaleY, scaleZ));
+		return result;
+	}
 	static Matrix4x4 ScalingFromVector(Vector3 scale)
 	{
 		Matrix4x4 result;
 		XMStoreFloat4x4(&result.xmf4x4, XMMatrixScalingFromVector(XMLoadFloat3(&scale.xmf3)));
+		return result;
+	}
+	static Matrix4x4 MatrixAffineTransformation(Vector3 scaling, Vector4 rotationOrigin, Vector4 rotationQuaternion, Vector3 translation)
+	{
+		Matrix4x4 result;
+		XMStoreFloat4x4(&result.xmf4x4, XMMatrixAffineTransformation(XMLoadFloat3(&scaling.xmf3), XMLoadFloat4(&rotationOrigin.xmf4), XMLoadFloat4(&rotationQuaternion.xmf4), XMLoadFloat3(&translation.xmf3)));
 		return result;
 	}
 };

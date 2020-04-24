@@ -6,7 +6,7 @@ public:
 	AnimatorController* controller;
 
 public:
-	std::vector<DirectX::XMFLOAT4X4> FinalTransforms;
+	std::vector<Matrix4x4> FinalTransforms;
 	AnimationControllerState* state{ nullptr };
 	float TimePos = 0.0f;
 

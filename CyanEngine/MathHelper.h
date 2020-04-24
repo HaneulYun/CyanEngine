@@ -78,16 +78,16 @@ public:
         return DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&det, A));
 	}
 
-    static DirectX::XMFLOAT4X4 Identity4x4()
-    {
-        static DirectX::XMFLOAT4X4 I(
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f);
-	
-        return I;
-    }
+    //static DirectX::XMFLOAT4X4 Identity4x4()
+    //{
+    //    static DirectX::XMFLOAT4X4 I(
+    //        1.0f, 0.0f, 0.0f, 0.0f,
+    //        0.0f, 1.0f, 0.0f, 0.0f,
+    //        0.0f, 0.0f, 1.0f, 0.0f,
+    //        0.0f, 0.0f, 0.0f, 1.0f);
+	//
+    //    return I;
+    //}
 
     static DirectX::XMVECTOR RandUnitVec3();
     static DirectX::XMVECTOR RandHemisphereUnitVec3(DirectX::XMVECTOR n);

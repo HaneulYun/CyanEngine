@@ -91,8 +91,8 @@ public:
 		textures[texture->Name] = std::move(texture);
 	}
 	void AddMaterial(UINT index, std::string name, int diffuse = -1, int noromal = -1,
-		XMFLOAT4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f }, XMFLOAT3 fresnel = { 0.01f, 0.01f, 0.01f },
-		float roughness = 1.0f, XMFLOAT4X4 matTransform = MathHelper::Identity4x4())
+		Vector4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f }, Vector3 fresnel = { 0.01f, 0.01f, 0.01f },
+		float roughness = 1.0f, Matrix4x4 matTransform = Matrix4x4::MatrixIdentity())
 	{
 		auto material = std::make_unique<Material>();
 		material->Name = name;

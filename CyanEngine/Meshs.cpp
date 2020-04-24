@@ -29,10 +29,10 @@ CHeightMapImage::~CHeightMapImage()
 	m_pHeightMapPixels = NULL;
 }
 
-XMFLOAT3 CHeightMapImage::GetHeightMapNormal(int x, int z)
+Vector3 CHeightMapImage::GetHeightMapNormal(int x, int z)
 {
 	if ((x < 0.0f) || (z < 0.0f) || (x >= m_nWidth) || (z >= m_nLength))
-		return(XMFLOAT3(0.0f, 1.0f, 0.0f));
+		return(Vector3(0.0f, 1.0f, 0.0f));
 
 	int nHeightMapIndex = x + (z * m_nWidth);
 	int xHeightMapAdd = (x < (m_nWidth - 1)) ? 1 : -1;
@@ -42,11 +42,12 @@ XMFLOAT3 CHeightMapImage::GetHeightMapNormal(int x, int z)
 	float y2 = (float)m_pHeightMapPixels[nHeightMapIndex + xHeightMapAdd] * m_xmf3Scale.y;
 	float y3 = (float)m_pHeightMapPixels[nHeightMapIndex + zHeightMapAdd] * m_xmf3Scale.y;
 
-	XMFLOAT3 xmf3Edge1 = XMFLOAT3(0.0f, y3 - y1, m_xmf3Scale.z);
-	XMFLOAT3 xmf3Edge2 = XMFLOAT3(m_xmf3Scale.x, y2 - y1, 0.0f);
-	XMFLOAT3 xmf3Normal = NS_Vector3::CrossProduct(xmf3Edge1, xmf3Edge2, true);
+	Vector3 xmf3Edge1 = Vector3(0.0f, y3 - y1, m_xmf3Scale.z);
+	Vector3 xmf3Edge2 = Vector3(m_xmf3Scale.x, y2 - y1, 0.0f);
+	Vector3 xmf3Normal;
+	xmf3Normal.xmf3 = NS_Vector3::CrossProduct(xmf3Edge1.xmf3, xmf3Edge2.xmf3, true);
 
-	return(xmf3Normal);
+	return xmf3Normal;
 }
 
 float CHeightMapImage::GetHeight(float fx, float fz)
@@ -131,10 +132,10 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 		for (int x = xStart; x < (xStart + nWidth); x++, i++)
 		{
 			fHeight = OnGetHeight(x, z, pContext);
-			vertices[i].Pos = XMFLOAT3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
+			vertices[i].Pos = Vector3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
 			vertices[i].Normal = ((CHeightMapImage*)pContext)->GetHeightMapNormal(x, z);
-			vertices[i].TexC = XMFLOAT2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
-			vertices[i].TangentU = XMFLOAT3(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f), 0);
+			vertices[i].TexC = Vector2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
+			vertices[i].TangentU = Vector3(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f), 0);
 			if (fHeight < fMinHeight) fMinHeight = fHeight;
 			if (fHeight > fMaxHeight) fMaxHeight = fHeight;
 		}
@@ -223,10 +224,10 @@ XMFLOAT4 CHeightMapGridMesh::OnGetColor(int x, int z, void* pContext)
 	/*정점 (x, z)에서 조명이 반사되는 양(비율)은 정점 (x, z)의 법선 벡터와 조명의 방향 벡터의 내적(cos)과 인접한 3개
 	의 정점 (x+1, z), (x, z+1), (x+1, z+1)의 법선 벡터와 조명의 방향 벡터의 내적을 평균하여 구한다. 정점 (x, z)의 색
 	상은 조명 색상(세기)과 반사되는 양(비율)을 곱한 값이다.*/
-	float fScale = NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x, z), xmf3LightDirection);
-	fScale += NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x + 1, z), xmf3LightDirection);
-	fScale += NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x + 1, z + 1), xmf3LightDirection);
-	fScale += NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x, z + 1), xmf3LightDirection);
+	float fScale = NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x, z).xmf3, xmf3LightDirection);
+	fScale += NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x + 1, z).xmf3, xmf3LightDirection);
+	fScale += NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x + 1, z + 1).xmf3, xmf3LightDirection);
+	fScale += NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x, z + 1).xmf3, xmf3LightDirection);
 	fScale = (fScale / 4.0f) + 0.05f;
 
 	if (fScale > 1.0f)
