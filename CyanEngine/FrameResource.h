@@ -4,8 +4,8 @@
 
 struct InstanceData
 {
-	XMFLOAT4X4 World{ MathHelper::Identity4x4() };
-	XMFLOAT4X4 TexTransform{ MathHelper::Identity4x4() };
+	Matrix4x4 World;
+	Matrix4x4 TexTransform;
 	UINT MaterialIndexStride{};
 	UINT BoneTransformStride{};
 	UINT ObjPad0{};
@@ -19,23 +19,23 @@ struct MatIndexData
 
 struct SkinnnedData
 {
-	XMFLOAT4X4 BoneTransforms{};
+	Matrix4x4 BoneTransforms{};
 };
 
 
 struct PassConstants
 {
-	XMFLOAT4X4	View{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	InvView{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	Proj{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	InvProj{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	ViewProj{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	InvViewProj{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	ShadowTransform{ MathHelper::Identity4x4() };
-    XMFLOAT3	EyePosW { 0.0f, 0.0f, 0.0f };
+	Matrix4x4	View;
+	Matrix4x4	InvView;
+	Matrix4x4	Proj;
+	Matrix4x4	InvProj;
+	Matrix4x4	ViewProj;
+	Matrix4x4	InvViewProj;
+	Matrix4x4	ShadowTransform;
+    Vector3		EyePosW { 0.0f, 0.0f, 0.0f };
 	float		cbPerObjectPad1{ 0.0f };
-	XMFLOAT2	RenderTargetSize{ 0.0f, 0.0f };
-	XMFLOAT2	InvRenderTargetSize{ 0.0f, 0.0f };
+	Vector2		RenderTargetSize{ 0.0f, 0.0f };
+	Vector2		InvRenderTargetSize{ 0.0f, 0.0f };
 	float		NearZ{ 0.0f };
 	float		FarZ{ 0.0f };
 	float		TotalTime{ 0.0f };
@@ -47,11 +47,11 @@ struct PassConstants
 
 struct MaterialData
 {
-	XMFLOAT4 DiffuseAlbedo{ 1.0f, 1.0f, 1.0f, 1.0f };
-	XMFLOAT3 FresnelR0{ 0.01f, 0.01f, 0.01f };
+	Vector4 DiffuseAlbedo{ 1.0f, 1.0f, 1.0f, 1.0f };
+	Vector3 FresnelR0{ 0.01f, 0.01f, 0.01f };
 	float Roughness{ 0.5f };
 
-	XMFLOAT4X4 MatTransform{ MathHelper::Identity4x4() };
+	Matrix4x4 MatTransform{ Matrix4x4::MatrixIdentity() };
 
 	UINT DiffuseMapIndex{};
 	UINT NormalMapIndex{};
@@ -63,18 +63,18 @@ struct FrameResource
 {
 	struct Vertex
 	{
-		XMFLOAT3 Pos{};
-		XMFLOAT3 Normal{};
-		XMFLOAT2 TexC{};
-		XMFLOAT3 TangentU{};
+		Vector3 Pos{};
+		Vector3 Normal{};
+		Vector2 TexC{};
+		Vector3 TangentU{};
 	};
 	struct SkinnedVertex
 	{
-		XMFLOAT3 Pos{};
-		XMFLOAT3 Normal{};
-		XMFLOAT2 TexC{};
-		XMFLOAT3 TangentU{};
-		XMFLOAT3 BoneWeights{};
+		Vector3 Pos{};
+		Vector3 Normal{};
+		Vector2 TexC{};
+		Vector3 TangentU{};
+		Vector3 BoneWeights{};
 		BYTE BoneIndices[4]{};
 	};
 public:

@@ -23,7 +23,7 @@ public:
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
-		gameObject->transform->Rotate({ 0, 1, 0 }, speedRotating* Time::deltaTime);
+		gameObject->transform->Rotate({ 0, 1, 0 }, speedRotating * Time::deltaTime);
 		gameObject->NumFramesDirty = NUM_FRAME_RESOURCES;
 	}
 

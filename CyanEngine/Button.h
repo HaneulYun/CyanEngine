@@ -40,7 +40,7 @@ public:
 		if (rect = gameObject->GetComponent<RectTransform>(); !rect)
 			return false;
 
-		XMFLOAT4X4 mat = rect->localToWorldMatrix;
+		Matrix4x4 mat = rect->localToWorldMatrix;
 
 		Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
 		Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };

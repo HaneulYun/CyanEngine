@@ -259,7 +259,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 	FbxAMatrix geometryTransform = FbxAMatrix(T, R, S);
 
 	std::map<int, std::vector<BoneWeightData>> boneWeightData;
-	std::vector<XMFLOAT4X4> boneOffsets;
+	std::vector<Matrix4x4> boneOffsets;
 
 	int deformerCount = mesh->GetDeformerCount();
 	for (unsigned int i = 0; i < deformerCount; ++i)
@@ -292,7 +292,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 			if (boneOffsets.size() <= jointIndex)
 				boneOffsets.resize(jointIndex + 1);
-			boneOffsets[jointIndex] = XMFLOAT4X4{
+			boneOffsets[jointIndex] = Matrix4x4{
 				(float)r1.mData[0], (float)r1.mData[1], (float)r1.mData[2], (float)r1.mData[3],
 				(float)r2.mData[0], (float)r2.mData[1], (float)r2.mData[2], (float)r2.mData[3],
 				(float)r3.mData[0], (float)r3.mData[1], (float)r3.mData[2], (float)r3.mData[3],

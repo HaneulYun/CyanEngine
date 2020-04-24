@@ -13,8 +13,8 @@ struct ViewportRect
 class Camera : public Component
 {
 public:
-	XMFLOAT4X4 view;
-	XMFLOAT4X4 projection;
+	Matrix4x4 view;
+	Matrix4x4 projection;
 
 public:
 	float Near{ 0.3 };

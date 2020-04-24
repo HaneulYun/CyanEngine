@@ -70,32 +70,16 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 
 #define NUM_FRAME_RESOURCES 3
 
-namespace NS_Vector4
-{
-	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
-	{
-		XMFLOAT4 xmf4Result;
-		XMStoreFloat4(&xmf4Result, fScalar * XMLoadFloat4(&xmf4Vector));
-		return(xmf4Result);
-	}
-	inline XMFLOAT4 Add(const XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
-	{
-		XMFLOAT4 xmf4Result;
-		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
-		return(xmf4Result);
-	}
-}
+#include "Vector3.h"
+#include "Matrix4x4.h"
 
 #include "d3dx12.h"
 #include "d3dUtil.h"
-#include "MathHelper.h"
 #include "UploadBuffer.h"
 #include "GeometryGenerator.h"
 
 #include "Singleton.h"
 
-#include "Vector3.h"
-#include "Matrix4x4.h"
 
 #include "Debug.h"
 #include "Time.h"
@@ -144,7 +128,7 @@ namespace NS_Vector4
 #include "CyanApp.h"
 
 
-#define RANDOM_COLOR XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
+#define RANDOM_COLOR Vector4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 
 #define MAX_LIGHTS			8
 #define MAX_MATERIALS		8

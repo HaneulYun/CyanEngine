@@ -79,17 +79,17 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 				// instance data
 				if (e->NumFramesDirty > 0)
 				{
-					XMFLOAT4X4 worldTransform;
+					Matrix4x4 worldTransform;
 					if (layerIndex == (int)RenderLayer::UI)
 						worldTransform = e->GetComponent<RectTransform>()->localToWorldMatrix;
 					else
 						worldTransform = e->GetMatrix();
-					XMMATRIX world = XMLoadFloat4x4(&worldTransform);
-					XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
+					Matrix4x4 world = worldTransform;
+					Matrix4x4 texTransform = e->TexTransform;
 
 					InstanceData objConstants;
-					XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
-					XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+					objConstants.World = world.Transpose();
+					objConstants.TexTransform = texTransform.Transpose();
 					objConstants.MaterialIndexStride = 0;
 					objConstants.BoneTransformStride = 0;
 
@@ -147,13 +147,13 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		Material* mat = e.second.get();
 		if (mat->NumFramesDirty > 0)
 		{
-			XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
+			Matrix4x4 matTransform = mat->MatTransform;
 
 			MaterialData matData;
 			matData.DiffuseAlbedo = mat->DiffuseAlbedo;
 			matData.FresnelR0 = mat->FresnelR0;
 			matData.Roughness = mat->Roughness;
-			XMStoreFloat4x4(&matData.MatTransform, XMMatrixTranspose(matTransform));
+			matData.MatTransform = matTransform.Transpose();
 			matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
 
 			currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
@@ -165,73 +165,66 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 	// Animate the lights
 	lightRotationAngle += 0.1f * Time::deltaTime;
 
-	XMMATRIX R = XMMatrixRotationY(lightRotationAngle);
+	Matrix4x4 R = Matrix4x4::RotationY(lightRotationAngle);
 	for (int i = 0; i < 3; ++i)
 	{
-		XMVECTOR lightDir = XMLoadFloat3(&baseLightDirections[i]);
-		lightDir = XMVector3TransformNormal(lightDir, R);
-		XMStoreFloat3(&rotatedLightDirections[i], lightDir);
+		rotatedLightDirections[i] = baseLightDirections[i].TransformNormal(R);
 	}
 
 	// Update ShadowTransform
 
 	// Only the first "main" light casts a shadow.
-	XMVECTOR lightDir = XMLoadFloat3(&rotatedLightDirections[0]);
-	XMVECTOR lightPos = -2.0f * sceneBounds.Radius * lightDir;
-	XMVECTOR targetPos = XMLoadFloat3(&sceneBounds.Center);
-	XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
+	Vector3 lightDir = rotatedLightDirections[0];
+	Vector3 lightPos = (lightDir * (-2.0f * sceneBounds.Radius));
+	Vector3 targetPos; targetPos.xmf3 = sceneBounds.Center;
+	Vector3 lightUp{ 0.0f, 1.0f, 0.0f};
+	Matrix4x4 lightView = Matrix4x4::MatrixLookAtLH(lightPos, targetPos, lightUp);
 
-	XMFLOAT3 lightPosW;
-	XMStoreFloat3(&lightPosW, lightPos);
+	Vector3 lightPosW = lightPos;
 
 	// Transform bounding sphere to light space.
-	XMFLOAT3 sphereCenterLS;
-	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
+	Vector3 sphereCenterLS = targetPos.TransformCoord(lightView);
 
-	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(
+	Matrix4x4 lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(
 		sphereCenterLS.x - sceneBounds.Radius, sphereCenterLS.x + sceneBounds.Radius, sphereCenterLS.y - sceneBounds.Radius,
 		sphereCenterLS.y + sceneBounds.Radius, sphereCenterLS.z - sceneBounds.Radius, sphereCenterLS.z + sceneBounds.Radius);
 
 	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
-	XMMATRIX T(
+	Matrix4x4 T{
 		0.5f, 0.0f, 0.0f, 0.0f,
 		0.0f, -0.5f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, 0.0f, 1.0f);
+		0.5f, 0.5f, 0.0f, 1.0f };
 
-	XMMATRIX S = lightView * lightProj * T;
+	Matrix4x4 S = lightView * lightProj * T;
 
-	XMFLOAT4X4 f4x4lightView = MathHelper::Identity4x4();
-	XMFLOAT4X4 f4x4lightProj = MathHelper::Identity4x4();
-	XMFLOAT4X4 f4x4shadowTransform = MathHelper::Identity4x4();
-	XMStoreFloat4x4(&f4x4lightView, lightView);
-	XMStoreFloat4x4(&f4x4lightProj, lightProj);
-	XMStoreFloat4x4(&f4x4shadowTransform, S);
+	Matrix4x4 f4x4lightView = lightView;;
+	Matrix4x4 f4x4lightProj = lightProj;
+	Matrix4x4 f4x4shadowTransform = S;
 
 	// UpdateShadowPassCB
 	PassConstants mShadowPassCB;
 
-	XMMATRIX view = XMLoadFloat4x4(&f4x4lightView);
-	XMMATRIX proj = XMLoadFloat4x4(&f4x4lightProj);
+	Matrix4x4 view = f4x4lightView;
+	Matrix4x4 proj = f4x4lightProj;
+	Matrix4x4 viewProj = view * proj;
 
-	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
-	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
-	XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
-	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+	Matrix4x4 invView = view.Inverse();
+	Matrix4x4 invProj = proj.Inverse();
+	Matrix4x4 invViewProj = viewProj.Inverse();
 
 	UINT w = shadowMap->Width();
 	UINT h = shadowMap->Height();
 
-	XMStoreFloat4x4(&mShadowPassCB.View, XMMatrixTranspose(view));
-	XMStoreFloat4x4(&mShadowPassCB.InvView, XMMatrixTranspose(invView));
-	XMStoreFloat4x4(&mShadowPassCB.Proj, XMMatrixTranspose(proj));
-	XMStoreFloat4x4(&mShadowPassCB.InvProj, XMMatrixTranspose(invProj));
-	XMStoreFloat4x4(&mShadowPassCB.ViewProj, XMMatrixTranspose(viewProj));
-	XMStoreFloat4x4(&mShadowPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+	mShadowPassCB.View = view.Transpose();
+	mShadowPassCB.InvView = invView.Transpose();
+	mShadowPassCB.Proj = proj.Transpose();
+	mShadowPassCB.InvProj = invProj.Transpose();
+	mShadowPassCB.ViewProj = viewProj.Transpose();
+	mShadowPassCB.InvViewProj = invViewProj.Transpose();
 	mShadowPassCB.EyePosW = lightPosW;
-	mShadowPassCB.RenderTargetSize = XMFLOAT2((float)w, (float)h);
-	mShadowPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / w, 1.0f / h);
+	mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
+	mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
 	mShadowPassCB.NearZ = sphereCenterLS.z - sceneBounds.Radius;
 	mShadowPassCB.FarZ = sphereCenterLS.z + sceneBounds.Radius;
 
@@ -243,23 +236,20 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		auto transform = Camera::main->gameObject->GetComponent<Transform>();
 		auto vLookAt = transform->position + transform->forward.Normalized();
 		
-		XMMATRIX world = XMLoadFloat4x4(&transform->localToWorldMatrix);
-		XMVECTOR pos = XMLoadFloat3(&transform->position.xmf3);
-		XMVECTOR lookAt = XMLoadFloat3(&vLookAt.xmf3);
-		XMVECTOR up{ 0, 1, 0 };
-		XMMATRIX view = XMMatrixLookAtLH(pos, lookAt, up);
-		XMMATRIX proj = XMLoadFloat4x4(&Camera::main->projection);
-		XMMATRIX ViewProj = view * proj;
+		Vector3 pos = transform->position;
+		Vector3 lookAt = vLookAt;;
+		Vector3 up{ 0, 1, 0 };
+		Matrix4x4 view = Matrix4x4::MatrixLookAtLH(pos, lookAt, up);
+		Matrix4x4 proj = Camera::main->projection;
+		Matrix4x4 ViewProj = view * proj;
 
-		XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(ViewProj));
-
-		XMMATRIX shadowTransform = XMLoadFloat4x4(&f4x4shadowTransform);
-		XMStoreFloat4x4(&passConstants.ShadowTransform, XMMatrixTranspose(shadowTransform));
+		passConstants.ViewProj = ViewProj.Transpose();
+		passConstants.ShadowTransform = f4x4shadowTransform.Transpose();
 
 		float mSunTheta = 1.25f * XM_PI;
 		float mSunPhi = XM_PIDIV4;
 
-		XMStoreFloat3(&passConstants.EyePosW, pos);
+		passConstants.EyePosW = pos;
 		passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 		passConstants.Lights[0].Direction = rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
 		passConstants.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };

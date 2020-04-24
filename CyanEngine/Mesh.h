@@ -33,7 +33,7 @@ public:
 	UINT IndexBufferByteSize{ 0 };
 
 	std::unordered_map<std::string, SubmeshGeometry> DrawArgs;
-	std::vector<XMFLOAT4X4> BoneOffsets;
+	std::vector<Matrix4x4> BoneOffsets;
 	std::vector<int> ParentIndexer;
 
 public:

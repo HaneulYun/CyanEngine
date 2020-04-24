@@ -10,7 +10,7 @@ public:
 
 	union
 	{
-		XMFLOAT4X4 localToWorldMatrix = MathHelper::Identity4x4();
+		Matrix4x4 localToWorldMatrix = Matrix4x4::MatrixIdentity();
 		struct
 		{
 			Vector3 right;		float _00;
@@ -31,15 +31,15 @@ public:
 	virtual Component* Duplicate() { return new Transform; };
 	virtual Component* Duplicate(Component* component) { return new Transform(*(Transform*)component); }
 
-	void Rotate(const XMFLOAT3& axis, float angle)
+	void Rotate(const Vector3& axis, float angle/*degree*/)
 	{
-		XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&axis), XMConvertToRadians(angle));
-		localToWorldMatrix = NS_Matrix4x4::Multiply(mtxRotate, localToWorldMatrix);
+		Matrix4x4 mtxRotate = Matrix4x4::RotationAxis(axis, XMConvertToRadians(angle));
+		localToWorldMatrix = mtxRotate * localToWorldMatrix;
 	}
-	void Scale(const XMFLOAT3& scale)
+	void Scale(const Vector3& scale)
 	{
-		XMMATRIX mtxRotate = XMMatrixScalingFromVector(XMLoadFloat3(&scale));
-		localToWorldMatrix = NS_Matrix4x4::Multiply(mtxRotate, localToWorldMatrix);
+		Matrix4x4 mtxScale = Matrix4x4::ScalingFromVector(scale);
+		localToWorldMatrix = mtxScale * localToWorldMatrix;
 	}
 };
 

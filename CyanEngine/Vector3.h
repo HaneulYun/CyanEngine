@@ -2,10 +2,81 @@
 
 #define EPSILON 1.0e-10f
 
+struct Matrix4x4;
+
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
+
+struct Vector2
+{
+	union
+	{
+		XMFLOAT2 xmf2;
+		struct
+		{
+			float x;
+			float y;
+		};
+	};
+
+	Vector2() = default;
+	Vector2(const Vector2&) = default;
+	Vector2& operator=(const Vector2&) = default;
+
+	Vector2(Vector2&&) = default;
+	Vector2& operator=(Vector2&&) = default;
+
+	Vector2(float x, float y) : x(x), y(y) {}
+};
+
+namespace NS_Vector4
+{
+	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, fScalar * XMLoadFloat4(&xmf4Vector));
+		return(xmf4Result);
+	}
+	inline XMFLOAT4 Add(const XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
+		return(xmf4Result);
+	}
+}
+
+struct Vector4
+{
+	union
+	{
+		XMFLOAT4 xmf4;
+		struct
+		{
+			float x;
+			float y;
+			float z;
+			float w;
+		};
+	};
+
+	Vector4() = default;
+	Vector4(const Vector4&) = default;
+	Vector4& operator=(const Vector4&) = default;
+
+	Vector4(Vector4&&) = default;
+	Vector4& operator=(Vector4&&) = default;
+
+	Vector4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
+
+	static Vector4 QuaternionSlerp(Vector4 q0, Vector4 q1, float t)
+	{
+		Vector4 result;
+		XMStoreFloat4(&result.xmf4, XMQuaternionSlerp(XMLoadFloat4(&q0.xmf4), XMLoadFloat4(&q1.xmf4), t));
+		return result;
+	}
+};
 
 struct Vector3
 {
@@ -108,11 +179,16 @@ struct Vector3
 		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) * XMLoadFloat3(&rhs.xmf3));
 		return *this;
 	}
-	Vector3& operator/=(const Vector3& rhs)
+	Vector3& operator/=(const Vector3& rhs);
+
+	static Vector3 Lerp(Vector3 v0, Vector3 v1, float t)
 	{
-		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) / XMLoadFloat3(&rhs.xmf3));
-		return *this;
+		Vector3 result;
+		XMStoreFloat3(&result.xmf3, XMVectorLerp(XMLoadFloat3(&v0.xmf3), XMLoadFloat3(&v1.xmf3), t));
+		return result;
 	}
+	Vector3 TransformCoord(const Matrix4x4& mtx);
+	Vector3 TransformNormal(const Matrix4x4& mtx);
 };
 
 namespace NS_Vector3

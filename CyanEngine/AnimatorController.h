@@ -99,7 +99,7 @@ class AnimatorController
 {
 public:
 	std::vector<int> mBoneHierarchy;
-	std::vector<XMFLOAT4X4> mBoneOffsets;
+	std::vector<Matrix4x4> mBoneOffsets;
 	std::unordered_map<std::string, AnimationControllerState> states;
 	std::unordered_map<std::string, AnimationControllerParameter> parameters;
 
@@ -110,7 +110,7 @@ public:
 	float GetClipEndTime(const AnimationControllerState* state) const { return state->motion->GetClipEndTime(); }
 
 	void GetFinalTransforms(const AnimationControllerState* state, float timePos,
-		std::vector<PastState>& pastStates, std::vector<XMFLOAT4X4>& finalTransforms) const;
+		std::vector<PastState>& pastStates, std::vector<Matrix4x4>& finalTransforms) const;
 	AnimationControllerState* Transition(AnimationControllerState* state);
 
 	void AddState(std::string name, AnimationClip* clip)
