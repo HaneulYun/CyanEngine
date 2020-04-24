@@ -525,9 +525,24 @@ void Graphics::RenderUI()
 			}
 		}
 
+		D2D_RECT_F rt{ textComponent->textBox.x* width, textComponent->textBox.y* height, textComponent->textBox.z* width, textComponent->textBox.w* height };
+
+		RectTransform* rect{ nullptr };
+		if (rect = gameObject->GetComponent<RectTransform>(); rect)
+		{
+			Matrix4x4 mat = gameObject->GetMatrix();
+
+			Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
+			Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };
+
+			rt.left = (leftTop.x / 2.0f + 0.5f) * width;
+			rt.top = (leftTop.y / -2.0f + 0.5f) * height;
+			rt.right = (rightBottom.x / 2.0f + 0.5f) * width;
+			rt.bottom = (rightBottom.y / -2.0f + 0.5f) * height;
+		}
+
 		deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(),
-			&D2D1::RectF(textComponent->textBox.x * width, textComponent->textBox.y * height, textComponent->textBox.z * width, textComponent->textBox.w * height),
-			textBrushes[textComponent->brushIndex].Get()
+			&rt, textBrushes[textComponent->brushIndex].Get()
 		);
 	}
 

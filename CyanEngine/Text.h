@@ -3,7 +3,7 @@
 class Text : public MonoBehavior<Text>
 {
 public:
-	std::wstring text;
+	std::wstring text{ L"µ¸À½" };
 	XMFLOAT4 textBox;
 
 	std::wstring font;
@@ -29,9 +29,15 @@ public:
 	void Start() {}
 	void Update() {}
 
-	void InitFontFormat(std::wstring font = L"µ¸¿ò", XMFLOAT4 textBox = { 0,0,1,1 }, int fontSize = 20, D2D1_COLOR_F color = { 1,1,1,1 },
-		int paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_NEAR, int alignment = DWRITE_TEXT_ALIGNMENT_LEADING,
-		int weight = DWRITE_FONT_WEIGHT_NORMAL, int style = DWRITE_FONT_STYLE_NORMAL)
+	void InitFontFormat(
+		std::wstring font = L"µ¸¿ò",
+		XMFLOAT4 textBox = { 0,0,1,1 },
+		int fontSize = 20,
+		D2D1_COLOR_F color = { 1,1,1,1 },
+		int paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_NEAR,
+		int alignment = DWRITE_TEXT_ALIGNMENT_LEADING,
+		int weight = DWRITE_FONT_WEIGHT_NORMAL,
+		int style = DWRITE_FONT_STYLE_NORMAL)
 	{
 		this->font = font;
 		this->textBox = textBox;

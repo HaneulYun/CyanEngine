@@ -191,9 +191,17 @@ void SampleScene::BuildObjects()
 	
 	{
 		{
-			GameObject* textobject = CreateEmpty();
-	
+			GameObject* textobject = CreateUI();
+			auto rectTransform = textobject->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 0 };
+			rectTransform->pivot = { 0, 0 };
+			rectTransform->posX = 10;
+			rectTransform->posY = 10;
+			rectTransform->width = 400;
+			rectTransform->height = 40;
+
 			Text* text = textobject->AddComponent<Text>();
+
 			text->InitFontFormat(L"µ¸¿ò", { 0, 0, 1, 1 }, 20, { 1,0,0,1 });
 			text->text = L"µÇ°Ù³Ä?¤»¤»";
 			textObjects.push_back(textobject);
