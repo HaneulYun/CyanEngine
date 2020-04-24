@@ -33,10 +33,9 @@ private:
 	friend class Object;
 	friend class ModelManager;
 
-	enum E_ObjectType { E_ObjectPrefab, E_ObjectInstance, E_UI, E_COUNT };
 public:
-	GameObject(E_ObjectType = E_ObjectInstance);
-	GameObject(GameObject* , E_ObjectType = E_ObjectInstance);
+	GameObject(bool isUI);
+	GameObject(GameObject*);
 	~GameObject();
 
 	void Start();
@@ -51,8 +50,18 @@ public:
 
 	Matrix4x4 GetMatrix();
 
-	GameObject* AddChild(GameObject* child)
+	GameObject* AddChild(GameObject* child = nullptr)
 	{
+		if (!child)
+			child = new GameObject(false);
+		child->parent = this;
+		children.push_back(child);
+		return child;
+	}
+	GameObject* AddChildUI(GameObject* child = nullptr)
+	{
+		if (!child)
+			child = new GameObject(true);
 		child->parent = this;
 		children.push_back(child);
 		return child;

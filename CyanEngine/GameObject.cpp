@@ -1,43 +1,23 @@
 #include "pch.h"
 #include "GameObject.h"
 
-GameObject::GameObject(E_ObjectType type)
+GameObject::GameObject(bool isUI)
 {
-	scene = Scene::scene;
-
-	if(type == E_UI)
+	if(isUI)
 		transform = new RectTransform();
 	else
 		transform = new Transform();
+	transform->gameObject = this;
 	components.push_back(transform);
-
-	if (type && scene)
-		scene->AddGameObject(this);
 }
 
-GameObject::GameObject(GameObject* original, E_ObjectType type)
+GameObject::GameObject(GameObject* original)
 {
-	scene = Scene::scene;
+	for (GameObject* child : original->children)
+		AddChild(new GameObject(child));
 
-	if (original)
-		for (GameObject* child : original->children)
-			AddChild(new GameObject(child));
-	else
-	{
-		if (type == E_UI)
-			transform = new RectTransform();
-		else
-			transform = new Transform();
-	}
-
-	if (original)
-		for (Component* component : original->components)
-			AddComponent(component);
-	else
-		components.push_back(transform);
-
-	if (type && scene)
-		scene->AddGameObject(this);
+	for (Component* component : original->components)
+		AddComponent(component);
 }
 
 GameObject::~GameObject()
@@ -46,18 +26,18 @@ GameObject::~GameObject()
 
 void GameObject::Start()
 {
-	for (GameObject* child : children)
-		child->Start();
 	for (Component* component : components)
 		component->UpdateComponent();
+	for (GameObject* child : children)
+		child->Start();
 }
 
 void GameObject::Update()
 {
-	for (GameObject* child : children)
-		child->Update();
 	for (Component* component : components)
 		component->UpdateComponent();
+	for (GameObject* child : children)
+		child->Update();
 }
 
 void GameObject::OnTriggerEnter(GameObject* other)

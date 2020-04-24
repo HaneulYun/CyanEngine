@@ -59,6 +59,13 @@ struct Vector4
 			float z;
 			float w;
 		};
+		struct
+		{
+			float r;
+			float g;
+			float b;
+			float a;
+		};
 	};
 
 	Vector4() = default;
