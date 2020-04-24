@@ -111,8 +111,4 @@ public:
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
-	void test()
-	{
-		Debug::Log(" zzzzzz 되겠냨ㅋ\n");
-	}
 };

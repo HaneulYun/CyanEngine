@@ -147,17 +147,18 @@ GameObject* Scene::AddGameObject(GameObject* gameObject)
 	return gameObject;
 }
 
-GameObject* Scene::CreateEmpty(bool addition)
+GameObject* Scene::CreateEmpty()
 {
-	GameObject::E_ObjectType type = GameObject::E_ObjectInstance;
-	if(!addition)
-		type = GameObject::E_ObjectPrefab;
-	return new GameObject(type);
+	GameObject* newGameObject = new GameObject(false);
+	AddGameObject(newGameObject);
+	return newGameObject;
 }
 
 GameObject* Scene::Duplicate(GameObject* gameObject)
 {
-	return new GameObject(gameObject);
+	GameObject* newGameObject = new GameObject(gameObject);
+	AddGameObject(newGameObject);
+	return newGameObject;
 }
 
 GameObject* Scene::CreateEmptyPrefab()
@@ -167,18 +168,30 @@ GameObject* Scene::CreateEmptyPrefab()
 
 GameObject* Scene::DuplicatePrefab(GameObject* gameObject)
 {
-	GameObject::E_ObjectType type = GameObject::E_ObjectPrefab;
-	return new GameObject(gameObject, type);
+	return new GameObject(gameObject);
 }
 
 GameObject* Scene::CreateUI()
 {
-	return new GameObject(GameObject::E_UI);
+	GameObject* newGameObject = new GameObject(true);
+	AddGameObject(newGameObject);
+	return newGameObject;
 }
 
 GameObject* Scene::CreateImage()
 {
 	GameObject* gameObject = CreateUI();
+
+	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+	gameObject->AddComponent<Renderer>()->materials.push_back(0);
+	gameObject->AddComponent<Image>();
+	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(gameObject);
+
+	return gameObject;
+}
+GameObject* Scene::CreateImagePrefab()
+{
+	GameObject* gameObject = new GameObject(true);
 
 	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
 	gameObject->AddComponent<Renderer>()->materials.push_back(0);

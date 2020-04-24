@@ -2,35 +2,20 @@
 
 #include "CyanFW.h"
 
-
-struct ImageInitializer
-{
-	float pad0, pad1, apd2, pad3, pad4;
-};
-
 class RectTransform : public MonoBehavior<RectTransform, Transform>
 {
 public:
-	union
-	{
-		ImageInitializer pad{ 0, 0, 100, 100, 0 };
-		struct
-		{
-			float posX;
-			float posY;
-			float width;
-			float height;
-			float posZ;
-		};
-		struct
-		{
+	float posX{ 0.0f };
+	float posY{ 0.0f };
+	float posZ{ 0.0f };
+	float width{ 100.0f };
+	float height{ 100.0f };
 
-			float left;
-			float top;
-			float right;
-			float bottom;
-		};
-	};
+	float left{ 0.0f };
+	float top{ 0.0f };
+	float right{ 0.0f };
+	float bottom{ 0.0f };
+
 	Vector2 anchorMin{ 0.5f, 0.5f };
 	Vector2 anchorMax{ 0.5f, 0.5f };
 	Vector2 pivot{ 0.5f, 0.5f };
@@ -50,11 +35,52 @@ public:
 
 	void Update()
 	{
-		localToWorldMatrix._11 = width / CyanFW::Instance()->GetWidth() * 2;
-		localToWorldMatrix._22 = height / CyanFW::Instance()->GetHeight() * 2;
+		float parentWidth = CyanFW::Instance()->GetWidth();
+		float parentHeight = CyanFW::Instance()->GetHeight();
+		if (gameObject->parent)
+		{
+			auto parentRectTransform = gameObject->parent->GetComponent<RectTransform>();
+			if (parentRectTransform)
+			{
+				parentWidth = parentRectTransform->width;
+				parentHeight = parentRectTransform->height;
+			}
+		}
 
-		localToWorldMatrix._41 = (anchorMin.x + (posX - width * pivot.x) / CyanFW::Instance()->GetWidth()) * 2 - 1;
-		localToWorldMatrix._42 = (anchorMin.y + (posY - height * pivot.y) / CyanFW::Instance()->GetHeight()) * 2 - 1;
+		float offsetX{ 0 };
+		if (!IsEqual(anchorMin.x, anchorMax.x))
+		{
+			posX = parentWidth * anchorMin.x + left;
+			width = parentWidth * anchorMax.x - right - posX;
+		}
+		else
+		{
+			offsetX = width * pivot.x;
+		}
+		localToWorldMatrix._11 = width / parentWidth;
+		localToWorldMatrix._41 = anchorMin.x + (posX - offsetX) / parentWidth;
+
+		float offsetY{ 0 };
+		if (!IsEqual(anchorMin.y, anchorMax.y))
+		{
+			posY = parentHeight * anchorMin.y + bottom;
+			height = parentHeight * anchorMax.y - top - posY;
+		}
+		else
+		{
+			offsetY = height * pivot.y;
+		}
+		localToWorldMatrix._22 = height / parentHeight;
+		localToWorldMatrix._42 = anchorMin.y + (posY - offsetY) / parentHeight;
+
 		localToWorldMatrix._43 = posZ;
+	}
+	static Matrix4x4 Transform(Matrix4x4 mtx)
+	{
+		mtx._11 = mtx._11 * 2;
+		mtx._22 = mtx._22 * 2;
+		mtx._41 = mtx._41 * 2 - 1;
+		mtx._42 = mtx._42 * 2 - 1;
+		return mtx;
 	}
 };

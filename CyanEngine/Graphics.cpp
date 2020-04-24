@@ -81,7 +81,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 				{
 					Matrix4x4 worldTransform;
 					if (layerIndex == (int)RenderLayer::UI)
-						worldTransform = e->GetComponent<RectTransform>()->localToWorldMatrix;
+						worldTransform = RectTransform::Transform(e->GetMatrix());
 					else
 						worldTransform = e->GetMatrix();
 					Matrix4x4 world = worldTransform;
@@ -483,7 +483,8 @@ void Graphics::RenderUI()
 			if (textComponent->brushIndex == -1)
 			{
 				ComPtr<ID2D1SolidColorBrush> textBrush;
-				deviceContext->CreateSolidColorBrush(textComponent->color, &textBrush);
+				D2D_COLOR_F color{ textComponent->color.r, textComponent->color.g,textComponent->color.b,textComponent->color.a };
+				deviceContext->CreateSolidColorBrush(color, &textBrush);
 				textComponent->brushIndex = textBrushes.size();
 				textBrushes.push_back(textBrush);
 			}
@@ -499,8 +500,8 @@ void Graphics::RenderUI()
 				if (name == textComponent->font.c_str() &&
 					textFormats[i]->GetFontSize() == textComponent->fontSize &&
 					textFormats[i]->GetParagraphAlignment() == textComponent->paragraphAlignment &&
-					textFormats[i]->GetTextAlignment() == textComponent->alignment &&
-					textFormats[i]->GetFontWeight() == textComponent->weight &&
+					textFormats[i]->GetTextAlignment() == textComponent->textAlignment &&
+					textFormats[i]->GetFontWeight() == textComponent->fontWeight &&
 					textFormats[i]->GetFontStyle() == textComponent->style)
 				{
 					textComponent->formatIndex = i;
@@ -513,7 +514,7 @@ void Graphics::RenderUI()
 				writeFactory->CreateTextFormat(
 					textComponent->font.c_str(),
 					NULL,
-					DWRITE_FONT_WEIGHT(textComponent->weight),
+					DWRITE_FONT_WEIGHT(textComponent->fontWeight),
 					DWRITE_FONT_STYLE(textComponent->style),
 					DWRITE_FONT_STRETCH_NORMAL,
 					textComponent->fontSize,
@@ -525,25 +526,20 @@ void Graphics::RenderUI()
 			}
 		}
 
-		D2D_RECT_F rt{ textComponent->textBox.x* width, textComponent->textBox.y* height, textComponent->textBox.z* width, textComponent->textBox.w* height };
+		D2D_RECT_F rt;
 
-		RectTransform* rect{ nullptr };
-		if (rect = gameObject->GetComponent<RectTransform>(); rect)
-		{
-			Matrix4x4 mat = gameObject->GetMatrix();
+		RectTransform* rect = gameObject->GetComponent<RectTransform>();
+		Matrix4x4 mat = RectTransform::Transform(gameObject->GetMatrix());
 
-			Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
-			Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };
+		Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
+		Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };
 
-			rt.left = (leftTop.x / 2.0f + 0.5f) * width;
-			rt.top = (leftTop.y / -2.0f + 0.5f) * height;
-			rt.right = (rightBottom.x / 2.0f + 0.5f) * width;
-			rt.bottom = (rightBottom.y / -2.0f + 0.5f) * height;
-		}
+		rt.left = (leftTop.x / 2.0f + 0.5f) * width;
+		rt.top = (leftTop.y / -2.0f + 0.5f) * height;
+		rt.right = (rightBottom.x / 2.0f + 0.5f) * width;
+		rt.bottom = (rightBottom.y / -2.0f + 0.5f) * height;
 
-		deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(),
-			&rt, textBrushes[textComponent->brushIndex].Get()
-		);
+		deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(), &rt, textBrushes[textComponent->brushIndex].Get());
 	}
 
 	deviceContext->EndDraw();
