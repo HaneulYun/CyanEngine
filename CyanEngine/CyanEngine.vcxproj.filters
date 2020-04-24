@@ -280,5 +280,8 @@
     <ClCompile Include="SceneManager.cpp">
       <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Vector3.cpp">
+      <Filter>0_00_CyanEngine\21_Math</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

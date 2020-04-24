@@ -5,13 +5,11 @@ Camera* Camera::main{ nullptr };
 
 Camera::Camera()
 {
-	view = NS_Matrix4x4::Identity();
-	projection = NS_Matrix4x4::Identity();
 }
 
 void Camera::Start()
 {
-	projection = NS_Matrix4x4::PerspectiveFovLH(XMConvertToRadians(FOV), CyanFW::Instance()->GetAspectRatio(), Near, Far);
+	projection.PerspectiveFovLH(XMConvertToRadians(FOV), CyanFW::Instance()->GetAspectRatio(), Near, Far);
 }
 
 Vector3 Camera::ScreenToWorldPoint(Vector3 position)
@@ -21,8 +19,8 @@ Vector3 Camera::ScreenToWorldPoint(Vector3 position)
 	position.y = -position.y;
 
 	Vector3 vector;
-	XMStoreFloat3(&vector.xmf3, XMVector3Transform(XMLoadFloat3(&position.xmf3), XMMatrixInverse(NULL, XMLoadFloat4x4(&projection))));
-	XMStoreFloat3(&vector.xmf3, XMVector3Transform(XMLoadFloat3(&vector.xmf3), XMMatrixInverse(NULL, XMLoadFloat4x4(&view))));
+	XMStoreFloat3(&vector.xmf3, XMVector3Transform(XMLoadFloat3(&position.xmf3), XMMatrixInverse(NULL, XMLoadFloat4x4(&projection.xmf4x4))));
+	XMStoreFloat3(&vector.xmf3, XMVector3Transform(XMLoadFloat3(&vector.xmf3), XMMatrixInverse(NULL, XMLoadFloat4x4(&view.xmf4x4))));
 
 	return vector;
 }

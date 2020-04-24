@@ -86,16 +86,17 @@ namespace NS_Vector4
 	}
 }
 
+#include "MathHelper.h"
+#include "Vector3.h"
+#include "Matrix4x4.h"
+
 #include "d3dx12.h"
 #include "d3dUtil.h"
-#include "MathHelper.h"
 #include "UploadBuffer.h"
 #include "GeometryGenerator.h"
 
 #include "Singleton.h"
 
-#include "Vector3.h"
-#include "Matrix4x4.h"
 
 #include "Debug.h"
 #include "Time.h"

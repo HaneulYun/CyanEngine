@@ -23,8 +23,8 @@ public:
 	std::map<GameObject*, CollisionType> collisionType;
 
 public:
-	XMFLOAT4X4 World = MathHelper::Identity4x4();
-	XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
+	Matrix4x4 World;
+	Matrix4x4 TexTransform;
 
 	int NumFramesDirty{ NUM_FRAME_RESOURCES };
 
@@ -49,7 +49,7 @@ public:
 	void OnCollisionStay(GameObject* other);
 	void OnCollisionExit(GameObject* other);
 
-	XMFLOAT4X4 GetMatrix();
+	Matrix4x4 GetMatrix();
 
 	GameObject* AddChild(GameObject* child)
 	{

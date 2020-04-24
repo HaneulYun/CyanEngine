@@ -4,8 +4,8 @@
 
 struct InstanceData
 {
-	XMFLOAT4X4 World{ MathHelper::Identity4x4() };
-	XMFLOAT4X4 TexTransform{ MathHelper::Identity4x4() };
+	Matrix4x4 World;
+	Matrix4x4 TexTransform;
 	UINT MaterialIndexStride{};
 	UINT BoneTransformStride{};
 	UINT ObjPad0{};
@@ -25,14 +25,14 @@ struct SkinnnedData
 
 struct PassConstants
 {
-	XMFLOAT4X4	View{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	InvView{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	Proj{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	InvProj{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	ViewProj{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	InvViewProj{ MathHelper::Identity4x4() };
-	XMFLOAT4X4	ShadowTransform{ MathHelper::Identity4x4() };
-    XMFLOAT3	EyePosW { 0.0f, 0.0f, 0.0f };
+	Matrix4x4	View;
+	Matrix4x4	InvView;
+	Matrix4x4	Proj;
+	Matrix4x4	InvProj;
+	Matrix4x4	ViewProj;
+	Matrix4x4	InvViewProj;
+	Matrix4x4	ShadowTransform;
+    Vector3		EyePosW { 0.0f, 0.0f, 0.0f };
 	float		cbPerObjectPad1{ 0.0f };
 	XMFLOAT2	RenderTargetSize{ 0.0f, 0.0f };
 	XMFLOAT2	InvRenderTargetSize{ 0.0f, 0.0f };

@@ -64,12 +64,12 @@ private:
 	DirectX::BoundingSphere sceneBounds;
 
 	float lightRotationAngle = 0.0f;
-	XMFLOAT3 baseLightDirections[3] = {
-		XMFLOAT3(0.57735f, -0.57735f, 0.57735f),
-		XMFLOAT3(-0.57735f, -0.57735f, 0.57735f),
-		XMFLOAT3(0.0f, -0.707f, -0.707f)
+	Vector3 baseLightDirections[3] = {
+		Vector3(0.57735f, -0.57735f, 0.57735f),
+		Vector3(-0.57735f, -0.57735f, 0.57735f),
+		Vector3(0.0f, -0.707f, -0.707f)
 	};
-	XMFLOAT3 rotatedLightDirections[3];
+	Vector3 rotatedLightDirections[3];
 
 public:
 	Graphics();

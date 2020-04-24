@@ -96,9 +96,9 @@ void GameObject::OnCollisionExit(GameObject* other)
 		component->OnCollisionExit(other);
 }
 
-XMFLOAT4X4 GameObject::GetMatrix()
+Matrix4x4 GameObject::GetMatrix()
 {
 	if (parent)
-		return NS_Matrix4x4::Multiply(transform->localToWorldMatrix, parent->GetMatrix());
+		return transform->localToWorldMatrix * parent->GetMatrix();
 	return transform->localToWorldMatrix;
 }

@@ -2,10 +2,56 @@
 
 #define EPSILON 1.0e-10f
 
+struct Matrix4x4;
+
 inline bool IsZero(float fValue) { return((fabsf(fValue) < EPSILON)); }
 inline bool IsEqual(float fA, float fB) { return(::IsZero(fA - fB)); }
 inline float InverseSqrt(float fValue) { return 1.0f / sqrtf(fValue); }
 inline void Swap(float* pfS, float* pfT) { float fTemp = *pfS; *pfS = *pfT; *pfT = fTemp; }
+
+struct Vector2
+{
+	union
+	{
+		XMFLOAT2 xmf2;
+		struct
+		{
+			float x;
+			float y;
+		};
+	};
+
+	Vector2() = default;
+	Vector2(const Vector2&) = default;
+	Vector2& operator=(const Vector2&) = default;
+
+	Vector2(Vector2&&) = default;
+	Vector2& operator=(Vector2&&) = default;
+
+	Vector2(float x, float y) : x(x), y(y) {}
+};
+
+struct Vector4
+{
+	union
+	{
+		XMFLOAT4 xmf4;
+		struct
+		{
+			float x;
+			float y;
+			float z;
+			float w;
+		};
+	};
+
+	Vector4() = default;
+	Vector4(const Vector4&) = default;
+	Vector4& operator=(const Vector4&) = default;
+
+	Vector4(Vector4&&) = default;
+	Vector4& operator=(Vector4&&) = default;
+};
 
 struct Vector3
 {
@@ -108,11 +154,10 @@ struct Vector3
 		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) * XMLoadFloat3(&rhs.xmf3));
 		return *this;
 	}
-	Vector3& operator/=(const Vector3& rhs)
-	{
-		XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) / XMLoadFloat3(&rhs.xmf3));
-		return *this;
-	}
+	Vector3& operator/=(const Vector3& rhs);
+
+	Vector3 TransformCoord(const Matrix4x4& mtx);
+	Vector3 TransformNormal(const Matrix4x4& mtx);
 };
 
 namespace NS_Vector3
