@@ -274,6 +274,7 @@ void SampleScene::BuildObjects()
 			text->InitFontFormat(L"궁서", { 0.4, 0.4, 1, 1 }, 35, { 0,1,1,1 });
 			text->text = L"안되는데용??";
 			text->SetFontStyleBold();
+			text->SetAlignmentCenter();
 			textObjects.push_back(textobject);
 		}
 		{
@@ -350,6 +351,8 @@ void SampleScene::BuildObjects()
 		TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
 		tp->terrain = grid;
 		tp->prefab = prefab;
+		tp->heightMap = m_pHeightMapImage;
+		tp->mesh = gridMesh;
 	}
 	
 	for (int i = 0; i < 5; ++i)

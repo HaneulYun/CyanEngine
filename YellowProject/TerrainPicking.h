@@ -10,6 +10,9 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	GameObject* prefab;
 	float dT;
 
+	CHeightMapImage* heightMap;
+	CHeightMapGridMesh* mesh;
+
 private:
 	friend class GameObject;
 	friend class MonoBehavior<TerrainPicking>;
@@ -41,7 +44,7 @@ public:
 		XMFLOAT3 rayDir = Camera::main->ScreenToWorldPoint(screenPos).xmf3;
 
 		XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&Camera::main->view)), XMLoadFloat4x4(&Camera::main->view));
-		XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&terrain->World)), XMLoadFloat4x4(&terrain->World));
+		XMMATRIX invWorld = XMMatrixInverse(&XMMatrixDeterminant(XMLoadFloat4x4(&terrain->transform->localToWorldMatrix)), XMLoadFloat4x4(&terrain->transform->localToWorldMatrix));
 		XMMATRIX toLocal = XMMatrixMultiply(invView, invWorld);
 
 		rayOrigin = NS_Vector3::TransformCoord(rayOrigin, toLocal);
@@ -49,33 +52,51 @@ public:
 
 		rayDir = NS_Vector3::Normalize(rayDir);
 
-		//if (IntersectPlane(rayOrigin, rayDir, XMFLOAT3{ 0,0,0 }, XMFLOAT3{ 1,0,0 }, XMFLOAT3{ 0,0,1 }))
-		//{
-		//	XMFLOAT3 point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
-		//	point = NS_Vector3::TransformCoord(point, terrain->World);
-		//	
-		//	GameObject* go = Scene::scene->Duplicate(prefab);
-		//	Scene::scene->AddGameObject(go);
-		//	go->transform->position = { point.x, point.y,point.z };
-		//	Mesh* mesh = static_cast<MeshFilter*>(go->meshFilter)->mesh;
-		//	Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
-		//}
 		if (IntersectPlane(rayOrigin, rayDir, XMFLOAT3{ 0,0,0 }, XMFLOAT3{ 1,0,0 }, XMFLOAT3{ 0,0,1 }))
 		{
-			//IntersectTri(rayOrigin, rayDir);
+			std::vector<XMFLOAT3> vertices;
+			XMFLOAT3 point;// = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
 
-			XMFLOAT3 point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
-			point = NS_Vector3::TransformCoord(point, terrain->World);
+			// origin 으로부터 dT 사이에 있는 점들 수집
+			for (int i = 1; i < dT + 1; ++i)
+			{
+				point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, i));
 
+				float x, y, z;
+				x = std::floor(point.x);
+				z = std::floor(point.z);
+				y = mesh->OnGetHeight(x, z, heightMap);
+				vertices.push_back({ x,y,z });
 
+				x = std::ceil(point.x);
+				z = std::ceil(point.z);
+				y = mesh->OnGetHeight(x, z, heightMap);
+				vertices.push_back({ x,y,z });
+
+				if (point.x > point.z)
+				{
+					x = std::ceil(point.x);
+					z = std::floor(point.z);
+				}
+				else
+				{
+					x = std::floor(point.x);
+					z = std::ceil(point.z);
+				}
+				y = mesh->OnGetHeight(x, z, heightMap);
+				vertices.push_back({ x,y,z });
+
+			}
+			IntersectVertices(rayOrigin, rayDir, vertices);
+			point = NS_Vector3::Add(rayOrigin, NS_Vector3::ScalarProduct(rayDir, dT));
+			point = NS_Vector3::TransformCoord(point, terrain->transform->localToWorldMatrix);
 
 			GameObject* go = Scene::scene->Duplicate(prefab);
 			Scene::scene->AddGameObject(go);
-			go->transform->position = { point.x, point.y,point.z };
+			go->transform->position = { point.x, point.y, point.z };
 			Mesh* mesh = static_cast<MeshFilter*>(go->meshFilter)->mesh;
 			Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
 		}
-
 	}
 
 	bool IntersectPlane(XMFLOAT3 rayOrigin, XMFLOAT3 rayDirection, XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2)
@@ -102,36 +123,16 @@ public:
 		
 	}
 
-	void IntersectTri(XMFLOAT3 rayOrigin, XMFLOAT3 rayDirection)
+	void IntersectVertices(XMFLOAT3 rayOrigin, XMFLOAT3 rayDirection, std::vector<XMFLOAT3>& vertices)
 	{
-		Mesh* geo = (static_cast<MeshFilter*>(terrain->meshFilter))->mesh;
-		auto vertices = (FrameResource::Vertex*)geo->VertexBufferCPU->GetBufferPointer();
-		auto indices = (UINT*)geo->IndexBufferCPU->GetBufferPointer();
-		int a = (sizeof(UINT));
-		UINT triCount = geo->IndexBufferByteSize / a - 2;
+		UINT triCount = vertices.size() / 3;
 
 		float tmin = MathHelper::Infinity;
 		for (UINT i = 0; i < triCount; ++i)
 		{
-			UINT i0;
-			UINT i1;
-			UINT i2;
-			if (i % 2 == 0)
-			{
-				i0 = indices[i + 0];
-				i1 = indices[i + 2];
-				i2 = indices[i + 1];
-			}
-			else
-			{
-				i0 = indices[i + 0];
-				i1 = indices[i + 1];
-				i2 = indices[i + 2];
-			}
-
-			XMVECTOR v0 = XMLoadFloat3(&vertices[i0].Pos);
-			XMVECTOR v1 = XMLoadFloat3(&vertices[i1].Pos);
-			XMVECTOR v2 = XMLoadFloat3(&vertices[i2].Pos);
+			XMVECTOR v0 = XMLoadFloat3(&vertices[i * 3 + 0]);
+			XMVECTOR v1 = XMLoadFloat3(&vertices[i * 3 + 1]);
+			XMVECTOR v2 = XMLoadFloat3(&vertices[i * 3 + 2]);
 
 			float t = 0.0f;
 			if (TriangleTests::Intersects(XMLoadFloat3(&rayOrigin), XMLoadFloat3(&rayDirection), v0, v1, v2, t))
@@ -139,10 +140,9 @@ public:
 				if (t < tmin)
 				{
 					tmin = t;
+					dT = tmin;
 				}
 			}
 		}
-		dT = tmin;
-
 	}
 };
