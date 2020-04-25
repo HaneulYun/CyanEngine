@@ -194,6 +194,12 @@ struct Vector3
 		XMStoreFloat3(&result.xmf3, XMVectorLerp(XMLoadFloat3(&v0.xmf3), XMLoadFloat3(&v1.xmf3), t));
 		return result;
 	}
+	//static Vector3 Vector3Cross(Vector3 v0, Vector3 v1, float t)
+	//{
+	//	Vector3 result;
+	//	XMStoreFloat3(&result.xmf3, XMVector3Cross(XMLoadFloat3(&v0.xmf3), XMLoadFloat3(&v1.xmf3)));
+	//	return result;
+	//}
 	Vector3 TransformCoord(const Matrix4x4& mtx);
 	Vector3 TransformNormal(const Matrix4x4& mtx);
 };

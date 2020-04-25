@@ -177,9 +177,10 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RotatingBehavior.h" />
-    <ClInclude Include="SampleScene.h" />
+    <ClInclude Include="TerrainScene.h" />
     <ClInclude Include="scripts.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TerrainPicking.h" />
     <ClInclude Include="YellowProject.h" />
     <ClInclude Include="ScriptForm.h" />
   </ItemGroup>
@@ -191,7 +192,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SampleScene.cpp" />
+    <ClCompile Include="TerrainScene.cpp" />
     <ClCompile Include="YellowProject.cpp" />
   </ItemGroup>
   <ItemGroup>

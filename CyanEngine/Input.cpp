@@ -23,6 +23,8 @@ void Input::Update()
 		d = false;
 	for (auto& d : mouseDown)
 		d = false;
+	for (auto& d : mouseUp)
+		d = false;
 }
 
 bool Input::GetKey(KeyCode key)

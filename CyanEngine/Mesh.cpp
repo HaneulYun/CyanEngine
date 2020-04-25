@@ -12,7 +12,7 @@ void Mesh::Create(GeometryType type)
 		switch (type)
 		{
 		case GeometryType::GeometryType_Cube:
-			box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 1); break;
+			box = geoGen.CreateBox(0.2f, 0.2f, 0.2f, 1); break;
 		case GeometryType::GeometryType_Sphere:
 			box = geoGen.CreateSphere(0.5f, 20, 20); break;
 		case GeometryType::GeometryType_Cylinder:
