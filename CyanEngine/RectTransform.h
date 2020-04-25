@@ -50,8 +50,8 @@ public:
 		float offsetX{ 0 };
 		if (!IsEqual(anchorMin.x, anchorMax.x))
 		{
-			posX = parentWidth * anchorMin.x + left;
-			width = parentWidth * anchorMax.x - right - posX;
+			posX = left;
+			width = parentWidth * (anchorMax.x - anchorMin.x) - right - left;
 		}
 		else
 		{
@@ -63,8 +63,8 @@ public:
 		float offsetY{ 0 };
 		if (!IsEqual(anchorMin.y, anchorMax.y))
 		{
-			posY = parentHeight * anchorMin.y + bottom;
-			height = parentHeight * anchorMax.y - top - posY;
+			posY = bottom;
+			height = parentHeight * (anchorMax.y - anchorMin.y) - top - bottom;
 		}
 		else
 		{
