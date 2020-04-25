@@ -94,9 +94,7 @@ void SampleScene::BuildObjects()
 
 	GameObject* mainCamera = CreateEmpty();
 	{
-		Camera* camera = mainCamera->AddComponent<Camera>();
-		scene->camera = camera->main = camera;
-
+		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
 	}
 

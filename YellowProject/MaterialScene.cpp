@@ -18,7 +18,7 @@ void MaterialScene::BuildObjects()
 
 	auto mainCamera = CreateEmpty();
 	{
-		scene->camera = camera->main = mainCamera->AddComponent<Camera>();
+		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
 	}
 

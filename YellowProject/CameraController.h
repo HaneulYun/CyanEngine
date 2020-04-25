@@ -34,11 +34,11 @@ public:
 		gameObject->GetComponent<Transform>()->position = { x, y, z };
 		gameObject->GetComponent<Transform>()->forward = (Vector3(0, 0, 0) - Vector3(x, y, z)).Normalize();
 
-		if (Input::GetMouseButtonDown(0))
+		if (Input::GetMouseButtonDown(2))
 		{
 			lastMousePos = Input::mousePosition;
 		}
-		else if (Input::GetMouseButton(0))
+		else if (Input::GetMouseButton(2))
 		{
 			Vector3 currMousePos = Input::mousePosition;
 			Vector3 delta = (currMousePos - lastMousePos) * 0.25f * (XM_PI / 180.0f);
@@ -49,11 +49,6 @@ public:
 			mPhi = FbxClamp(mPhi, 0.1f, PI - 0.1f);
 
 			lastMousePos = currMousePos;
-		}
-
-		if (Input::GetMouseButtonDown(2))
-		{
-			Debug::Log("test\n");
 		}
 	}
 
