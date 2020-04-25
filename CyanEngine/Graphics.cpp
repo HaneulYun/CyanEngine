@@ -233,14 +233,14 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 	{
 		PassConstants passConstants;
 
-		auto transform = Camera::main->gameObject->GetComponent<Transform>();
+		auto transform = Scene::scene->camera->gameObject->GetComponent<Transform>();
 		auto vLookAt = transform->position + transform->forward.Normalized();
 		
 		Vector3 pos = transform->position;
 		Vector3 lookAt = vLookAt;;
 		Vector3 up{ 0, 1, 0 };
 		Matrix4x4 view = Matrix4x4::MatrixLookAtLH(pos, lookAt, up);
-		Matrix4x4 proj = Camera::main->projection;
+		Matrix4x4 proj = Scene::scene->camera->projection;
 		Matrix4x4 ViewProj = view * proj;
 
 		passConstants.ViewProj = ViewProj.Transpose();

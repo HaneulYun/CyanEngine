@@ -15,66 +15,14 @@ void TerrainScene::BuildObjects()
 
 	//*** Material ***//
 	{
-		for (int i = 5; i < 10; ++i)
-		{
-			auto material = std::make_unique<Material>();
-			material->Name = "material_" + std::to_string(i);
-			material->MatCBIndex = i;
-			material->DiffuseSrvHeapIndex = 0;
-			material->NormalSrvHeapIndex = 0;
-			material->DiffuseAlbedo = RANDOM_COLOR;
-			material->FresnelR0 = Vector3(0.98f, 0.97f, 0.95f);
-			material->Roughness = 0.0f;
-			materials[material->Name] = std::move(material);
-		}
-
-		{
-			auto material = std::make_unique<Material>();
-			material->Name = "PolyArt";
-			material->MatCBIndex = 0;
-			material->DiffuseSrvHeapIndex = 1;
-			material->FresnelR0 = { 0.01f, 0.01f, 0.01f };
-			material->Roughness = 0.9f;
-			materials[material->Name] = std::move(material);
-
-			auto material_bricks0 = std::make_unique<Material>();
-			material_bricks0->Name = "bricksMat";
-			material_bricks0->MatCBIndex = 1;
-			material_bricks0->DiffuseSrvHeapIndex = 2;
-			material_bricks0->FresnelR0 = Vector3(0.02f, 0.02f, 0.02f);
-			material_bricks0->Roughness = 0.1f;
-			materials[material_bricks0->Name] = std::move(material_bricks0);
-
-			auto material_stone0 = std::make_unique<Material>();
-			material_stone0->Name = "stoneMat";
-			material_stone0->MatCBIndex = 2;
-			material_stone0->DiffuseSrvHeapIndex = 0;
-			material_stone0->DiffuseAlbedo = Vector4(0.0f, 0.0f, 0.1f, 1.0f);
-			material_stone0->FresnelR0 = Vector3(0.98f, 0.97f, 0.95f);
-			material_stone0->Roughness = 0.1f;
-			materials[material_stone0->Name] = std::move(material_stone0);
-
-			auto material_tile0 = std::make_unique<Material>();
-			material_tile0->Name = "tile0";
-			material_tile0->MatCBIndex = 3;
-			material_tile0->DiffuseSrvHeapIndex = 4;
-			material_tile0->DiffuseAlbedo = Vector4(0.9f, 0.9f, 0.9f, 1.0f);
-			material_tile0->FresnelR0 = Vector3(0.2f, 0.2f, 0.2f);
-			material_tile0->Roughness = 0.1f;
-			material_tile0->MatTransform = Matrix4x4::MatrixScaling(8, 8, 1);
-			materials[material_tile0->Name] = std::move(material_tile0);
-		}
-
-		{
-			auto material = std::make_unique<Material>();
-			material->Name = "sky";
-			material->MatCBIndex = 4;
-			material->DiffuseSrvHeapIndex = 5;
-			material->DiffuseAlbedo = { 1.0f, 1.0f, 1.0f, 1.0f };
-			material->FresnelR0 = Vector3(0.1f, 0.1f, 0.1f);
-			material->Roughness = 1.0f;
-			materials[material->Name] = std::move(material);
-		}
+		AddMaterial(0, "none", 0);
+		AddMaterial(1, "PolyArt", 1, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
+		AddMaterial(2, "bricksMat", 2, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
+		AddMaterial(3, "stoneMat", 0, -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
+		AddMaterial(4, "tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, Matrix4x4::MatrixScaling(8, 8, 1));
+		AddMaterial(5, "sky", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 1.0f);
+		for (int i = 0; i < 5; ++i)
+			AddMaterial(5 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
 	}
 	
 	//*** Mesh ***//
@@ -146,9 +94,7 @@ void TerrainScene::BuildObjects()
 
 	GameObject* mainCamera = CreateEmpty();
 	{
-		Camera* camera = mainCamera->AddComponent<Camera>();
-		scene->camera = camera->main = camera;
-
+		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
 	}
 
@@ -327,5 +273,34 @@ void TerrainScene::BuildObjects()
 		mesh = rightSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
 		rightSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(rightSphereRItem);
+	}
+
+	auto menuSceneButton = CreateImage();
+	{
+		auto rectTransform = menuSceneButton->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 1 };
+		rectTransform->anchorMax = { 0, 1 };
+		rectTransform->pivot = { 0, 1 };
+		rectTransform->posX = 10;
+		rectTransform->posY = -10;
+		rectTransform->width = 150;
+		rectTransform->height = 30;
+
+		menuSceneButton->AddComponent<Button>()->AddEvent(
+			[](void*) {
+				SceneManager::LoadScene("MenuScene");
+			});
+		{
+			auto textobject = menuSceneButton->AddChildUI();
+			auto rectTransform = textobject->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 0 };
+			rectTransform->anchorMax = { 1, 1 };
+
+			Text* text = textobject->AddComponent<Text>();
+			text->text = L"Menu Scene";
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(textobject);
+		}
 	}
 }
