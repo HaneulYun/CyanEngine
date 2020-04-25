@@ -70,7 +70,7 @@ public:
 				vertices.push_back({ x,mesh->OnGetHeight(x, z, heightMap),z });
 				vertices.push_back({ x + 1,mesh->OnGetHeight(x + 1, z + 1, heightMap),z + 1 });
 				vertices.push_back({ x + 1,mesh->OnGetHeight(x + 1, z, heightMap),z });
-
+				
 				vertices.push_back({ x,mesh->OnGetHeight(x, z, heightMap),z });
 				vertices.push_back({ x,mesh->OnGetHeight(x, z + 1, heightMap),z + 1 });
 				vertices.push_back({ x + 1,mesh->OnGetHeight(x + 1, z + 1, heightMap),z + 1 });
@@ -126,6 +126,17 @@ public:
 			XMVECTOR v0 = XMLoadFloat3(&vertices[i * 3 + 0]);
 			XMVECTOR v1 = XMLoadFloat3(&vertices[i * 3 + 1]);
 			XMVECTOR v2 = XMLoadFloat3(&vertices[i * 3 + 2]);
+
+			float x = (vertices[i * 3 + 0].x + vertices[i * 3 + 1].x + vertices[i * 3 + 2].x) / 3;
+			float y = (vertices[i * 3 + 0].y + vertices[i * 3 + 1].y + vertices[i * 3 + 2].y) / 3;
+			float z = (vertices[i * 3 + 0].z + vertices[i * 3 + 1].z + vertices[i * 3 + 2].z) / 3;
+			XMMATRIX toLocal = XMMatrixTranslation(-x, -y, -z);
+			XMMATRIX InvToLocal = XMMatrixInverse(&XMMatrixDeterminant(toLocal), toLocal);
+			XMMATRIX s = XMMatrixScaling(1.2, 1.2, 1.2);
+
+			v0 = XMVector3Transform(XMVector3Transform(XMVector3Transform(v0, toLocal), s), InvToLocal);
+			v1 = XMVector3Transform(XMVector3Transform(XMVector3Transform(v1, toLocal), s), InvToLocal);
+			v2 = XMVector3Transform(XMVector3Transform(XMVector3Transform(v2, toLocal), s), InvToLocal);
 
 			float t = 0.0f;
 			if (TriangleTests::Intersects(XMLoadFloat3(&rayOrigin), XMLoadFloat3(&rayDirection), v0, v1, v2, t))
