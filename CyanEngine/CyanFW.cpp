@@ -37,7 +37,7 @@ void CyanFW::OnFrameAdvance()
 		Scene::scene = sceneManager->scene = sceneManager->nextScene;
 		sceneManager->nextScene = nullptr;
 
-		Camera::main = sceneManager->scene->camera;
+		Camera::main = Scene::scene->camera;
 	}
 	sceneManager->scene->Update();
 	graphics->Update(sceneManager->scene->frameResources);

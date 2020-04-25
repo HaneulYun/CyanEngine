@@ -9,7 +9,6 @@ void MenuScene::BuildObjects()
 
 	//*** Material ***//
 	AddMaterial(0, "none", 0);
-	AddMaterial(1, "sky", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 1.0f);
 
 	//*** Mesh ***//
 	geometries["Image"] = Mesh::CreateQuad();
@@ -19,7 +18,7 @@ void MenuScene::BuildObjects()
 
 	auto mainCamera = CreateEmpty();
 	{
-		scene->camera = camera->main = mainCamera->AddComponent<Camera>();
+		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
 	}
 
@@ -31,7 +30,7 @@ void MenuScene::BuildObjects()
 		renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(skyBox);
 	}
 
-	GameObject* sampleSceneButton = CreateImage();
+	auto sampleSceneButton = CreateImage();
 	{
 		auto rectTransform = sampleSceneButton->GetComponent<RectTransform>();
 		rectTransform->anchorMin = { 1, 0.5 };
@@ -45,7 +44,7 @@ void MenuScene::BuildObjects()
 		sampleSceneButton->AddComponent<Button>()->AddEvent(
 			[](void*) {
 				Debug::Log("이게 되네;;\n");
-				SceneManager::LoadScene("materialScene");
+				SceneManager::LoadScene("MainScene");
 			});
 		{
 			auto textobject = sampleSceneButton->AddChildUI();
@@ -61,7 +60,7 @@ void MenuScene::BuildObjects()
 		}
 	}
 
-	GameObject* materialSceneButton = CreateImage();
+	auto materialSceneButton = CreateImage();
 	{
 		auto rectTransform = materialSceneButton->GetComponent<RectTransform>();
 		rectTransform->anchorMin = { 1, 0.5 };
@@ -74,8 +73,7 @@ void MenuScene::BuildObjects()
 
 		materialSceneButton->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				Debug::Log("이게 되네;;\n");
-				SceneManager::LoadScene("materialScene");
+				SceneManager::LoadScene("MaterialScene");
 			});
 		{
 			auto textobject = materialSceneButton->AddChildUI();
@@ -91,7 +89,7 @@ void MenuScene::BuildObjects()
 		}
 	}
 
-	GameObject* animationSceneButton = CreateImage();
+	auto animationSceneButton = CreateImage();
 	{
 		auto rectTransform = animationSceneButton->GetComponent<RectTransform>();
 		rectTransform->anchorMin = { 1, 0.5 };
@@ -104,8 +102,7 @@ void MenuScene::BuildObjects()
 
 		animationSceneButton->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				Debug::Log("이게 되네;;\n");
-				SceneManager::LoadScene("materialScene");
+				SceneManager::LoadScene("MaterialScene");
 			});
 		{
 			auto textobject = animationSceneButton->AddChildUI();
@@ -120,4 +117,6 @@ void MenuScene::BuildObjects()
 			textObjects.push_back(textobject);
 		}
 	}
+
+
 }

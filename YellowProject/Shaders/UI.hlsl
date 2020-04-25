@@ -31,6 +31,7 @@ PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
 float4 PSMain(PSInput input) : SV_TARGET
 {
 	uint diffuseTexIndex = gMaterialData[input.MatIndex].DiffuseMapIndex;
+	float4 albedo = gMaterialData[input.MatIndex].DiffuseAlbedo;
 
-	return gDiffuseMap[diffuseTexIndex].Sample(gsamAnisotropicWrap, input.TexC);
+	return gDiffuseMap[diffuseTexIndex].Sample(gsamAnisotropicWrap, input.TexC) * albedo;
 }
