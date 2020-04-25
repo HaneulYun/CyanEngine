@@ -1,6 +1,52 @@
 #include "pch.h"
 #include "ParticleScene.h"
 
+std::unique_ptr<Mesh> MakeParticle()
+{
+	auto mesh = std::make_unique<Mesh>();
+
+	mesh->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+
+	FrameResource::TreeSpriteVertex v[1];
+	v[0].Pos = { 0, 0, 0 };
+
+	uint16_t i[1]{ 0 };
+
+	std::vector<FrameResource::TreeSpriteVertex> vertices;
+	std::vector<std::uint16_t> indices;
+
+	for (auto& d : v) vertices.push_back(d);
+	for (auto& d : i) indices.push_back(d);
+
+	const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::TreeSpriteVertex);
+	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+	D3DCreateBlob(vbByteSize, &mesh->VertexBufferCPU);
+	CopyMemory(mesh->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+	D3DCreateBlob(ibByteSize, &mesh->IndexBufferCPU);
+	CopyMemory(mesh->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+	auto device = Graphics::Instance()->device;
+	auto commandList = Graphics::Instance()->commandList;
+
+	mesh->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, mesh->VertexBufferUploader);
+	mesh->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, mesh->IndexBufferUploader);
+
+	mesh->VertexByteStride = sizeof(FrameResource::TreeSpriteVertex);
+	mesh->VertexBufferByteSize = vbByteSize;
+	mesh->IndexFormat = DXGI_FORMAT_R16_UINT;
+	mesh->IndexBufferByteSize = ibByteSize;
+
+	SubmeshGeometry submesh;
+	submesh.IndexCount = (UINT)indices.size();
+	submesh.StartIndexLocation = 0;
+	submesh.BaseVertexLocation = 0;
+
+	mesh->DrawArgs["submesh"] = submesh;
+
+	return std::move(mesh);
+}
+
 void ParticleScene::BuildObjects()
 {
 	///*** Asset ***///
@@ -14,6 +60,8 @@ void ParticleScene::BuildObjects()
 	geometries["Image"] = Mesh::CreateQuad();
 	geometries["Sphere"] = Mesh::CreateSphere();
 	geometries["Plane"] = Mesh::CreatePlane();
+	geometries["Quad"] = Mesh::CreateQuad();
+	geometries["Particle"] =  MakeParticle();
 
 	///*** Game Object ***///
 
@@ -60,10 +108,17 @@ void ParticleScene::BuildObjects()
 		}
 	}
 
+	auto grid = CreateEmpty();
 	{
-		GameObject* grid = CreateEmpty();
 		grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();
 		grid->AddComponent<Renderer>()->materials.push_back(0);
 		renderObjectsLayer[(int)RenderLayer::Opaque][geometries["Plane"].get()].gameObjects.push_back(grid);
+	}
+
+	auto particleSystemObject = CreateEmpty();
+	{
+		particleSystemObject->AddComponent<ParticleSystem>()->particle = geometries["Particle"].get();
+		particleSystemObject->AddComponent<Renderer>()->materials.push_back(0);
+		renderObjectsLayer[(int)RenderLayer::Particle][geometries["Particle"].get()].gameObjects.push_back(particleSystemObject);
 	}
 }

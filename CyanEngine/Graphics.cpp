@@ -419,6 +419,8 @@ void Graphics::RenderObjects(int layerIndex)
 		commandList->OMSetStencilRef(1);
 		commandList->SetPipelineState(pipelineStates["ui"].Get());
 	}
+	else if (layerIndex == (int)RenderLayer::Particle)
+		commandList->SetPipelineState(pipelineStates["particle"].Get());
 	else
 		commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
@@ -703,28 +705,17 @@ void Graphics::InitDirect2D()
 	float dpiX;
 	float dpiY;
 	d2dFactory->GetDesktopDpi(&dpiX, &dpiY);
-	D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-		D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpiX, dpiY);
+	D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpiX, dpiY);
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
-		device11On12->CreateWrappedResource(
-			renderTargets[i].Get(),
-			&d3d11Flags,
-			D3D12_RESOURCE_STATE_RENDER_TARGET,
-			D3D12_RESOURCE_STATE_PRESENT,
-			IID_PPV_ARGS(&wrappedBackBuffers[i])
-		);
+		device11On12->CreateWrappedResource(renderTargets[i].Get(), &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, IID_PPV_ARGS(&wrappedBackBuffers[i]));
 
 		ComPtr<IDXGISurface> surface;
 		wrappedBackBuffers[i].As(&surface);
-		deviceContext->CreateBitmapFromDxgiSurface(
-			surface.Get(),
-			&bitmapProperties,
-			&renderTargets2d[i]
-		);
+		deviceContext->CreateBitmapFromDxgiSurface(surface.Get(), &bitmapProperties, &renderTargets2d[i]);
 	}
 }
 
@@ -762,7 +753,8 @@ void Graphics::LoadAssets()
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_STREAM_OUTPUT
+
 	};
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, _countof(staticSamplers), staticSamplers, rootSignatureFlags);
@@ -797,6 +789,10 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "PSMain", "ps_5_1");
 
+	ComPtr<ID3DBlob> particleVS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "VSMain", "vs_5_1");
+	ComPtr<ID3DBlob> particleGS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GSMain", "gs_5_1");
+	ComPtr<ID3DBlob> particlePS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "PSMain", "ps_5_1");
+
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
@@ -814,7 +810,11 @@ void Graphics::LoadAssets()
 		{ "WEIGHTS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "BONEINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
-
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs_particle[]
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc{};
@@ -865,11 +865,9 @@ void Graphics::LoadAssets()
 	uiPsoDesc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 	uiPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 	uiPsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
-
 	device->CreateGraphicsPipelineState(&uiPsoDesc, IID_PPV_ARGS(&pipelineStates["ui"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC shadowPsoDesc = opaquePsoDesc;
-	// PSO for shadow map pass.
 	shadowPsoDesc.RasterizerState.DepthBias = 100000;
 	shadowPsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
 	shadowPsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
@@ -885,6 +883,17 @@ void Graphics::LoadAssets()
 	skinnedShadowPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
 	skinnedShadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinnedShadow.Get());
 	device->CreateGraphicsPipelineState(&skinnedShadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_skinnedOpaque"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC particlePsoDesc = opaquePsoDesc;
+	particlePsoDesc.InputLayout = { inputElementDescs_particle, _countof(inputElementDescs_particle) };
+	particlePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	particlePsoDesc.VS = CD3DX12_SHADER_BYTECODE(particleVS.Get());
+	particlePsoDesc.GS = CD3DX12_SHADER_BYTECODE(particleGS.Get());
+	particlePsoDesc.PS = CD3DX12_SHADER_BYTECODE(particlePS.Get());
+	particlePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+
+	HRESULT hr = device->CreateGraphicsPipelineState(&particlePsoDesc, IID_PPV_ARGS(&pipelineStates["particle"]));
+	ThrowIfFailed(hr);
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = 7;
