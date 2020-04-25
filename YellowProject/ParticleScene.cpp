@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "MaterialScene.h"
+#include "ParticleScene.h"
 
-void MaterialScene::BuildObjects()
+void ParticleScene::BuildObjects()
 {
 	///*** Asset ***///
 	//*** Texture ***//
@@ -13,6 +13,7 @@ void MaterialScene::BuildObjects()
 	//*** Mesh ***//
 	geometries["Image"] = Mesh::CreateQuad();
 	geometries["Sphere"] = Mesh::CreateSphere();
+	geometries["Plane"] = Mesh::CreatePlane();
 
 	///*** Game Object ***///
 
@@ -59,4 +60,10 @@ void MaterialScene::BuildObjects()
 		}
 	}
 
+	{
+		GameObject* grid = CreateEmpty();
+		grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();
+		grid->AddComponent<Renderer>()->materials.push_back(0);
+		renderObjectsLayer[(int)RenderLayer::Opaque][geometries["Plane"].get()].gameObjects.push_back(grid);
+	}
 }
