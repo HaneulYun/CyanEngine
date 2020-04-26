@@ -113,13 +113,16 @@
     <FxCompile Include="Shaders\Common.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Sky.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\Shadow.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\UI.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Sky.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\TreeBillboard.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

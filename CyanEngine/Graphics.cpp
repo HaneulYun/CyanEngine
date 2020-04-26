@@ -327,7 +327,8 @@ void Graphics::RenderShadowMap()
 			commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
 
 			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
-			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
+			if (mesh->IndexBufferByteSize)
+				commandList->IASetIndexBuffer(&mesh->IndexBufferView());
 			commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 
 			int i = 0;
@@ -336,10 +337,15 @@ void Graphics::RenderShadowMap()
 				commandList->SetGraphicsRootShaderResourceView(7,
 					matIndexBuffer->Resource()->GetGPUVirtualAddress()
 					+ sizeof(MatIndexData) * i++);
-				commandList->DrawIndexedInstanced(
-					submesh.second.IndexCount, objects.size(),
-					submesh.second.StartIndexLocation,
-					submesh.second.BaseVertexLocation, 0);
+				if (mesh->IndexBufferByteSize)
+					commandList->DrawIndexedInstanced(
+						submesh.second.IndexCount, objects.size(),
+						submesh.second.StartIndexLocation,
+						submesh.second.BaseVertexLocation, 0);
+				else
+					commandList->DrawInstanced(
+						submesh.second.IndexCount, objects.size(),
+						submesh.second.StartIndexLocation, 0);
 			}
 		}
 	}
@@ -419,6 +425,8 @@ void Graphics::RenderObjects(int layerIndex)
 		commandList->OMSetStencilRef(1);
 		commandList->SetPipelineState(pipelineStates["ui"].Get());
 	}
+	else if(layerIndex == (int)RenderLayer::TreeBillboard)
+		commandList->SetPipelineState(pipelineStates["treeBillboard"].Get());
 	else
 		commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
@@ -439,7 +447,8 @@ void Graphics::RenderObjects(int layerIndex)
 
 		commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 		commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
-		commandList->IASetIndexBuffer(&mesh->IndexBufferView());
+		if (mesh->IndexBufferByteSize)
+			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
 
 		int i = 0;
 		for (auto& submesh : mesh->DrawArgs)
@@ -447,10 +456,15 @@ void Graphics::RenderObjects(int layerIndex)
 			commandList->SetGraphicsRootShaderResourceView(7,
 				matIndexBuffer->Resource()->GetGPUVirtualAddress()
 				+ sizeof(MatIndexData) * i++);
-			commandList->DrawIndexedInstanced(
-				submesh.second.IndexCount, objects.size(),
-				submesh.second.StartIndexLocation,
-				submesh.second.BaseVertexLocation, 0);
+			if (mesh->IndexBufferByteSize)
+				commandList->DrawIndexedInstanced(
+					submesh.second.IndexCount, objects.size(),
+					submesh.second.StartIndexLocation,
+					submesh.second.BaseVertexLocation, 0);
+			else
+				commandList->DrawInstanced(
+					submesh.second.IndexCount, objects.size(),
+					submesh.second.StartIndexLocation, 0);
 		}
 	}
 }
@@ -761,8 +775,7 @@ void Graphics::LoadAssets()
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
 	};
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, _countof(staticSamplers), staticSamplers, rootSignatureFlags);
@@ -797,6 +810,9 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "PSMain", "ps_5_1");
 
+	ComPtr<ID3DBlob> treeBillboardVS = d3dUtil::CompileShader(L"shaders\\TreeBillboard.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> treeBillboardGS = d3dUtil::CompileShader(L"Shaders\\TreeBillboard.hlsl", nullptr, "GS", "gs_5_1");
+	ComPtr<ID3DBlob> treeBillboardPS = d3dUtil::CompileShader(L"shaders\\TreeBillboard.hlsl", alphaTestDefines, "PS", "ps_5_1");
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
@@ -815,7 +831,11 @@ void Graphics::LoadAssets()
 		{ "BONEINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
-
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs_treeBillboard[]
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc{};
 	opaquePsoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
@@ -885,6 +905,15 @@ void Graphics::LoadAssets()
 	skinnedShadowPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
 	skinnedShadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinnedShadow.Get());
 	device->CreateGraphicsPipelineState(&skinnedShadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_skinnedOpaque"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC treeSpritePsoDesc = opaquePsoDesc;
+	treeSpritePsoDesc.VS = CD3DX12_SHADER_BYTECODE(treeBillboardVS.Get());
+	treeSpritePsoDesc.GS = CD3DX12_SHADER_BYTECODE(treeBillboardGS.Get());
+	treeSpritePsoDesc.PS = CD3DX12_SHADER_BYTECODE(treeBillboardPS.Get());
+	treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	treeSpritePsoDesc.InputLayout = { inputElementDescs_treeBillboard, _countof(inputElementDescs_treeBillboard) };
+	treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	device->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&pipelineStates["treeBillboard"]));
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = 7;

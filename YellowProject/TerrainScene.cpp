@@ -11,6 +11,7 @@ void TerrainScene::BuildObjects()
 		AddTexture(2, "bricksTex", L"Textures\\bricks2.dds");
 		AddTexture(3, "stoneTex", L"Textures\\stone.dds");
 		AddTexture(4, "tileTex", L"Textures\\tile.dds");
+		AddTexture(6, "tree", L"Textures\\tree01S.dds");
 	}
 
 	//*** Material ***//
@@ -21,8 +22,9 @@ void TerrainScene::BuildObjects()
 		AddMaterial(3, "stoneMat", 0, -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
 		AddMaterial(4, "tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, Matrix4x4::MatrixScaling(8, 8, 1));
 		AddMaterial(5, "sky", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 1.0f);
-		for (int i = 0; i < 5; ++i)
-			AddMaterial(5 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
+		AddMaterial(6, "tree0", 6, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
+		//for (int i = 0; i < 5; ++i)
+		//	AddMaterial(5 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
 	}
 	
 	//*** Mesh ***//
@@ -40,15 +42,15 @@ void TerrainScene::BuildObjects()
 
 	//*** Animation ***//
 	{
-		AddFbxForAnimation("Attack01_BowAnim", "Models\\BowStance\\Attack01_BowAnim.fbx");
-		AddFbxForAnimation("Attack01Maintain_BowAnim", "Models\\BowStance\\Attack01Maintain_BowAnim.fbx");
-		AddFbxForAnimation("Attack01RepeatFire_BowAnim", "Models\\BowStance\\Attack01RepeatFire_BowAnim.fbx");
-		AddFbxForAnimation("Attack01Start_BowAnim", "Models\\BowStance\\Attack01Start_BowAnim.fbx");
-		AddFbxForAnimation("Attack02Maintain_BowAnim", "Models\\BowStance\\Attack02Maintain_BowAnim.fbx");
-		AddFbxForAnimation("Attack02RepeatFire_BowAnim", "Models\\BowStance\\Attack02RepeatFire_BowAnim.fbx");
-		AddFbxForAnimation("Attack02Start_BowAnim", "Models\\BowStance\\Attack02Start_BowAnim.fbx");
-		AddFbxForAnimation("DashBackward_BowAnim", "Models\\BowStance\\DashBackward_BowAnim.fbx");
-		AddFbxForAnimation("DashForward_BowAnim", "Models\\BowStance\\DashForward_BowAnim.fbx");
+		//AddFbxForAnimation("Attack01_BowAnim", "Models\\BowStance\\Attack01_BowAnim.fbx");
+		//AddFbxForAnimation("Attack01Maintain_BowAnim", "Models\\BowStance\\Attack01Maintain_BowAnim.fbx");
+		//AddFbxForAnimation("Attack01RepeatFire_BowAnim", "Models\\BowStance\\Attack01RepeatFire_BowAnim.fbx");
+		//AddFbxForAnimation("Attack01Start_BowAnim", "Models\\BowStance\\Attack01Start_BowAnim.fbx");
+		//AddFbxForAnimation("Attack02Maintain_BowAnim", "Models\\BowStance\\Attack02Maintain_BowAnim.fbx");
+		//AddFbxForAnimation("Attack02RepeatFire_BowAnim", "Models\\BowStance\\Attack02RepeatFire_BowAnim.fbx");
+		//AddFbxForAnimation("Attack02Start_BowAnim", "Models\\BowStance\\Attack02Start_BowAnim.fbx");
+		//AddFbxForAnimation("DashBackward_BowAnim", "Models\\BowStance\\DashBackward_BowAnim.fbx");
+		//AddFbxForAnimation("DashForward_BowAnim", "Models\\BowStance\\DashForward_BowAnim.fbx");
 
 		AddFbxForAnimation("Walk_BowAnim", "Models\\BowStance\\Walk_BowAnim.fbx");
 		AddFbxForAnimation("WalkBack_BowAnim", "Models\\BowStance\\WalkBack_BowAnim.fbx");
@@ -60,16 +62,16 @@ void TerrainScene::BuildObjects()
 	AnimatorController* controller = new AnimatorController();
 	//*** AnimatorController ***//
 	{
-		controller->AddState("Attack01_BowAnim", animationClips["Attack01_BowAnim"].get());
-		controller->AddState("Attack01Maintain_BowAnim", animationClips["Attack01Maintain_BowAnim"].get());
-		controller->AddState("Attack01RepeatFire_BowAnim", animationClips["Attack01RepeatFire_BowAnim"].get());
-		controller->AddState("Attack01Start_BowAnim", animationClips["Attack01Start_BowAnim"].get());
-		controller->AddState("Attack02Maintain_BowAnim", animationClips["Attack02Maintain_BowAnim"].get());
-		controller->AddState("Attack02RepeatFire_BowAnim", animationClips["Attack02RepeatFire_BowAnim"].get());
-		controller->AddState("Attack02Start_BowAnim", animationClips["Attack02Start_BowAnim"].get());
-		controller->AddState("DashBackward_BowAnim", animationClips["DashBackward_BowAnim"].get());
-		controller->AddState("DashForward_BowAnim", animationClips["DashForward_BowAnim"].get());
-
+		//controller->AddState("Attack01_BowAnim", animationClips["Attack01_BowAnim"].get());
+		//controller->AddState("Attack01Maintain_BowAnim", animationClips["Attack01Maintain_BowAnim"].get());
+		//controller->AddState("Attack01RepeatFire_BowAnim", animationClips["Attack01RepeatFire_BowAnim"].get());
+		//controller->AddState("Attack01Start_BowAnim", animationClips["Attack01Start_BowAnim"].get());
+		//controller->AddState("Attack02Maintain_BowAnim", animationClips["Attack02Maintain_BowAnim"].get());
+		//controller->AddState("Attack02RepeatFire_BowAnim", animationClips["Attack02RepeatFire_BowAnim"].get());
+		//controller->AddState("Attack02Start_BowAnim", animationClips["Attack02Start_BowAnim"].get());
+		//controller->AddState("DashBackward_BowAnim", animationClips["DashBackward_BowAnim"].get());
+		//controller->AddState("DashForward_BowAnim", animationClips["DashForward_BowAnim"].get());
+		//
 		controller->AddParameterFloat("Speed");
 		controller->AddParameterFloat("HoriSpeed");
 
@@ -178,8 +180,8 @@ void TerrainScene::BuildObjects()
 	
 			auto anim = ritem->AddComponent<Animator>();
 			anim->controller = controller;
-			anim->state = &controller->states[name[i++]];
-			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->state));
+			//anim->state = &controller->states[name[i++]];
+			//anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->state));
 	
 			if (!x && !z)
 			{
@@ -239,15 +241,66 @@ void TerrainScene::BuildObjects()
 		GameObject* grid = CreateEmpty();
 		grid->GetComponent<Transform>()->position -= {128, 10, 128};
 		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;
-		grid->AddComponent<Renderer>()->materials.push_back(3);
+		grid->AddComponent<Renderer>()->materials.push_back(4);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
-		TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
-		tp->terrain = grid;
-		tp->prefab = prefab;
-		tp->heightMap = m_pHeightMapImage;
-		tp->mesh = gridMesh;
+		//TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
+		//tp->terrain = grid;
+		//tp->prefab = prefab;
+		//tp->heightMap = m_pHeightMapImage;
+		//tp->mesh = gridMesh;
 	}
 	
+	// billboard points
+	struct TreeSpriteVertex
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT2 Size;
+	};
+	std::vector<TreeSpriteVertex> vertices;
+
+	const int width = 128, length = 128;
+	vertices.reserve(width * length * 4);
+	for (int i = -width; i < width; ++i)
+	{
+		for (int j = -length; j < length; ++j)
+		{
+			TreeSpriteVertex v;
+			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i + width, j + length, m_pHeightMapImage) - 10, j);
+			v.Size = XMFLOAT2(2.0f, 2.0f);
+			vertices.push_back(v);
+		}
+	}
+
+	auto geo = std::make_unique<Mesh>();
+	const UINT vbByteSize = (UINT)vertices.size() * sizeof(TreeSpriteVertex);
+
+	geo->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+	D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU);
+	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+	auto device = Graphics::Instance()->device;
+	auto commandList = Graphics::Instance()->commandList;
+
+	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+
+	geo->VertexByteStride = sizeof(TreeSpriteVertex);
+	geo->VertexBufferByteSize = vbByteSize;
+
+	SubmeshGeometry submesh;
+	submesh.IndexCount = vertices.size();
+	submesh.StartIndexLocation = 0;
+	submesh.BaseVertexLocation = 0;
+
+	geo->DrawArgs["submesh"] = submesh;
+	geometries["treeSpritesGeo"] = std::move(geo);
+
+	GameObject* billboards = CreateEmpty();
+	//billboards->GetComponent<Transform>()->position -= {128, 10, 128};
+	auto mesh = billboards->AddComponent<MeshFilter>()->mesh = geometries["treeSpritesGeo"].get();
+	billboards->AddComponent<Renderer>()->materials.push_back(6);
+	renderObjectsLayer[(int)RenderLayer::TreeBillboard][mesh].gameObjects.push_back(billboards);
+
+
 	for (int i = 0; i < 5; ++i)
 	{
 		GameObject* leftCylRItem = CreateEmpty();
