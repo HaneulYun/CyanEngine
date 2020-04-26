@@ -2,14 +2,16 @@
 
 struct VertexIn
 {
-	float3 PosW : POSITION;
+	float3 PosL : POSITION;
 	float2 SizeW : SIZE;
+	float3 Look : LOOK;
 };
 
 struct VertexOut
 {
 	float3 CenterW : POSITION;
 	float2 SizeW : SIZE;
+	float3 Look : LOOK;
 
 	nointerpolation uint MatIndex : MATINDEX;
 };
@@ -32,9 +34,9 @@ VertexOut VS(VertexIn vin, uint instanceID : SV_InstanceID)
 	VertexOut vout;
 	// Just pass data over to geometry shader.
 	vout.MatIndex = gMaterialIndexData[instanceID * instData.MaterialIndexStride].MaterialIndex;
-	//vout.CenterW = mul(float4(vin.PosW, 1.0f), world).xyz;
-	vout.CenterW = vin.PosW;
+	vout.CenterW = mul(float4(vin.PosL, 1.0f), gInstanceData[instanceID].World).xyz;
 	vout.SizeW = vin.SizeW;
+	vout.Look = vin.Look;
 
 	return vout;
 }
@@ -52,10 +54,7 @@ void GS(point VertexOut gin[1],
 	//
 
 	float3 up = float3(0.0f, 1.0f, 0.0f);
-	float3 look = gEyePosW - gin[0].CenterW;
-	look.y = 0.0f; // y-axis aligned, so project to xz-plane
-	look = normalize(look);
-	float3 right = cross(up, look);
+	float3 right = cross(up, gin[0].Look);
 
 	//
 	// Compute triangle strip vertices (quad) in world space.
@@ -88,7 +87,7 @@ void GS(point VertexOut gin[1],
 	{
 		gout.PosH = mul(v[i], gViewProj);
 		gout.PosW = v[i].xyz;
-		gout.NormalW = look;
+		gout.NormalW = gin[0].Look;
 		gout.TexC = texC[i];
 		gout.PrimID = primID;
 		gout.MatIndex = gin[0].MatIndex;

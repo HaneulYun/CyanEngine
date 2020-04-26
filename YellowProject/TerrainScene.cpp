@@ -12,6 +12,7 @@ void TerrainScene::BuildObjects()
 		AddTexture(3, "stoneTex", L"Textures\\stone.dds");
 		AddTexture(4, "tileTex", L"Textures\\tile.dds");
 		AddTexture(6, "tree", L"Textures\\tree01S.dds");
+		AddTexture(7, "grass", L"Textures\\Grass02.dds");	
 	}
 
 	//*** Material ***//
@@ -23,6 +24,7 @@ void TerrainScene::BuildObjects()
 		AddMaterial(4, "tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, Matrix4x4::MatrixScaling(8, 8, 1));
 		AddMaterial(5, "sky", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 1.0f);
 		AddMaterial(6, "tree0", 6, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
+		AddMaterial(7, "grass", 7, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
 		//for (int i = 0; i < 5; ++i)
 		//	AddMaterial(5 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
 	}
@@ -255,18 +257,20 @@ void TerrainScene::BuildObjects()
 	{
 		XMFLOAT3 Pos;
 		XMFLOAT2 Size;
+		XMFLOAT3 look;
 	};
 	std::vector<TreeSpriteVertex> vertices;
-
-	const int width = 128, length = 128;
-	vertices.reserve(width * length * 4);
-	for (int i = -width; i < width; ++i)
+	int size = 4;
+	const int width = 256, length = 256;
+	vertices.reserve(width * length);
+	for (int i = 0; i < width; ++i)
 	{
-		for (int j = -length; j < length; ++j)
+		for (int j = 0; j < length; ++j)
 		{
 			TreeSpriteVertex v;
-			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i + width, j + length, m_pHeightMapImage) - 10, j);
-			v.Size = XMFLOAT2(2.0f, 2.0f);
+			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, m_pHeightMapImage) + size / 2, j);
+			v.Size = XMFLOAT2(size, size);
+			v.look = XMFLOAT3(MathHelper::RandF(0.0f, 1.0f), 0.0f, MathHelper::RandF(0.0f, 1.0f));
 			vertices.push_back(v);
 		}
 	}
@@ -295,9 +299,9 @@ void TerrainScene::BuildObjects()
 	geometries["treeSpritesGeo"] = std::move(geo);
 
 	GameObject* billboards = CreateEmpty();
-	//billboards->GetComponent<Transform>()->position -= {128, 10, 128};
+	billboards->GetComponent<Transform>()->position -= {128, 10, 128};
 	auto mesh = billboards->AddComponent<MeshFilter>()->mesh = geometries["treeSpritesGeo"].get();
-	billboards->AddComponent<Renderer>()->materials.push_back(6);
+	billboards->AddComponent<Renderer>()->materials.push_back(7);
 	renderObjectsLayer[(int)RenderLayer::TreeBillboard][mesh].gameObjects.push_back(billboards);
 
 
