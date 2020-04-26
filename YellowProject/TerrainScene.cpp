@@ -260,7 +260,7 @@ void TerrainScene::BuildObjects()
 		XMFLOAT3 look;
 	};
 	std::vector<TreeSpriteVertex> vertices;
-	int size = 4;
+	int sizex = 2, sizey = 4;
 	const int width = 256, length = 256;
 	vertices.reserve(width * length);
 	for (int i = 0; i < width; ++i)
@@ -268,8 +268,8 @@ void TerrainScene::BuildObjects()
 		for (int j = 0; j < length; ++j)
 		{
 			TreeSpriteVertex v;
-			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, m_pHeightMapImage) + size / 2, j);
-			v.Size = XMFLOAT2(size, size);
+			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, m_pHeightMapImage) + sizey / 2, j);
+			v.Size = XMFLOAT2(sizex, sizey);
 			v.look = XMFLOAT3(MathHelper::RandF(0.0f, 1.0f), 0.0f, MathHelper::RandF(0.0f, 1.0f));
 			vertices.push_back(v);
 		}
