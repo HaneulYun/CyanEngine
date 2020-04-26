@@ -71,6 +71,13 @@ void GSMain(point GIn gin[1], uint primID : SV_PrimitiveID, inout TriangleStream
 	}
 }
 
+[maxvertexcount(4)]
+void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
+{
+	vin[0].PosW.x += 0.001f;
+	pointStream.Append(vin[0]);
+}
+
 float4 PSMain(PIn input) : SV_TARGET
 {
 	return float4(1, 0, 0, 1);

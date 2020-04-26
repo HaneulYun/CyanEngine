@@ -303,8 +303,9 @@ void Graphics::RenderShadowMap()
 	// For each render item...
 	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 	{
-		if (layerIndex == (int)RenderLayer::Sky ||
-			layerIndex == (int)RenderLayer::UI)
+		if (layerIndex == (int)RenderLayer::Particle ||
+			layerIndex == (int)RenderLayer::Sky ||
+			layerIndex == (int)RenderLayer::UI )
 			continue;
 		else if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 			commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());
@@ -419,8 +420,6 @@ void Graphics::RenderObjects(int layerIndex)
 		commandList->OMSetStencilRef(1);
 		commandList->SetPipelineState(pipelineStates["ui"].Get());
 	}
-	else if (layerIndex == (int)RenderLayer::Particle)
-		commandList->SetPipelineState(pipelineStates["particle"].Get());
 	else
 		commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
@@ -440,8 +439,11 @@ void Graphics::RenderObjects(int layerIndex)
 		commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
 
 		commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
+
 		commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
-		commandList->IASetIndexBuffer(&mesh->IndexBufferView());
+		
+		if (layerIndex != (int)RenderLayer::Particle)
+			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
 
 		int i = 0;
 		for (auto& submesh : mesh->DrawArgs)
@@ -449,10 +451,22 @@ void Graphics::RenderObjects(int layerIndex)
 			commandList->SetGraphicsRootShaderResourceView(7,
 				matIndexBuffer->Resource()->GetGPUVirtualAddress()
 				+ sizeof(MatIndexData) * i++);
-			commandList->DrawIndexedInstanced(
-				submesh.second.IndexCount, objects.size(),
-				submesh.second.StartIndexLocation,
-				submesh.second.BaseVertexLocation, 0);
+			if (layerIndex == (int)RenderLayer::Particle)
+			{
+				commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
+				D3D12_STREAM_OUTPUT_BUFFER_VIEW view;
+				view.BufferLocation = mesh->VertexBufferGPU->GetGPUVirtualAddress();
+				view.SizeInBytes = mesh->VertexBufferByteSize;
+				view.BufferFilledSizeLocation = NULL;
+
+				commandList->SOSetTargets(0, 1, &view);
+				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+				commandList->SetPipelineState(pipelineStates["particle"].Get());
+				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+			}
+			else
+				commandList->DrawIndexedInstanced( submesh.second.IndexCount, objects.size(),
+					submesh.second.StartIndexLocation, submesh.second.BaseVertexLocation, 0);
 		}
 	}
 }
@@ -792,6 +806,7 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> particleVS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> particleGS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GSMain", "gs_5_1");
 	ComPtr<ID3DBlob> particlePS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "PSMain", "ps_5_1");
+	ComPtr<ID3DBlob> particleGSMaker = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GSParticleMaker", "gs_5_1");
 
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
@@ -891,9 +906,28 @@ void Graphics::LoadAssets()
 	particlePsoDesc.GS = CD3DX12_SHADER_BYTECODE(particleGS.Get());
 	particlePsoDesc.PS = CD3DX12_SHADER_BYTECODE(particlePS.Get());
 	particlePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	device->CreateGraphicsPipelineState(&particlePsoDesc, IID_PPV_ARGS(&pipelineStates["particle"]));
 
-	HRESULT hr = device->CreateGraphicsPipelineState(&particlePsoDesc, IID_PPV_ARGS(&pipelineStates["particle"]));
-	ThrowIfFailed(hr);
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC particleMakerPsoDesc = opaquePsoDesc;
+	particleMakerPsoDesc.InputLayout = { inputElementDescs_particle, _countof(inputElementDescs_particle) };
+	particleMakerPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	particleMakerPsoDesc.VS = CD3DX12_SHADER_BYTECODE(particleVS.Get());
+	particleMakerPsoDesc.GS = CD3DX12_SHADER_BYTECODE(particleGSMaker.Get());
+	particleMakerPsoDesc.PS = {};
+	particleMakerPsoDesc.DepthStencilState.StencilEnable = false;
+	particleMakerPsoDesc.DepthStencilState.DepthEnable = false;
+	particleMakerPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	
+	D3D12_SO_DECLARATION_ENTRY soDecl[]
+	{
+		{0, "POSITION", 0, 0, 3, 0},
+		{0, "SIZE", 0, 0, 2, 0},
+	};
+	particleMakerPsoDesc.StreamOutput.pSODeclaration = soDecl;
+	particleMakerPsoDesc.StreamOutput.NumEntries = _countof(soDecl);
+	particleMakerPsoDesc.StreamOutput.pBufferStrides = NULL;
+	particleMakerPsoDesc.StreamOutput.NumStrides = particleMakerPsoDesc.StreamOutput.RasterizedStream = 0;
+	device->CreateGraphicsPipelineState(&particleMakerPsoDesc, IID_PPV_ARGS(&pipelineStates["particleMaker"]));
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = 7;
