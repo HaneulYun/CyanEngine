@@ -448,19 +448,38 @@ void Graphics::RenderObjects(int layerIndex)
 		int i = 0;
 		for (auto& submesh : mesh->DrawArgs)
 		{
-			commandList->SetGraphicsRootShaderResourceView(7,
-				matIndexBuffer->Resource()->GetGPUVirtualAddress()
-				+ sizeof(MatIndexData) * i++);
+			commandList->SetGraphicsRootShaderResourceView(7, matIndexBuffer->Resource()->GetGPUVirtualAddress() + sizeof(MatIndexData) * i++);
 			if (layerIndex == (int)RenderLayer::Particle)
 			{
 				commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
-				D3D12_STREAM_OUTPUT_BUFFER_VIEW view;
-				view.BufferLocation = mesh->VertexBufferGPU->GetGPUVirtualAddress();
-				view.SizeInBytes = mesh->VertexBufferByteSize;
-				view.BufferFilledSizeLocation = NULL;
+			
+				char* data = new char[sizeof(UINT64)];
+				memset(data, 0, sizeof(UINT64));
+				D3D12_SUBRESOURCE_DATA subResourceData = { data, sizeof(UINT64), sizeof(UINT64) };
+				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
+				UpdateSubresources<1>(commandList.Get(), mesh->VertexStreamBufferGPU.Get(), mesh->VertexStreamBufferUploader.Get(), 0, 0, 1, &subResourceData);
+				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
 
-				commandList->SOSetTargets(0, 1, &view);
+
+				D3D12_STREAM_OUTPUT_BUFFER_VIEW sov;
+				sov.BufferFilledSizeLocation = mesh->VertexStreamBufferGPU->GetGPUVirtualAddress();
+				sov.BufferLocation = sov.BufferFilledSizeLocation + sizeof(UINT64);
+				sov.SizeInBytes = mesh->VertexBufferByteSize * 10;
+				
+				D3D12_VERTEX_BUFFER_VIEW vbv;
+				vbv.BufferLocation = mesh->VertexBufferGPU->GetGPUVirtualAddress() + sizeof(UINT64);
+				vbv.StrideInBytes = mesh->VertexByteStride;
+				vbv.SizeInBytes = mesh->VertexBufferByteSize;
+
+				commandList->SOSetTargets(0, 1, &sov);
+				commandList->IASetVertexBuffers(0, 1, &vbv);
 				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+				commandList->SOSetTargets(0, 1, &sov);
+				
+				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
+				commandList->CopyResource(mesh->VertexBufferReadback.Get(), mesh->VertexStreamBufferGPU.Get());
+				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
+
 				commandList->SetPipelineState(pipelineStates["particle"].Get());
 				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
 			}
@@ -583,6 +602,36 @@ void Graphics::PostRender()
 
 	currFrameResource->Fence = ++fenceValue;
 	commandQueue->Signal(fence.Get(), fenceValue);
+
+	WaitForPreviousFrame();
+	
+	for (auto& renderSets : Scene::scene->renderObjectsLayer[(int)RenderLayer::Particle])
+	{
+		auto& mesh = renderSets.first;
+		auto& objects = renderSets.second.gameObjects;
+
+		UINT8* p;
+		mesh->VertexBufferReadback->Map(0, NULL, reinterpret_cast<void**>(&p));
+
+		UINT64 size = *reinterpret_cast<UINT64*>(p);
+		FrameResource::ParticleSpriteVertex* t = reinterpret_cast<FrameResource::ParticleSpriteVertex*>(p+8);
+
+		// mesh->DrawArgs["submesh"].IndexCount =
+		
+		auto p0 = t + 0;
+		auto p1 = t + 1;
+		auto p2 = t + 2;
+		auto p3 = t + 3;
+		auto p4 = t + 4;
+		auto p5 = t + 5;
+		auto p6 = t + 6;
+		auto p7 = t + 7;
+		auto p8 = t + 8;
+
+		mesh->VertexBufferReadback->Unmap(0, nullptr);
+
+		std::swap(mesh->VertexBufferGPU, mesh->VertexStreamBufferGPU);
+	}
 }
 
 void Graphics::Destroy()
@@ -828,7 +877,8 @@ void Graphics::LoadAssets()
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs_particle[]
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 
@@ -889,7 +939,6 @@ void Graphics::LoadAssets()
 	shadowPsoDesc.pRootSignature = rootSignature.Get();
 	shadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_shadow.Get());
 	shadowPsoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader_shadow.Get());
-	// Shadow map pass does not have a render target.
 	shadowPsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 	shadowPsoDesc.NumRenderTargets = 0;
 	device->CreateGraphicsPipelineState(&shadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_opaque"]));
@@ -922,11 +971,14 @@ void Graphics::LoadAssets()
 	{
 		{0, "POSITION", 0, 0, 3, 0},
 		{0, "SIZE", 0, 0, 2, 0},
+		{0, "TIME", 0, 0, 1, 0}
 	};
+
 	particleMakerPsoDesc.StreamOutput.pSODeclaration = soDecl;
 	particleMakerPsoDesc.StreamOutput.NumEntries = _countof(soDecl);
 	particleMakerPsoDesc.StreamOutput.pBufferStrides = NULL;
-	particleMakerPsoDesc.StreamOutput.NumStrides = particleMakerPsoDesc.StreamOutput.RasterizedStream = 0;
+	particleMakerPsoDesc.StreamOutput.NumStrides = 0;
+	particleMakerPsoDesc.StreamOutput.RasterizedStream = 0;
 	device->CreateGraphicsPipelineState(&particleMakerPsoDesc, IID_PPV_ARGS(&pipelineStates["particleMaker"]));
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};

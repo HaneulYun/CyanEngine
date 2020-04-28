@@ -77,10 +77,11 @@ struct FrameResource
 		Vector3 BoneWeights{};
 		BYTE BoneIndices[4]{};
 	};
-	struct TreeSpriteVertex
+	struct ParticleSpriteVertex
 	{
 		Vector3 Pos{};
 		Vector2 Size{};
+		float LifeTime{};
 	};
 public:
     
