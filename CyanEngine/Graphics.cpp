@@ -249,6 +249,8 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		float mSunTheta = 1.25f * XM_PI;
 		float mSunPhi = XM_PIDIV4;
 
+		passConstants.DeltaTime = Time::deltaTime;
+
 		passConstants.EyePosW = pos;
 		passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 		passConstants.Lights[0].Direction = rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
@@ -459,17 +461,17 @@ void Graphics::RenderObjects(int layerIndex)
 				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
 				UpdateSubresources<1>(commandList.Get(), mesh->VertexStreamBufferGPU.Get(), mesh->VertexStreamBufferUploader.Get(), 0, 0, 1, &subResourceData);
 				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
-
+				delete data;
 
 				D3D12_STREAM_OUTPUT_BUFFER_VIEW sov;
 				sov.BufferFilledSizeLocation = mesh->VertexStreamBufferGPU->GetGPUVirtualAddress();
 				sov.BufferLocation = sov.BufferFilledSizeLocation + sizeof(UINT64);
-				sov.SizeInBytes = mesh->VertexBufferByteSize * 10;
+				sov.SizeInBytes = mesh->VertexBufferByteSize * 100;
 				
 				D3D12_VERTEX_BUFFER_VIEW vbv;
 				vbv.BufferLocation = mesh->VertexBufferGPU->GetGPUVirtualAddress() + sizeof(UINT64);
 				vbv.StrideInBytes = mesh->VertexByteStride;
-				vbv.SizeInBytes = mesh->VertexBufferByteSize;
+				vbv.SizeInBytes = mesh->VertexBufferByteSize * submesh.second.IndexCount;
 
 				commandList->SOSetTargets(0, 1, &sov);
 				commandList->IASetVertexBuffers(0, 1, &vbv);
@@ -616,17 +618,7 @@ void Graphics::PostRender()
 		UINT64 size = *reinterpret_cast<UINT64*>(p);
 		FrameResource::ParticleSpriteVertex* t = reinterpret_cast<FrameResource::ParticleSpriteVertex*>(p+8);
 
-		// mesh->DrawArgs["submesh"].IndexCount =
-		
-		auto p0 = t + 0;
-		auto p1 = t + 1;
-		auto p2 = t + 2;
-		auto p3 = t + 3;
-		auto p4 = t + 4;
-		auto p5 = t + 5;
-		auto p6 = t + 6;
-		auto p7 = t + 7;
-		auto p8 = t + 8;
+		mesh->DrawArgs["submesh"].IndexCount = size / sizeof(FrameResource::ParticleSpriteVertex);
 
 		mesh->VertexBufferReadback->Unmap(0, nullptr);
 
@@ -878,7 +870,10 @@ void Graphics::LoadAssets()
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "DIRECTION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "SPEED", 0, DXGI_FORMAT_R32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TYPE", 0, DXGI_FORMAT_R32_UINT, 0, 40, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 
@@ -971,7 +966,10 @@ void Graphics::LoadAssets()
 	{
 		{0, "POSITION", 0, 0, 3, 0},
 		{0, "SIZE", 0, 0, 2, 0},
-		{0, "TIME", 0, 0, 1, 0}
+		{0, "TIME", 0, 0, 1, 0},
+		{0, "DIRECTION", 0, 0, 3, 0},
+		{0, "SPEED", 0, 0, 1, 0},
+		{0, "TYPE", 0, 0, 1, 0}
 	};
 
 	particleMakerPsoDesc.StreamOutput.pSODeclaration = soDecl;

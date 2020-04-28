@@ -82,6 +82,9 @@ struct FrameResource
 		Vector3 Pos{};
 		Vector2 Size{};
 		float LifeTime{};
+		Vector3 Direction{};
+		float Speed{};
+		UINT Type{};
 	};
 public:
     

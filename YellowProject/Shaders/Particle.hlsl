@@ -5,6 +5,9 @@ struct VIn
 	float3 PosW		: POSITION;
 	float2 SizeW	: SIZE;
 	float LifeTime  : TIME;
+	float3 Dir		: DIRECTION;
+	float Speed		: SPEED;
+	uint Type		: TYPE;
 };
 
 struct GIn
@@ -12,6 +15,9 @@ struct GIn
 	float3 CenterW	: POSITION;
 	float2 SizeW	: SIZE;
 	float LifeTime  : TIME;
+	float3 Dir		: DIRECTION;
+	float Speed		: SPEED;
+	uint Type		: TYPE;
 };
 
 struct PIn
@@ -30,6 +36,9 @@ GIn VSMain(VIn vin)
 	gin.CenterW = vin.PosW;
 	gin.SizeW = vin.SizeW;
 	gin.LifeTime = vin.LifeTime;
+	gin.Dir = vin.Dir;
+	gin.Speed = vin.Speed;
+	gin.Type = vin.Type;
 ;
 	return gin;
 }
@@ -77,17 +86,34 @@ void GSMain(point GIn gin[1], uint primID : SV_PrimitiveID, inout TriangleStream
 [maxvertexcount(4)]
 void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
 {
-	VIn vout[2];
-	vout[0] = vin[0];
-	vout[0].PosW.x += 0.0005f;
-	vout[0].PosW.y += 0.0005f;
-						
-	vout[1] = vin[0];	
-	vout[1].PosW.x -= 0.0005f;
-	vout[1].PosW.y += 0.0005f;
+	vin[0].LifeTime -= gDeltaTime;
 
-	pointStream.Append(vout[0]);
-	pointStream.Append(vout[1]);
+	if (vin[0].Type == 0)
+	{
+		if (vin[0].LifeTime < 0)
+		{
+			vin[0].LifeTime = 0.2;
+
+			VIn vout;
+			vout = vin[0];
+
+			vout.Type = 1;
+			vout.LifeTime = 2;
+
+			pointStream.Append(vout);
+		}
+		pointStream.Append(vin[0]);
+	}
+	if (vin[0].Type == 1)
+	{
+		if (vin[0].LifeTime > 0)
+		{
+			VIn vout;
+			vout = vin[0];
+			vout.PosW.x += 0.01;
+			pointStream.Append(vout);
+		}
+	}
 }
 
 float4 PSMain(PIn input) : SV_TARGET

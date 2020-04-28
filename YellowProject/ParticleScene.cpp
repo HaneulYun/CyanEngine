@@ -9,7 +9,11 @@ std::unique_ptr<Mesh> MakeParticle()
 
 	mesh->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
 	std::vector<FrameResource::ParticleSpriteVertex> vertices;
-	vertices.emplace_back(FrameResource::ParticleSpriteVertex{ {0, 5, 0} });
+	FrameResource::ParticleSpriteVertex vertex;
+	vertex.Pos = { 0, 0, 0 };
+	vertex.Type = 0;
+	vertex.LifeTime = 1;
+	vertices.emplace_back(vertex);
 
 	const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::ParticleSpriteVertex);
 	D3DCreateBlob(vbByteSize, &mesh->VertexBufferCPU);
@@ -17,24 +21,24 @@ std::unique_ptr<Mesh> MakeParticle()
 
 	device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT, 0, 0), D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 10, D3D12_RESOURCE_FLAG_NONE, D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 100, D3D12_RESOURCE_FLAG_NONE, D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT),
 		D3D12_RESOURCE_STATE_STREAM_OUT, nullptr, IID_PPV_ARGS(mesh->VertexBufferGPU.GetAddressOf()));
 	device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 10),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 100),
 		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mesh->VertexBufferUploader.GetAddressOf()));
 	device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK), D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 10),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 100),
 		D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(mesh->VertexBufferReadback.GetAddressOf()));
 
 	device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT, 0, 0), D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 10, D3D12_RESOURCE_FLAG_NONE, D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 100, D3D12_RESOURCE_FLAG_NONE, D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT),
 		D3D12_RESOURCE_STATE_STREAM_OUT, nullptr, IID_PPV_ARGS(mesh->VertexStreamBufferGPU.GetAddressOf()));
 	device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 10),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64) + vbByteSize * 100),
 		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mesh->VertexStreamBufferUploader.GetAddressOf()));
 
 	char* data = new char[sizeof(UINT64) + vbByteSize];
