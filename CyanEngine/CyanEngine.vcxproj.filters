@@ -184,6 +184,9 @@
     <ClInclude Include="Matrix4x4.h">
       <Filter>0_00_CyanEngine\21_Math</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -282,6 +285,9 @@
     </ClCompile>
     <ClCompile Include="Vector3.cpp">
       <Filter>0_00_CyanEngine\21_Math</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -59,5 +59,4 @@ void MaterialScene::BuildObjects()
 		}
 	}
 
-
 }

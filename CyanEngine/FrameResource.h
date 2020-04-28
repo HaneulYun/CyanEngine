@@ -77,6 +77,15 @@ struct FrameResource
 		Vector3 BoneWeights{};
 		BYTE BoneIndices[4]{};
 	};
+	struct ParticleSpriteVertex
+	{
+		Vector3 Pos{};
+		Vector2 Size{};
+		float LifeTime{};
+		Vector3 Direction{};
+		float Speed{};
+		UINT Type{};
+	};
 public:
     
 	FrameResource(ID3D12Device* device, UINT passCount, UINT materialCount);

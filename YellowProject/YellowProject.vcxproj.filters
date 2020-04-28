@@ -72,6 +72,9 @@
     <ClInclude Include="TerrainScene.h">
       <Filter>Assets\Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleScene.h">
+      <Filter>Assets\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
@@ -87,6 +90,9 @@
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="MenuScene.cpp">
+      <Filter>Assets\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -123,6 +129,9 @@
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\Grass.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

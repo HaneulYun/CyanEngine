@@ -18,14 +18,19 @@ public:
 
 	D3D12_PRIMITIVE_TOPOLOGY PrimitiveType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
-	Microsoft::WRL::ComPtr<ID3DBlob> VertexBufferCPU{ nullptr };
-	Microsoft::WRL::ComPtr<ID3DBlob> IndexBufferCPU{ nullptr };
+	ComPtr<ID3DBlob> VertexBufferCPU{ nullptr };
+	ComPtr<ID3DBlob> IndexBufferCPU{ nullptr };
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> VertexBufferGPU{ nullptr };
-	Microsoft::WRL::ComPtr<ID3D12Resource> IndexBufferGPU{ nullptr };
+	ComPtr<ID3D12Resource> VertexBufferGPU{ nullptr };
+	ComPtr<ID3D12Resource> IndexBufferGPU{ nullptr };
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> VertexBufferUploader{ nullptr };
-	Microsoft::WRL::ComPtr<ID3D12Resource> IndexBufferUploader{ nullptr };
+	ComPtr<ID3D12Resource> VertexBufferUploader{ nullptr };
+	ComPtr<ID3D12Resource> IndexBufferUploader{ nullptr };
+
+	ComPtr<ID3D12Resource> VertexStreamBufferGPU{ nullptr };
+	ComPtr<ID3D12Resource> VertexStreamBufferUploader{ nullptr };
+
+	ComPtr<ID3D12Resource> VertexBufferReadback{ nullptr };
 
 	UINT VertexByteStride{ 0 };
 	UINT VertexBufferByteSize{ 0 };

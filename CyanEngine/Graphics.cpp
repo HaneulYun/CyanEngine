@@ -307,7 +307,8 @@ void Graphics::RenderShadowMap()
 	// For each render item...
 	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 	{
-		if (layerIndex == (int)RenderLayer::Sky ||
+		if (layerIndex == (int)RenderLayer::Particle ||
+			layerIndex == (int)RenderLayer::Sky ||
 			layerIndex == (int)RenderLayer::UI ||
 			layerIndex == (int)RenderLayer::Grass)
 			continue;
@@ -451,6 +452,7 @@ void Graphics::RenderObjects(int layerIndex)
 		commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
 
 		commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
+
 		commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
 		if (mesh->IndexBufferByteSize)
 			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
@@ -458,18 +460,44 @@ void Graphics::RenderObjects(int layerIndex)
 		int i = 0;
 		for (auto& submesh : mesh->DrawArgs)
 		{
-			commandList->SetGraphicsRootShaderResourceView(7,
-				matIndexBuffer->Resource()->GetGPUVirtualAddress()
-				+ sizeof(MatIndexData) * i++);
-			if (mesh->IndexBufferByteSize)
-				commandList->DrawIndexedInstanced(
-					submesh.second.IndexCount, objects.size(),
-					submesh.second.StartIndexLocation,
-					submesh.second.BaseVertexLocation, 0);
+			commandList->SetGraphicsRootShaderResourceView(7, matIndexBuffer->Resource()->GetGPUVirtualAddress() + sizeof(MatIndexData) * i++);
+			if (layerIndex == (int)RenderLayer::Particle)
+			{
+				commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
+			
+				char* data = new char[sizeof(UINT64)];
+				memset(data, 0, sizeof(UINT64));
+				D3D12_SUBRESOURCE_DATA subResourceData = { data, sizeof(UINT64), sizeof(UINT64) };
+				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
+				UpdateSubresources<1>(commandList.Get(), mesh->VertexStreamBufferGPU.Get(), mesh->VertexStreamBufferUploader.Get(), 0, 0, 1, &subResourceData);
+				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
+				delete data;
+
+				D3D12_STREAM_OUTPUT_BUFFER_VIEW sov;
+				sov.BufferFilledSizeLocation = mesh->VertexStreamBufferGPU->GetGPUVirtualAddress();
+				sov.BufferLocation = sov.BufferFilledSizeLocation + sizeof(UINT64);
+				sov.SizeInBytes = mesh->VertexBufferByteSize * 100;
+				
+				D3D12_VERTEX_BUFFER_VIEW vbv;
+				vbv.BufferLocation = mesh->VertexBufferGPU->GetGPUVirtualAddress() + sizeof(UINT64);
+				vbv.StrideInBytes = mesh->VertexByteStride;
+				vbv.SizeInBytes = mesh->VertexBufferByteSize * submesh.second.IndexCount;
+
+				commandList->SOSetTargets(0, 1, &sov);
+				commandList->IASetVertexBuffers(0, 1, &vbv);
+				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+				commandList->SOSetTargets(0, 1, &sov);
+				
+				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
+				commandList->CopyResource(mesh->VertexBufferReadback.Get(), mesh->VertexStreamBufferGPU.Get());
+				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
+
+				commandList->SetPipelineState(pipelineStates["particle"].Get());
+				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+			}
 			else
-				commandList->DrawInstanced(
-					submesh.second.IndexCount, objects.size(),
-					submesh.second.StartIndexLocation, 0);
+				commandList->DrawIndexedInstanced( submesh.second.IndexCount, objects.size(),
+					submesh.second.StartIndexLocation, submesh.second.BaseVertexLocation, 0);
 		}
 	}
 }
@@ -586,6 +614,26 @@ void Graphics::PostRender()
 
 	currFrameResource->Fence = ++fenceValue;
 	commandQueue->Signal(fence.Get(), fenceValue);
+
+	WaitForPreviousFrame();
+	
+	for (auto& renderSets : Scene::scene->renderObjectsLayer[(int)RenderLayer::Particle])
+	{
+		auto& mesh = renderSets.first;
+		auto& objects = renderSets.second.gameObjects;
+
+		UINT8* p;
+		mesh->VertexBufferReadback->Map(0, NULL, reinterpret_cast<void**>(&p));
+
+		UINT64 size = *reinterpret_cast<UINT64*>(p);
+		FrameResource::ParticleSpriteVertex* t = reinterpret_cast<FrameResource::ParticleSpriteVertex*>(p+8);
+
+		mesh->DrawArgs["submesh"].IndexCount = size / sizeof(FrameResource::ParticleSpriteVertex);
+
+		mesh->VertexBufferReadback->Unmap(0, nullptr);
+
+		std::swap(mesh->VertexBufferGPU, mesh->VertexStreamBufferGPU);
+	}
 }
 
 void Graphics::Destroy()
@@ -722,28 +770,17 @@ void Graphics::InitDirect2D()
 	float dpiX;
 	float dpiY;
 	d2dFactory->GetDesktopDpi(&dpiX, &dpiY);
-	D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-		D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpiX, dpiY);
+	D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpiX, dpiY);
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
-		device11On12->CreateWrappedResource(
-			renderTargets[i].Get(),
-			&d3d11Flags,
-			D3D12_RESOURCE_STATE_RENDER_TARGET,
-			D3D12_RESOURCE_STATE_PRESENT,
-			IID_PPV_ARGS(&wrappedBackBuffers[i])
-		);
+		device11On12->CreateWrappedResource(renderTargets[i].Get(), &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, IID_PPV_ARGS(&wrappedBackBuffers[i]));
 
 		ComPtr<IDXGISurface> surface;
 		wrappedBackBuffers[i].As(&surface);
-		deviceContext->CreateBitmapFromDxgiSurface(
-			surface.Get(),
-			&bitmapProperties,
-			&renderTargets2d[i]
-		);
+		deviceContext->CreateBitmapFromDxgiSurface(surface.Get(), &bitmapProperties, &renderTargets2d[i]);
 	}
 }
 
@@ -780,7 +817,9 @@ void Graphics::LoadAssets()
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_STREAM_OUTPUT
+
 	};
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(_countof(rootParameters), rootParameters, _countof(staticSamplers), staticSamplers, rootSignatureFlags);
@@ -815,9 +854,15 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "PSMain", "ps_5_1");
 
+	ComPtr<ID3DBlob> particleVS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "VSMain", "vs_5_1");
+	ComPtr<ID3DBlob> particleGS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GSMain", "gs_5_1");
+	ComPtr<ID3DBlob> particlePS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "PSMain", "ps_5_1");
+	ComPtr<ID3DBlob> particleGSMaker = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GSParticleMaker", "gs_5_1");
+
 	ComPtr<ID3DBlob> grassVS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> grassGS = d3dUtil::CompileShader(L"Shaders\\Grass.hlsl", nullptr, "GS", "gs_5_1");
 	ComPtr<ID3DBlob> grassPS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", alphaTestDefines, "PS", "ps_5_1");
+
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
@@ -834,6 +879,15 @@ void Graphics::LoadAssets()
 		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "WEIGHTS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "BONEINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs_particle[]
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TIME", 0, DXGI_FORMAT_R32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "DIRECTION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "SPEED", 0, DXGI_FORMAT_R32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TYPE", 0, DXGI_FORMAT_R32_UINT, 0, 40, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs_grass[]
@@ -891,18 +945,15 @@ void Graphics::LoadAssets()
 	uiPsoDesc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 	uiPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 	uiPsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
-
 	device->CreateGraphicsPipelineState(&uiPsoDesc, IID_PPV_ARGS(&pipelineStates["ui"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC shadowPsoDesc = opaquePsoDesc;
-	// PSO for shadow map pass.
 	shadowPsoDesc.RasterizerState.DepthBias = 100000;
 	shadowPsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
 	shadowPsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
 	shadowPsoDesc.pRootSignature = rootSignature.Get();
 	shadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_shadow.Get());
 	shadowPsoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader_shadow.Get());
-	// Shadow map pass does not have a render target.
 	shadowPsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 	shadowPsoDesc.NumRenderTargets = 0;
 	device->CreateGraphicsPipelineState(&shadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_opaque"]));
@@ -911,6 +962,42 @@ void Graphics::LoadAssets()
 	skinnedShadowPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
 	skinnedShadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinnedShadow.Get());
 	device->CreateGraphicsPipelineState(&skinnedShadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_skinnedOpaque"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC particlePsoDesc = opaquePsoDesc;
+	particlePsoDesc.InputLayout = { inputElementDescs_particle, _countof(inputElementDescs_particle) };
+	particlePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	particlePsoDesc.VS = CD3DX12_SHADER_BYTECODE(particleVS.Get());
+	particlePsoDesc.GS = CD3DX12_SHADER_BYTECODE(particleGS.Get());
+	particlePsoDesc.PS = CD3DX12_SHADER_BYTECODE(particlePS.Get());
+	particlePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	device->CreateGraphicsPipelineState(&particlePsoDesc, IID_PPV_ARGS(&pipelineStates["particle"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC particleMakerPsoDesc = opaquePsoDesc;
+	particleMakerPsoDesc.InputLayout = { inputElementDescs_particle, _countof(inputElementDescs_particle) };
+	particleMakerPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	particleMakerPsoDesc.VS = CD3DX12_SHADER_BYTECODE(particleVS.Get());
+	particleMakerPsoDesc.GS = CD3DX12_SHADER_BYTECODE(particleGSMaker.Get());
+	particleMakerPsoDesc.PS = {};
+	particleMakerPsoDesc.DepthStencilState.StencilEnable = false;
+	particleMakerPsoDesc.DepthStencilState.DepthEnable = false;
+	particleMakerPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	
+	D3D12_SO_DECLARATION_ENTRY soDecl[]
+	{
+		{0, "POSITION", 0, 0, 3, 0},
+		{0, "SIZE", 0, 0, 2, 0},
+		{0, "TIME", 0, 0, 1, 0},
+		{0, "DIRECTION", 0, 0, 3, 0},
+		{0, "SPEED", 0, 0, 1, 0},
+		{0, "TYPE", 0, 0, 1, 0}
+	};
+
+	particleMakerPsoDesc.StreamOutput.pSODeclaration = soDecl;
+	particleMakerPsoDesc.StreamOutput.NumEntries = _countof(soDecl);
+	particleMakerPsoDesc.StreamOutput.pBufferStrides = NULL;
+	particleMakerPsoDesc.StreamOutput.NumStrides = 0;
+	particleMakerPsoDesc.StreamOutput.RasterizedStream = 0;
+	device->CreateGraphicsPipelineState(&particleMakerPsoDesc, IID_PPV_ARGS(&pipelineStates["particleMaker"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC grassPsoDesc = opaquePsoDesc;
 	grassPsoDesc.VS = CD3DX12_SHADER_BYTECODE(grassVS.Get());

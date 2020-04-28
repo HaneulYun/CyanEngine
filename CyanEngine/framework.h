@@ -68,7 +68,7 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include <queue>
 #include <map>
 
-#define NUM_FRAME_RESOURCES 3
+#define NUM_FRAME_RESOURCES 1
 
 #include "Vector3.h"
 #include "Matrix4x4.h"
@@ -115,6 +115,8 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include "Image.h"
 #include "Text.h"
 #include "Button.h"
+
+#include "ParticleSystem.h"
 
 #include "Graphics.h"
 
