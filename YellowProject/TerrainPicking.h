@@ -88,6 +88,7 @@ public:
 				Scene::scene->AddGameObject(go);
 				Mesh* mesh = static_cast<MeshFilter*>(go->meshFilter)->mesh;
 				Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
+				Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].isDirty = true;
 			}
 		}
 	}

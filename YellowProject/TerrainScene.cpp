@@ -45,16 +45,6 @@ void TerrainScene::BuildObjects()
 
 	//*** Animation ***//
 	{
-		//AddFbxForAnimation("Attack01_BowAnim", "Models\\BowStance\\Attack01_BowAnim.fbx");
-		//AddFbxForAnimation("Attack01Maintain_BowAnim", "Models\\BowStance\\Attack01Maintain_BowAnim.fbx");
-		//AddFbxForAnimation("Attack01RepeatFire_BowAnim", "Models\\BowStance\\Attack01RepeatFire_BowAnim.fbx");
-		//AddFbxForAnimation("Attack01Start_BowAnim", "Models\\BowStance\\Attack01Start_BowAnim.fbx");
-		//AddFbxForAnimation("Attack02Maintain_BowAnim", "Models\\BowStance\\Attack02Maintain_BowAnim.fbx");
-		//AddFbxForAnimation("Attack02RepeatFire_BowAnim", "Models\\BowStance\\Attack02RepeatFire_BowAnim.fbx");
-		//AddFbxForAnimation("Attack02Start_BowAnim", "Models\\BowStance\\Attack02Start_BowAnim.fbx");
-		//AddFbxForAnimation("DashBackward_BowAnim", "Models\\BowStance\\DashBackward_BowAnim.fbx");
-		//AddFbxForAnimation("DashForward_BowAnim", "Models\\BowStance\\DashForward_BowAnim.fbx");
-
 		AddFbxForAnimation("Walk_BowAnim", "Models\\BowStance\\Walk_BowAnim.fbx");
 		AddFbxForAnimation("WalkBack_BowAnim", "Models\\BowStance\\WalkBack_BowAnim.fbx");
 		AddFbxForAnimation("WalkRight_BowAnim", "Models\\BowStance\\WalkRight_BowAnim.fbx");
@@ -65,16 +55,6 @@ void TerrainScene::BuildObjects()
 	AnimatorController* controller = new AnimatorController();
 	//*** AnimatorController ***//
 	{
-		//controller->AddState("Attack01_BowAnim", animationClips["Attack01_BowAnim"].get());
-		//controller->AddState("Attack01Maintain_BowAnim", animationClips["Attack01Maintain_BowAnim"].get());
-		//controller->AddState("Attack01RepeatFire_BowAnim", animationClips["Attack01RepeatFire_BowAnim"].get());
-		//controller->AddState("Attack01Start_BowAnim", animationClips["Attack01Start_BowAnim"].get());
-		//controller->AddState("Attack02Maintain_BowAnim", animationClips["Attack02Maintain_BowAnim"].get());
-		//controller->AddState("Attack02RepeatFire_BowAnim", animationClips["Attack02RepeatFire_BowAnim"].get());
-		//controller->AddState("Attack02Start_BowAnim", animationClips["Attack02Start_BowAnim"].get());
-		//controller->AddState("DashBackward_BowAnim", animationClips["DashBackward_BowAnim"].get());
-		//controller->AddState("DashForward_BowAnim", animationClips["DashForward_BowAnim"].get());
-		//
 		controller->AddParameterFloat("Speed");
 		controller->AddParameterFloat("HoriSpeed");
 
@@ -102,46 +82,6 @@ void TerrainScene::BuildObjects()
 		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
 	}
-
-	//{
-	//	GameObject* ImageObject = CreateEmpty();
-	//	ImageObject->AddComponent<Image>();
-	//	auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-	//	ImageObject->AddComponent<Renderer>()->materials.push_back(5);
-	//	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
-	//}
-	//
-	//{
-	//	GameObject* ImageObject = CreateEmpty();
-	//	auto img = ImageObject->AddComponent<Image>();
-	//	{
-	//		img->anchorMin = { 0, 0 };
-	//		img->pivot = { 0, 0 };
-	//		img->posX = 10;
-	//		img->posY = 10;
-	//		img->width = 400;
-	//		img->height = 40;
-	//	}
-	//	auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-	//	ImageObject->AddComponent<Renderer>()->materials.push_back(5);
-	//	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
-	//}
-	//
-	//{
-	//	GameObject* ImageObject = CreateEmpty();
-	//	auto img = ImageObject->AddComponent<Image>();
-	//	{
-	//		img->anchorMin = { 0, 1 };
-	//		img->pivot = { 0, 1 };
-	//		img->posX = 10;
-	//		img->posY = -10;
-	//		img->width = 80;
-	//		img->height = 320;
-	//	}
-	//	auto mesh = ImageObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
-	//	ImageObject->AddComponent<Renderer>()->materials.push_back(5);
-	//	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(ImageObject);
-	//}
 
 	{
 		auto ritem = CreateEmpty();
@@ -196,29 +136,6 @@ void TerrainScene::BuildObjects()
 			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
 		}
 	
-	
-	//{
-	//	GameObject* ImageObject = CreateImage();
-	//	{
-	//		ImageObject->AddComponent<Button>()->AddEvent(
-	//			[](void*) {
-	//				Debug::Log("이게 되네;;\n");
-	//				//SceneManager::LoadScene("materialScene");
-	//			});
-	//	}
-	//	{
-	//		GameObject* textobject = ImageObject->AddChildUI();
-	//		auto rectTransform = textobject->GetComponent<RectTransform>();
-	//		rectTransform->anchorMin = { 0, 0 };
-	//		rectTransform->anchorMax = { 1, 1 };
-	//	
-	//		Text* text = textobject->AddComponent<Text>();
-	//		text->text = L"되겟냐?ㅋㅋ";
-	//		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-	//		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-	//		textObjects.push_back(textobject);
-	//	}
-	//}
 	GameObject* prefab;
 	int xObjects = 0, yObjects = 0, zObjects = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
@@ -244,14 +161,13 @@ void TerrainScene::BuildObjects()
 		GameObject* grid = CreateEmpty();
 		grid->GetComponent<Transform>()->position -= {128, 10, 128};
 		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;
-		//auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();
 		grid->AddComponent<Renderer>()->materials.push_back(4);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
-		//TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
-		//tp->terrain = grid;
-		//tp->prefab = prefab;
-		//tp->heightMap = m_pHeightMapImage;
-		//tp->mesh = gridMesh;
+		TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
+		tp->terrain = grid;
+		tp->prefab = prefab;
+		tp->heightMap = m_pHeightMapImage;
+		tp->mesh = gridMesh;
 	}
 	
 	// billboard points
@@ -262,7 +178,7 @@ void TerrainScene::BuildObjects()
 		XMFLOAT3 look;
 	};
 	std::vector<TreeSpriteVertex> vertices;
-	int sizex = 2, sizey = 2;
+	int sizex = 1, sizey = 1;
 	const int width = 256, length = 256;
 	vertices.reserve(width * length);
 	for (int i = 0; i < width; ++i)
@@ -270,7 +186,7 @@ void TerrainScene::BuildObjects()
 		for (int j = 0; j < length; ++j)
 		{
 			TreeSpriteVertex v;
-			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, m_pHeightMapImage) + sizey / 2, j);
+			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, m_pHeightMapImage) + sizey / 2.0f, j);
 			//v.Pos = XMFLOAT3(i, sizey / 2, j);
 			v.Size = XMFLOAT2(sizex, sizey);
 			v.look = XMFLOAT3(MathHelper::RandF(0.0f, 1.0f), 0.0f, MathHelper::RandF(0.0f, 1.0f));
