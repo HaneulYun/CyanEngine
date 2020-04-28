@@ -19,7 +19,6 @@ struct RenderSets
 	bool isDirty{ true };
 
 	std::vector<GameObject*> gameObjects;
-
 	std::vector<std::unique_ptr<ObjectsResource>> objectsResources;
 };
 

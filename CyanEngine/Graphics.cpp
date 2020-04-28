@@ -48,6 +48,8 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 			if (renderSets.second.isDirty)
 			{
+				if (renderSets.second.objectsResources.size())
+					renderSets.second.objectsResources.clear();
 				for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 					renderSets.second.objectsResources.push_back(std::make_unique<ObjectsResource>());
 				renderSets.second.isDirty = false;
