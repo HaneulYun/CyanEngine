@@ -15,6 +15,7 @@ void TerrainScene::BuildObjects()
 		AddTexture(7, "grass", L"Textures\\grass01.dds");
 	}
 
+
 	//*** Material ***//
 	{
 		AddMaterial(0, "none", 0);
