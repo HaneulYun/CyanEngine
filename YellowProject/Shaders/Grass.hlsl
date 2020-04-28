@@ -1,13 +1,13 @@
 #include "shaders\\Common.hlsl"
 
-struct VertexIn
+struct VSInput
 {
 	float3 PosL : POSITION;
 	float2 SizeW : SIZE;
 	float3 Look : LOOK;
 };
 
-struct VertexOut
+struct GSInput
 {
 	float3 CenterW : POSITION;
 	float2 SizeW : SIZE;
@@ -16,14 +16,14 @@ struct VertexOut
 	nointerpolation uint MatIndex : MATINDEX;
 };
 
-struct GeoOut
+struct PSInput
 {
 	float4 PosH : SV_POSITION;
-	float3 PosW : POSITION;
+	float4 ShadowPosH : POSITION0;
+	float3 PosW : POSITION1;
 	float3 NormalW : NORMAL;
 	float2 TexC : TEXCOORD;
 	uint   PrimID : SV_PrimitiveID;
-	float4 ShadowPosH : DD;
 
 	nointerpolation uint MatIndex : MATINDEX;
 };
@@ -60,22 +60,22 @@ float CalcShadowFactor(float4 shadowPosH)
 	return percentLit / 9.0f;
 }
 
-VertexOut VS(VertexIn vin, uint instanceID : SV_InstanceID)
+GSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 {
 	InstanceData instData = gInstanceData[instanceID];
 
-	VertexOut vout;
+	GSInput vout;
 	vout.MatIndex = gMaterialIndexData[instanceID * instData.MaterialIndexStride].MaterialIndex;
 	vout.CenterW = mul(float4(vin.PosL, 1.0f), gInstanceData[instanceID].World).xyz;
 	vout.SizeW = vin.SizeW;
-	vout.Look = vin.Look;
+	vout.Look = mul(vin.Look, (float3x3)gInstanceData[instanceID].World);
 	return vout;
 }
 
 [maxvertexcount(8)]
-void GS(point VertexOut gin[1],
+void GS(point GSInput gin[1],
 	uint primID : SV_PrimitiveID,
-	inout TriangleStream<GeoOut> triStream)
+	inout TriangleStream<PSInput> triStream)
 {
 	float4x4 r = {
 		0,0,-1,0,
@@ -108,12 +108,12 @@ void GS(point VertexOut gin[1],
 		float2(1.0f, 0.0f)
 	};
 
-	GeoOut gout;
+	PSInput gout;
 	[unroll]
 	for (int i = 0; i < 8; ++i)
 	{
 		if (i % 2 == 1)
-			v[i].x += sin(gTotalTime + v[i].x / 10);
+			v[i].x += sin(gTotalTime + v[i].x / 20);
 		gout.PosH = mul(v[i], gViewProj);
 		gout.PosW = v[i].xyz;
 		gout.NormalW = gin[0].Look;
@@ -125,7 +125,7 @@ void GS(point VertexOut gin[1],
 	}
 }
 
-float4 PS(GeoOut pin) : SV_Target
+float4 PS(PSInput pin) : SV_Target
 {
 	MaterialData matData = gMaterialData[pin.MatIndex];
 	float4 diffuseAlbedo = matData.DiffuseAlbedo;
@@ -142,18 +142,17 @@ float4 PS(GeoOut pin) : SV_Target
 
 	pin.NormalW = normalize(pin.NormalW);
 
-	float3 toEyeW = gEyePosW - pin.PosW;
-	float distToEye = length(toEyeW);
-	toEyeW /= distToEye;
+	float3 toEyeW = normalize(gEyePosW - pin.PosW);
 
 	float4 ambient = gAmbientLight * diffuseAlbedo;
 
-	const float shininess = 1.0f - roughness;
-	Material mat = { diffuseAlbedo, fresnelR0, shininess };
 
 	//float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
 	//shadowFactor[0] = CalcShadowFactor(pin.ShadowPosH);
 	float3 shadowFactor = 1.0f;
+	const float shininess = 1.0f - roughness;
+	Material mat = { diffuseAlbedo, fresnelR0, shininess };
+
 	float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
 		pin.NormalW, toEyeW, shadowFactor);
 

@@ -14,7 +14,7 @@ Graphics::~Graphics()
 void Graphics::Initialize()
 {
 	sceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	sceneBounds.Radius = sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
+	sceneBounds.Radius = sqrtf(20.0f * 20.0f + 20.0f * 20.0f);
 	InitDirect3D();
 	InitDirect2D();
 	LoadAssets();
@@ -308,7 +308,8 @@ void Graphics::RenderShadowMap()
 	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 	{
 		if (layerIndex == (int)RenderLayer::Sky ||
-			layerIndex == (int)RenderLayer::UI)
+			layerIndex == (int)RenderLayer::UI ||
+			layerIndex == (int)RenderLayer::Grass)
 			continue;
 		else if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 			commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());

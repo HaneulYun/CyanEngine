@@ -25,8 +25,8 @@ void TerrainScene::BuildObjects()
 		AddMaterial(5, "sky", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 1.0f);
 		AddMaterial(6, "tree0", 6, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
 		AddMaterial(7, "grass", 7, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
-		//for (int i = 0; i < 5; ++i)
-		//	AddMaterial(5 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
+		for (int i = 0; i < 5; ++i)
+			AddMaterial(8 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
 	}
 	
 	//*** Mesh ***//
@@ -231,7 +231,7 @@ void TerrainScene::BuildObjects()
 				auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
 				auto renderer = ritem->AddComponent<Renderer>();
 				for (auto& sm : mesh->DrawArgs)
-					renderer->materials.push_back(Random::Range(6, 9));
+					renderer->materials.push_back(Random::Range(8, 14));
 	
 				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 2;
 	
@@ -243,6 +243,7 @@ void TerrainScene::BuildObjects()
 		GameObject* grid = CreateEmpty();
 		grid->GetComponent<Transform>()->position -= {128, 10, 128};
 		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;
+		//auto mesh = grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();
 		grid->AddComponent<Renderer>()->materials.push_back(4);
 		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
 		//TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
@@ -269,6 +270,7 @@ void TerrainScene::BuildObjects()
 		{
 			TreeSpriteVertex v;
 			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, m_pHeightMapImage) + sizey / 2, j);
+			//v.Pos = XMFLOAT3(i, sizey / 2, j);
 			v.Size = XMFLOAT2(sizex, sizey);
 			v.look = XMFLOAT3(MathHelper::RandF(0.0f, 1.0f), 0.0f, MathHelper::RandF(0.0f, 1.0f));
 			vertices.push_back(v);
@@ -296,11 +298,11 @@ void TerrainScene::BuildObjects()
 	submesh.BaseVertexLocation = 0;
 
 	geo->DrawArgs["submesh"] = submesh;
-	geometries["treeSpritesGeo"] = std::move(geo);
+	geometries["Grass"] = std::move(geo);
 
 	GameObject* billboards = CreateEmpty();
 	billboards->GetComponent<Transform>()->position -= {128, 10, 128};
-	auto mesh = billboards->AddComponent<MeshFilter>()->mesh = geometries["treeSpritesGeo"].get();
+	auto mesh = billboards->AddComponent<MeshFilter>()->mesh = geometries["Grass"].get();
 	billboards->AddComponent<Renderer>()->materials.push_back(7);
 	renderObjectsLayer[(int)RenderLayer::Grass][mesh].gameObjects.push_back(billboards);
 
