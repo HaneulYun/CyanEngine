@@ -12,7 +12,7 @@ void TerrainScene::BuildObjects()
 		AddTexture(3, "stoneTex", L"Textures\\stone.dds");
 		AddTexture(4, "tileTex", L"Textures\\tile.dds");
 		AddTexture(6, "tree", L"Textures\\tree01S.dds");
-		AddTexture(7, "grass", L"Textures\\Grass02.dds");	
+		AddTexture(7, "grass", L"Textures\\grass01.dds");
 	}
 
 	//*** Material ***//
@@ -260,7 +260,7 @@ void TerrainScene::BuildObjects()
 		XMFLOAT3 look;
 	};
 	std::vector<TreeSpriteVertex> vertices;
-	int sizex = 2, sizey = 4;
+	int sizex = 2, sizey = 2;
 	const int width = 256, length = 256;
 	vertices.reserve(width * length);
 	for (int i = 0; i < width; ++i)
@@ -302,7 +302,7 @@ void TerrainScene::BuildObjects()
 	billboards->GetComponent<Transform>()->position -= {128, 10, 128};
 	auto mesh = billboards->AddComponent<MeshFilter>()->mesh = geometries["treeSpritesGeo"].get();
 	billboards->AddComponent<Renderer>()->materials.push_back(7);
-	renderObjectsLayer[(int)RenderLayer::TreeBillboard][mesh].gameObjects.push_back(billboards);
+	renderObjectsLayer[(int)RenderLayer::Grass][mesh].gameObjects.push_back(billboards);
 
 
 	for (int i = 0; i < 5; ++i)

@@ -23,36 +23,60 @@ struct GeoOut
 	float3 NormalW : NORMAL;
 	float2 TexC : TEXCOORD;
 	uint   PrimID : SV_PrimitiveID;
+	float4 ShadowPosH : DD;
 
 	nointerpolation uint MatIndex : MATINDEX;
 };
+
+float CalcShadowFactor(float4 shadowPosH)
+{
+	// Complete projection by doing division by w.
+	shadowPosH.xyz /= shadowPosH.w;
+
+	// Depth in NDC space.
+	float depth = shadowPosH.z;
+
+	uint width, height, numMips;
+	gShadowMap.GetDimensions(0, width, height, numMips);
+
+	// Texel size.
+	float dx = 1.0f / (float)width;
+
+	float percentLit = 0.0f;
+	const float2 offsets[9] =
+	{
+		float2(-dx,  -dx), float2(0.0f,  -dx), float2(dx,  -dx),
+		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+		float2(-dx,  +dx), float2(0.0f,  +dx), float2(dx,  +dx)
+	};
+
+	[unroll]
+	for (int i = 0; i < 9; ++i)
+	{
+		percentLit += gShadowMap.SampleCmpLevelZero(gsamShadow,
+			shadowPosH.xy + offsets[i], depth).r;
+	}
+
+	return percentLit / 9.0f;
+}
 
 VertexOut VS(VertexIn vin, uint instanceID : SV_InstanceID)
 {
 	InstanceData instData = gInstanceData[instanceID];
 
 	VertexOut vout;
-	// Just pass data over to geometry shader.
 	vout.MatIndex = gMaterialIndexData[instanceID * instData.MaterialIndexStride].MaterialIndex;
 	vout.CenterW = mul(float4(vin.PosL, 1.0f), gInstanceData[instanceID].World).xyz;
 	vout.SizeW = vin.SizeW;
 	vout.Look = vin.Look;
-
 	return vout;
 }
 
-// We expand each point into a quad (4 vertices), so the maximum number of vertices
-// we output per geometry shader invocation is 4. 출력은 4개의 정점
 [maxvertexcount(8)]
 void GS(point VertexOut gin[1],
 	uint primID : SV_PrimitiveID,
 	inout TriangleStream<GeoOut> triStream)
 {
-	//
-	// Compute the local coordinate system of the sprite relative to the world
-	// space such that the billboard is aligned with the y-axis and faces the eye.
-	//
-
 	float4x4 r = {
 		0,0,-1,0,
 		0,1,0,0,
@@ -62,10 +86,6 @@ void GS(point VertexOut gin[1],
 
 	float3 up = float3(0.0f, 1.0f, 0.0f);
 	float3 right = cross(up, gin[0].Look);
-
-	//
-	// Compute triangle strip vertices (quad) in world space.
-	//
 	float halfWidth = 0.5f * gin[0].SizeW.x;
 	float halfHeight = 0.5f * gin[0].SizeW.y;
 
@@ -79,10 +99,6 @@ void GS(point VertexOut gin[1],
 	v[5] = float4(gin[0].CenterW + halfWidth * right + halfHeight * up, 1.0f);
 	v[6] = float4(gin[0].CenterW - halfWidth * right - halfHeight * up, 1.0f);
 	v[7] = float4(gin[0].CenterW - halfWidth * right + halfHeight * up, 1.0f);
-	//
-	// Transform quad vertices to world space and output 
-	// them as a triangle strip.
-	//
 
 	float2 texC[4] =
 	{
@@ -96,13 +112,15 @@ void GS(point VertexOut gin[1],
 	[unroll]
 	for (int i = 0; i < 8; ++i)
 	{
+		if (i % 2 == 1)
+			v[i].x += sin(gTotalTime + v[i].x / 10);
 		gout.PosH = mul(v[i], gViewProj);
 		gout.PosW = v[i].xyz;
 		gout.NormalW = gin[0].Look;
 		gout.TexC = texC[i % 4];
 		gout.PrimID = primID;
 		gout.MatIndex = gin[0].MatIndex;
-
+		gout.ShadowPosH = mul(gout.PosW, gShadowTransform);
 		triStream.Append(gout);
 	}
 }
@@ -119,26 +137,22 @@ float4 PS(GeoOut pin) : SV_Target
 	diffuseAlbedo *= gDiffuseMap[diffuseTexIndex].Sample(gsamAnisotropicWrap, uvw);
 
 #ifdef ALPHA_TEST
-	// Discard pixel if texture alpha < 0.1.  We do this test as soon 
-	// as possible in the shader so that we can potentially exit the
-	// shader early, thereby skipping the rest of the shader code.
 	clip(diffuseAlbedo.a - 0.1f);
 #endif
 
-	// Interpolating normal can unnormalize it, so renormalize it.
 	pin.NormalW = normalize(pin.NormalW);
 
-	// Vector from point being lit to eye. 
 	float3 toEyeW = gEyePosW - pin.PosW;
 	float distToEye = length(toEyeW);
-	toEyeW /= distToEye; // normalize
+	toEyeW /= distToEye;
 
-	// Light terms.
 	float4 ambient = gAmbientLight * diffuseAlbedo;
 
 	const float shininess = 1.0f - roughness;
 	Material mat = { diffuseAlbedo, fresnelR0, shininess };
 
+	//float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
+	//shadowFactor[0] = CalcShadowFactor(pin.ShadowPosH);
 	float3 shadowFactor = 1.0f;
 	float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
 		pin.NormalW, toEyeW, shadowFactor);
@@ -150,7 +164,6 @@ float4 PS(GeoOut pin) : SV_Target
 	litColor = lerp(litColor, gFogColor, fogAmount);
 #endif
 
-	// Common convention to take alpha from diffuse albedo.
 	litColor.a = diffuseAlbedo.a;
 
 	return litColor;

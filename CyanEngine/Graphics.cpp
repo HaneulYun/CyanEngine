@@ -204,32 +204,33 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 	// UpdateShadowPassCB
 	PassConstants mShadowPassCB;
+	{
+		Matrix4x4 view = f4x4lightView;
+		Matrix4x4 proj = f4x4lightProj;
+		Matrix4x4 viewProj = view * proj;
 
-	Matrix4x4 view = f4x4lightView;
-	Matrix4x4 proj = f4x4lightProj;
-	Matrix4x4 viewProj = view * proj;
+		Matrix4x4 invView = view.Inverse();
+		Matrix4x4 invProj = proj.Inverse();
+		Matrix4x4 invViewProj = viewProj.Inverse();
 
-	Matrix4x4 invView = view.Inverse();
-	Matrix4x4 invProj = proj.Inverse();
-	Matrix4x4 invViewProj = viewProj.Inverse();
+		UINT w = shadowMap->Width();
+		UINT h = shadowMap->Height();
 
-	UINT w = shadowMap->Width();
-	UINT h = shadowMap->Height();
+		mShadowPassCB.View = view.Transpose();
+		mShadowPassCB.InvView = invView.Transpose();
+		mShadowPassCB.Proj = proj.Transpose();
+		mShadowPassCB.InvProj = invProj.Transpose();
+		mShadowPassCB.ViewProj = viewProj.Transpose();
+		mShadowPassCB.InvViewProj = invViewProj.Transpose();
+		mShadowPassCB.EyePosW = lightPosW;
+		mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
+		mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
+		mShadowPassCB.NearZ = sphereCenterLS.z - sceneBounds.Radius;
+		mShadowPassCB.FarZ = sphereCenterLS.z + sceneBounds.Radius;
 
-	mShadowPassCB.View = view.Transpose();
-	mShadowPassCB.InvView = invView.Transpose();
-	mShadowPassCB.Proj = proj.Transpose();
-	mShadowPassCB.InvProj = invProj.Transpose();
-	mShadowPassCB.ViewProj = viewProj.Transpose();
-	mShadowPassCB.InvViewProj = invViewProj.Transpose();
-	mShadowPassCB.EyePosW = lightPosW;
-	mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
-	mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
-	mShadowPassCB.NearZ = sphereCenterLS.z - sceneBounds.Radius;
-	mShadowPassCB.FarZ = sphereCenterLS.z + sceneBounds.Radius;
-
-	currFrameResource->PassCB->CopyData(1, mShadowPassCB);
-
+		currFrameResource->PassCB->CopyData(1, mShadowPassCB);
+	}
+	
 	{
 		PassConstants passConstants;
 
@@ -260,6 +261,9 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 		passConstants.RenderTargetSize.x = CyanFW::Instance()->GetWidth();
 		passConstants.RenderTargetSize.y = CyanFW::Instance()->GetHeight();
+
+		passConstants.DeltaTime = Time::deltaTime;
+		passConstants.TotalTime = Time::currentTime;
 
 		currFrameResource->PassCB->CopyData(0, passConstants);
 	}
@@ -425,8 +429,8 @@ void Graphics::RenderObjects(int layerIndex)
 		commandList->OMSetStencilRef(1);
 		commandList->SetPipelineState(pipelineStates["ui"].Get());
 	}
-	else if(layerIndex == (int)RenderLayer::TreeBillboard)
-		commandList->SetPipelineState(pipelineStates["treeBillboard"].Get());
+	else if(layerIndex == (int)RenderLayer::Grass)
+		commandList->SetPipelineState(pipelineStates["grass"].Get());
 	else
 		commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
@@ -810,9 +814,9 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "PSMain", "ps_5_1");
 
-	ComPtr<ID3DBlob> treeBillboardVS = d3dUtil::CompileShader(L"shaders\\TreeBillboard.hlsl", nullptr, "VS", "vs_5_1");
-	ComPtr<ID3DBlob> treeBillboardGS = d3dUtil::CompileShader(L"Shaders\\TreeBillboard.hlsl", nullptr, "GS", "gs_5_1");
-	ComPtr<ID3DBlob> treeBillboardPS = d3dUtil::CompileShader(L"shaders\\TreeBillboard.hlsl", alphaTestDefines, "PS", "ps_5_1");
+	ComPtr<ID3DBlob> grassVS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> grassGS = d3dUtil::CompileShader(L"Shaders\\Grass.hlsl", nullptr, "GS", "gs_5_1");
+	ComPtr<ID3DBlob> grassPS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", alphaTestDefines, "PS", "ps_5_1");
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
@@ -831,7 +835,7 @@ void Graphics::LoadAssets()
 		{ "BONEINDICES", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs_treeBillboard[]
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs_grass[]
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -907,14 +911,14 @@ void Graphics::LoadAssets()
 	skinnedShadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinnedShadow.Get());
 	device->CreateGraphicsPipelineState(&skinnedShadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_skinnedOpaque"]));
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC treeSpritePsoDesc = opaquePsoDesc;
-	treeSpritePsoDesc.VS = CD3DX12_SHADER_BYTECODE(treeBillboardVS.Get());
-	treeSpritePsoDesc.GS = CD3DX12_SHADER_BYTECODE(treeBillboardGS.Get());
-	treeSpritePsoDesc.PS = CD3DX12_SHADER_BYTECODE(treeBillboardPS.Get());
-	treeSpritePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
-	treeSpritePsoDesc.InputLayout = { inputElementDescs_treeBillboard, _countof(inputElementDescs_treeBillboard) };
-	treeSpritePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	device->CreateGraphicsPipelineState(&treeSpritePsoDesc, IID_PPV_ARGS(&pipelineStates["treeBillboard"]));
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC grassPsoDesc = opaquePsoDesc;
+	grassPsoDesc.VS = CD3DX12_SHADER_BYTECODE(grassVS.Get());
+	grassPsoDesc.GS = CD3DX12_SHADER_BYTECODE(grassGS.Get());
+	grassPsoDesc.PS = CD3DX12_SHADER_BYTECODE(grassPS.Get());
+	grassPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	grassPsoDesc.InputLayout = { inputElementDescs_grass, _countof(inputElementDescs_grass) };
+	grassPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	device->CreateGraphicsPipelineState(&grassPsoDesc, IID_PPV_ARGS(&pipelineStates["grass"]));
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = 7;

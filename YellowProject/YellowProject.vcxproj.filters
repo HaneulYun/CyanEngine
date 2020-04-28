@@ -122,7 +122,7 @@
     <FxCompile Include="Shaders\Sky.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\TreeBillboard.hlsl">
+    <FxCompile Include="Shaders\Grass.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

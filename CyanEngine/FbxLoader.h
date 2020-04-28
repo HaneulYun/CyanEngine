@@ -7,7 +7,7 @@ enum class RenderLayer : int
 	Debug,
 	Sky,
 	UI,
-	TreeBillboard,
+	Grass,
 	Count
 };
 

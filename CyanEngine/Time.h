@@ -13,6 +13,7 @@ private:
 	};
 	__int64 m_nCurrentTime{ 0 };
 	__int64 m_nLastTime;
+	__int64 baseTime;
 	__int64 m_nPerformanceFrequency;
 
 	float m_fFrameTime[MAX_SAMPLE_COUNT];
@@ -24,7 +25,7 @@ private:
 
 public:
 	static float deltaTime;
-
+	static float currentTime;
 public:
 	Time();
 	~Time();
@@ -34,4 +35,3 @@ public:
 	float GetTimeElapsed();
 	void Reset() {}; /* need definition */
 };
-
