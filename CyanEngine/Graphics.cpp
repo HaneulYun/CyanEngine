@@ -14,7 +14,7 @@ Graphics::~Graphics()
 void Graphics::Initialize()
 {
 	sceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	sceneBounds.Radius = sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
+	sceneBounds.Radius = sqrtf(20.0f * 20.0f + 20.0f * 20.0f);
 	InitDirect3D();
 	InitDirect2D();
 	LoadAssets();
@@ -204,32 +204,33 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 	// UpdateShadowPassCB
 	PassConstants mShadowPassCB;
+	{
+		Matrix4x4 view = f4x4lightView;
+		Matrix4x4 proj = f4x4lightProj;
+		Matrix4x4 viewProj = view * proj;
 
-	Matrix4x4 view = f4x4lightView;
-	Matrix4x4 proj = f4x4lightProj;
-	Matrix4x4 viewProj = view * proj;
+		Matrix4x4 invView = view.Inverse();
+		Matrix4x4 invProj = proj.Inverse();
+		Matrix4x4 invViewProj = viewProj.Inverse();
 
-	Matrix4x4 invView = view.Inverse();
-	Matrix4x4 invProj = proj.Inverse();
-	Matrix4x4 invViewProj = viewProj.Inverse();
+		UINT w = shadowMap->Width();
+		UINT h = shadowMap->Height();
 
-	UINT w = shadowMap->Width();
-	UINT h = shadowMap->Height();
+		mShadowPassCB.View = view.Transpose();
+		mShadowPassCB.InvView = invView.Transpose();
+		mShadowPassCB.Proj = proj.Transpose();
+		mShadowPassCB.InvProj = invProj.Transpose();
+		mShadowPassCB.ViewProj = viewProj.Transpose();
+		mShadowPassCB.InvViewProj = invViewProj.Transpose();
+		mShadowPassCB.EyePosW = lightPosW;
+		mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
+		mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
+		mShadowPassCB.NearZ = sphereCenterLS.z - sceneBounds.Radius;
+		mShadowPassCB.FarZ = sphereCenterLS.z + sceneBounds.Radius;
 
-	mShadowPassCB.View = view.Transpose();
-	mShadowPassCB.InvView = invView.Transpose();
-	mShadowPassCB.Proj = proj.Transpose();
-	mShadowPassCB.InvProj = invProj.Transpose();
-	mShadowPassCB.ViewProj = viewProj.Transpose();
-	mShadowPassCB.InvViewProj = invViewProj.Transpose();
-	mShadowPassCB.EyePosW = lightPosW;
-	mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
-	mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
-	mShadowPassCB.NearZ = sphereCenterLS.z - sceneBounds.Radius;
-	mShadowPassCB.FarZ = sphereCenterLS.z + sceneBounds.Radius;
-
-	currFrameResource->PassCB->CopyData(1, mShadowPassCB);
-
+		currFrameResource->PassCB->CopyData(1, mShadowPassCB);
+	}
+	
 	{
 		PassConstants passConstants;
 
@@ -249,8 +250,6 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 		float mSunTheta = 1.25f * XM_PI;
 		float mSunPhi = XM_PIDIV4;
 
-		passConstants.DeltaTime = Time::deltaTime;
-
 		passConstants.EyePosW = pos;
 		passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 		passConstants.Lights[0].Direction = rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
@@ -262,6 +261,9 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 		passConstants.RenderTargetSize.x = CyanFW::Instance()->GetWidth();
 		passConstants.RenderTargetSize.y = CyanFW::Instance()->GetHeight();
+
+		passConstants.DeltaTime = Time::deltaTime;
+		passConstants.TotalTime = Time::currentTime;
 
 		currFrameResource->PassCB->CopyData(0, passConstants);
 	}
@@ -307,7 +309,8 @@ void Graphics::RenderShadowMap()
 	{
 		if (layerIndex == (int)RenderLayer::Particle ||
 			layerIndex == (int)RenderLayer::Sky ||
-			layerIndex == (int)RenderLayer::UI )
+			layerIndex == (int)RenderLayer::UI ||
+			layerIndex == (int)RenderLayer::Grass)
 			continue;
 		else if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 			commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());
@@ -330,7 +333,8 @@ void Graphics::RenderShadowMap()
 			commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
 
 			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
-			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
+			if (mesh->IndexBufferByteSize)
+				commandList->IASetIndexBuffer(&mesh->IndexBufferView());
 			commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 
 			int i = 0;
@@ -339,10 +343,15 @@ void Graphics::RenderShadowMap()
 				commandList->SetGraphicsRootShaderResourceView(7,
 					matIndexBuffer->Resource()->GetGPUVirtualAddress()
 					+ sizeof(MatIndexData) * i++);
-				commandList->DrawIndexedInstanced(
-					submesh.second.IndexCount, objects.size(),
-					submesh.second.StartIndexLocation,
-					submesh.second.BaseVertexLocation, 0);
+				if (mesh->IndexBufferByteSize)
+					commandList->DrawIndexedInstanced(
+						submesh.second.IndexCount, objects.size(),
+						submesh.second.StartIndexLocation,
+						submesh.second.BaseVertexLocation, 0);
+				else
+					commandList->DrawInstanced(
+						submesh.second.IndexCount, objects.size(),
+						submesh.second.StartIndexLocation, 0);
 			}
 		}
 	}
@@ -422,6 +431,8 @@ void Graphics::RenderObjects(int layerIndex)
 		commandList->OMSetStencilRef(1);
 		commandList->SetPipelineState(pipelineStates["ui"].Get());
 	}
+	else if(layerIndex == (int)RenderLayer::Grass)
+		commandList->SetPipelineState(pipelineStates["grass"].Get());
 	else
 		commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
@@ -443,8 +454,7 @@ void Graphics::RenderObjects(int layerIndex)
 		commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 
 		commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
-		
-		if (layerIndex != (int)RenderLayer::Particle)
+		if (mesh->IndexBufferByteSize)
 			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
 
 		int i = 0;
@@ -849,6 +859,10 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> particlePS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "PSMain", "ps_5_1");
 	ComPtr<ID3DBlob> particleGSMaker = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GSParticleMaker", "gs_5_1");
 
+	ComPtr<ID3DBlob> grassVS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> grassGS = d3dUtil::CompileShader(L"Shaders\\Grass.hlsl", nullptr, "GS", "gs_5_1");
+	ComPtr<ID3DBlob> grassPS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", alphaTestDefines, "PS", "ps_5_1");
+
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
@@ -876,6 +890,12 @@ void Graphics::LoadAssets()
 		{ "TYPE", 0, DXGI_FORMAT_R32_UINT, 0, 40, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
+	D3D12_INPUT_ELEMENT_DESC inputElementDescs_grass[]
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "LOOK", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc{};
 	opaquePsoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
@@ -978,6 +998,15 @@ void Graphics::LoadAssets()
 	particleMakerPsoDesc.StreamOutput.NumStrides = 0;
 	particleMakerPsoDesc.StreamOutput.RasterizedStream = 0;
 	device->CreateGraphicsPipelineState(&particleMakerPsoDesc, IID_PPV_ARGS(&pipelineStates["particleMaker"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC grassPsoDesc = opaquePsoDesc;
+	grassPsoDesc.VS = CD3DX12_SHADER_BYTECODE(grassVS.Get());
+	grassPsoDesc.GS = CD3DX12_SHADER_BYTECODE(grassGS.Get());
+	grassPsoDesc.PS = CD3DX12_SHADER_BYTECODE(grassPS.Get());
+	grassPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	grassPsoDesc.InputLayout = { inputElementDescs_grass, _countof(inputElementDescs_grass) };
+	grassPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	device->CreateGraphicsPipelineState(&grassPsoDesc, IID_PPV_ARGS(&pipelineStates["grass"]));
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = 7;

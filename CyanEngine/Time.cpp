@@ -2,6 +2,7 @@
 #include "Time.h"
 
 float Time::deltaTime = 0;
+float Time::currentTime = 0;
 
 Time::Time()
 {
@@ -17,6 +18,7 @@ Time::Time()
 		m_nLastTime = ::GetTickCount64();
 		m_fTimeScale = 0.001f;
 	}
+	baseTime = m_nLastTime;
 }
 Time::~Time()
 {
@@ -76,6 +78,8 @@ void Time::Tick(float fLockFPS)
 		m_fTimeElapsed /= m_nSampleCount;
 
 	deltaTime = fTimeElapsed;
+
+	currentTime = (m_nCurrentTime - baseTime) * m_fTimeScale;
 }
 
 unsigned long Time::GetFrameRate(LPTSTR lpszString, int nCharacters)
