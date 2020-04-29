@@ -35,112 +35,6 @@ void Graphics::Update(FrameResource* currFrameResource, int currFrameResourceInd
 		CloseHandle(eventHandle);
 	}
 
-	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
-	{
-		for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
-		{
-			auto& objects = renderSets.second.gameObjects;
-			if (!objects.size())
-				continue;
-
-			if (renderSets.second.isDirty)
-			{
-				if (renderSets.second.objectsResources.size())
-					renderSets.second.objectsResources.clear();
-				for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
-					renderSets.second.objectsResources.push_back(std::make_unique<ObjectsResource>());
-				renderSets.second.isDirty = false;
-			}
-			auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
-
-			if (objectsResource->isDirty)
-			{
-				int objectCount = renderSets.second.gameObjects.size();
-				int boneStride = 1;
-				int matIndexStride = 1;
-				if (objects[0]->GetComponent<Animator>())
-					boneStride = objects[0]->GetComponent<Animator>()->controller->BoneCount();
-				if (objects[0]->GetComponent<SkinnedMeshRenderer>())
-					matIndexStride = objects[0]->GetComponent<SkinnedMeshRenderer>()->materials.size();
-
-				objectsResource->InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(device.Get(), objectCount, false);
-				objectsResource->SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(device.Get(), objectCount * boneStride, false);
-				objectsResource->MatIndexBuffer = std::make_unique<UploadBuffer<MatIndexData>>(device.Get(), objectCount * matIndexStride, false);
-				objectsResource->isDirty = false;
-			}
-			auto instanceBuffer = objectsResource->InstanceBuffer.get();
-			auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
-			auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
-
-			int bufferIndex = 0;
-			for (auto& e : objects)
-			{
-				// instance data
-				if (e->NumFramesDirty > 0)
-				{
-					e->instanceIndex = bufferIndex;
-
-					Matrix4x4 worldTransform;
-					if (layerIndex == (int)RenderLayer::UI)
-						worldTransform = RectTransform::Transform(e->GetMatrix());
-					else
-						worldTransform = e->GetMatrix();
-					Matrix4x4 world = worldTransform;
-					Matrix4x4 texTransform = e->TexTransform;
-				
-					InstanceData objConstants;
-					objConstants.World = world.Transpose();
-					objConstants.TexTransform = texTransform.Transpose();
-					objConstants.MaterialIndexStride = 0;
-					objConstants.BoneTransformStride = 0;
-				
-					Renderer* renderer = e->GetComponent<Renderer>();
-					if (!renderer)
-						renderer = e->GetComponent<SkinnedMeshRenderer>();
-					if (renderer)
-						objConstants.MaterialIndexStride = renderer->materials.size();
-					if (e->GetComponent<Animator>())
-						objConstants.BoneTransformStride = e->GetComponent<Animator>()->controller->BoneCount();
-				
-					instanceBuffer->CopyData(bufferIndex, objConstants);
-				
-					--e->NumFramesDirty;
-				}
-
-				// skinned data
-				if (e->GetComponent<Animator>())
-				{
-					int baseindex = bufferIndex * e->GetComponent<Animator>()->controller->BoneCount();
-
-					e->GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);
-					for (int i = 0; i < e->GetComponent<Animator>()->FinalTransforms.size(); ++i)
-					{
-						SkinnnedData skinnedConstants;
-						skinnedConstants.BoneTransforms = e->GetComponent<Animator>()->FinalTransforms[i];
-						skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
-					}
-				}
-
-				// material data
-				Renderer* renderer = e->GetComponent<Renderer>();
-				if (!renderer)
-					renderer = e->GetComponent<SkinnedMeshRenderer>();
-				if (renderer)
-				{
-					int baseindex = bufferIndex * renderer->materials.size();
-
-					for (int i = 0; i < renderer->materials.size(); ++i)
-					{
-						MatIndexData skinnedConstants;
-						skinnedConstants.MaterialIndex = renderer->materials[i];
-						matIndexBuffer->CopyData(baseindex + i, skinnedConstants);
-					}
-				}
-				++bufferIndex;
-			}
-		}
-	}
-
 	// UpdateMaterialBuffer
 	auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
 	for (auto& e : Scene::scene->materials)
@@ -437,7 +331,7 @@ void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
 	else
 		commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
-	for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
+	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[layerIndex])
 	{
 		auto& mesh = renderSets.first;
 		auto& objects = renderSets.second.gameObjects;

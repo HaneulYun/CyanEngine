@@ -2,8 +2,6 @@
 
 struct ObjectsResource
 {
-	bool isDirty{ true };
-
 	ObjectsResource() = default;
 	ObjectsResource(const ObjectsResource&) = delete;
 	ObjectsResource& operator=(const ObjectsResource&) = delete;
@@ -29,6 +27,7 @@ public:
 
 class ObjectRenderManager
 {
+public:
 	bool isDirty{ true };
 
 	std::map<Mesh*, RenderSets> renderObjectsLayer[(int)RenderLayer::Count];

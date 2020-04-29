@@ -1,6 +1,7 @@
 #pragma once
 
 class Scene;
+class RenderSets;
 
 enum class CollisionType
 {
@@ -10,6 +11,9 @@ enum class CollisionType
 
 class GameObject : public Object
 {
+public:
+	RenderSets* renderSet{ nullptr };
+
 public:
 	Scene* scene{ nullptr };
 	int layer{ 0 };
@@ -39,7 +43,7 @@ private:
 public:
 	GameObject(bool isUI);
 	GameObject(GameObject*);
-	~GameObject();
+	~GameObject() {}
 
 	void Start();
 	void Update();

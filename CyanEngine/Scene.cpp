@@ -62,6 +62,12 @@ void Scene::Start()
 
 void Scene::Update()
 {
+	while (!creationQueue.empty())
+	{
+		creationQueue.front()->Start();
+		creationQueue.pop();
+	}
+
 	objectRenderManager.Update();
 
 	// fixed update
@@ -140,6 +146,7 @@ GameObject* Scene::AddGameObject(GameObject* gameObject)
 {
 	gameObject->scene = this;
 	gameObjects.push_back(gameObject);
+	creationQueue.push(gameObject);
 	return gameObject;
 }
 

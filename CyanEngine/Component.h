@@ -15,7 +15,7 @@ public:
 public:
 	virtual ~Component() {}
 
-	void UpdateComponent();
+	//void UpdateComponent();
 
 	virtual void Start() {}
 	virtual void Update() {}

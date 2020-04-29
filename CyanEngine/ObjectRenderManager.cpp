@@ -9,7 +9,32 @@ void RenderSets::Update()
 	isDirty = false;
 	int instanceIndex = 0;
 	for (auto& gameObject : gameObjects)
+	{
 		gameObject->instanceIndex = instanceIndex++;
+		gameObject->renderSet = this;
+	}
+
+	if (!objectsResources.size())
+	{
+		for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
+		{
+			auto resource = std::make_unique<ObjectsResource>();
+
+			int objectCount = gameObjects.size();
+			int boneStride = 1;
+			int matIndexStride = 1;
+			if (gameObjects[0]->GetComponent<Animator>())
+				boneStride = gameObjects[0]->GetComponent<Animator>()->controller->BoneCount();
+			if (gameObjects[0]->GetComponent<SkinnedMeshRenderer>())
+				matIndexStride = gameObjects[0]->GetComponent<SkinnedMeshRenderer>()->materials.size();
+
+			resource->InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(Graphics::Instance()->device.Get(), objectCount, false);
+			resource->SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(Graphics::Instance()->device.Get(), objectCount * boneStride, false);
+			resource->MatIndexBuffer = std::make_unique<UploadBuffer<MatIndexData>>(Graphics::Instance()->device.Get(), objectCount * matIndexStride, false);
+
+			objectsResources.push_back(std::move(resource));
+		}
+	}
 }
 
 void RenderSets::AddGameObject(GameObject* gameObject)
