@@ -25,11 +25,8 @@ void Graphics::Start()
 {
 }
 
-void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResources)
+void Graphics::Update(FrameResource* currFrameResource, int currFrameResourceIndex)
 {
-	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
-	currFrameResource = frameResources[currFrameResourceIndex].get();
-
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
 		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
@@ -81,6 +78,8 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 				// instance data
 				if (e->NumFramesDirty > 0)
 				{
+					e->instanceIndex = bufferIndex;
+
 					Matrix4x4 worldTransform;
 					if (layerIndex == (int)RenderLayer::UI)
 						worldTransform = RectTransform::Transform(e->GetMatrix());
@@ -88,13 +87,13 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 						worldTransform = e->GetMatrix();
 					Matrix4x4 world = worldTransform;
 					Matrix4x4 texTransform = e->TexTransform;
-
+				
 					InstanceData objConstants;
 					objConstants.World = world.Transpose();
 					objConstants.TexTransform = texTransform.Transpose();
 					objConstants.MaterialIndexStride = 0;
 					objConstants.BoneTransformStride = 0;
-
+				
 					Renderer* renderer = e->GetComponent<Renderer>();
 					if (!renderer)
 						renderer = e->GetComponent<SkinnedMeshRenderer>();
@@ -102,9 +101,9 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 						objConstants.MaterialIndexStride = renderer->materials.size();
 					if (e->GetComponent<Animator>())
 						objConstants.BoneTransformStride = e->GetComponent<Animator>()->controller->BoneCount();
-
+				
 					instanceBuffer->CopyData(bufferIndex, objConstants);
-
+				
 					--e->NumFramesDirty;
 				}
 
@@ -272,7 +271,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 }
 
-void Graphics::RenderShadowMap()
+void Graphics::RenderShadowMap(FrameResource* currFrameResource, int currFrameResourceIndex)
 {
 	currFrameResource->CmdListAlloc->Reset();
 	commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
@@ -380,9 +379,9 @@ void Graphics::PreRender()
 	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
 }
 
-void Graphics::Render()
+void Graphics::Render(FrameResource* currFrameResource, int currFrameResourceIndex)
 {
-	RenderShadowMap();
+	RenderShadowMap(currFrameResource, currFrameResourceIndex);
 
 	PreRender();
 
@@ -415,14 +414,14 @@ void Graphics::Render()
 	{
 		if (layerIndex == (int)RenderLayer::Sky)
 			continue;
-		RenderObjects(layerIndex);
+		RenderObjects(layerIndex, currFrameResourceIndex);
 	}
-	RenderObjects((int)RenderLayer::Sky);
+	RenderObjects((int)RenderLayer::Sky, currFrameResourceIndex);
 
-	PostRender();
+	PostRender(currFrameResource);
 }
 
-void Graphics::RenderObjects(int layerIndex)
+void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
 {
 	if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 		commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
@@ -602,7 +601,7 @@ void Graphics::RenderUI()
 
 
 
-void Graphics::PostRender()
+void Graphics::PostRender(FrameResource* currFrameResource)
 {
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	commandList->Close();

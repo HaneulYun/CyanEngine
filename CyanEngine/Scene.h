@@ -13,11 +13,12 @@ struct Texture
 
 class Scene
 {
-private:
+public:
 	bool isDirty{ true };
 
 public:
 	std::deque<GameObject*> gameObjects;
+	ObjectRenderManager objectRenderManager;
 	std::map<Mesh*, RenderSets> renderObjectsLayer[(int)RenderLayer::Count];
 
 	std::priority_queue<GameObject*> deletionQueue;

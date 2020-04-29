@@ -12,10 +12,13 @@ class GameObject : public Object
 {
 public:
 	Scene* scene{ nullptr };
+	int layer{ 0 };
+	int instanceIndex{ 0 };
 
 	GameObject* parent{ nullptr };
-	std::deque<Component*> components;
 	std::deque<GameObject*> children;
+
+	std::deque<Component*> components;
 	Transform* transform{ nullptr };
 	Component* meshFilter{ nullptr };
 	Component* renderer{ nullptr };

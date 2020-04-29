@@ -62,12 +62,6 @@ void Scene::Start()
 
 void Scene::Update()
 {
-	if (isDirty)
-	{
-		isDirty = false;
-		Start();
-	}
-
 	// fixed update
 	Collider *lhs_collider, *rhs_collider;
 	for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)

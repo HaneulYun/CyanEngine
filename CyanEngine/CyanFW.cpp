@@ -39,9 +39,19 @@ void CyanFW::OnFrameAdvance()
 
 		Camera::main = Scene::scene->camera;
 	}
+
+	if (sceneManager->scene->isDirty)
+	{
+		sceneManager->scene->isDirty = false;
+		sceneManager->scene->Start();
+	}
+
+	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
+	currFrameResource = sceneManager->scene->frameResources[currFrameResourceIndex].get();
+
 	sceneManager->scene->Update();
-	graphics->Update(sceneManager->scene->frameResources);
-	graphics->Render();
+	graphics->Update(currFrameResource, currFrameResourceIndex);
+	graphics->Render(currFrameResource, currFrameResourceIndex);
 
 	Input::Update();
 }
