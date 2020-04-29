@@ -26,6 +26,7 @@ void Input::Update()
 		d = false;
 	for (auto& d : mouseUp)
 		d = false;
+	mouseWheel = 0.0f;
 }
 
 bool Input::GetKey(KeyCode key)
@@ -56,4 +57,9 @@ bool Input::GetMouseButtonUp(int button)
 bool Input::GetMouseButtonDown(int button)
 {
 	return mouseDown[button];
+}
+
+float Input::GetMouseWheelDelta()
+{
+	return mouseWheel;
 }

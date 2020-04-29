@@ -29,4 +29,5 @@ public:
 	static bool GetMouseButton(int button);
 	static bool GetMouseButtonUp(int button);
 	static bool GetMouseButtonDown(int button);
+	static float GetMouseWheelDelta();
 };
