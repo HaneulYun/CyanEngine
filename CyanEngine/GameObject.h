@@ -33,7 +33,7 @@ public:
 	Matrix4x4 World;
 	Matrix4x4 TexTransform;
 
-	int NumFramesDirty{ NUM_FRAME_RESOURCES };
+	int NumFramesDirty{ -1 };
 
 private:
 	friend class Scene;
