@@ -240,6 +240,7 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshFilter.cpp" />
     <ClCompile Include="Meshs.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectRenderManager.cpp" />
@@ -257,6 +258,7 @@
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="SkinnedMeshRenderer.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Time.cpp" />

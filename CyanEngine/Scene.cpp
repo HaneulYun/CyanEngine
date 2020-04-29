@@ -181,7 +181,7 @@ GameObject* Scene::CreateImage()
 	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
 	gameObject->AddComponent<Renderer>()->materials.push_back(0);
 	gameObject->AddComponent<Image>();
-	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(gameObject);
+	gameObject->layer = (int)RenderLayer::UI;
 
 	return gameObject;
 }
@@ -192,7 +192,7 @@ GameObject* Scene::CreateImagePrefab()
 	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
 	gameObject->AddComponent<Renderer>()->materials.push_back(0);
 	gameObject->AddComponent<Image>();
-	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(gameObject);
+	gameObject->layer = (int)RenderLayer::UI;
 
 	return gameObject;
 }

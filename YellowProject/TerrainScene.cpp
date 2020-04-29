@@ -90,8 +90,7 @@ void TerrainScene::BuildObjects()
 		auto renderer = ritem->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
 			renderer->materials.push_back(5);
-	
-		renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(ritem);
+		ritem->layer = (int)RenderLayer::Sky;
 	}
 
 	std::string name[9] {
@@ -132,8 +131,7 @@ void TerrainScene::BuildObjects()
 				anim->TimePos = 0;
 				auto ref = ritem->AddComponent<CharacterController>();
 			}
-	
-			renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(ritem);
+			ritem->layer = (int)RenderLayer::SkinnedOpaque;
 		}
 	
 	GameObject* prefab;
@@ -152,9 +150,6 @@ void TerrainScene::BuildObjects()
 					renderer->materials.push_back(Random::Range(8, 14));
 	
 				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 2;
-	
-				renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(ritem);
-				
 			}
 	
 	{
@@ -162,7 +157,6 @@ void TerrainScene::BuildObjects()
 		grid->GetComponent<Transform>()->position -= {128, 10, 128};
 		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;
 		grid->AddComponent<Renderer>()->materials.push_back(4);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(grid);
 		TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
 		tp->terrain = grid;
 		tp->prefab = prefab;
@@ -221,7 +215,7 @@ void TerrainScene::BuildObjects()
 	billboards->GetComponent<Transform>()->position -= {128, 10, 128};
 	auto mesh = billboards->AddComponent<MeshFilter>()->mesh = geometries["Grass"].get();
 	billboards->AddComponent<Renderer>()->materials.push_back(7);
-	renderObjectsLayer[(int)RenderLayer::Grass][mesh].gameObjects.push_back(billboards);
+	billboards->layer = (int)RenderLayer::Grass;
 
 
 	for (int i = 0; i < 5; ++i)
@@ -230,25 +224,21 @@ void TerrainScene::BuildObjects()
 		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
 		auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
 		leftCylRItem->AddComponent<Renderer>()->materials.push_back(2);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(leftCylRItem);
 	
 		GameObject* rightCylRItem = CreateEmpty();
 		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
 		mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
 		rightCylRItem->AddComponent<Renderer>()->materials.push_back(2);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(rightCylRItem);
 	
 		GameObject* leftSphereRItem = CreateEmpty();
 		leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
 		mesh = leftSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
 		leftSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(leftSphereRItem);
 	
 		GameObject* rightSphereRItem = CreateEmpty();
 		rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
 		mesh = rightSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
 		rightSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
-		renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(rightSphereRItem);
 	}
 
 	auto menuSceneButton = CreateImage();

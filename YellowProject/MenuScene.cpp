@@ -27,7 +27,7 @@ void MenuScene::BuildObjects()
 		skyBox->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
 		skyBox->AddComponent<Renderer>()->materials.push_back(1);
 		auto mesh = skyBox->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
-		renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(skyBox);
+		skyBox->layer = (int)RenderLayer::Sky;
 	}
 
 	auto sampleSceneButton = CreateImage();
@@ -146,5 +146,4 @@ void MenuScene::BuildObjects()
 			textObjects.push_back(textobject);
 		}
 	}
-
 }

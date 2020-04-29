@@ -1,19 +1,18 @@
 #pragma once
 
-class MeshFilter : public Component
+class MeshFilter : public MonoBehavior<MeshFilter>
 {
 public:
 	Mesh* mesh{ nullptr };
 
-public:
+private:
+	friend class GameObject;
+	friend class MonoBehavior<MeshFilter>;
 	MeshFilter() = default;
 	MeshFilter(MeshFilter&) = default;
-	~MeshFilter() = default;
 
-	void Start() override {}
-	void Update() override {}
+public:
+	~MeshFilter() {}
 
-	virtual Component* Duplicate() { return new MeshFilter; };
-	virtual Component* Duplicate(Component* component) { return new MeshFilter(*(MeshFilter*)component); }
-
+	void Start();
 };

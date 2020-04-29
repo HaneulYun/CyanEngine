@@ -94,7 +94,7 @@ void ParticleScene::BuildObjects()
 		skyBox->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
 		skyBox->AddComponent<Renderer>()->materials.push_back(1);
 		auto mesh = skyBox->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
-		renderObjectsLayer[(int)RenderLayer::Sky][mesh].gameObjects.push_back(skyBox);
+		skyBox->layer = (int)RenderLayer::Sky;
 	}
 
 	auto menuSceneButton = CreateImage();
@@ -130,13 +130,13 @@ void ParticleScene::BuildObjects()
 	{
 		grid->AddComponent<MeshFilter>()->mesh = geometries["Plane"].get();
 		grid->AddComponent<Renderer>()->materials.push_back(0);
-		renderObjectsLayer[(int)RenderLayer::Opaque][geometries["Plane"].get()].gameObjects.push_back(grid);
 	}
 
 	auto particleSystemObject = CreateEmpty();
 	{
 		particleSystemObject->AddComponent<ParticleSystem>()->particle = geometries["Particle"].get();
 		particleSystemObject->AddComponent<Renderer>()->materials.push_back(0);
+		particleSystemObject->layer = (int)RenderLayer::Particle;
 		renderObjectsLayer[(int)RenderLayer::Particle][geometries["Particle"].get()].gameObjects.push_back(particleSystemObject);
 	}
 }
