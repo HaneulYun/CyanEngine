@@ -212,7 +212,7 @@ void Graphics::RenderShadowMap(FrameResource* currFrameResource, int currFrameRe
 		else
 			commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
 
-		for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
+		for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[layerIndex])
 		{
 			auto& mesh = renderSets.first;
 			auto& objects = renderSets.second.gameObjects;
@@ -513,7 +513,7 @@ void Graphics::PostRender(FrameResource* currFrameResource)
 
 	WaitForPreviousFrame();
 	
-	for (auto& renderSets : Scene::scene->renderObjectsLayer[(int)RenderLayer::Particle])
+	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Particle])
 	{
 		auto& mesh = renderSets.first;
 		auto& objects = renderSets.second.gameObjects;

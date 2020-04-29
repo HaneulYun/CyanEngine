@@ -59,9 +59,11 @@ void ObjectRenderManager::AddGameObject(GameObject* gameObject, int layer)
 	if (!gameObject)
 		return;
 
-	Mesh* mesh = gameObject->GetComponent<MeshFilter>()->mesh;
-	if (!mesh)
-		gameObject->GetComponent<SkinnedMeshRenderer>()->mesh;
+	Mesh* mesh{ nullptr };
+	if (auto component = gameObject->GetComponent<MeshFilter>(); component)
+		mesh = component->mesh;
+	if (auto component = gameObject->GetComponent<SkinnedMeshRenderer>(); component && !mesh)
+		mesh = component->mesh;
 	if (!mesh)
 		return;
 

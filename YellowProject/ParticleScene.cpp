@@ -137,6 +137,5 @@ void ParticleScene::BuildObjects()
 		particleSystemObject->AddComponent<ParticleSystem>()->particle = geometries["Particle"].get();
 		particleSystemObject->AddComponent<Renderer>()->materials.push_back(0);
 		particleSystemObject->layer = (int)RenderLayer::Particle;
-		renderObjectsLayer[(int)RenderLayer::Particle][geometries["Particle"].get()].gameObjects.push_back(particleSystemObject);
 	}
 }

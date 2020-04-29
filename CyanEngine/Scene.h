@@ -19,7 +19,6 @@ public:
 public:
 	std::deque<GameObject*> gameObjects;
 	ObjectRenderManager objectRenderManager;
-	std::map<Mesh*, RenderSets> renderObjectsLayer[(int)RenderLayer::Count];
 
 	std::queue<GameObject*> creationQueue;
 	std::priority_queue<GameObject*> deletionQueue;

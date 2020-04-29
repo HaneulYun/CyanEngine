@@ -87,8 +87,8 @@ public:
 				GameObject* go = Scene::scene->Duplicate(prefab);
 				Scene::scene->AddGameObject(go);
 				Mesh* mesh = static_cast<MeshFilter*>(go->meshFilter)->mesh;
-				Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
-				Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].isDirty = true;
+				//Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
+				//Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].isDirty = true;
 			}
 		}
 	}

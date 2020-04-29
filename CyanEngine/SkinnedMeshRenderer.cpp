@@ -3,5 +3,5 @@
 
 void SkinnedMeshRenderer::Start()
 {
-	gameObject->scene->renderObjectsLayer[(int)RenderLayer::SkinnedOpaque][mesh].gameObjects.push_back(gameObject);
+	gameObject->scene->objectRenderManager.AddGameObject(gameObject, (int)RenderLayer::SkinnedOpaque);
 }
