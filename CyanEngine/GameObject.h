@@ -1,6 +1,7 @@
 #pragma once
 
 class Scene;
+class RenderSets;
 
 enum class CollisionType
 {
@@ -11,11 +12,17 @@ enum class CollisionType
 class GameObject : public Object
 {
 public:
+	RenderSets* renderSet{ nullptr };
+
+public:
 	Scene* scene{ nullptr };
+	int layer{ 0 };
+	int instanceIndex{ 0 };
 
 	GameObject* parent{ nullptr };
-	std::deque<Component*> components;
 	std::deque<GameObject*> children;
+
+	std::deque<Component*> components;
 	Transform* transform{ nullptr };
 	Component* meshFilter{ nullptr };
 	Component* renderer{ nullptr };
@@ -36,7 +43,7 @@ private:
 public:
 	GameObject(bool isUI);
 	GameObject(GameObject*);
-	~GameObject();
+	~GameObject() {}
 
 	void Start();
 	void Update();

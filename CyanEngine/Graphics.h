@@ -1,6 +1,5 @@
 #pragma once
 
-#include "FrameResource.h"
 #include "ShadowMap.h"
 
 class Graphics : public Singleton<Graphics>
@@ -40,10 +39,6 @@ public:
 		UINT uavDescriptorSize;
 	};
 
-	static const int NumFrameResources{ NUM_FRAME_RESOURCES };
-	FrameResource* currFrameResource{ nullptr };
-	int currFrameResourceIndex{ 0 };
-
 	std::unordered_map<std::string, ComPtr<ID3DBlob>> shaders;
 	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> pipelineStates;
 
@@ -78,13 +73,13 @@ public:
 	void Initialize();
 
 	void Start();
-	void Update(std::vector<std::unique_ptr<FrameResource>>& frameResources);
+	void Update(FrameResource* currFrameResource, int currFrameResourceIndex);
 	void PreRender();
-	void Render();
-	void RenderObjects(int layerIndex);
+	void Render(FrameResource* currFrameResource, int currFrameResourceIndex);
+	void RenderObjects(int layerIndex, int currFrameResourceIndex);
 	void RenderUI();
-	void PostRender();
-	void RenderShadowMap();
+	void PostRender(FrameResource* currFrameResource);
+	void RenderShadowMap(FrameResource* currFrameResource, int currFrameResourceIndex);
 	void Destroy();
 
 	//--------------//

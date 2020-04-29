@@ -187,6 +187,9 @@
     <ClInclude Include="ParticleSystem.h">
       <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectRenderManager.h">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -287,6 +290,15 @@
       <Filter>0_00_CyanEngine\21_Math</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSystem.cpp">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectRenderManager.cpp">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshFilter.cpp">
+      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedMeshRenderer.cpp">
       <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
     </ClCompile>
   </ItemGroup>

@@ -62,11 +62,13 @@ void Scene::Start()
 
 void Scene::Update()
 {
-	if (isDirty)
+	while (!creationQueue.empty())
 	{
-		isDirty = false;
-		Start();
+		creationQueue.front()->Start();
+		creationQueue.pop();
 	}
+
+	objectRenderManager.Update();
 
 	// fixed update
 	Collider *lhs_collider, *rhs_collider;
@@ -144,6 +146,7 @@ GameObject* Scene::AddGameObject(GameObject* gameObject)
 {
 	gameObject->scene = this;
 	gameObjects.push_back(gameObject);
+	creationQueue.push(gameObject);
 	return gameObject;
 }
 
@@ -185,7 +188,7 @@ GameObject* Scene::CreateImage()
 	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
 	gameObject->AddComponent<Renderer>()->materials.push_back(0);
 	gameObject->AddComponent<Image>();
-	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(gameObject);
+	gameObject->layer = (int)RenderLayer::UI;
 
 	return gameObject;
 }
@@ -196,7 +199,7 @@ GameObject* Scene::CreateImagePrefab()
 	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
 	gameObject->AddComponent<Renderer>()->materials.push_back(0);
 	gameObject->AddComponent<Image>();
-	renderObjectsLayer[(int)RenderLayer::UI][mesh].gameObjects.push_back(gameObject);
+	gameObject->layer = (int)RenderLayer::UI;
 
 	return gameObject;
 }

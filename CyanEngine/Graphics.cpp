@@ -25,121 +25,14 @@ void Graphics::Start()
 {
 }
 
-void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResources)
+void Graphics::Update(FrameResource* currFrameResource, int currFrameResourceIndex)
 {
-	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
-	currFrameResource = frameResources[currFrameResourceIndex].get();
-
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
 		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
 		fence->SetEventOnCompletion(currFrameResource->Fence, eventHandle);
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
-	}
-
-	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
-	{
-		for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
-		{
-			auto& objects = renderSets.second.gameObjects;
-			if (!objects.size())
-				continue;
-
-			if (renderSets.second.isDirty)
-			{
-				if (renderSets.second.objectsResources.size())
-					renderSets.second.objectsResources.clear();
-				for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
-					renderSets.second.objectsResources.push_back(std::make_unique<ObjectsResource>());
-				renderSets.second.isDirty = false;
-			}
-			auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
-
-			if (objectsResource->isDirty)
-			{
-				int objectCount = renderSets.second.gameObjects.size();
-				int boneStride = 1;
-				int matIndexStride = 1;
-				if (objects[0]->GetComponent<Animator>())
-					boneStride = objects[0]->GetComponent<Animator>()->controller->BoneCount();
-				if (objects[0]->GetComponent<SkinnedMeshRenderer>())
-					matIndexStride = objects[0]->GetComponent<SkinnedMeshRenderer>()->materials.size();
-
-				objectsResource->InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(device.Get(), objectCount, false);
-				objectsResource->SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(device.Get(), objectCount * boneStride, false);
-				objectsResource->MatIndexBuffer = std::make_unique<UploadBuffer<MatIndexData>>(device.Get(), objectCount * matIndexStride, false);
-				objectsResource->isDirty = false;
-			}
-			auto instanceBuffer = objectsResource->InstanceBuffer.get();
-			auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
-			auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
-
-			int bufferIndex = 0;
-			for (auto& e : objects)
-			{
-				// instance data
-				if (e->NumFramesDirty > 0)
-				{
-					Matrix4x4 worldTransform;
-					if (layerIndex == (int)RenderLayer::UI)
-						worldTransform = RectTransform::Transform(e->GetMatrix());
-					else
-						worldTransform = e->GetMatrix();
-					Matrix4x4 world = worldTransform;
-					Matrix4x4 texTransform = e->TexTransform;
-
-					InstanceData objConstants;
-					objConstants.World = world.Transpose();
-					objConstants.TexTransform = texTransform.Transpose();
-					objConstants.MaterialIndexStride = 0;
-					objConstants.BoneTransformStride = 0;
-
-					Renderer* renderer = e->GetComponent<Renderer>();
-					if (!renderer)
-						renderer = e->GetComponent<SkinnedMeshRenderer>();
-					if (renderer)
-						objConstants.MaterialIndexStride = renderer->materials.size();
-					if (e->GetComponent<Animator>())
-						objConstants.BoneTransformStride = e->GetComponent<Animator>()->controller->BoneCount();
-
-					instanceBuffer->CopyData(bufferIndex, objConstants);
-
-					--e->NumFramesDirty;
-				}
-
-				// skinned data
-				if (e->GetComponent<Animator>())
-				{
-					int baseindex = bufferIndex * e->GetComponent<Animator>()->controller->BoneCount();
-
-					e->GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);
-					for (int i = 0; i < e->GetComponent<Animator>()->FinalTransforms.size(); ++i)
-					{
-						SkinnnedData skinnedConstants;
-						skinnedConstants.BoneTransforms = e->GetComponent<Animator>()->FinalTransforms[i];
-						skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
-					}
-				}
-
-				// material data
-				Renderer* renderer = e->GetComponent<Renderer>();
-				if (!renderer)
-					renderer = e->GetComponent<SkinnedMeshRenderer>();
-				if (renderer)
-				{
-					int baseindex = bufferIndex * renderer->materials.size();
-
-					for (int i = 0; i < renderer->materials.size(); ++i)
-					{
-						MatIndexData skinnedConstants;
-						skinnedConstants.MaterialIndex = renderer->materials[i];
-						matIndexBuffer->CopyData(baseindex + i, skinnedConstants);
-					}
-				}
-				++bufferIndex;
-			}
-		}
 	}
 
 	// UpdateMaterialBuffer
@@ -272,7 +165,7 @@ void Graphics::Update(std::vector<std::unique_ptr<FrameResource>>& frameResource
 
 }
 
-void Graphics::RenderShadowMap()
+void Graphics::RenderShadowMap(FrameResource* currFrameResource, int currFrameResourceIndex)
 {
 	currFrameResource->CmdListAlloc->Reset();
 	commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
@@ -319,7 +212,7 @@ void Graphics::RenderShadowMap()
 		else
 			commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
 
-		for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
+		for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[layerIndex])
 		{
 			auto& mesh = renderSets.first;
 			auto& objects = renderSets.second.gameObjects;
@@ -380,9 +273,9 @@ void Graphics::PreRender()
 	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
 }
 
-void Graphics::Render()
+void Graphics::Render(FrameResource* currFrameResource, int currFrameResourceIndex)
 {
-	RenderShadowMap();
+	RenderShadowMap(currFrameResource, currFrameResourceIndex);
 
 	PreRender();
 
@@ -415,14 +308,14 @@ void Graphics::Render()
 	{
 		if (layerIndex == (int)RenderLayer::Sky)
 			continue;
-		RenderObjects(layerIndex);
+		RenderObjects(layerIndex, currFrameResourceIndex);
 	}
-	RenderObjects((int)RenderLayer::Sky);
+	RenderObjects((int)RenderLayer::Sky, currFrameResourceIndex);
 
-	PostRender();
+	PostRender(currFrameResource);
 }
 
-void Graphics::RenderObjects(int layerIndex)
+void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
 {
 	if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 		commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
@@ -438,7 +331,7 @@ void Graphics::RenderObjects(int layerIndex)
 	else
 		commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
-	for (auto& renderSets : Scene::scene->renderObjectsLayer[layerIndex])
+	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[layerIndex])
 	{
 		auto& mesh = renderSets.first;
 		auto& objects = renderSets.second.gameObjects;
@@ -602,7 +495,7 @@ void Graphics::RenderUI()
 
 
 
-void Graphics::PostRender()
+void Graphics::PostRender(FrameResource* currFrameResource)
 {
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	commandList->Close();
@@ -620,7 +513,7 @@ void Graphics::PostRender()
 
 	WaitForPreviousFrame();
 	
-	for (auto& renderSets : Scene::scene->renderObjectsLayer[(int)RenderLayer::Particle])
+	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Particle])
 	{
 		auto& mesh = renderSets.first;
 		auto& objects = renderSets.second.gameObjects;

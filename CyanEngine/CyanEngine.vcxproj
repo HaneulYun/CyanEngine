@@ -199,6 +199,7 @@
     <ClInclude Include="MeshFilter.h" />
     <ClInclude Include="MonoBehavior.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="ObjectRenderManager.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />
@@ -239,8 +240,10 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshFilter.cpp" />
     <ClCompile Include="Meshs.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="ObjectRenderManager.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -255,6 +258,7 @@
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="SkinnedMeshRenderer.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Time.cpp" />

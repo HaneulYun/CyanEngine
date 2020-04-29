@@ -13,4 +13,6 @@ private:
 
 public:
 	~SkinnedMeshRenderer() {}
+
+	void Start();
 };
