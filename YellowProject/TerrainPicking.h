@@ -13,6 +13,8 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	CHeightMapImage* heightMap;
 	CHeightMapGridMesh* mesh;
 
+	std::vector<GameObject*> gameObjects;
+
 private:
 	friend class GameObject;
 	friend class MonoBehavior<TerrainPicking>;
@@ -85,10 +87,6 @@ public:
 			if (Input::GetMouseButtonUp(2))
 			{
 				GameObject* go = Scene::scene->Duplicate(prefab);
-				Scene::scene->AddGameObject(go);
-				Mesh* mesh = static_cast<MeshFilter*>(go->meshFilter)->mesh;
-				//Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].gameObjects.push_back(go);
-				//Scene::scene->renderObjectsLayer[(int)RenderLayer::Opaque][mesh].isDirty = true;
 			}
 		}
 	}

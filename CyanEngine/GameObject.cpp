@@ -42,7 +42,7 @@ void GameObject::Update()
 		auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
 
 		// instance data
-		if (NumFramesDirty > 0)
+		if (NumFramesDirty)
 		{
 			Matrix4x4 worldTransform;
 			if (layer == (int)RenderLayer::UI)
@@ -68,7 +68,8 @@ void GameObject::Update()
 
 			instanceBuffer->CopyData(instanceIndex, objConstants);
 
-			--NumFramesDirty;
+			if (NumFramesDirty > 0)
+				--NumFramesDirty;
 		}
 
 		// skinned data
