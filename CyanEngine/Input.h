@@ -16,6 +16,7 @@ public:
 	static bool mouses[3];
 	static bool mouseUp[3];
 	static bool mouseDown[3];
+	static float mouseWheel;
 
 public:
 	Input();

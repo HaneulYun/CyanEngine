@@ -69,6 +69,7 @@ LRESULT CALLBACK CyanApp::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+	case WM_MOUSEWHEEL:
 		if (cyanFW)
 			cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
 		return 0;

@@ -8,6 +8,7 @@ bool Input::keyDown[256];
 bool Input::mouses[3];
 bool Input::mouseUp[3];
 bool Input::mouseDown[3];
+float Input::mouseWheel;
 
 Input::Input()
 {
