@@ -22,6 +22,7 @@ public:
 
 	std::queue<GameObject*> creationQueue;
 	std::priority_queue<GameObject*> deletionQueue;
+	std::queue<GameObject*> disableQueue;
 	std::vector<GameObject*> textObjects;
 
 public:
@@ -59,6 +60,9 @@ public:
 
 	void PushDelete(GameObject*);
 	void Delete(GameObject*);
+
+	void PushDisable(GameObject*);
+	void Disable(GameObject*);
 
 	// Asset Managerment
 	void AddTexture(UINT index, std::string name, std::wstring fileName)
