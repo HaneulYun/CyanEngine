@@ -20,10 +20,21 @@ struct RenderSets
 
 	std::vector<GameObject*> gameObjects;
 	std::vector<std::unique_ptr<ObjectsResource>> objectsResources;
+
+public:
+	void Update();
+
+	void AddGameObject(GameObject* gameObject);
 };
 
 class ObjectRenderManager
 {
-	std::map<Mesh*, RenderSets> renderObjectsLayer[(int)RenderLayer::Count];
-};
+	bool isDirty{ true };
 
+	std::map<Mesh*, RenderSets> renderObjectsLayer[(int)RenderLayer::Count];
+
+public:
+	void Update();
+
+	void AddGameObject(GameObject* gameObject, int layer = 0);
+};

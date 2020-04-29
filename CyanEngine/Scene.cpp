@@ -62,6 +62,8 @@ void Scene::Start()
 
 void Scene::Update()
 {
+	objectRenderManager.Update();
+
 	// fixed update
 	Collider *lhs_collider, *rhs_collider;
 	for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)
