@@ -87,6 +87,9 @@ void CyanFW::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam,
 	case WM_MOUSEMOVE:
 		Input::mousePosition = Vector3(LOWORD(lParam), HIWORD(lParam), 0);
 		break;
+	case WM_MOUSEWHEEL:
+		Input::mouseWheel = GET_WHEEL_DELTA_WPARAM(wParam);
+		break;
 	}
 }
 
@@ -129,6 +132,7 @@ LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wPa
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	case WM_MOUSEMOVE:
+	case WM_MOUSEWHEEL:
 		OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 		break;
 	case WM_KEYDOWN:
