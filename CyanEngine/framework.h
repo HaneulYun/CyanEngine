@@ -123,6 +123,8 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include "GameObject.h"
 
 #include "FbxLoader.h"
+
+#include "ObjectRenderManager.h"
 #include "Scene.h"
 #include "SceneManager.h"
 
