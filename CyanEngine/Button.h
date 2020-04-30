@@ -29,6 +29,7 @@ public:
 			Vector3 screen = Camera::main->ScreenToViewportPoint(Input::mousePosition);
 			if (!IsPointInRect(screen))
 				return;
+			Input::mouseUp[0] = false;
 			for (auto& e : events)
 				e.first(e.second);
 		}
