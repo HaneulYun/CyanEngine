@@ -14,10 +14,13 @@ struct ObjectsResource
 
 struct RenderSets
 {
-	bool isDirty{ true };
+	int isDirty{ NUM_FRAME_RESOURCES };
 
 	std::vector<GameObject*> gameObjects;
 	std::vector<std::unique_ptr<ObjectsResource>> objectsResources;
+
+private:
+	std::unique_ptr<ObjectsResource> MakeResource();
 
 public:
 	void Update();
@@ -28,8 +31,6 @@ public:
 class ObjectRenderManager
 {
 public:
-	bool isDirty{ true };
-
 	std::map<Mesh*, RenderSets> renderObjectsLayer[(int)RenderLayer::Count];
 
 public:
