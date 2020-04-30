@@ -105,60 +105,61 @@ void TerrainScene::BuildObjects()
 		"DashForward_BowAnim",
 	};
 
-	//int i = 0;
-	//int count = 0;
-	//float interval = 7.0f;
-	//for (int x = -count; x <= count; ++x)
-	//	for (int z = -count; z <= count; ++z)
-	//	{
-	//		auto ritem = CreateEmpty();
-	//		ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
-	//		ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
-	//		ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
-	//		auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries["ApprenticeSK"].get();
-	//		auto renderer = ritem->GetComponent<SkinnedMeshRenderer>();
-	//		for (auto& sm : mesh->DrawArgs)
-	//			renderer->materials.push_back(1);
-	//
-	//		auto anim = ritem->AddComponent<Animator>();
-	//		anim->controller = controller;
-	//		//anim->state = &controller->states[name[i++]];
-	//		//anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->state));
-	//
-	//		if (!x && !z)
-	//		{
-	//			anim->state = &controller->states["Idle"];
-	//			anim->TimePos = 0;
-	//			auto ref = ritem->AddComponent<CharacterController>();
-	//		}
-	//		ritem->layer = (int)RenderLayer::SkinnedOpaque;
-	//	}
-
-	auto guestPlayer = CreateEmpty();
-	{
-		auto model = guestPlayer->AddChild();
+	int i = 0;
+	int count = 1;
+	float interval = 7.0f;
+	for (int x = -count; x <= count; ++x)
+		for (int z = -count; z <= count; ++z)
 		{
-			model->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
-			model->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
-			auto mesh = model->AddComponent<SkinnedMeshRenderer>()->mesh = geometries["ApprenticeSK"].get();
-			auto renderer = model->GetComponent<SkinnedMeshRenderer>();
+			auto ritem = CreateEmpty();
+			ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
+			ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
+			ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
+			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries["ApprenticeSK"].get();
+			auto renderer = ritem->GetComponent<SkinnedMeshRenderer>();
 			for (auto& sm : mesh->DrawArgs)
 				renderer->materials.push_back(1);
 	
-			auto animator = model->AddComponent<Animator>();
-			animator->controller = controller;
-			animator->state = &controller->states["Idle"];
-			animator->TimePos = 0;
+			auto anim = ritem->AddComponent<Animator>();
+			anim->controller = controller;
+			anim->state = &controller->states["Idle"];
+			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->state));
+			
+			auto ref = ritem->AddComponent<CharacterController>();
 	
-			//guestPlayer->AddComponent<GuestController>()->animator = animator;
+			if (!x && !z)
+			{
+				ref->isPlayer = true;
+			}
+
+			ritem->layer = (int)RenderLayer::SkinnedOpaque;
 		}
-		//auto cameraOffset = guestPlayer->AddChild();
-		//{
-		//	cameraOffset->transform->position = { 0, 3, -6 };
-		//	camera = camera->main = cameraOffset->AddComponent<Camera>();
-		//	cameraOffset->AddComponent<CameraController>();
-		//}
-	}
+
+	//auto guestPlayer = CreateEmpty();
+	//{
+	//	auto model = guestPlayer->AddChild();
+	//	{
+	//		model->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
+	//		model->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
+	//		auto mesh = model->AddComponent<SkinnedMeshRenderer>()->mesh = geometries["ApprenticeSK"].get();
+	//		auto renderer = model->GetComponent<SkinnedMeshRenderer>();
+	//		for (auto& sm : mesh->DrawArgs)
+	//			renderer->materials.push_back(1);
+	//
+	//		auto animator = model->AddComponent<Animator>();
+	//		animator->controller = controller;
+	//		animator->state = &controller->states["Idle"];
+	//		animator->TimePos = 0;
+	//
+	//		//guestPlayer->AddComponent<GuestController>()->animator = animator;
+	//	}
+	//	//auto cameraOffset = guestPlayer->AddChild();
+	//	//{
+	//	//	cameraOffset->transform->position = { 0, 3, -6 };
+	//	//	camera = camera->main = cameraOffset->AddComponent<Camera>();
+	//	//	cameraOffset->AddComponent<CameraController>();
+	//	//}
+	//}
 	
 	GameObject* prefab;
 	int xObjects = 0, yObjects = 0, zObjects = 0;

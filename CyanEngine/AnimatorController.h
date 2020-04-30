@@ -32,7 +32,7 @@ enum class AnimatorControllerParameterType
 	None = 0, Float = 1, Int = 3, Bool = 4, Trigger = 9
 };
 
-struct AnimationControllerParameter
+struct AnimatorControllerParameter
 {
 	std::string Name;
 	AnimatorControllerParameterType Type{ AnimatorControllerParameterType::None };
@@ -44,15 +44,15 @@ struct AnimationControllerParameter
 	};
 };
 
-enum AnimationControllerStateTransitionConditionOperatorType
+enum AnimatorControllerStateTransitionConditionOperatorType
 {
 	Greater, Less, Equals, NotEqual
 };
 
-struct AnimationControllerStateTransitionCondition
+struct AnimatorControllerStateTransitionCondition
 {
 	std::string ParameterName;
-	AnimationControllerStateTransitionConditionOperatorType operatorType;
+	AnimatorControllerStateTransitionConditionOperatorType operatorType;
 	union
 	{
 		float Float{};
@@ -60,36 +60,36 @@ struct AnimationControllerStateTransitionCondition
 		bool Bool;
 	};
 
-	static AnimationControllerStateTransitionCondition CreateFloat(std::string name, 
-		AnimationControllerStateTransitionConditionOperatorType operatorType, float value)
+	static AnimatorControllerStateTransitionCondition CreateFloat(std::string name, 
+		AnimatorControllerStateTransitionConditionOperatorType operatorType, float value)
 	{
-		AnimationControllerStateTransitionCondition condition{};
+		AnimatorControllerStateTransitionCondition condition{};
 		condition.ParameterName = name;
 		condition.operatorType = operatorType;
 		condition.Float = value;
 		return condition;
 	}
 };
-typedef AnimationControllerStateTransitionCondition TransitionCondition;
+typedef AnimatorControllerStateTransitionCondition TransitionCondition;
 
-struct AnimationControllerStateTransition
+struct AnimatorControllerStateTransition
 {
 	std::string Name;
 	std::string DestinationStateName;
-	std::vector<AnimationControllerStateTransitionCondition> conditions;
+	std::vector<AnimatorControllerStateTransitionCondition> conditions;
 };
 
-struct AnimationControllerState
+struct AnimatorControllerState
 {
 	std::string Name;
 
 	AnimationClip* motion;
-	std::vector< AnimationControllerStateTransition> transitionns;
+	std::vector< AnimatorControllerStateTransition> transitionns;
 };
 
 struct PastState
 {
-	AnimationControllerState* state{ nullptr };
+	AnimatorControllerState* state{ nullptr };
 	float TimePos{ 0.0f };
 	float TransitionWeight{ 1.0f };
 	float TransitionTimePost{ 0.25f };
@@ -100,34 +100,34 @@ class AnimatorController
 public:
 	std::vector<int> mBoneHierarchy;
 	std::vector<Matrix4x4> mBoneOffsets;
-	std::unordered_map<std::string, AnimationControllerState> states;
-	std::unordered_map<std::string, AnimationControllerParameter> parameters;
+	std::unordered_map<std::string, AnimatorControllerState> states;
+	std::unordered_map<std::string, AnimatorControllerParameter> parameters;
 
 public:
 	UINT BoneCount() const { return mBoneHierarchy.size(); }
 
-	float GetClipStartTime(const AnimationControllerState* state) const { return state->motion->GetClipStartTime(); }
-	float GetClipEndTime(const AnimationControllerState* state) const { return state->motion->GetClipEndTime(); }
+	float GetClipStartTime(const AnimatorControllerState* state) const { return state->motion->GetClipStartTime(); }
+	float GetClipEndTime(const AnimatorControllerState* state) const { return state->motion->GetClipEndTime(); }
 
-	void GetFinalTransforms(const AnimationControllerState* state, float timePos,
+	void GetFinalTransforms(const AnimatorControllerState* state, float timePos,
 		std::vector<PastState>& pastStates, std::vector<Matrix4x4>& finalTransforms) const;
-	AnimationControllerState* Transition(AnimationControllerState* state);
+	AnimatorControllerState* Transition(AnimatorControllerState* state);
 
 	void AddState(std::string name, AnimationClip* clip)
 	{
-		states[name] = AnimationControllerState{ name, clip };
+		states[name] = AnimatorControllerState{ name, clip };
 	}
 	void AddParameterFloat(std::string name, float value = 0.0f)
 	{
-		AnimationControllerParameter param;
+		AnimatorControllerParameter param;
 		param.Name = name;
 		param.Type = AnimatorControllerParameterType::Float;
 		param.Float = value;
 		parameters[name] = param;
 	}
-	void AddTransition(std::string from, std::string to, AnimationControllerStateTransitionCondition condition)
+	void AddTransition(std::string from, std::string to, AnimatorControllerStateTransitionCondition condition)
 	{
-		AnimationControllerStateTransition transition{};
+		AnimatorControllerStateTransition transition{};
 		transition.DestinationStateName = to;
 		transition.conditions.push_back(condition);
 
