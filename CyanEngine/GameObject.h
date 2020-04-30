@@ -61,6 +61,7 @@ public:
 	{
 		if (!child)
 			child = new GameObject(false);
+		child->scene = scene;
 		child->parent = this;
 		children.push_back(child);
 		return child;
@@ -69,6 +70,7 @@ public:
 	{
 		if (!child)
 			child = new GameObject(true);
+		child->scene = scene;
 		child->parent = this;
 		children.push_back(child);
 		return child;
