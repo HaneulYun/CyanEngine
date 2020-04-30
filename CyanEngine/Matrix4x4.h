@@ -13,6 +13,13 @@ struct Matrix4x4
 		};
 		struct
 		{
+			Vector3 right;		float _00;
+			Vector3 up;			float _01;
+			Vector3 forward;	float _02;
+			Vector3 position;	float _03;
+		};
+		struct
+		{
 			float _11, _12, _13, _14;
 			float _21, _22, _23, _24;
 			float _31, _32, _33, _34;
