@@ -24,7 +24,7 @@ public:
 
 	void OnClick()
 	{
-		if (Input::GetMouseButtonDown(0))
+		if (Input::GetMouseButtonUp(0))
 		{
 			Vector3 screen = Camera::main->ScreenToViewportPoint(Input::mousePosition);
 			if (!IsPointInRect(screen))

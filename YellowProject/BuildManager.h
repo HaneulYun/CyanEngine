@@ -85,7 +85,7 @@ public:
 			prefab->transform->position = { point.x, point.y + 1.0f, point.z };
 			// 충돌되면 빨간색 쉐이더 사용
 
-			if (Input::GetMouseButtonUp(2))
+			if (Input::GetMouseButtonDown(0))
 			{
 				prefab->layer = (int)RenderLayer::Opaque;
 				GameObject* go = Scene::scene->Duplicate(prefab);
