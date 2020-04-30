@@ -116,6 +116,8 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include "Text.h"
 #include "Button.h"
 
+#include "Constant.h"
+
 #include "ParticleSystem.h"
 
 #include "FrameResource.h"

@@ -159,7 +159,6 @@ void Graphics::Update(FrameResource* currFrameResource, int currFrameResourceInd
 
 		passConstants.DeltaTime = Time::deltaTime;
 		passConstants.TotalTime = Time::currentTime;
-
 		currFrameResource->PassCB->CopyData(0, passConstants);
 	}
 
@@ -321,13 +320,15 @@ void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
 		commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
 	else if (layerIndex == (int)RenderLayer::Sky)
 		commandList->SetPipelineState(pipelineStates["sky"].Get());
+	else if (layerIndex == (int)RenderLayer::Grass)
+		commandList->SetPipelineState(pipelineStates["grass"].Get());
+	else if (layerIndex == (int)RenderLayer::BuildPreview)
+		commandList->SetPipelineState(pipelineStates["buildPreview"].Get());
 	else if (layerIndex == (int)RenderLayer::UI)
 	{
 		commandList->OMSetStencilRef(1);
 		commandList->SetPipelineState(pipelineStates["ui"].Get());
 	}
-	else if(layerIndex == (int)RenderLayer::Grass)
-		commandList->SetPipelineState(pipelineStates["grass"].Get());
 	else
 		commandList->SetPipelineState(pipelineStates["opaque"].Get());
 
@@ -343,6 +344,11 @@ void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
 		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
 		auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
 
+		if (layerIndex == (int)RenderLayer::BuildPreview)
+		{
+			Vector4 v = objects.back()->GetComponent<Constant>()->v4;
+			commandList->SetGraphicsRoot32BitConstants(0, 4, &v.xmf4, 0);
+		}
 		commandList->SetGraphicsRootShaderResourceView(5, instanceBuffer->Resource()->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
 
@@ -689,7 +695,8 @@ void Graphics::LoadAssets()
 	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 7, 0, 0, 0);
 
 	CD3DX12_ROOT_PARAMETER rootParameters[8];
-	rootParameters[0].InitAsConstantBufferView(0);
+	//rootParameters[0].InitAsConstantBufferView(0);
+	rootParameters[0].InitAsConstants(4, 0);
 	rootParameters[1].InitAsConstantBufferView(1);
 	rootParameters[2].InitAsConstantBufferView(2);
 	rootParameters[3].InitAsShaderResourceView(1, 1);
@@ -758,6 +765,9 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> grassVS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> grassGS = d3dUtil::CompileShader(L"Shaders\\Grass.hlsl", nullptr, "GS", "gs_5_1");
 	ComPtr<ID3DBlob> grassPS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", alphaTestDefines, "PS", "ps_5_1");
+
+	ComPtr<ID3DBlob> previewVS = d3dUtil::CompileShader(L"shaders\\Preview.hlsl", nullptr, "VSMain", "vs_5_1");
+	ComPtr<ID3DBlob> previewPS = d3dUtil::CompileShader(L"shaders\\Preview.hlsl", nullptr, "PSMain", "ps_5_1");
 
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
@@ -903,6 +913,13 @@ void Graphics::LoadAssets()
 	grassPsoDesc.InputLayout = { inputElementDescs_grass, _countof(inputElementDescs_grass) };
 	grassPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	device->CreateGraphicsPipelineState(&grassPsoDesc, IID_PPV_ARGS(&pipelineStates["grass"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC previewPsoDesc = opaquePsoDesc;
+	previewPsoDesc.VS = CD3DX12_SHADER_BYTECODE(previewVS.Get());
+	previewPsoDesc.PS = CD3DX12_SHADER_BYTECODE(previewPS.Get());
+	previewPsoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
+	device->CreateGraphicsPipelineState(&previewPsoDesc, IID_PPV_ARGS(&pipelineStates["buildPreview"]));
+
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = 7;

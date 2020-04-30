@@ -178,6 +178,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="Constant.h" />
     <ClInclude Include="CyanApp.h" />
     <ClInclude Include="CyanFW.h" />
     <ClInclude Include="d3dUtil.h" />

@@ -120,7 +120,7 @@ void GS(point GSInput gin[1],
 		gout.TexC = texC[i % 4];
 		gout.PrimID = primID;
 		gout.MatIndex = gin[0].MatIndex;
-		gout.ShadowPosH = mul(gout.PosW, gShadowTransform);
+		gout.ShadowPosH = mul(v[i], gShadowTransform);
 		triStream.Append(gout);
 	}
 }
@@ -147,9 +147,8 @@ float4 PS(PSInput pin) : SV_Target
 	float4 ambient = gAmbientLight * diffuseAlbedo;
 
 
-	//float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
-	//shadowFactor[0] = CalcShadowFactor(pin.ShadowPosH);
-	float3 shadowFactor = 1.0f;
+	float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
+	shadowFactor[0] = CalcShadowFactor(pin.ShadowPosH);
 	const float shininess = 1.0f - roughness;
 	Material mat = { diffuseAlbedo, fresnelR0, shininess };
 

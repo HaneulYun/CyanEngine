@@ -60,9 +60,6 @@
     <ClInclude Include="CharacterController.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainPicking.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="MaterialScene.h">
       <Filter>Assets\Scenes</Filter>
     </ClInclude>
@@ -74,6 +71,9 @@
     </ClInclude>
     <ClInclude Include="ParticleScene.h">
       <Filter>Assets\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildManager.h">
+      <Filter>Assets\Scripts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +132,9 @@
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\Particle.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Preview.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "TerrainScene.h"
 
+BuildManager* BuildManager::buildManager{ nullptr };
+
 void TerrainScene::BuildObjects()
 {
 	///*** Asset ***///
@@ -29,7 +31,7 @@ void TerrainScene::BuildObjects()
 		for (int i = 0; i < 5; ++i)
 			AddMaterial(8 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
 	}
-	
+
 	//*** Mesh ***//
 	{
 		geometries["Image"] = Mesh::CreateQuad();
@@ -179,16 +181,21 @@ void TerrainScene::BuildObjects()
 				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 2;
 			}
 	
+	GameObject* grid = CreateEmpty();
 	{
-		GameObject* grid = CreateEmpty();
 		grid->GetComponent<Transform>()->position -= {128, 10, 128};
 		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;
-		grid->AddComponent<Renderer>()->materials.push_back(4);
-		TerrainPicking* tp = grid->AddComponent<TerrainPicking>();
-		tp->terrain = grid;
-		tp->prefab = prefab;
-		tp->heightMap = m_pHeightMapImage;
-		tp->mesh = gridMesh;
+		grid->AddComponent<Renderer>()->materials.push_back(1);
+	}
+
+	{
+		GameObject* buildManager = CreateEmpty();
+		BuildManager* bm = buildManager->AddComponent<BuildManager>();
+		bm->terrain = grid;
+		bm->heightMap = m_pHeightMapImage;
+		bm->terrainMesh = gridMesh;
+		//bm->SelectModel(geometries["Cube"].get(), 8, 5);
+		BuildManager::buildManager = bm;
 	}
 	
 	// billboard points
@@ -199,7 +206,7 @@ void TerrainScene::BuildObjects()
 		XMFLOAT3 look;
 	};
 	std::vector<TreeSpriteVertex> vertices;
-	int sizex = 1, sizey = 1;
+	float sizex = 2, sizey = 2;
 	const int width = 256, length = 256;
 	vertices.reserve(width * length);
 	for (int i = 0; i < width; ++i)
@@ -207,8 +214,7 @@ void TerrainScene::BuildObjects()
 		for (int j = 0; j < length; ++j)
 		{
 			TreeSpriteVertex v;
-			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, m_pHeightMapImage) + sizey / 2.0f, j);
-			//v.Pos = XMFLOAT3(i, sizey / 2, j);
+			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, m_pHeightMapImage) + sizey / 2, j);
 			v.Size = XMFLOAT2(sizex, sizey);
 			v.look = XMFLOAT3(MathHelper::RandF(0.0f, 1.0f), 0.0f, MathHelper::RandF(0.0f, 1.0f));
 			vertices.push_back(v);
@@ -238,34 +244,12 @@ void TerrainScene::BuildObjects()
 	geo->DrawArgs["submesh"] = submesh;
 	geometries["Grass"] = std::move(geo);
 
-	GameObject* billboards = CreateEmpty();
-	billboards->GetComponent<Transform>()->position -= {128, 10, 128};
-	auto mesh = billboards->AddComponent<MeshFilter>()->mesh = geometries["Grass"].get();
-	billboards->AddComponent<Renderer>()->materials.push_back(7);
-	billboards->layer = (int)RenderLayer::Grass;
-
-
-	for (int i = 0; i < 5; ++i)
 	{
-		GameObject* leftCylRItem = CreateEmpty();
-		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
-		auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
-		leftCylRItem->AddComponent<Renderer>()->materials.push_back(2);
-	
-		GameObject* rightCylRItem = CreateEmpty();
-		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
-		mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
-		rightCylRItem->AddComponent<Renderer>()->materials.push_back(2);
-	
-		GameObject* leftSphereRItem = CreateEmpty();
-		leftSphereRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 3.5f, -10.0f + i * 5.0f);
-		mesh = leftSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
-		leftSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
-	
-		GameObject* rightSphereRItem = CreateEmpty();
-		rightSphereRItem->GetComponent<Transform>()->position = Vector3(5.0f, 3.5f, -10.0f + i * 5.0f);
-		mesh = rightSphereRItem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
-		rightSphereRItem->AddComponent<Renderer>()->materials.push_back(3);
+		GameObject* billboards = CreateEmpty();
+		billboards->GetComponent<Transform>()->position -= {128, 10, 128};
+		auto mesh = billboards->AddComponent<MeshFilter>()->mesh = geometries["Grass"].get();
+		billboards->AddComponent<Renderer>()->materials.push_back(7);
+		billboards->layer = (int)RenderLayer::Grass;
 	}
 
 	auto menuSceneButton = CreateImage();
@@ -291,6 +275,77 @@ void TerrainScene::BuildObjects()
 
 			Text* text = textobject->AddComponent<Text>();
 			text->text = L"Menu Scene";
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(textobject);
+		}
+	}
+	for (int i = 0; i < 5; ++i)
+	{
+		GameObject* leftCylRItem = CreateEmpty();
+		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
+		auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
+		leftCylRItem->AddComponent<Renderer>()->materials.push_back(2);
+
+		GameObject* rightCylRItem = CreateEmpty();
+		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
+		mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
+		rightCylRItem->AddComponent<Renderer>()->materials.push_back(2);
+	}
+
+	// Build Button
+	auto BuildingSelectButton01 = CreateImage();
+	{
+		auto rectTransform = BuildingSelectButton01->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 0 };
+		rectTransform->anchorMax = { 0, 0 };
+		rectTransform->pivot = { 0, 0 };
+		rectTransform->posX = 10;
+		rectTransform->posY = 10;
+		rectTransform->width = 50;
+		rectTransform->height = 50;
+
+		BuildingSelectButton01->AddComponent<Button>()->AddEvent(
+			[](void*) {
+				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Sphere"].get(), 9, 1);
+			});
+		{
+			auto textobject = BuildingSelectButton01->AddChildUI();
+			auto rectTransform = textobject->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 0 };
+			rectTransform->anchorMax = { 1, 1 };
+
+			Text* text = textobject->AddComponent<Text>();
+			text->text = L"Sphere";
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(textobject);
+		}
+	}
+
+	auto BuildingSelectButton02 = CreateImage();
+	{
+		auto rectTransform = BuildingSelectButton02->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 0 };
+		rectTransform->anchorMax = { 0, 0 };
+		rectTransform->pivot = { 0, 0 };
+		rectTransform->posX = 70;
+		rectTransform->posY = 10;
+		rectTransform->width = 50;
+		rectTransform->height = 50;
+
+		BuildingSelectButton02->AddComponent<Button>()->AddEvent(
+			[](void*) {
+				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Cube"].get(), 10, 5);
+			});
+		{
+			auto textobject = BuildingSelectButton02->AddChildUI();
+			auto rectTransform = textobject->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 0 };
+			rectTransform->anchorMax = { 1, 1 };
+
+			Text* text = textobject->AddComponent<Text>();
+			text->text = L"Cube";
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 			textObjects.push_back(textobject);

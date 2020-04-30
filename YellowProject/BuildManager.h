@@ -1,28 +1,28 @@
 #pragma once
 #include "..\CyanEngine\framework.h"
 
-class TerrainPicking : public MonoBehavior<TerrainPicking>
+class BuildManager : public MonoBehavior<BuildManager>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
+	//Mesh* model;
+	GameObject* prefab{ nullptr };
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
 	GameObject* terrain;
-	GameObject* prefab;
+	CHeightMapImage* heightMap;
+	CHeightMapGridMesh* terrainMesh;
 	float dT;
 
-	CHeightMapImage* heightMap;
-	CHeightMapGridMesh* mesh;
-
-	std::vector<GameObject*> gameObjects;
+	static BuildManager* buildManager;
 
 private:
 	friend class GameObject;
-	friend class MonoBehavior<TerrainPicking>;
-	TerrainPicking() = default;
-	TerrainPicking(TerrainPicking&) = default;
+	friend class MonoBehavior<BuildManager>;
+	BuildManager() = default;
+	BuildManager(BuildManager&) = default;
 
 public:
-	~TerrainPicking() {}
+	~BuildManager() {}
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
@@ -30,7 +30,8 @@ public:
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
-		Pick(Input::mousePosition.x, Input::mousePosition.y);
+		if (prefab)
+			Pick(Input::mousePosition.x, Input::mousePosition.y);
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
@@ -39,7 +40,7 @@ public:
 	{
 		Vector3 screenPos{ (float)sx, (float)sy, 1.0f };
 
-		Vector3 rayOrigin{ 0.0f, 0.0f, 0.0f }; 
+		Vector3 rayOrigin{ 0.0f, 0.0f, 0.0f };
 		Vector3 rayDir = Camera::main->ScreenToWorldPoint(screenPos);
 
 		Matrix4x4 invView = Camera::main->view.Inverse();
@@ -69,24 +70,26 @@ public:
 
 				x = std::floor(point.x);
 				z = std::floor(point.z);
-				vertices.push_back({ x,mesh->OnGetHeight(x, z, heightMap),z });
-				vertices.push_back({ x + 1,mesh->OnGetHeight(x + 1, z + 1, heightMap),z + 1 });
-				vertices.push_back({ x + 1,mesh->OnGetHeight(x + 1, z, heightMap),z });
-				
-				vertices.push_back({ x,mesh->OnGetHeight(x, z, heightMap),z });
-				vertices.push_back({ x,mesh->OnGetHeight(x, z + 1, heightMap),z + 1 });
-				vertices.push_back({ x + 1,mesh->OnGetHeight(x + 1, z + 1, heightMap),z + 1 });
-				
+				vertices.push_back({ x,terrainMesh->OnGetHeight(x, z, heightMap),z });
+				vertices.push_back({ x + 1,terrainMesh->OnGetHeight(x + 1, z + 1, heightMap),z + 1 });
+				vertices.push_back({ x + 1,terrainMesh->OnGetHeight(x + 1, z, heightMap),z });
+
+				vertices.push_back({ x,terrainMesh->OnGetHeight(x, z, heightMap),z });
+				vertices.push_back({ x,terrainMesh->OnGetHeight(x, z + 1, heightMap),z + 1 });
+				vertices.push_back({ x + 1,terrainMesh->OnGetHeight(x + 1, z + 1, heightMap),z + 1 });
+
 			}
 			IntersectVertices(rayOrigin.xmf3, rayDir.xmf3, vertices);
 			point = rayOrigin + rayDir * dT;
-
 			point = point.TransformCoord(terrain->transform->localToWorldMatrix);
+			prefab->transform->position = { point.x, point.y + 1.0f, point.z };
+			// 충돌되면 빨간색 쉐이더 사용
 
-			prefab->transform->position = { point.x, point.y, point.z };
 			if (Input::GetMouseButtonUp(2))
 			{
+				prefab->layer = (int)RenderLayer::Opaque;
 				GameObject* go = Scene::scene->Duplicate(prefab);
+				DeletePrefab();
 			}
 		}
 	}
@@ -97,7 +100,7 @@ public:
 		XMFLOAT3 edge2{ v2.x - v0.x,v2.y - v0.y, v2.z - v0.z };
 
 		XMFLOAT3 pvec = NS_Vector3::CrossProduct(rayDirection, edge2);
-		
+
 		float dot = NS_Vector3::DotProduct(edge1, pvec);
 
 		if (dot > 0.0001f)
@@ -112,7 +115,7 @@ public:
 		dT = (dot1 - dot2) / dot3;
 
 		return true;
-		
+
 	}
 
 	void IntersectVertices(XMFLOAT3 rayOrigin, XMFLOAT3 rayDirection, std::vector<XMFLOAT3>& vertices)
@@ -149,4 +152,30 @@ public:
 		}
 	}
 
+	void SelectModel(Mesh* mesh, int matIndex, float size)
+	{
+		if (prefab) {
+			auto meshFilter = prefab->GetComponent<MeshFilter>();
+			DeletePrefab();
+
+			if (meshFilter && meshFilter->mesh == mesh)
+				return;
+		}
+		// 프리팹 쉐이더 사용
+		Scene::scene->CreateEmptyPrefab();
+		prefab = Scene::scene->CreateEmpty();
+		prefab->GetComponent<Transform>()->Scale({ size, size, size });
+		prefab->AddComponent<MeshFilter>()->mesh = mesh;
+		auto renderer = prefab->AddComponent<Renderer>();
+		prefab->layer = (int)RenderLayer::BuildPreview;
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(matIndex);
+		prefab->AddComponent<Constant>()->v4 = { 0.0f,1.0f,0.0f,1.0f };
+	}
+
+	void DeletePrefab()
+	{
+		Scene::scene->PushDelete(prefab);
+		prefab = nullptr;
+	}
 };

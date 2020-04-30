@@ -182,7 +182,7 @@
     <ClInclude Include="TerrainScene.h" />
     <ClInclude Include="scripts.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TerrainPicking.h" />
+    <ClInclude Include="BuildManager.h" />
     <ClInclude Include="YellowProject.h" />
     <ClInclude Include="ScriptForm.h" />
   </ItemGroup>
@@ -207,6 +207,10 @@
     <Image Include="YellowProject.ico" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Preview.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="Shaders\Common.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

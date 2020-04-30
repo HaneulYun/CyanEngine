@@ -8,6 +8,7 @@ enum class RenderLayer : int
 	Particle,
 	Sky,
 	Grass,
+	BuildPreview,
 	UI,
 	Count
 };
