@@ -1,54 +1,62 @@
 #include "pch.h"
 #include "ObjectRenderManager.h"
 
+std::unique_ptr<ObjectsResource> RenderSets::MakeResource()
+{
+	auto resource = std::make_unique<ObjectsResource>();
+
+	int objectCount = gameObjects.size();
+	int boneStride = 1;
+	int matIndexStride = 1;
+	if (gameObjects[0]->GetComponent<Animator>())
+		boneStride = gameObjects[0]->GetComponent<Animator>()->controller->BoneCount();
+	if (gameObjects[0]->GetComponent<SkinnedMeshRenderer>())
+		matIndexStride = gameObjects[0]->GetComponent<SkinnedMeshRenderer>()->materials.size();
+
+	resource->InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(Graphics::Instance()->device.Get(), objectCount, false);
+	resource->SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(Graphics::Instance()->device.Get(), objectCount * boneStride, false);
+	resource->MatIndexBuffer = std::make_unique<UploadBuffer<MatIndexData>>(Graphics::Instance()->device.Get(), objectCount * matIndexStride, false);
+	
+	return resource;
+}
+
 void RenderSets::Update()
 {
 	if (!isDirty)
 		return;
 
-	isDirty = false;
+	--isDirty;
 	int instanceIndex = 0;
 	for (auto& gameObject : gameObjects)
 	{
 		gameObject->instanceIndex = instanceIndex++;
 		gameObject->renderSet = this;
 	}
+	if (!instanceIndex)
+		return;
 
 	if (!objectsResources.size())
 	{
 		for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		{
-			auto resource = std::make_unique<ObjectsResource>();
-
-			int objectCount = gameObjects.size();
-			int boneStride = 1;
-			int matIndexStride = 1;
-			if (gameObjects[0]->GetComponent<Animator>())
-				boneStride = gameObjects[0]->GetComponent<Animator>()->controller->BoneCount();
-			if (gameObjects[0]->GetComponent<SkinnedMeshRenderer>())
-				matIndexStride = gameObjects[0]->GetComponent<SkinnedMeshRenderer>()->materials.size();
-
-			resource->InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(Graphics::Instance()->device.Get(), objectCount, false);
-			resource->SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(Graphics::Instance()->device.Get(), objectCount * boneStride, false);
-			resource->MatIndexBuffer = std::make_unique<UploadBuffer<MatIndexData>>(Graphics::Instance()->device.Get(), objectCount * matIndexStride, false);
-
-			objectsResources.push_back(std::move(resource));
+			objectsResources.push_back(MakeResource());
 		}
+	}
+	else
+	{
+		objectsResources[CyanFW::Instance()->currFrameResourceIndex].reset();
+		objectsResources[CyanFW::Instance()->currFrameResourceIndex] = MakeResource();
 	}
 }
 
 void RenderSets::AddGameObject(GameObject* gameObject)
 {
-	isDirty = true;
+	isDirty = NUM_FRAME_RESOURCES;
 	gameObjects.push_back(gameObject);
 }
 
 void ObjectRenderManager::Update()
 {
-	if (!isDirty)
-		return;
-
-	isDirty = false;
 	for (auto& RenderLayer : renderObjectsLayer)
 		for (auto& renderSets : RenderLayer)
 			renderSets.second.Update();
@@ -67,7 +75,6 @@ void ObjectRenderManager::AddGameObject(GameObject* gameObject, int layer)
 	if (!mesh)
 		return;
 
-	isDirty = true;
 	gameObject->layer = layer;
 	renderObjectsLayer[layer][mesh].AddGameObject(gameObject);
 }

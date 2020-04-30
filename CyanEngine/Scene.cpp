@@ -224,8 +224,7 @@ void Scene::Delete(GameObject* gameObject)
 		for (auto iter = gameObject->renderSet->gameObjects.begin(); iter != gameObject->renderSet->gameObjects.end(); ++iter)
 			if (*iter == gameObject)
 			{
-				objectRenderManager.isDirty = true;
-				gameObject->renderSet->isDirty = true;
+				gameObject->renderSet->isDirty = NUM_FRAME_RESOURCES;
 				gameObject->renderSet->gameObjects.erase(iter);
 				return;
 			}
@@ -252,8 +251,7 @@ void Scene::Disable(GameObject* gameObject)
 		for (auto iter = gameObject->renderSet->gameObjects.begin(); iter != gameObject->renderSet->gameObjects.end(); ++iter)
 			if (*iter == gameObject)
 			{
-				objectRenderManager.isDirty = true;
-				gameObject->renderSet->isDirty = true;
+				gameObject->renderSet->isDirty = NUM_FRAME_RESOURCES;
 				gameObject->renderSet->gameObjects.erase(iter);
 				return;
 			}
