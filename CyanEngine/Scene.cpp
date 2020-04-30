@@ -150,7 +150,7 @@ void Scene::ReleaseObjects()
 
 GameObject* Scene::AddGameObject(GameObject* gameObject)
 {
-	gameObject->scene = this;
+	gameObject->SetScene(this);
 	gameObjects.push_back(gameObject);
 	creationQueue.push(gameObject);
 	return gameObject;

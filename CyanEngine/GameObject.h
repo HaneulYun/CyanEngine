@@ -57,6 +57,8 @@ public:
 
 	Matrix4x4 GetMatrix();
 
+	void SetScene(Scene* scene);
+
 	GameObject* AddChild(GameObject* child = nullptr)
 	{
 		if (!child)

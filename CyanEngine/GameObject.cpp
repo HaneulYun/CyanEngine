@@ -146,3 +146,10 @@ Matrix4x4 GameObject::GetMatrix()
 		return transform->localToWorldMatrix * parent->GetMatrix();
 	return transform->localToWorldMatrix;
 }
+
+void GameObject::SetScene(Scene* scene)
+{
+	this->scene = scene;
+	for (GameObject* child : children)
+		child->SetScene(scene);
+}
