@@ -1,16 +1,6 @@
 #include "pch.h"
 #include "Graphics.h"
 
-//extern UINT gnCbvSrvDescriptorIncrementSize;
-
-Graphics::Graphics()
-{
-}
-
-Graphics::~Graphics()
-{
-}
-
 void Graphics::Initialize()
 {
 	sceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -21,151 +11,11 @@ void Graphics::Initialize()
 	CreateDepthStencilView();
 }
 
-void Graphics::Start()
+void Graphics::PreRender()
 {
-}
+	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
+	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
 
-void Graphics::Update(FrameResource* currFrameResource, int currFrameResourceIndex)
-{
-	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
-	{
-		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
-		fence->SetEventOnCompletion(currFrameResource->Fence, eventHandle);
-		WaitForSingleObject(eventHandle, INFINITE);
-		CloseHandle(eventHandle);
-	}
-
-	// UpdateMaterialBuffer
-	auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
-	for (auto& e : Scene::scene->materials)
-	{
-		Material* mat = e.second.get();
-		if (mat->NumFramesDirty > 0)
-		{
-			Matrix4x4 matTransform = mat->MatTransform;
-
-			MaterialData matData;
-			matData.DiffuseAlbedo = mat->DiffuseAlbedo;
-			matData.FresnelR0 = mat->FresnelR0;
-			matData.Roughness = mat->Roughness;
-			matData.MatTransform = matTransform.Transpose();
-			matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
-
-			currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
-
-			--mat->NumFramesDirty;
-		}
-	}
-
-	// Animate the lights
-	lightRotationAngle += 0.1f * Time::deltaTime;
-
-	Matrix4x4 R = Matrix4x4::RotationY(lightRotationAngle);
-	for (int i = 0; i < 3; ++i)
-	{
-		rotatedLightDirections[i] = baseLightDirections[i].TransformNormal(R);
-	}
-
-	// Update ShadowTransform
-
-	// Only the first "main" light casts a shadow.
-	Vector3 lightDir = rotatedLightDirections[0];
-	Vector3 lightPos = (lightDir * (-2.0f * sceneBounds.Radius));
-	Vector3 targetPos; targetPos.xmf3 = sceneBounds.Center;
-	Vector3 lightUp{ 0.0f, 1.0f, 0.0f};
-	Matrix4x4 lightView = Matrix4x4::MatrixLookAtLH(lightPos, targetPos, lightUp);
-
-	Vector3 lightPosW = lightPos;
-
-	// Transform bounding sphere to light space.
-	Vector3 sphereCenterLS = targetPos.TransformCoord(lightView);
-
-	Matrix4x4 lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(
-		sphereCenterLS.x - sceneBounds.Radius, sphereCenterLS.x + sceneBounds.Radius, sphereCenterLS.y - sceneBounds.Radius,
-		sphereCenterLS.y + sceneBounds.Radius, sphereCenterLS.z - sceneBounds.Radius, sphereCenterLS.z + sceneBounds.Radius);
-
-	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
-	Matrix4x4 T{
-		0.5f, 0.0f, 0.0f, 0.0f,
-		0.0f, -0.5f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, 0.0f, 1.0f };
-
-	Matrix4x4 S = lightView * lightProj * T;
-
-	Matrix4x4 f4x4lightView = lightView;;
-	Matrix4x4 f4x4lightProj = lightProj;
-	Matrix4x4 f4x4shadowTransform = S;
-
-	// UpdateShadowPassCB
-	PassConstants mShadowPassCB;
-	{
-		Matrix4x4 view = f4x4lightView;
-		Matrix4x4 proj = f4x4lightProj;
-		Matrix4x4 viewProj = view * proj;
-
-		Matrix4x4 invView = view.Inverse();
-		Matrix4x4 invProj = proj.Inverse();
-		Matrix4x4 invViewProj = viewProj.Inverse();
-
-		UINT w = shadowMap->Width();
-		UINT h = shadowMap->Height();
-
-		mShadowPassCB.View = view.Transpose();
-		mShadowPassCB.InvView = invView.Transpose();
-		mShadowPassCB.Proj = proj.Transpose();
-		mShadowPassCB.InvProj = invProj.Transpose();
-		mShadowPassCB.ViewProj = viewProj.Transpose();
-		mShadowPassCB.InvViewProj = invViewProj.Transpose();
-		mShadowPassCB.EyePosW = lightPosW;
-		mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
-		mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
-		mShadowPassCB.NearZ = sphereCenterLS.z - sceneBounds.Radius;
-		mShadowPassCB.FarZ = sphereCenterLS.z + sceneBounds.Radius;
-
-		currFrameResource->PassCB->CopyData(1, mShadowPassCB);
-	}
-	
-	{
-		PassConstants passConstants;
-
-		auto matrix = Scene::scene->camera->gameObject->GetMatrix();
-		auto vLookAt = matrix.position + matrix.forward.Normalized();
-		
-		Vector3 pos = matrix.position;
-		Vector3 lookAt = vLookAt;;
-		Vector3 up{ 0, 1, 0 };
-		Matrix4x4 view = Matrix4x4::MatrixLookAtLH(pos, lookAt, up);
-		Matrix4x4 proj = Scene::scene->camera->projection;
-		Matrix4x4 ViewProj = view * proj;
-
-		passConstants.ViewProj = ViewProj.Transpose();
-		passConstants.ShadowTransform = f4x4shadowTransform.Transpose();
-
-		float mSunTheta = 1.25f * XM_PI;
-		float mSunPhi = XM_PIDIV4;
-
-		passConstants.EyePosW = pos;
-		passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
-		passConstants.Lights[0].Direction = rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
-		passConstants.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
-		passConstants.Lights[1].Direction = rotatedLightDirections[1];// { -0.57735f, -0.57735f, 0.57735f };
-		passConstants.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
-		passConstants.Lights[2].Direction = rotatedLightDirections[2];// { 0.0f, -0.707f, -0.707f };
-		passConstants.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
-
-		passConstants.RenderTargetSize.x = CyanFW::Instance()->GetWidth();
-		passConstants.RenderTargetSize.y = CyanFW::Instance()->GetHeight();
-
-		passConstants.DeltaTime = Time::deltaTime;
-		passConstants.TotalTime = Time::currentTime;
-		currFrameResource->PassCB->CopyData(0, passConstants);
-	}
-
-}
-
-void Graphics::RenderShadowMap(FrameResource* currFrameResource, int currFrameResourceIndex)
-{
 	currFrameResource->CmdListAlloc->Reset();
 	commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
 
@@ -177,19 +27,23 @@ void Graphics::RenderShadowMap(FrameResource* currFrameResource, int currFrameRe
 	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
+	RenderShadowMap();
+}
+
+void Graphics::RenderShadowMap()
+{
+	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
+	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
+
 	commandList->RSSetViewports(1, &shadowMap->Viewport());
 	commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(),
-		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
-	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
-
-	commandList->ClearDepthStencilView(shadowMap->Dsv(),
-		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
+	commandList->ClearDepthStencilView(shadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	commandList->OMSetRenderTargets(0, nullptr, false, &shadowMap->Dsv());
 
+	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
 	auto passCB = currFrameResource->PassCB->Resource();
 	D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
 	commandList->SetGraphicsRootConstantBufferView(2, passCBAddress);
@@ -198,66 +52,25 @@ void Graphics::RenderShadowMap(FrameResource* currFrameResource, int currFrameRe
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
 
-	// For each render item...
 	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
-	{
-		if (layerIndex == (int)RenderLayer::Particle ||
-			layerIndex == (int)RenderLayer::Sky ||
-			layerIndex == (int)RenderLayer::UI ||
-			layerIndex == (int)RenderLayer::Grass)
-			continue;
-		else if (layerIndex == (int)RenderLayer::SkinnedOpaque)
-			commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());
-		else
-			commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
+		RenderObjects(layerIndex, true);
 
-		for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[layerIndex])
-		{
-			auto& mesh = renderSets.first;
-			auto& objects = renderSets.second.gameObjects;
-			if (!objects.size())
-				continue;
-
-			auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
-			auto instanceBuffer = objectsResource->InstanceBuffer.get();
-			auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
-			auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
-
-			commandList->SetGraphicsRootShaderResourceView(5, instanceBuffer->Resource()->GetGPUVirtualAddress());
-			commandList->SetGraphicsRootShaderResourceView(6, skinnedBuffer->Resource()->GetGPUVirtualAddress());
-
-			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
-			if (mesh->IndexBufferByteSize)
-				commandList->IASetIndexBuffer(&mesh->IndexBufferView());
-			commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
-
-			int i = 0;
-			for (auto& submesh : mesh->DrawArgs)
-			{
-				commandList->SetGraphicsRootShaderResourceView(7,
-					matIndexBuffer->Resource()->GetGPUVirtualAddress()
-					+ sizeof(MatIndexData) * i++);
-				if (mesh->IndexBufferByteSize)
-					commandList->DrawIndexedInstanced(
-						submesh.second.IndexCount, objects.size(),
-						submesh.second.StartIndexLocation,
-						submesh.second.BaseVertexLocation, 0);
-				else
-					commandList->DrawInstanced(
-						submesh.second.IndexCount, objects.size(),
-						submesh.second.StartIndexLocation, 0);
-			}
-		}
-	}
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(),
-		D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 }
 
-void Graphics::PreRender()
+void Graphics::Render()
 {
-	//currFrameResource->CmdListAlloc->Reset();
-	//commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
+	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
+	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
+	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
+	{
+		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		fence->SetEventOnCompletion(currFrameResource->Fence, eventHandle);
+		WaitForSingleObject(eventHandle, INFINITE);
+		CloseHandle(eventHandle);
+	}
+
+	PreRender();
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
@@ -265,18 +78,12 @@ void Graphics::PreRender()
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{ dsvHeap->GetCPUDescriptorHandleForHeapStart() };
 	commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
-	const float clearColor[] { 0.1921569, 0.3019608, 0.4745098, 1.0f };
+	const float clearColor[]{ 0.1921569, 0.3019608, 0.4745098, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
-}
 
-void Graphics::Render(FrameResource* currFrameResource, int currFrameResourceIndex)
-{
-	RenderShadowMap(currFrameResource, currFrameResourceIndex);
-
-	PreRender();
 
 	D3D12_VIEWPORT viewport{
 		Camera::main->viewport.x,  Camera::main->viewport.y,
@@ -288,49 +95,51 @@ void Graphics::Render(FrameResource* currFrameResource, int currFrameResourceInd
 	commandList->RSSetViewports(1, &viewport);
 	commandList->RSSetScissorRects(1, &scissorRect);
 
-	ID3D12DescriptorHeap* heaps[]{ srvHeap.Get() };
-	//commandList->SetDescriptorHeaps(_countof(heaps), heaps);
-	//commandList->SetGraphicsRootSignature(rootSignature.Get());
-	commandList->SetPipelineState(pipelineStates["opaque"].Get());
-
 	auto passCB = currFrameResource->PassCB->Resource();
-	//auto matBuffer = currFrameResource->MaterialBuffer->Resource();
 	
 	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
-	//commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
-	//commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
-
-	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
-	UINT skinnedCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(SkinnnedData));
 
 	for(int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
-	{
-		if (layerIndex == (int)RenderLayer::Sky)
-			continue;
-		RenderObjects(layerIndex, currFrameResourceIndex);
-	}
-	RenderObjects((int)RenderLayer::Sky, currFrameResourceIndex);
+		RenderObjects(layerIndex);
+	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-	PostRender(currFrameResource);
+
+	PostRender();
 }
 
-void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
+void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 {
-	if (layerIndex == (int)RenderLayer::SkinnedOpaque)
-		commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
-	else if (layerIndex == (int)RenderLayer::Sky)
-		commandList->SetPipelineState(pipelineStates["sky"].Get());
-	else if (layerIndex == (int)RenderLayer::Grass)
-		commandList->SetPipelineState(pipelineStates["grass"].Get());
-	else if (layerIndex == (int)RenderLayer::BuildPreview)
-		commandList->SetPipelineState(pipelineStates["buildPreview"].Get());
-	else if (layerIndex == (int)RenderLayer::UI)
+	if (isShadowMap)
 	{
-		commandList->OMSetStencilRef(1);
-		commandList->SetPipelineState(pipelineStates["ui"].Get());
+		if (layerIndex == (int)RenderLayer::Particle ||
+			layerIndex == (int)RenderLayer::Sky ||
+			layerIndex == (int)RenderLayer::UI ||
+			layerIndex == (int)RenderLayer::BuildPreview ||
+			layerIndex == (int)RenderLayer::Grass)
+			return;
+		else if (layerIndex == (int)RenderLayer::SkinnedOpaque)
+			commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());
+		else
+			commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
 	}
 	else
-		commandList->SetPipelineState(pipelineStates["opaque"].Get());
+	{
+		if (layerIndex == (int)RenderLayer::SkinnedOpaque)
+			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
+		else if (layerIndex == (int)RenderLayer::Sky)
+			commandList->SetPipelineState(pipelineStates["sky"].Get());
+		else if (layerIndex == (int)RenderLayer::Grass)
+			commandList->SetPipelineState(pipelineStates["grass"].Get());
+		else if (layerIndex == (int)RenderLayer::BuildPreview)
+			commandList->SetPipelineState(pipelineStates["buildPreview"].Get());
+		else if (layerIndex == (int)RenderLayer::UI)
+		{
+			commandList->OMSetStencilRef(1);
+			commandList->SetPipelineState(pipelineStates["ui"].Get());
+		}
+		else
+			commandList->SetPipelineState(pipelineStates["opaque"].Get());
+	}
 
 	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[layerIndex])
 	{
@@ -339,7 +148,7 @@ void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
 		if (!objects.size())
 			continue;
 
-		auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
+		auto objectsResource = renderSets.second.GetResources();
 		auto instanceBuffer = objectsResource->InstanceBuffer.get();
 		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
 		auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
@@ -362,40 +171,40 @@ void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
 		for (auto& submesh : mesh->DrawArgs)
 		{
 			commandList->SetGraphicsRootShaderResourceView(7, matIndexBuffer->Resource()->GetGPUVirtualAddress() + sizeof(MatIndexData) * i++);
-			if (layerIndex == (int)RenderLayer::Particle)
-			{
-				commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
-			
-				char* data = new char[sizeof(UINT64)];
-				memset(data, 0, sizeof(UINT64));
-				D3D12_SUBRESOURCE_DATA subResourceData = { data, sizeof(UINT64), sizeof(UINT64) };
-				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
-				UpdateSubresources<1>(commandList.Get(), mesh->VertexStreamBufferGPU.Get(), mesh->VertexStreamBufferUploader.Get(), 0, 0, 1, &subResourceData);
-				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
-				delete data;
-
-				D3D12_STREAM_OUTPUT_BUFFER_VIEW sov;
-				sov.BufferFilledSizeLocation = mesh->VertexStreamBufferGPU->GetGPUVirtualAddress();
-				sov.BufferLocation = sov.BufferFilledSizeLocation + sizeof(UINT64);
-				sov.SizeInBytes = mesh->VertexBufferByteSize * 100;
-				
-				D3D12_VERTEX_BUFFER_VIEW vbv;
-				vbv.BufferLocation = mesh->VertexBufferGPU->GetGPUVirtualAddress() + sizeof(UINT64);
-				vbv.StrideInBytes = mesh->VertexByteStride;
-				vbv.SizeInBytes = mesh->VertexBufferByteSize * submesh.second.IndexCount;
-
-				commandList->SOSetTargets(0, 1, &sov);
-				commandList->IASetVertexBuffers(0, 1, &vbv);
-				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
-				commandList->SOSetTargets(0, 1, &sov);
-				
-				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
-				commandList->CopyResource(mesh->VertexBufferReadback.Get(), mesh->VertexStreamBufferGPU.Get());
-				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
-
-				commandList->SetPipelineState(pipelineStates["particle"].Get());
-				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
-			}
+			//if (layerIndex == (int)RenderLayer::Particle)
+			//{
+			//	commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
+			//
+			//	char* data = new char[sizeof(UINT64)];
+			//	memset(data, 0, sizeof(UINT64));
+			//	D3D12_SUBRESOURCE_DATA subResourceData = { data, sizeof(UINT64), sizeof(UINT64) };
+			//	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
+			//	UpdateSubresources<1>(commandList.Get(), mesh->VertexStreamBufferGPU.Get(), mesh->VertexStreamBufferUploader.Get(), 0, 0, 1, &subResourceData);
+			//	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
+			//	delete data;
+			//
+			//	D3D12_STREAM_OUTPUT_BUFFER_VIEW sov;
+			//	sov.BufferFilledSizeLocation = mesh->VertexStreamBufferGPU->GetGPUVirtualAddress();
+			//	sov.BufferLocation = sov.BufferFilledSizeLocation + sizeof(UINT64);
+			//	sov.SizeInBytes = mesh->VertexBufferByteSize * 100;
+			//	
+			//	D3D12_VERTEX_BUFFER_VIEW vbv;
+			//	vbv.BufferLocation = mesh->VertexBufferGPU->GetGPUVirtualAddress() + sizeof(UINT64);
+			//	vbv.StrideInBytes = mesh->VertexByteStride;
+			//	vbv.SizeInBytes = mesh->VertexBufferByteSize * submesh.second.IndexCount;
+			//
+			//	commandList->SOSetTargets(0, 1, &sov);
+			//	commandList->IASetVertexBuffers(0, 1, &vbv);
+			//	commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+			//	commandList->SOSetTargets(0, 1, &sov);
+			//	
+			//	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
+			//	commandList->CopyResource(mesh->VertexBufferReadback.Get(), mesh->VertexStreamBufferGPU.Get());
+			//	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
+			//
+			//	commandList->SetPipelineState(pipelineStates["particle"].Get());
+			//	commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+			//}
 			if (mesh->IndexBufferByteSize)
 				commandList->DrawIndexedInstanced( submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, submesh.second.BaseVertexLocation, 0);
 			else
@@ -502,9 +311,10 @@ void Graphics::RenderUI()
 
 
 
-void Graphics::PostRender(FrameResource* currFrameResource)
+void Graphics::PostRender()
 {
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
+
 	commandList->Close();
 
 	ID3D12CommandList* ppd3dCommandLists[] = { commandList.Get() };
@@ -520,23 +330,23 @@ void Graphics::PostRender(FrameResource* currFrameResource)
 
 	WaitForPreviousFrame();
 	
-	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Particle])
-	{
-		auto& mesh = renderSets.first;
-		auto& objects = renderSets.second.gameObjects;
-
-		UINT8* p;
-		mesh->VertexBufferReadback->Map(0, NULL, reinterpret_cast<void**>(&p));
-
-		UINT64 size = *reinterpret_cast<UINT64*>(p);
-		FrameResource::ParticleSpriteVertex* t = reinterpret_cast<FrameResource::ParticleSpriteVertex*>(p+8);
-
-		mesh->DrawArgs["submesh"].IndexCount = size / sizeof(FrameResource::ParticleSpriteVertex);
-
-		mesh->VertexBufferReadback->Unmap(0, nullptr);
-
-		std::swap(mesh->VertexBufferGPU, mesh->VertexStreamBufferGPU);
-	}
+	//for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Particle])
+	//{
+	//	auto& mesh = renderSets.first;
+	//	auto& objects = renderSets.second.gameObjects;
+	//
+	//	UINT8* p;
+	//	mesh->VertexBufferReadback->Map(0, NULL, reinterpret_cast<void**>(&p));
+	//
+	//	UINT64 size = *reinterpret_cast<UINT64*>(p);
+	//	FrameResource::ParticleSpriteVertex* t = reinterpret_cast<FrameResource::ParticleSpriteVertex*>(p+8);
+	//
+	//	mesh->DrawArgs["submesh"].IndexCount = size / sizeof(FrameResource::ParticleSpriteVertex);
+	//
+	//	mesh->VertexBufferReadback->Unmap(0, nullptr);
+	//
+	//	std::swap(mesh->VertexBufferGPU, mesh->VertexStreamBufferGPU);
+	//}
 }
 
 void Graphics::Destroy()
@@ -555,7 +365,7 @@ void Graphics::InitDirect3D()
 #if defined(_DEBUG)
 	ComPtr<ID3D12Debug> debug{ nullptr };
 	D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
-	//debug->EnableDebugLayer();
+	debug->EnableDebugLayer();
 
 	dxgiFactoryFlags != DXGI_CREATE_FACTORY_DEBUG;
 #endif
@@ -923,7 +733,7 @@ void Graphics::LoadAssets()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 7;
+	descriptorHeapDesc.NumDescriptors = 10;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));

@@ -54,6 +54,7 @@ private:
 
 	Camera* m_pCamera{ nullptr };
 
+public:
 	/*shadow*/
 	std::unique_ptr<ShadowMap> shadowMap;
 	DirectX::BoundingSphere sceneBounds;
@@ -67,19 +68,17 @@ private:
 	Vector3 rotatedLightDirections[3];
 
 public:
-	Graphics();
-	virtual ~Graphics();
+	Graphics() {}
+	virtual ~Graphics() {}
 
 	void Initialize();
 
-	void Start();
-	void Update(FrameResource* currFrameResource, int currFrameResourceIndex);
 	void PreRender();
-	void Render(FrameResource* currFrameResource, int currFrameResourceIndex);
-	void RenderObjects(int layerIndex, int currFrameResourceIndex);
+	void RenderShadowMap();
+	void Render();
+	void RenderObjects(int layerIndex, bool isShadowMap = false);
 	void RenderUI();
-	void PostRender(FrameResource* currFrameResource);
-	void RenderShadowMap(FrameResource* currFrameResource, int currFrameResourceIndex);
+	void PostRender();
 	void Destroy();
 
 	//--------------//

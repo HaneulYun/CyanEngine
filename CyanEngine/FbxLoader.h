@@ -6,10 +6,10 @@ enum class RenderLayer : int
 	SkinnedOpaque,
 	Debug,
 	Particle,
-	Sky,
 	Grass,
 	BuildPreview,
 	UI,
+	Sky,
 	Count
 };
 

@@ -16,10 +16,6 @@ public:
 	Graphics* graphics{ nullptr };
 	SceneManager* sceneManager{ nullptr };
 
-	static const int NumFrameResources{ NUM_FRAME_RESOURCES };
-	FrameResource* currFrameResource{ nullptr };
-	int currFrameResourceIndex{ 0 };
-
 	_TCHAR m_pszFrameRate[50];
 
 public:

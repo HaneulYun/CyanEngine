@@ -191,6 +191,9 @@
       <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClInclude>
     <ClInclude Include="Constant.h" />
+    <ClInclude Include="FrameResourceManager.h">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -301,6 +304,9 @@
     </ClCompile>
     <ClCompile Include="SkinnedMeshRenderer.cpp">
       <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameResourceManager.cpp">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

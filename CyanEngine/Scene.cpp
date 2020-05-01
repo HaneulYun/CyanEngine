@@ -5,6 +5,7 @@ Scene* Scene::scene{ nullptr };
 
 Scene::Scene()
 {
+	frameResourceManager.scene = this;
 }
 
 Scene::~Scene()
@@ -57,11 +58,13 @@ void Scene::Start()
 	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
-		frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1, (UINT)10));
+		frameResourceManager.frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 2, (UINT)10));
 }
 
 void Scene::Update()
 {
+	frameResourceManager.Update();
+
 	while (!creationQueue.empty())
 	{
 		creationQueue.front()->Start();

@@ -187,6 +187,7 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="FbxLoader.h" />
     <ClInclude Include="FrameResource.h" />
+    <ClInclude Include="FrameResourceManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GeometryGenerator.h" />
@@ -235,6 +236,7 @@
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="FbxLoader.cpp" />
     <ClCompile Include="FrameResource.cpp" />
+    <ClCompile Include="FrameResourceManager.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />

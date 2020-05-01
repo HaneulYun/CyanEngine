@@ -46,12 +46,8 @@ void CyanFW::OnFrameAdvance()
 		sceneManager->scene->Start();
 	}
 
-	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
-	currFrameResource = sceneManager->scene->frameResources[currFrameResourceIndex].get();
-
 	sceneManager->scene->Update();
-	graphics->Update(currFrameResource, currFrameResourceIndex);
-	graphics->Render(currFrameResource, currFrameResourceIndex);
+	graphics->Render();
 
 	Input::Update();
 }
