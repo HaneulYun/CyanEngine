@@ -36,7 +36,7 @@ void GameObject::Update()
 
 	if (renderSet)
 	{
-		auto objectsResource = renderSet->objectsResources[CyanFW::Instance()->currFrameResourceIndex].get();
+		auto objectsResource = renderSet->GetResources();
 		auto instanceBuffer = objectsResource->InstanceBuffer.get();
 		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
 		auto matIndexBuffer = objectsResource->MatIndexBuffer.get();

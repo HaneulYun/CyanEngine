@@ -14,10 +14,13 @@ struct ObjectsResource
 
 struct RenderSets
 {
-	int isDirty{ NUM_FRAME_RESOURCES };
+private:
 
-	std::vector<GameObject*> gameObjects;
 	std::vector<std::unique_ptr<ObjectsResource>> objectsResources;
+
+public:
+	int isDirty{ NUM_FRAME_RESOURCES };
+	std::vector<GameObject*> gameObjects;
 
 private:
 	std::unique_ptr<ObjectsResource> MakeResource();
@@ -26,6 +29,8 @@ public:
 	void Update();
 
 	void AddGameObject(GameObject* gameObject);
+	ObjectsResource* GetResources();
+
 };
 
 class ObjectRenderManager

@@ -55,6 +55,11 @@ void RenderSets::AddGameObject(GameObject* gameObject)
 	gameObjects.push_back(gameObject);
 }
 
+ObjectsResource* RenderSets::GetResources()
+{
+	return objectsResources[CyanFW::Instance()->currFrameResourceIndex].get();
+}
+
 void ObjectRenderManager::Update()
 {
 	for (auto& RenderLayer : renderObjectsLayer)

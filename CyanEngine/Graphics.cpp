@@ -218,7 +218,7 @@ void Graphics::RenderShadowMap(FrameResource* currFrameResource, int currFrameRe
 			if (!objects.size())
 				continue;
 
-			auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
+			auto objectsResource = renderSets.second.GetResources();
 			auto instanceBuffer = objectsResource->InstanceBuffer.get();
 			auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
 			auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
@@ -339,7 +339,7 @@ void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
 		if (!objects.size())
 			continue;
 
-		auto objectsResource = renderSets.second.objectsResources[currFrameResourceIndex].get();
+		auto objectsResource = renderSets.second.GetResources();
 		auto instanceBuffer = objectsResource->InstanceBuffer.get();
 		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
 		auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
@@ -922,7 +922,7 @@ void Graphics::LoadAssets()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 7;
+	descriptorHeapDesc.NumDescriptors = 10;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
