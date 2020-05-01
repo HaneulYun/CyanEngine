@@ -29,12 +29,14 @@ void GameObject::Start()
 
 void GameObject::Update()
 {
+	if (!active)
+		return;
 	for (Component* component : components)
 		component->Update();
 	for (GameObject* child : children)
 		child->Update();
 
-	if (renderSet)
+	if (instanceIndex > -1)
 	{
 		auto objectsResource = renderSet->objectsResources[CyanFW::Instance()->currFrameResourceIndex].get();
 		auto instanceBuffer = objectsResource->InstanceBuffer.get();
@@ -152,4 +154,14 @@ void GameObject::SetScene(Scene* scene)
 	this->scene = scene;
 	for (GameObject* child : children)
 		child->SetScene(scene);
+}
+
+void GameObject::SetActive(bool state)
+{
+	if (active != state)
+		if (renderSet)
+			renderSet->isDirty = NUM_FRAME_RESOURCES;
+	active = state;
+	for (GameObject* child : children)
+		child->SetActive(state);
 }

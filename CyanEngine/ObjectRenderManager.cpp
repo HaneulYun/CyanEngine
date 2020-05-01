@@ -26,13 +26,13 @@ void RenderSets::Update()
 		return;
 
 	--isDirty;
-	int instanceIndex = 0;
+	activatedInstance = 0;
 	for (auto& gameObject : gameObjects)
 	{
-		gameObject->instanceIndex = instanceIndex++;
+		gameObject->instanceIndex = gameObject->active ? activatedInstance++ : -1;
 		gameObject->renderSet = this;
 	}
-	if (!instanceIndex)
+	if (!activatedInstance)
 		return;
 
 	if (!objectsResources.size())

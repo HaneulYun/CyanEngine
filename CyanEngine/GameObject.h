@@ -12,12 +12,13 @@ enum class CollisionType
 class GameObject : public Object
 {
 public:
+	bool active{ true };
 	RenderSets* renderSet{ nullptr };
 
 public:
 	Scene* scene{ nullptr };
 	int layer{ 0 };
-	int instanceIndex{ 0 };
+	int instanceIndex{ -1 };
 
 	GameObject* parent{ nullptr };
 	std::deque<GameObject*> children;
@@ -58,6 +59,7 @@ public:
 	Matrix4x4 GetMatrix();
 
 	void SetScene(Scene* scene);
+	void SetActive(bool state);
 
 	GameObject* AddChild(GameObject* child = nullptr)
 	{

@@ -2,6 +2,7 @@
 #include "TerrainScene.h"
 
 BuildManager* BuildManager::buildManager{ nullptr };
+ButtonManager* ButtonManager::buttonManager{ nullptr };
 
 void TerrainScene::BuildObjects()
 {
@@ -189,13 +190,15 @@ void TerrainScene::BuildObjects()
 	}
 
 	{
-		GameObject* buildManager = CreateEmpty();
-		BuildManager* bm = buildManager->AddComponent<BuildManager>();
-		bm->terrain = grid;
-		bm->heightMap = m_pHeightMapImage;
-		bm->terrainMesh = gridMesh;
+		GameObject* manager = CreateEmpty();
+		BuildManager* buildManager = manager->AddComponent<BuildManager>();
+		buildManager->terrain = grid;
+		buildManager->heightMap = m_pHeightMapImage;
+		buildManager->terrainMesh = gridMesh;
 		//bm->SelectModel(geometries["Cube"].get(), 8, 5);
-		BuildManager::buildManager = bm;
+		BuildManager::buildManager = buildManager;
+		ButtonManager* buttonManager = manager->AddComponent<ButtonManager>();
+		ButtonManager::buttonManager = buttonManager;
 	}
 	
 	// billboard points
@@ -294,20 +297,52 @@ void TerrainScene::BuildObjects()
 	}
 
 	// Build Button
+	auto BSButton00 = CreateImage();
+	ButtonManager::buttonManager->buttons.push_back(std::make_pair(BSButton00, false));
+	{
+		auto rectTransform = BSButton00->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0.5, 0 };
+		rectTransform->anchorMax = { 0.5, 0 };
+		rectTransform->pivot = { 0.5, 0 };
+		rectTransform->posX = -70;
+		rectTransform->posY = 70;
+		rectTransform->width = 50;
+		rectTransform->height = 50;
+
+		BSButton00->AddComponent<Button>()->AddEvent(
+			[](void*) {
+				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Sphere"].get(), 2, 1);
+			});
+		{
+			auto textobject = BSButton00->AddChildUI();
+			auto rectTransform = textobject->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 0 };
+			rectTransform->anchorMax = { 1, 1 };
+
+			Text* text = textobject->AddComponent<Text>();
+			text->text = L"건물1";
+			text->fontSize = 10;
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(textobject);
+		}
+		BSButton00->SetActive(false);
+	}
+
 	auto BuildingSelectButton01 = CreateImage();
 	{
 		auto rectTransform = BuildingSelectButton01->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 0, 0 };
-		rectTransform->anchorMax = { 0, 0 };
-		rectTransform->pivot = { 0, 0 };
-		rectTransform->posX = 10;
+		rectTransform->anchorMin = { 0.5, 0 };
+		rectTransform->anchorMax = { 0.5, 0 };
+		rectTransform->pivot = { 0.5, 0 };
+		rectTransform->posX = -70;
 		rectTransform->posY = 10;
 		rectTransform->width = 50;
 		rectTransform->height = 50;
 
 		BuildingSelectButton01->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Sphere"].get(), 9, 1);
+				ButtonManager::buttonManager->SelectButton(0);
 			});
 		{
 			auto textobject = BuildingSelectButton01->AddChildUI();
@@ -316,7 +351,8 @@ void TerrainScene::BuildObjects()
 			rectTransform->anchorMax = { 1, 1 };
 
 			Text* text = textobject->AddComponent<Text>();
-			text->text = L"Sphere";
+			text->text = L"랜드마크";
+			text->fontSize = 10;
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 			textObjects.push_back(textobject);
@@ -326,17 +362,17 @@ void TerrainScene::BuildObjects()
 	auto BuildingSelectButton02 = CreateImage();
 	{
 		auto rectTransform = BuildingSelectButton02->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 0, 0 };
-		rectTransform->anchorMax = { 0, 0 };
-		rectTransform->pivot = { 0, 0 };
-		rectTransform->posX = 70;
+		rectTransform->anchorMin = { 0.5, 0 };
+		rectTransform->anchorMax = { 0.5, 0 };
+		rectTransform->pivot = { 0.5, 0 };
+		rectTransform->posX = -10;
 		rectTransform->posY = 10;
 		rectTransform->width = 50;
 		rectTransform->height = 50;
 
 		BuildingSelectButton02->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Cube"].get(), 10, 5);
+				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Cube"].get(), 2, 5);
 			});
 		{
 			auto textobject = BuildingSelectButton02->AddChildUI();
@@ -345,7 +381,68 @@ void TerrainScene::BuildObjects()
 			rectTransform->anchorMax = { 1, 1 };
 
 			Text* text = textobject->AddComponent<Text>();
-			text->text = L"Cube";
+			text->text = L"주거건물";
+			text->fontSize = 10;
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(textobject);
+		}
+	}
+
+	auto BuildingSelectButton03 = CreateImage();
+	{
+		auto rectTransform = BuildingSelectButton03->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0.5, 0 };
+		rectTransform->anchorMax = { 0.5, 0 };
+		rectTransform->pivot = { 0.5, 0 };
+		rectTransform->posX = -70;
+		rectTransform->posY = 10;
+		rectTransform->width = 50;
+		rectTransform->height = 50;
+
+		BuildingSelectButton03->AddComponent<Button>()->AddEvent(
+			[](void*) {
+				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Sphere"].get(), 2, 1);
+			});
+		{
+			auto textobject = BuildingSelectButton03->AddChildUI();
+			auto rectTransform = textobject->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 0 };
+			rectTransform->anchorMax = { 1, 1 };
+
+			Text* text = textobject->AddComponent<Text>();
+			text->text = L"테마건물";
+			text->fontSize = 10;
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(textobject);
+		}
+	}
+
+	auto BuildingSelectButton04 = CreateImage();
+	{
+		auto rectTransform = BuildingSelectButton04->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0.5, 0 };
+		rectTransform->anchorMax = { 0.5, 0 };
+		rectTransform->pivot = { 0.5, 0 };
+		rectTransform->posX = -10;
+		rectTransform->posY = 10;
+		rectTransform->width = 50;
+		rectTransform->height = 50;
+
+		BuildingSelectButton04->AddComponent<Button>()->AddEvent(
+			[](void*) {
+				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Cube"].get(), 2, 5);
+			});
+		{
+			auto textobject = BuildingSelectButton04->AddChildUI();
+			auto rectTransform = textobject->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 0 };
+			rectTransform->anchorMax = { 1, 1 };
+
+			Text* text = textobject->AddComponent<Text>();
+			text->text = L"조경";
+			text->fontSize = 10;
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 			textObjects.push_back(textobject);
