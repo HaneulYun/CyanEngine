@@ -101,7 +101,7 @@ void Graphics::Render()
 
 	for(int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 		RenderObjects(layerIndex);
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 
 	PostRender();
