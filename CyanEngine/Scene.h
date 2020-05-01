@@ -26,15 +26,11 @@ public:
 	std::vector<GameObject*> textObjects;
 
 public:
-	static const int NumFrameResources{ NUM_FRAME_RESOURCES };
-	FrameResource* currFrameResource{ nullptr };
-	int currFrameResourceIndex{ 0 };
+	FrameResourceManager frameResourceManager;
 
 public:
 	static Scene* scene;
 	Camera* camera{ nullptr };
-
-	std::vector<std::unique_ptr<FrameResource>> frameResources;
 
 	std::unordered_map<std::string, std::unique_ptr<Mesh>> geometries;
 	std::unordered_map<std::string, std::unique_ptr<Material>> materials;

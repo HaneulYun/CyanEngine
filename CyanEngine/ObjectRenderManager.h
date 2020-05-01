@@ -15,7 +15,6 @@ struct ObjectsResource
 struct RenderSets
 {
 private:
-
 	std::vector<std::unique_ptr<ObjectsResource>> objectsResources;
 
 public:

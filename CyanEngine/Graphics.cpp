@@ -13,8 +13,8 @@ void Graphics::Initialize()
 
 void Graphics::Update()
 {
-	FrameResource* currFrameResource = Scene::scene->currFrameResource;
-	int currFrameResourceIndex = Scene::scene->currFrameResourceIndex;
+	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
+	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
 
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
@@ -22,28 +22,6 @@ void Graphics::Update()
 		fence->SetEventOnCompletion(currFrameResource->Fence, eventHandle);
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
-	}
-
-	// UpdateMaterialBuffer
-	auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
-	for (auto& e : Scene::scene->materials)
-	{
-		Material* mat = e.second.get();
-		if (mat->NumFramesDirty > 0)
-		{
-			Matrix4x4 matTransform = mat->MatTransform;
-
-			MaterialData matData;
-			matData.DiffuseAlbedo = mat->DiffuseAlbedo;
-			matData.FresnelR0 = mat->FresnelR0;
-			matData.Roughness = mat->Roughness;
-			matData.MatTransform = matTransform.Transpose();
-			matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
-
-			currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
-
-			--mat->NumFramesDirty;
-		}
 	}
 
 	// Animate the lights
@@ -154,8 +132,8 @@ void Graphics::Update()
 
 void Graphics::RenderShadowMap()
 {
-	FrameResource* currFrameResource = Scene::scene->currFrameResource;
-	int currFrameResourceIndex = Scene::scene->currFrameResourceIndex;
+	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
+	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
 
 	currFrameResource->CmdListAlloc->Reset();
 	commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
@@ -265,8 +243,8 @@ void Graphics::PreRender()
 
 void Graphics::Render()
 {
-	FrameResource* currFrameResource = Scene::scene->currFrameResource;
-	int currFrameResourceIndex = Scene::scene->currFrameResourceIndex;
+	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
+	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
 
 	RenderShadowMap();
 
@@ -497,7 +475,7 @@ void Graphics::RenderUI()
 
 void Graphics::PostRender()
 {
-	FrameResource* currFrameResource = Scene::scene->currFrameResource;
+	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	commandList->Close();

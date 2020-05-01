@@ -44,8 +44,9 @@ void RenderSets::Update()
 	}
 	else
 	{
-		objectsResources[Scene::scene->currFrameResourceIndex].reset();
-		objectsResources[Scene::scene->currFrameResourceIndex] = MakeResource();
+		int index = Scene::scene->frameResourceManager.currFrameResourceIndex;
+		objectsResources[index].reset();
+		objectsResources[index] = MakeResource();
 	}
 }
 
@@ -57,7 +58,8 @@ void RenderSets::AddGameObject(GameObject* gameObject)
 
 ObjectsResource* RenderSets::GetResources()
 {
-	return objectsResources[Scene::scene->currFrameResourceIndex].get();
+	int index = Scene::scene->frameResourceManager.currFrameResourceIndex;
+	return objectsResources[index].get();
 }
 
 void ObjectRenderManager::Update()
