@@ -54,6 +54,7 @@ private:
 
 	Camera* m_pCamera{ nullptr };
 
+public:
 	/*shadow*/
 	std::unique_ptr<ShadowMap> shadowMap;
 	DirectX::BoundingSphere sceneBounds;
