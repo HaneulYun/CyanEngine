@@ -1,16 +1,6 @@
 #include "pch.h"
 #include "Graphics.h"
 
-//extern UINT gnCbvSrvDescriptorIncrementSize;
-
-Graphics::Graphics()
-{
-}
-
-Graphics::~Graphics()
-{
-}
-
 void Graphics::Initialize()
 {
 	sceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -21,12 +11,11 @@ void Graphics::Initialize()
 	CreateDepthStencilView();
 }
 
-void Graphics::Start()
+void Graphics::Update()
 {
-}
+	FrameResource* currFrameResource = Scene::scene->currFrameResource;
+	int currFrameResourceIndex = Scene::scene->currFrameResourceIndex;
 
-void Graphics::Update(FrameResource* currFrameResource, int currFrameResourceIndex)
-{
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
 		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
@@ -161,11 +150,13 @@ void Graphics::Update(FrameResource* currFrameResource, int currFrameResourceInd
 		passConstants.TotalTime = Time::currentTime;
 		currFrameResource->PassCB->CopyData(0, passConstants);
 	}
-
 }
 
-void Graphics::RenderShadowMap(FrameResource* currFrameResource, int currFrameResourceIndex)
+void Graphics::RenderShadowMap()
 {
+	FrameResource* currFrameResource = Scene::scene->currFrameResource;
+	int currFrameResourceIndex = Scene::scene->currFrameResourceIndex;
+
 	currFrameResource->CmdListAlloc->Reset();
 	commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
 
@@ -272,9 +263,12 @@ void Graphics::PreRender()
 	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
 }
 
-void Graphics::Render(FrameResource* currFrameResource, int currFrameResourceIndex)
+void Graphics::Render()
 {
-	RenderShadowMap(currFrameResource, currFrameResourceIndex);
+	FrameResource* currFrameResource = Scene::scene->currFrameResource;
+	int currFrameResourceIndex = Scene::scene->currFrameResourceIndex;
+
+	RenderShadowMap();
 
 	PreRender();
 
@@ -307,14 +301,14 @@ void Graphics::Render(FrameResource* currFrameResource, int currFrameResourceInd
 	{
 		if (layerIndex == (int)RenderLayer::Sky)
 			continue;
-		RenderObjects(layerIndex, currFrameResourceIndex);
+		RenderObjects(layerIndex);
 	}
-	RenderObjects((int)RenderLayer::Sky, currFrameResourceIndex);
+	RenderObjects((int)RenderLayer::Sky);
 
-	PostRender(currFrameResource);
+	PostRender();
 }
 
-void Graphics::RenderObjects(int layerIndex, int currFrameResourceIndex)
+void Graphics::RenderObjects(int layerIndex)
 {
 	if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 		commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
@@ -501,8 +495,10 @@ void Graphics::RenderUI()
 
 
 
-void Graphics::PostRender(FrameResource* currFrameResource)
+void Graphics::PostRender()
 {
+	FrameResource* currFrameResource = Scene::scene->currFrameResource;
+
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	commandList->Close();
 

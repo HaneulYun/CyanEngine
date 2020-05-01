@@ -26,6 +26,11 @@ public:
 	std::vector<GameObject*> textObjects;
 
 public:
+	static const int NumFrameResources{ NUM_FRAME_RESOURCES };
+	FrameResource* currFrameResource{ nullptr };
+	int currFrameResourceIndex{ 0 };
+
+public:
 	static Scene* scene;
 	Camera* camera{ nullptr };
 

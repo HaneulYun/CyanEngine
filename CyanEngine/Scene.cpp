@@ -62,6 +62,9 @@ void Scene::Start()
 
 void Scene::Update()
 {
+	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
+	currFrameResource = frameResources[currFrameResourceIndex].get();
+
 	while (!creationQueue.empty())
 	{
 		creationQueue.front()->Start();

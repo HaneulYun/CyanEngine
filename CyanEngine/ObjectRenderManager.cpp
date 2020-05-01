@@ -44,8 +44,8 @@ void RenderSets::Update()
 	}
 	else
 	{
-		objectsResources[CyanFW::Instance()->currFrameResourceIndex].reset();
-		objectsResources[CyanFW::Instance()->currFrameResourceIndex] = MakeResource();
+		objectsResources[Scene::scene->currFrameResourceIndex].reset();
+		objectsResources[Scene::scene->currFrameResourceIndex] = MakeResource();
 	}
 }
 
@@ -57,7 +57,7 @@ void RenderSets::AddGameObject(GameObject* gameObject)
 
 ObjectsResource* RenderSets::GetResources()
 {
-	return objectsResources[CyanFW::Instance()->currFrameResourceIndex].get();
+	return objectsResources[Scene::scene->currFrameResourceIndex].get();
 }
 
 void ObjectRenderManager::Update()

@@ -67,19 +67,18 @@ private:
 	Vector3 rotatedLightDirections[3];
 
 public:
-	Graphics();
-	virtual ~Graphics();
+	Graphics() {}
+	virtual ~Graphics() {}
 
 	void Initialize();
 
-	void Start();
-	void Update(FrameResource* currFrameResource, int currFrameResourceIndex);
+	void Update();
 	void PreRender();
-	void Render(FrameResource* currFrameResource, int currFrameResourceIndex);
-	void RenderObjects(int layerIndex, int currFrameResourceIndex);
+	void RenderShadowMap();
+	void Render();
+	void RenderObjects(int layerIndex);
 	void RenderUI();
-	void PostRender(FrameResource* currFrameResource);
-	void RenderShadowMap(FrameResource* currFrameResource, int currFrameResourceIndex);
+	void PostRender();
 	void Destroy();
 
 	//--------------//
