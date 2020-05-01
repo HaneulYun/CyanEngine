@@ -15,6 +15,7 @@ struct ObjectsResource
 struct RenderSets
 {
 	int isDirty{ NUM_FRAME_RESOURCES };
+	int activatedInstance{ 0 };
 
 	std::vector<GameObject*> gameObjects;
 	std::vector<std::unique_ptr<ObjectsResource>> objectsResources;

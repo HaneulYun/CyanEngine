@@ -490,7 +490,8 @@ void Graphics::RenderUI()
 		rt.right = (rightBottom.x / 2.0f + 0.5f) * width;
 		rt.bottom = (rightBottom.y / -2.0f + 0.5f) * height;
 
-		deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(), &rt, textBrushes[textComponent->brushIndex].Get());
+		if(textComponent->gameObject->active)
+			deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(), &rt, textBrushes[textComponent->brushIndex].Get());
 	}
 
 	deviceContext->EndDraw();

@@ -128,12 +128,6 @@ void Scene::Update()
 		Delete(gameObject);
 		deletionQueue.pop();
 	}
-	while (!disableQueue.empty())
-	{
-		GameObject* gameObject = disableQueue.front();
-		Disable(gameObject);
-		disableQueue.pop();
-	}
 }
 
 void Scene::BuildObjects()
@@ -232,32 +226,6 @@ void Scene::Delete(GameObject* gameObject)
 		if (*iter == gameObject)
 		{
 			delete (*iter);
-			gameObjects.erase(iter);
-			return;
-		}
-}
-
-void Scene::PushDisable(GameObject* gameObject)
-{
-	disableQueue.push(gameObject);
-}
-
-void Scene::Disable(GameObject* gameObject)
-{
-	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
-		if ((*iter)->collisionType.find(gameObject) != (*iter)->collisionType.end())
-			(*iter)->collisionType.erase(gameObject);
-	if (gameObject->renderSet)
-		for (auto iter = gameObject->renderSet->gameObjects.begin(); iter != gameObject->renderSet->gameObjects.end(); ++iter)
-			if (*iter == gameObject)
-			{
-				gameObject->renderSet->isDirty = NUM_FRAME_RESOURCES;
-				gameObject->renderSet->gameObjects.erase(iter);
-				return;
-			}
-	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
-		if (*iter == gameObject)
-		{
 			gameObjects.erase(iter);
 			return;
 		}
