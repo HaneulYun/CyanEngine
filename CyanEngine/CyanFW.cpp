@@ -47,7 +47,6 @@ void CyanFW::OnFrameAdvance()
 	}
 
 	sceneManager->scene->Update();
-	graphics->Update();
 	graphics->Render();
 
 	Input::Update();

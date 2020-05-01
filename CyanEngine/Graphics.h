@@ -73,11 +73,10 @@ public:
 
 	void Initialize();
 
-	void Update();
 	void PreRender();
 	void RenderShadowMap();
 	void Render();
-	void RenderObjects(int layerIndex);
+	void RenderObjects(int layerIndex, bool isShadowMap = false);
 	void RenderUI();
 	void PostRender();
 	void Destroy();
