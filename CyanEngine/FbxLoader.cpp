@@ -4,7 +4,6 @@
 void FbxModelData::LoadFbx(const char* path)
 {
 	FbxManager* manager = FbxManager::Create();
-
 	FbxIOSettings* ios = FbxIOSettings::Create(manager, IOSROOT);
 	manager->SetIOSettings(ios);
 
@@ -13,6 +12,9 @@ void FbxModelData::LoadFbx(const char* path)
 	FbxImporter* importer = FbxImporter::Create(manager, "");
 	importer->Initialize(path);
 	importer->Import(scene);
+
+	FbxGeometryConverter geometryConverter(manager);
+	geometryConverter.Triangulate(scene, true);
 
 	LoadFbxHierarchy(scene->GetRootNode());
 
@@ -44,18 +46,18 @@ void FbxModelData::LoadFbx(const char* path)
 		{
 			BoneAnimation boneAnim;
 
-			std::vector<std::pair<int,FbxAnimCurve*>> curves;
+			std::vector<std::pair<int, FbxAnimCurve*>> curves;
 			FbxAnimCurve* curve;
 
-			curve = nodes[i]->LclTranslation.GetCurve(animLayer, "X"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
-			curve = nodes[i]->LclTranslation.GetCurve(animLayer, "Y"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
-			curve = nodes[i]->LclTranslation.GetCurve(animLayer, "Z"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
-			curve = nodes[i]->LclScaling.GetCurve(animLayer, "X"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
-			curve = nodes[i]->LclScaling.GetCurve(animLayer, "Y"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
-			curve = nodes[i]->LclScaling.GetCurve(animLayer, "Z"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
-			curve = nodes[i]->LclRotation.GetCurve(animLayer, "X"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
-			curve = nodes[i]->LclRotation.GetCurve(animLayer, "Y"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
-			curve = nodes[i]->LclRotation.GetCurve(animLayer, "Z"); if(curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclTranslation.GetCurve(animLayer, "X"); if (curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclTranslation.GetCurve(animLayer, "Y"); if (curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclTranslation.GetCurve(animLayer, "Z"); if (curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclScaling.GetCurve(animLayer, "X"); if (curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclScaling.GetCurve(animLayer, "Y"); if (curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclScaling.GetCurve(animLayer, "Z"); if (curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclRotation.GetCurve(animLayer, "X"); if (curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclRotation.GetCurve(animLayer, "Y"); if (curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
+			curve = nodes[i]->LclRotation.GetCurve(animLayer, "Z"); if (curve) curves.push_back(std::make_pair(curve->KeyGetCount(), curve));
 
 			if (!curves.size()) continue;
 
@@ -82,7 +84,7 @@ void FbxModelData::LoadFbx(const char* path)
 			}
 			clip->BoneAnimations[i] = boneAnim;
 		}
-		
+
 
 		this->scene->animationClips[name] = std::move(clip);
 	}
@@ -165,51 +167,129 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		{
 			int vertexIndex = mesh->GetPolygonVertex(i, j);
 			indices.emplace_back(vertexIndex);
-
+			FrameResource::SkinnedVertex vertex;
 			int k = mesh->GetElementNormalCount();
-			if (mesh->GetElementNormalCount() < 1)
-				continue;
-			const FbxGeometryElementNormal* vertexNormal = mesh->GetElementNormal(0);
-			switch (vertexNormal->GetMappingMode())
+			if (k > 0)
 			{
-			case FbxGeometryElement::eByControlPoint:
-				switch (vertexNormal->GetReferenceMode())
+				const FbxGeometryElementNormal* vertexNormal = mesh->GetElementNormal(0);
+				switch (vertexNormal->GetMappingMode())
 				{
-				case FbxGeometryElement::eDirect:
-					vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[0]);
-					vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[1]);
-					vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[2]);
+				case FbxGeometryElement::eByControlPoint:
+					switch (vertexNormal->GetReferenceMode())
+					{
+					case FbxGeometryElement::eDirect:
+						vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[0]);
+						vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[1]);
+						vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexIndex).mData[2]);
+						break;
+					case FbxGeometryElement::eIndexToDirect:
+						int index = vertexNormal->GetIndexArray().GetAt(vertexIndex);
+						vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
+						vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
+						vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+						break;
+					}
 					break;
-				case FbxGeometryElement::eIndexToDirect:
-					int index = vertexNormal->GetIndexArray().GetAt(vertexIndex);
-					vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
-					vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
-					vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+				case FbxGeometryElement::eByPolygonVertex:
+					switch (vertexNormal->GetReferenceMode())
+					{
+					case FbxGeometryElement::eDirect:
+					{
+						int vertexCnt = i * 3 + j;
+						if (vertices[vertexIndex].Normal.x == 0.0f && vertices[vertexIndex].Normal.y == 0.0f && vertices[vertexIndex].Normal.z == 0.0f)
+						{
+							vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexCnt).mData[0]);
+							vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexCnt).mData[1]);
+							vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexCnt).mData[2]);
+						}
+						else if (vertex.Pos == Vector3{ 0.0f, 0.0f, 0.0f })
+						{
+							vertex = vertices[vertexIndex];
+							vertexIndex = vertices.size();
+							vertices.push_back(vertex);
+							vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexCnt).mData[0]);
+							vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexCnt).mData[1]);
+							vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexCnt).mData[2]);
+							indices[indices.size() - 1] = vertexIndex;
+						}
+						else
+						{
+							vertexIndex = vertices.size() - 1;
+							vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexCnt).mData[0]);
+							vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexCnt).mData[1]);
+							vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(vertexCnt).mData[2]);
+						}
+					}
+					break;
+
+					case FbxGeometryElement::eIndexToDirect:
+					{
+						int vertexCnt = i * 3 + j;
+						int index = vertexNormal->GetIndexArray().GetAt(vertexCnt);
+						vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
+						vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
+						vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+					}
+					break;
+					}
 					break;
 				}
-				break;
+
+			}
+			k = mesh->GetElementUVCount();
+			if (k > 0) {
+				const FbxGeometryElementUV* vertexUv = mesh->GetElementUV(0);
+				switch (vertexUv->GetMappingMode())
+				{
+				case FbxGeometryElement::eByControlPoint:
+					switch (vertexUv->GetReferenceMode())
+					{
+					case FbxGeometryElement::eDirect:
+						vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
+						vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
+						break;
+					case FbxGeometryElement::eIndexToDirect:
+						int index = vertexUv->GetIndexArray().GetAt(vertexIndex);
+						vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
+						vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
+						break;
+					}
+					break;
+				case FbxGeometryElement::eByPolygonVertex:
+					switch (vertexUv->GetReferenceMode())
+					{
+					case FbxGeometryElement::eDirect:
+					case FbxGeometryElement::eIndexToDirect:
+					{
+						int uvIndex = mesh->GetTextureUVIndex(i, j);
+						if (vertices[vertexIndex].TexC.x == 0.0f && vertices[vertexIndex].TexC.y == 0.0f)
+						{
+							vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[0]);
+							vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
+						}
+						else if (vertex.Pos == Vector3{ 0.0f, 0.0f, 0.0f })
+						{
+							vertex = vertices[vertexIndex];
+							vertexIndex = vertices.size();
+							vertices.push_back(vertex);
+							vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[0]);
+							vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
+							indices[indices.size() - 1] = vertexIndex;
+						}
+						else
+						{
+							vertexIndex = vertices.size() - 1;
+							vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[0]);
+							vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
+						}
+					}
+					break;
+					}
+					break;
+				}
 			}
 
-			if (mesh->GetElementUVCount() < 1)
-				continue;
-			const FbxGeometryElementUV* vertexUv = mesh->GetElementUV(0);
-			switch (vertexUv->GetMappingMode())
-			{
-			case FbxGeometryElement::eByControlPoint:
-				switch (vertexUv->GetReferenceMode())
-				{
-				case FbxGeometryElement::eDirect:
-					vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
-					vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
-					break;
-				case FbxGeometryElement::eIndexToDirect:
-					int index = vertexUv->GetIndexArray().GetAt(vertexIndex);
-					vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
-					vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
-					break;
-				}
-				break;
-			}
+
 		}
 
 		// material
