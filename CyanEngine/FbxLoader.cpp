@@ -246,12 +246,12 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 					{
 					case FbxGeometryElement::eDirect:
 						vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
-						vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
+						vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
 						break;
 					case FbxGeometryElement::eIndexToDirect:
 						int index = vertexUv->GetIndexArray().GetAt(vertexIndex);
 						vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
-						vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
+						vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
 						break;
 					}
 					break;
@@ -265,7 +265,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 						if (vertices[vertexIndex].TexC.x == 0.0f && vertices[vertexIndex].TexC.y == 0.0f)
 						{
 							vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[0]);
-							vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
+							vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
 						}
 						else if (vertex.Pos == Vector3{ 0.0f, 0.0f, 0.0f })
 						{
@@ -273,14 +273,14 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 							vertexIndex = vertices.size();
 							vertices.push_back(vertex);
 							vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[0]);
-							vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
+							vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
 							indices[indices.size() - 1] = vertexIndex;
 						}
 						else
 						{
 							vertexIndex = vertices.size() - 1;
 							vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[0]);
-							vertices[vertexIndex].TexC.y = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
+							vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
 						}
 					}
 					break;
