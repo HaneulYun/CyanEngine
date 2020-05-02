@@ -108,9 +108,6 @@
     <ClInclude Include="pch.h">
       <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
     </ClInclude>
-    <ClInclude Include="scripts.h">
-      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
-    </ClInclude>
     <ClInclude Include="Meshs.h">
       <Filter>0_00_CyanEngine\30_Mesh</Filter>
     </ClInclude>
@@ -194,6 +191,9 @@
     <ClInclude Include="FrameResourceManager.h">
       <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>0_00_CyanEngine\11_Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -242,9 +242,6 @@
       <Filter>0_00_CyanEngine\20_Interface</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
-    </ClCompile>
-    <ClCompile Include="framework.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
     </ClCompile>
     <ClCompile Include="Meshs.cpp">
