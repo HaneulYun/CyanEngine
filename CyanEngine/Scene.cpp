@@ -96,23 +96,28 @@ void Scene::Update()
 
 	for (GameObject* gameObject : gameObjects)
 	{
-		for (auto d : gameObject->collisionType)
+		for (auto iter = gameObject->collisionType.begin(); iter != gameObject->collisionType.end();)
 		{
-			switch (d.second)
+			switch (iter->second)
 			{
 			case CollisionType::eCollisionEnter:
-				gameObject->OnCollisionEnter(d.first); break;
+				gameObject->OnCollisionEnter(iter->first); break;
 			case CollisionType::eCollisionStay:
-				gameObject->OnCollisionStay(d.first); break;
+				gameObject->OnCollisionStay(iter->first); break;
 			case CollisionType::eCollisionExit:
-				gameObject->OnCollisionExit(d.first); break;
+				gameObject->OnCollisionExit(iter->first); break;
 			case CollisionType::eTriggerEnter:
-				gameObject->OnTriggerEnter(d.first); break;
+				gameObject->OnTriggerEnter(iter->first); break;
 			case CollisionType::eTriggerStay:
-				gameObject->OnTriggerStay(d.first); break;
-			case CollisionType::eTriggerExit:
-				gameObject->OnTriggerExit(d.first); break;
+				gameObject->OnTriggerStay(iter->first); break;
 			}
+			if (iter->second == CollisionType::eTriggerExit)
+			{
+				gameObject->OnTriggerExit(iter->first);
+				iter = gameObject->collisionType.erase(iter);
+			}
+			else
+				++iter;
 		}
 	}
 
