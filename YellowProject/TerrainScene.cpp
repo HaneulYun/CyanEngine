@@ -35,11 +35,11 @@ void TerrainScene::BuildObjects()
 
 	//*** Mesh ***//
 	{
-		geometries["Image"] = Mesh::CreateQuad();
-		geometries["Cube"] = Mesh::CreateCube();
-		geometries["Plane"] = Mesh::CreatePlane();
-		geometries["Sphere"] = Mesh::CreateSphere();
-		geometries["Cylinder"] = Mesh::CreateCylinder();
+		AssetManager::Instance()->meshes["Image"] = Mesh::CreateQuad();
+		AssetManager::Instance()->meshes["Cube"] = Mesh::CreateCube();
+		AssetManager::Instance()->meshes["Plane"] = Mesh::CreatePlane();
+		AssetManager::Instance()->meshes["Sphere"] = Mesh::CreateSphere();
+		AssetManager::Instance()->meshes["Cylinder"] = Mesh::CreateCylinder();
 		AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 	}
 
@@ -61,11 +61,11 @@ void TerrainScene::BuildObjects()
 		controller->AddParameterFloat("Speed");
 		controller->AddParameterFloat("HoriSpeed");
 
-		controller->AddState("Idle",		animationClips["Idle_BowAnim"].get());
-		controller->AddState("Walk",		animationClips["Walk_BowAnim"].get());
-		controller->AddState("WalkBack",	animationClips["WalkBack_BowAnim"].get());
-		controller->AddState("WalkRight",	animationClips["WalkRight_BowAnim"].get());
-		controller->AddState("WalkLeft",	animationClips["WalkLeft_BowAnim"].get());
+		controller->AddState("Idle",		AssetManager::Instance()->animationClips["Idle_BowAnim"].get());
+		controller->AddState("Walk",		AssetManager::Instance()->animationClips["Walk_BowAnim"].get());
+		controller->AddState("WalkBack",	AssetManager::Instance()->animationClips["WalkBack_BowAnim"].get());
+		controller->AddState("WalkRight",	AssetManager::Instance()->animationClips["WalkRight_BowAnim"].get());
+		controller->AddState("WalkLeft",	AssetManager::Instance()->animationClips["WalkLeft_BowAnim"].get());
 
 		controller->AddTransition("Idle", "Walk",		TransitionCondition::CreateFloat("Speed", Greater, 0.1));
 		controller->AddTransition("Idle", "WalkBack",	TransitionCondition::CreateFloat("Speed", Less, -0.1));
@@ -89,7 +89,7 @@ void TerrainScene::BuildObjects()
 	{
 		auto ritem = CreateEmpty();
 		ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
-		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
+		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Sphere"].get();
 		auto renderer = ritem->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
 			renderer->materials.push_back(5);
@@ -118,7 +118,7 @@ void TerrainScene::BuildObjects()
 			ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
 			ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 			ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
-			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = geometries["ApprenticeSK"].get();
+			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = AssetManager::Instance()->meshes["ApprenticeSK"].get();
 			auto renderer = ritem->GetComponent<SkinnedMeshRenderer>();
 			for (auto& sm : mesh->DrawArgs)
 				renderer->materials.push_back(1);
@@ -174,7 +174,7 @@ void TerrainScene::BuildObjects()
 				prefab = ritem;
 				ritem->GetComponent<Transform>()->Scale({ 5, 5, 5 });
 				ritem->GetComponent<Transform>()->position = { 20.0f * x, 20.0f * y, 20.0f * z };
-				auto mesh = ritem->AddComponent<MeshFilter>()->mesh = geometries["Cube"].get();
+				auto mesh = ritem->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Cube"].get();
 				auto renderer = ritem->AddComponent<Renderer>();
 				for (auto& sm : mesh->DrawArgs)
 					renderer->materials.push_back(Random::Range(8, 14));
@@ -245,12 +245,12 @@ void TerrainScene::BuildObjects()
 	submesh.BaseVertexLocation = 0;
 
 	geo->DrawArgs["submesh"] = submesh;
-	geometries["Grass"] = std::move(geo);
+	AssetManager::Instance()->meshes["Grass"] = std::move(geo);
 
 	{
 		GameObject* billboards = CreateEmpty();
 		billboards->GetComponent<Transform>()->position -= {128, 10, 128};
-		auto mesh = billboards->AddComponent<MeshFilter>()->mesh = geometries["Grass"].get();
+		auto mesh = billboards->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Grass"].get();
 		billboards->AddComponent<Renderer>()->materials.push_back(7);
 		billboards->layer = (int)RenderLayer::Grass;
 	}
@@ -287,12 +287,12 @@ void TerrainScene::BuildObjects()
 	{
 		GameObject* leftCylRItem = CreateEmpty();
 		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
-		auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
+		auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Cylinder"].get();
 		leftCylRItem->AddComponent<Renderer>()->materials.push_back(2);
 
 		GameObject* rightCylRItem = CreateEmpty();
 		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
-		mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = geometries["Cylinder"].get();
+		mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Cylinder"].get();
 		rightCylRItem->AddComponent<Renderer>()->materials.push_back(2);
 	}
 
@@ -311,7 +311,7 @@ void TerrainScene::BuildObjects()
 
 		BSButton00->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Sphere"].get(), 2, 1);
+				BuildManager::buildManager->SelectModel(AssetManager::Instance()->meshes["Sphere"].get(), 2, 1);
 			});
 		{
 			auto textobject = BSButton00->AddChildUI();
@@ -372,7 +372,7 @@ void TerrainScene::BuildObjects()
 
 		BuildingSelectButton02->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Cube"].get(), 2, 5);
+				BuildManager::buildManager->SelectModel(AssetManager::Instance()->meshes["Cube"].get(), 2, 5);
 			});
 		{
 			auto textobject = BuildingSelectButton02->AddChildUI();
@@ -402,7 +402,7 @@ void TerrainScene::BuildObjects()
 
 		BuildingSelectButton03->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Sphere"].get(), 2, 1);
+				BuildManager::buildManager->SelectModel(AssetManager::Instance()->meshes["Sphere"].get(), 2, 1);
 			});
 		{
 			auto textobject = BuildingSelectButton03->AddChildUI();
@@ -432,7 +432,7 @@ void TerrainScene::BuildObjects()
 
 		BuildingSelectButton04->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(Scene::scene->geometries["Cube"].get(), 2, 5);
+				BuildManager::buildManager->SelectModel(AssetManager::Instance()->meshes["Cube"].get(), 2, 5);
 			});
 		{
 			auto textobject = BuildingSelectButton04->AddChildUI();

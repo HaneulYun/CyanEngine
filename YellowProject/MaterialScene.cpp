@@ -11,8 +11,8 @@ void MaterialScene::BuildObjects()
 	AddMaterial(0, "none", 0);
 
 	//*** Mesh ***//
-	geometries["Image"] = Mesh::CreateQuad();
-	geometries["Sphere"] = Mesh::CreateSphere();
+	AssetManager::Instance()->meshes["Image"] = Mesh::CreateQuad();
+	AssetManager::Instance()->meshes["Sphere"] = Mesh::CreateSphere();
 
 	///*** Game Object ***///
 
@@ -26,7 +26,7 @@ void MaterialScene::BuildObjects()
 	{
 		skyBox->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
 		skyBox->AddComponent<Renderer>()->materials.push_back(1);
-		auto mesh = skyBox->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
+		auto mesh = skyBox->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Sphere"].get();
 		skyBox->layer = (int)RenderLayer::Sky;
 	}
 

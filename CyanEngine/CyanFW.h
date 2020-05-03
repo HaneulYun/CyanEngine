@@ -1,7 +1,7 @@
 #pragma once
 
 class SceneManager;
-class FrameResource;
+class AssetManager;
 
 class CyanFW : public Singleton<CyanFW>
 {
@@ -15,6 +15,7 @@ private:
 public:
 	Graphics* graphics{ nullptr };
 	SceneManager* sceneManager{ nullptr };
+	AssetManager* assetManager{ nullptr };
 
 	_TCHAR m_pszFrameRate[50];
 

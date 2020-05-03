@@ -20,11 +20,6 @@ public:
 	static Scene* scene;
 	Camera* camera{ nullptr };
 
-	std::unordered_map<std::string, std::unique_ptr<Mesh>> geometries;
-	std::unordered_map<std::string, std::unique_ptr<Material>> materials;
-	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
-	std::unordered_map<std::string, std::unique_ptr<AnimationClip>> animationClips;
-
 public:
 	Scene();
 	virtual ~Scene();
@@ -57,7 +52,7 @@ public:
 		texture->Name = name;
 		texture->Filename = fileName;
 		texture->Index = index;
-		textures[texture->Name] = std::move(texture);
+		AssetManager::Instance()->textures[texture->Name] = std::move(texture);
 	}
 	void AddMaterial(UINT index, std::string name, int diffuse = -1, int noromal = -1,
 		Vector4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f }, Vector3 fresnel = { 0.01f, 0.01f, 0.01f },
@@ -72,7 +67,7 @@ public:
 		material->FresnelR0 = fresnel;
 		material->Roughness = roughness;
 		material->MatTransform = matTransform;
-		materials[material->Name] = std::move(material);
+		AssetManager::Instance()->materials[material->Name] = std::move(material);
 	}
 	void AddFbxForMesh(std::string name, std::string fileNmae)
 	{

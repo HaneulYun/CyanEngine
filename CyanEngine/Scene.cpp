@@ -32,12 +32,13 @@ void Scene::Start()
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	for (auto& data : textures)
+	for (auto& data : AssetManager::Instance()->textures)
 	{
 		auto texture = data.second.get();
 		texture->Index += 2;
 		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), texture->Index, Graphics::Instance()->srvDescriptorSize);
-		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+		if(!texture->Resource)
+			CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
 		srvDesc.Format = texture->Resource->GetDesc().Format;
 		srvDesc.Texture2D.MipLevels = texture->Resource->GetDesc().MipLevels;
 
@@ -51,7 +52,7 @@ void Scene::Start()
 	srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
 	srvDesc.Format = skyTex->Resource->GetDesc().Format;
 	Graphics::Instance()->device->CreateShaderResourceView(skyTex->Resource.Get(), &srvDesc, handle);
-	textures[skyTex->Name] = std::move(skyTex);
+	AssetManager::Instance()->textures[skyTex->Name] = std::move(skyTex);
 
 	Graphics::Instance()->commandList->Close();
 	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
@@ -188,7 +189,7 @@ GameObject* Scene::CreateImage()
 {
 	GameObject* gameObject = CreateUI();
 
-	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Image"].get();;
 	gameObject->AddComponent<Renderer>()->materials.push_back(0);
 	gameObject->AddComponent<Image>();
 	gameObject->layer = (int)RenderLayer::UI;
@@ -199,7 +200,7 @@ GameObject* Scene::CreateImagePrefab()
 {
 	GameObject* gameObject = new GameObject(true);
 
-	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = geometries["Image"].get();;
+	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Image"].get();;
 	gameObject->AddComponent<Renderer>()->materials.push_back(0);
 	gameObject->AddComponent<Image>();
 	gameObject->layer = (int)RenderLayer::UI;

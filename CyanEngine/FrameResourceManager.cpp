@@ -8,7 +8,7 @@ void FrameResourceManager::Update()
 
 	// UpdateMaterialBuffer
 	auto currMaterialBuffer = currFrameResource->MaterialBuffer.get();
-	for (auto& e : scene->materials)
+	for (auto& e : AssetManager::Instance()->materials)
 	{
 		Material* mat = e.second.get();
 		if (mat->NumFramesDirty > 0)

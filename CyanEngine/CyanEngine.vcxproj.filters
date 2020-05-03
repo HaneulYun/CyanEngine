@@ -194,6 +194,9 @@
     <ClInclude Include="Texture.h">
       <Filter>0_00_CyanEngine\11_Core</Filter>
     </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -304,6 +307,9 @@
     </ClCompile>
     <ClCompile Include="FrameResourceManager.cpp">
       <Filter>0_00_CyanEngine\10_Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetManager.cpp">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

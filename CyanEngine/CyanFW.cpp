@@ -24,6 +24,8 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 		(graphics = Graphics::Instance())->Initialize();
 	if (!sceneManager)
 		sceneManager = SceneManager::Instance();
+	if (!assetManager)
+		assetManager = AssetManager::Instance();
 
 	return true;
 }

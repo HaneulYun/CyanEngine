@@ -123,6 +123,7 @@ using Microsoft::WRL::ComPtr;
 
 
 #include "FbxLoader.h"
+#include "AssetManager.h"
 
 #include "FrameResource.h"
 #include "Graphics.h"
