@@ -5,7 +5,7 @@ void MenuScene::BuildObjects()
 {
 	///*** Asset ***///
 	//*** Texture ***//
-	AddTexture(0, "none", L"Textures\\none.dds");
+	AddTexture("none", L"Textures\\none.dds");
 
 	//*** Material ***//
 	AddMaterial(0, "none", 0);

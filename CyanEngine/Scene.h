@@ -45,13 +45,18 @@ public:
 	void PushDelete(GameObject*);
 	void Delete(GameObject*);
 
+
 	// Asset Managerment
-	void AddTexture(UINT index, std::string name, std::wstring fileName)
+	void AddTexture(std::string name, std::wstring fileName)
 	{
+		static int nTex{ 2 };
+		if (AssetManager::Instance()->textures.find(name) != AssetManager::Instance()->textures.end())
+			return;
+
 		auto texture = std::make_unique<Texture>();
 		texture->Name = name;
 		texture->Filename = fileName;
-		texture->Index = index;
+		texture->Index = nTex++;
 		AssetManager::Instance()->textures[texture->Name] = std::move(texture);
 	}
 	void AddMaterial(UINT index, std::string name, int diffuse = -1, int noromal = -1,

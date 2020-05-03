@@ -9,13 +9,13 @@ void TerrainScene::BuildObjects()
 	///*** Asset ***///
 	//*** Texture ***//
 	{
-		AddTexture(0, "none", L"Textures\\none.dds");
-		AddTexture(1, "polyArtTex", L"Textures\\PolyArtTex.dds");
-		AddTexture(2, "bricksTex", L"Textures\\bricks2.dds");
-		AddTexture(3, "stoneTex", L"Textures\\stone.dds");
-		AddTexture(4, "tileTex", L"Textures\\tile.dds");
-		AddTexture(6, "tree", L"Textures\\tree01S.dds");
-		AddTexture(7, "grass", L"Textures\\grass01.dds");
+		AddTexture("none", L"Textures\\none.dds");
+		AddTexture("polyArtTex", L"Textures\\PolyArtTex.dds");
+		AddTexture("bricksTex", L"Textures\\bricks2.dds");
+		AddTexture("stoneTex", L"Textures\\stone.dds");
+		AddTexture("tileTex", L"Textures\\tile.dds");
+		AddTexture("tree", L"Textures\\tree01S.dds");
+		AddTexture("grass", L"Textures\\grass01.dds");
 	}
 
 
@@ -26,9 +26,8 @@ void TerrainScene::BuildObjects()
 		AddMaterial(2, "bricksMat", 2, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
 		AddMaterial(3, "stoneMat", 0, -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
 		AddMaterial(4, "tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, Matrix4x4::MatrixScaling(8, 8, 1));
-		AddMaterial(5, "sky", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 1.0f);
-		AddMaterial(6, "tree0", 6, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
-		AddMaterial(7, "grass", 7, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
+		AddMaterial(5, "tree0", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
+		AddMaterial(6, "grass", 6, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
 		for (int i = 0; i < 5; ++i)
 			AddMaterial(8 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
 	}
@@ -251,7 +250,7 @@ void TerrainScene::BuildObjects()
 		GameObject* billboards = CreateEmpty();
 		billboards->GetComponent<Transform>()->position -= {128, 10, 128};
 		auto mesh = billboards->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Grass"].get();
-		billboards->AddComponent<Renderer>()->materials.push_back(7);
+		billboards->AddComponent<Renderer>()->materials.push_back(6);
 		billboards->layer = (int)RenderLayer::Grass;
 	}
 

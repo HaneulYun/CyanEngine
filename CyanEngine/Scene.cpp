@@ -35,7 +35,6 @@ void Scene::Start()
 	for (auto& data : AssetManager::Instance()->textures)
 	{
 		auto texture = data.second.get();
-		texture->Index += 2;
 		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), texture->Index, Graphics::Instance()->srvDescriptorSize);
 		if(!texture->Resource)
 			CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
