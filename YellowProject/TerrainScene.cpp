@@ -18,7 +18,6 @@ void TerrainScene::BuildObjects()
 		AssetManager::Instance()->AddTexture("grass", L"Textures\\grass01.dds");
 	}
 
-
 	//*** Material ***//
 	{
 		AssetManager::Instance()->AddMaterial(0, "none", 0);
@@ -34,11 +33,11 @@ void TerrainScene::BuildObjects()
 
 	//*** Mesh ***//
 	{
-		AssetManager::Instance()->meshes["Image"] = Mesh::CreateQuad();
-		AssetManager::Instance()->meshes["Cube"] = Mesh::CreateCube();
-		AssetManager::Instance()->meshes["Plane"] = Mesh::CreatePlane();
-		AssetManager::Instance()->meshes["Sphere"] = Mesh::CreateSphere();
-		AssetManager::Instance()->meshes["Cylinder"] = Mesh::CreateCylinder();
+		AssetManager::Instance()->AddMesh("Image", Mesh::CreateQuad());
+		AssetManager::Instance()->AddMesh("Cube", Mesh::CreateCube());
+		AssetManager::Instance()->AddMesh("Plane", Mesh::CreatePlane());
+		AssetManager::Instance()->AddMesh("Sphere", Mesh::CreateSphere());
+		AssetManager::Instance()->AddMesh("Cylinder", Mesh::CreateCylinder());
 		AssetManager::Instance()->AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 	}
 

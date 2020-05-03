@@ -44,8 +44,14 @@ void CyanFW::OnFrameAdvance()
 
 	if (sceneManager->scene->isDirty)
 	{
+		Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
+
 		sceneManager->scene->isDirty = false;
 		sceneManager->scene->Start();
+
+		Graphics::Instance()->commandList->Close();
+		ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
+		Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 	}
 
 	sceneManager->scene->Update();

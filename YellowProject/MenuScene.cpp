@@ -11,8 +11,8 @@ void MenuScene::BuildObjects()
 	AssetManager::Instance()->AddMaterial(0, "none", 0);
 
 	//*** Mesh ***//
-	AssetManager::Instance()->meshes["Image"] = Mesh::CreateQuad();
-	AssetManager::Instance()->meshes["Sphere"] = Mesh::CreateSphere();
+	AssetManager::Instance()->AddMesh("Image", Mesh::CreateQuad());
+	AssetManager::Instance()->AddMesh("Sphere", Mesh::CreateSphere());
 
 	///*** Game Object ***///
 
