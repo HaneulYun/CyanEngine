@@ -5,10 +5,10 @@ void MenuScene::BuildObjects()
 {
 	///*** Asset ***///
 	//*** Texture ***//
-	AddTexture("none", L"Textures\\none.dds");
+	AssetManager::Instance()->AddTexture("none", L"Textures\\none.dds");
 
 	//*** Material ***//
-	AddMaterial(0, "none", 0);
+	AssetManager::Instance()->AddMaterial(0, "none", 0);
 
 	//*** Mesh ***//
 	AssetManager::Instance()->meshes["Image"] = Mesh::CreateQuad();

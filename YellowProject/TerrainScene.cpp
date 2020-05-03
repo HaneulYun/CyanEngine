@@ -9,27 +9,27 @@ void TerrainScene::BuildObjects()
 	///*** Asset ***///
 	//*** Texture ***//
 	{
-		AddTexture("none", L"Textures\\none.dds");
-		AddTexture("polyArtTex", L"Textures\\PolyArtTex.dds");
-		AddTexture("bricksTex", L"Textures\\bricks2.dds");
-		AddTexture("stoneTex", L"Textures\\stone.dds");
-		AddTexture("tileTex", L"Textures\\tile.dds");
-		AddTexture("tree", L"Textures\\tree01S.dds");
-		AddTexture("grass", L"Textures\\grass01.dds");
+		AssetManager::Instance()->AddTexture("none", L"Textures\\none.dds");
+		AssetManager::Instance()->AddTexture("polyArtTex", L"Textures\\PolyArtTex.dds");
+		AssetManager::Instance()->AddTexture("bricksTex", L"Textures\\bricks2.dds");
+		AssetManager::Instance()->AddTexture("stoneTex", L"Textures\\stone.dds");
+		AssetManager::Instance()->AddTexture("tileTex", L"Textures\\tile.dds");
+		AssetManager::Instance()->AddTexture("tree", L"Textures\\tree01S.dds");
+		AssetManager::Instance()->AddTexture("grass", L"Textures\\grass01.dds");
 	}
 
 
 	//*** Material ***//
 	{
-		AddMaterial(0, "none", 0);
-		AddMaterial(1, "PolyArt", 1, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
-		AddMaterial(2, "bricksMat", 2, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
-		AddMaterial(3, "stoneMat", 0, -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
-		AddMaterial(4, "tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, Matrix4x4::MatrixScaling(8, 8, 1));
-		AddMaterial(5, "tree0", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
-		AddMaterial(6, "grass", 6, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
+		AssetManager::Instance()->AddMaterial(0, "none", 0);
+		AssetManager::Instance()->AddMaterial(1, "PolyArt", 1, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
+		AssetManager::Instance()->AddMaterial(2, "bricksMat", 2, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
+		AssetManager::Instance()->AddMaterial(3, "stoneMat", 0, -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
+		AssetManager::Instance()->AddMaterial(4, "tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, Matrix4x4::MatrixScaling(8, 8, 1));
+		AssetManager::Instance()->AddMaterial(5, "tree0", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
+		AssetManager::Instance()->AddMaterial(6, "grass", 6, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
 		for (int i = 0; i < 5; ++i)
-			AddMaterial(8 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
+			AssetManager::Instance()->AddMaterial(8 + i, "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
 	}
 
 	//*** Mesh ***//
@@ -39,7 +39,7 @@ void TerrainScene::BuildObjects()
 		AssetManager::Instance()->meshes["Plane"] = Mesh::CreatePlane();
 		AssetManager::Instance()->meshes["Sphere"] = Mesh::CreateSphere();
 		AssetManager::Instance()->meshes["Cylinder"] = Mesh::CreateCylinder();
-		AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
+		AssetManager::Instance()->AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 	}
 
 	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
@@ -47,11 +47,11 @@ void TerrainScene::BuildObjects()
 
 	//*** Animation ***//
 	{
-		AddFbxForAnimation("Walk_BowAnim", "Models\\BowStance\\Walk_BowAnim.fbx");
-		AddFbxForAnimation("WalkBack_BowAnim", "Models\\BowStance\\WalkBack_BowAnim.fbx");
-		AddFbxForAnimation("WalkRight_BowAnim", "Models\\BowStance\\WalkRight_BowAnim.fbx");
-		AddFbxForAnimation("WalkLeft_BowAnim", "Models\\BowStance\\WalkLeft_BowAnim.fbx");
-		AddFbxForAnimation("Idle_BowAnim", "Models\\BowStance\\Idle_BowAnim.fbx");
+		AssetManager::Instance()->AddFbxForAnimation("Walk_BowAnim", "Models\\BowStance\\Walk_BowAnim.fbx");
+		AssetManager::Instance()->AddFbxForAnimation("WalkBack_BowAnim", "Models\\BowStance\\WalkBack_BowAnim.fbx");
+		AssetManager::Instance()->AddFbxForAnimation("WalkRight_BowAnim", "Models\\BowStance\\WalkRight_BowAnim.fbx");
+		AssetManager::Instance()->AddFbxForAnimation("WalkLeft_BowAnim", "Models\\BowStance\\WalkLeft_BowAnim.fbx");
+		AssetManager::Instance()->AddFbxForAnimation("Idle_BowAnim", "Models\\BowStance\\Idle_BowAnim.fbx");
 	}
 
 	AnimatorController* controller = new AnimatorController();
