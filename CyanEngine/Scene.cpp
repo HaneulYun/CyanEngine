@@ -217,17 +217,11 @@ void Scene::Delete(GameObject* gameObject)
 	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
 		if ((*iter)->collisionType.find(gameObject) != (*iter)->collisionType.end())
 			(*iter)->collisionType.erase(gameObject);
-	if (gameObject->renderSet)
-		for (auto iter = gameObject->renderSet->gameObjects.begin(); iter != gameObject->renderSet->gameObjects.end(); ++iter)
-			if (*iter == gameObject)
-			{
-				gameObject->renderSet->isDirty = NUM_FRAME_RESOURCES;
-				gameObject->renderSet->gameObjects.erase(iter);
-				return;
-			}
 	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
 		if (*iter == gameObject)
 		{
+			gameObject->ReleaseRenderSet();
+
 			delete (*iter);
 			gameObjects.erase(iter);
 			return;

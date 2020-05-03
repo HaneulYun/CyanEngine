@@ -165,3 +165,19 @@ void GameObject::SetActive(bool state)
 	for (GameObject* child : children)
 		child->SetActive(state);
 }
+
+void GameObject::ReleaseRenderSet()
+{
+	for (auto& child : children)
+		child->ReleaseRenderSet();
+	if (renderSet)
+	{
+		for (auto iter = renderSet->gameObjects.begin(); iter != renderSet->gameObjects.end(); ++iter)
+			if (*iter == this)
+			{
+				renderSet->isDirty = NUM_FRAME_RESOURCES;
+				renderSet->gameObjects.erase(iter);
+				break;
+			}
+	}
+}
