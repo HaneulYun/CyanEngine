@@ -61,6 +61,8 @@ public:
 	void SetScene(Scene* scene);
 	void SetActive(bool state);
 
+	void ReleaseRenderSet();
+
 	GameObject* AddChild(GameObject* child = nullptr)
 	{
 		if (!child)
