@@ -152,7 +152,7 @@ public:
 		}
 	}
 
-	void SelectModel(Mesh* mesh, int matIndex, float size)
+	void SelectModel(Mesh* mesh, Material* mat, float size)
 	{
 		if (prefab) {
 			auto meshFilter = prefab->GetComponent<MeshFilter>();
@@ -169,7 +169,7 @@ public:
 		auto renderer = prefab->AddComponent<Renderer>();
 		prefab->layer = (int)RenderLayer::BuildPreview;
 		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(matIndex);
+			renderer->materials.push_back(mat);
 		prefab->AddComponent<Constant>()->v4 = { 0.0f,1.0f,0.0f,1.0f };
 	}
 

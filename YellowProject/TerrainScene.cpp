@@ -9,36 +9,36 @@ void TerrainScene::BuildObjects()
 	///*** Asset ***///
 	//*** Texture ***//
 	{
-		AssetManager::Instance()->AddTexture("none", L"Textures\\none.dds");
-		AssetManager::Instance()->AddTexture("polyArtTex", L"Textures\\PolyArtTex.dds");
-		AssetManager::Instance()->AddTexture("bricksTex", L"Textures\\bricks2.dds");
-		AssetManager::Instance()->AddTexture("stoneTex", L"Textures\\stone.dds");
-		AssetManager::Instance()->AddTexture("tileTex", L"Textures\\tile.dds");
-		AssetManager::Instance()->AddTexture("tree", L"Textures\\tree01S.dds");
-		AssetManager::Instance()->AddTexture("grass", L"Textures\\grass01.dds");
+		ASSET AddTexture("none", L"Textures\\none.dds");
+		ASSET AddTexture("polyArtTex", L"Textures\\PolyArtTex.dds");
+		ASSET AddTexture("bricksTex", L"Textures\\bricks2.dds");
+		ASSET AddTexture("stoneTex", L"Textures\\stone.dds");
+		ASSET AddTexture("tileTex", L"Textures\\tile.dds");
+		ASSET AddTexture("tree", L"Textures\\tree01S.dds");
+		ASSET AddTexture("grass", L"Textures\\grass01.dds");
 	}
 
 	//*** Material ***//
 	{
-		AssetManager::Instance()->AddMaterial("none", 0);
-		AssetManager::Instance()->AddMaterial("PolyArt", 1, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
-		AssetManager::Instance()->AddMaterial("bricksMat", 2, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
-		AssetManager::Instance()->AddMaterial("stoneMat", 0, -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
-		AssetManager::Instance()->AddMaterial("tile0", 4, -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, Matrix4x4::MatrixScaling(8, 8, 1));
-		AssetManager::Instance()->AddMaterial("tree0", 5, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
-		AssetManager::Instance()->AddMaterial("grass", 6, -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
+		ASSET AddMaterial("none",		ASSET TEXTURE("none"));
+		ASSET AddMaterial("PolyArt",	ASSET TEXTURE("polyArtTex"), -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
+		ASSET AddMaterial("bricksMat",	ASSET TEXTURE("bricksTex"), -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
+		ASSET AddMaterial("stoneMat",	ASSET TEXTURE("none"), -1, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
+		ASSET AddMaterial("tile0",		ASSET TEXTURE("tileTex"), -1, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, Matrix4x4::MatrixScaling(8, 8, 1));
+		ASSET AddMaterial("tree0",		ASSET TEXTURE("tree"), -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
+		ASSET AddMaterial("grass",		ASSET TEXTURE("grass"), -1, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
 		for (int i = 0; i < 6; ++i)
-			AssetManager::Instance()->AddMaterial( "material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
+			AssetManager::Instance()->AddMaterial("material_" + std::to_string(i), 0, 0, RANDOM_COLOR, { 0.98f, 0.97f, 0.95f }, 0.0f);
 	}
 
 	//*** Mesh ***//
 	{
-		AssetManager::Instance()->AddMesh("Image", Mesh::CreateQuad());
-		AssetManager::Instance()->AddMesh("Cube", Mesh::CreateCube());
-		AssetManager::Instance()->AddMesh("Plane", Mesh::CreatePlane());
-		AssetManager::Instance()->AddMesh("Sphere", Mesh::CreateSphere());
-		AssetManager::Instance()->AddMesh("Cylinder", Mesh::CreateCylinder());
-		AssetManager::Instance()->AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
+		ASSET AddMesh("Image", Mesh::CreateQuad());
+		ASSET AddMesh("Cube", Mesh::CreateCube());
+		ASSET AddMesh("Plane", Mesh::CreatePlane());
+		ASSET AddMesh("Sphere", Mesh::CreateSphere());
+		ASSET AddMesh("Cylinder", Mesh::CreateCylinder());
+		ASSET AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 	}
 
 	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
@@ -59,21 +59,21 @@ void TerrainScene::BuildObjects()
 		controller->AddParameterFloat("Speed");
 		controller->AddParameterFloat("HoriSpeed");
 
-		controller->AddState("Idle",		AssetManager::Instance()->animationClips["Idle_BowAnim"].get());
-		controller->AddState("Walk",		AssetManager::Instance()->animationClips["Walk_BowAnim"].get());
-		controller->AddState("WalkBack",	AssetManager::Instance()->animationClips["WalkBack_BowAnim"].get());
-		controller->AddState("WalkRight",	AssetManager::Instance()->animationClips["WalkRight_BowAnim"].get());
-		controller->AddState("WalkLeft",	AssetManager::Instance()->animationClips["WalkLeft_BowAnim"].get());
+		controller->AddState("Idle", AssetManager::Instance()->animationClips["Idle_BowAnim"].get());
+		controller->AddState("Walk", AssetManager::Instance()->animationClips["Walk_BowAnim"].get());
+		controller->AddState("WalkBack", AssetManager::Instance()->animationClips["WalkBack_BowAnim"].get());
+		controller->AddState("WalkRight", AssetManager::Instance()->animationClips["WalkRight_BowAnim"].get());
+		controller->AddState("WalkLeft", AssetManager::Instance()->animationClips["WalkLeft_BowAnim"].get());
 
-		controller->AddTransition("Idle", "Walk",		TransitionCondition::CreateFloat("Speed", Greater, 0.1));
-		controller->AddTransition("Idle", "WalkBack",	TransitionCondition::CreateFloat("Speed", Less, -0.1));
-		controller->AddTransition("Walk", "Idle",		TransitionCondition::CreateFloat("Speed", Less, 0.1));
-		controller->AddTransition("WalkBack", "Idle",	TransitionCondition::CreateFloat("Speed", Greater, -0.1));
+		controller->AddTransition("Idle", "Walk", TransitionCondition::CreateFloat("Speed", Greater, 0.1));
+		controller->AddTransition("Idle", "WalkBack", TransitionCondition::CreateFloat("Speed", Less, -0.1));
+		controller->AddTransition("Walk", "Idle", TransitionCondition::CreateFloat("Speed", Less, 0.1));
+		controller->AddTransition("WalkBack", "Idle", TransitionCondition::CreateFloat("Speed", Greater, -0.1));
 
-		controller->AddTransition("Idle", "WalkLeft",	TransitionCondition::CreateFloat("HoriSpeed", Greater, 0.1));
-		controller->AddTransition("Idle", "WalkRight",	TransitionCondition::CreateFloat("HoriSpeed", Less, -0.1));
-		controller->AddTransition("WalkLeft", "Idle",	TransitionCondition::CreateFloat("HoriSpeed", Less, 0.1));
-		controller->AddTransition("WalkRight", "Idle",	TransitionCondition::CreateFloat("HoriSpeed", Greater, -0.1));
+		controller->AddTransition("Idle", "WalkLeft", TransitionCondition::CreateFloat("HoriSpeed", Greater, 0.1));
+		controller->AddTransition("Idle", "WalkRight", TransitionCondition::CreateFloat("HoriSpeed", Less, -0.1));
+		controller->AddTransition("WalkLeft", "Idle", TransitionCondition::CreateFloat("HoriSpeed", Less, 0.1));
+		controller->AddTransition("WalkRight", "Idle", TransitionCondition::CreateFloat("HoriSpeed", Greater, -0.1));
 	}
 
 	///*** Game Object ***///
@@ -87,14 +87,14 @@ void TerrainScene::BuildObjects()
 	{
 		auto ritem = CreateEmpty();
 		ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
-		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Sphere"].get();
+		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = ASSET MESH("Sphere");
 		auto renderer = ritem->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(5);
+			renderer->materials.push_back(ASSET MATERIAL("none"));
 		ritem->layer = (int)RenderLayer::Sky;
 	}
 
-	std::string name[9] {
+	std::string name[9]{
 		"Attack01_BowAnim",
 		"Attack01Maintain_BowAnim",
 		"Attack01RepeatFire_BowAnim",
@@ -116,18 +116,18 @@ void TerrainScene::BuildObjects()
 			ritem->GetComponent<Transform>()->Scale({ 0.02, 0.02, 0.02 });
 			ritem->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 			ritem->GetComponent<Transform>()->position = { interval * x, 0.0f, interval * z };
-			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = AssetManager::Instance()->meshes["ApprenticeSK"].get();
+			auto mesh = ritem->AddComponent<SkinnedMeshRenderer>()->mesh = ASSET MESH("ApprenticeSK");
 			auto renderer = ritem->GetComponent<SkinnedMeshRenderer>();
 			for (auto& sm : mesh->DrawArgs)
-				renderer->materials.push_back(1);
-	
+				renderer->materials.push_back(ASSET MATERIAL("PolyArt"));
+
 			auto anim = ritem->AddComponent<Animator>();
 			anim->controller = controller;
 			anim->state = &controller->states["Idle"];
 			anim->TimePos = Random::Range(0.0f, anim->controller->GetClipEndTime(anim->state));
-			
+
 			auto ref = ritem->AddComponent<CharacterController>();
-	
+
 			if (!x && !z)
 			{
 				ref->isPlayer = true;
@@ -161,7 +161,7 @@ void TerrainScene::BuildObjects()
 	//	//	cameraOffset->AddComponent<CameraController>();
 	//	//}
 	//}
-	
+
 	GameObject* prefab;
 	int xObjects = 0, yObjects = 0, zObjects = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
@@ -172,19 +172,17 @@ void TerrainScene::BuildObjects()
 				prefab = ritem;
 				ritem->GetComponent<Transform>()->Scale({ 5, 5, 5 });
 				ritem->GetComponent<Transform>()->position = { 20.0f * x, 20.0f * y, 20.0f * z };
-				auto mesh = ritem->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Cube"].get();
-				auto renderer = ritem->AddComponent<Renderer>();
-				for (auto& sm : mesh->DrawArgs)
-					renderer->materials.push_back(Random::Range(8, 14));
-	
+				auto mesh = ritem->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
+				ritem->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("material_0"));
+
 				ritem->AddComponent<RotatingBehavior>()->speedRotating = Random::Range(-10.0f, 10.0f) * 2;
 			}
-	
+
 	GameObject* grid = CreateEmpty();
 	{
 		grid->GetComponent<Transform>()->position -= {128, 10, 128};
 		auto mesh = grid->AddComponent<MeshFilter>()->mesh = gridMesh;
-		grid->AddComponent<Renderer>()->materials.push_back(1);
+		grid->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
 	}
 
 	{
@@ -198,7 +196,7 @@ void TerrainScene::BuildObjects()
 		ButtonManager* buttonManager = manager->AddComponent<ButtonManager>();
 		ButtonManager::buttonManager = buttonManager;
 	}
-	
+
 	// billboard points
 	struct TreeSpriteVertex
 	{
@@ -243,13 +241,12 @@ void TerrainScene::BuildObjects()
 	submesh.BaseVertexLocation = 0;
 
 	geo->DrawArgs["submesh"] = submesh;
-	AssetManager::Instance()->meshes["Grass"] = std::move(geo);
-
+	ASSET AddMesh("Grass", std::move(geo));
 	{
 		GameObject* billboards = CreateEmpty();
 		billboards->GetComponent<Transform>()->position -= {128, 10, 128};
-		auto mesh = billboards->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Grass"].get();
-		billboards->AddComponent<Renderer>()->materials.push_back(6);
+		auto mesh = billboards->AddComponent<MeshFilter>()->mesh = ASSET MESH("Grass");
+		billboards->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("grass"));
 		billboards->layer = (int)RenderLayer::Grass;
 	}
 
@@ -285,13 +282,13 @@ void TerrainScene::BuildObjects()
 	{
 		GameObject* leftCylRItem = CreateEmpty();
 		leftCylRItem->GetComponent<Transform>()->position = Vector3(-5.0f, 1.5f, -10.0f + i * 5.0f);
-		auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Cylinder"].get();
-		leftCylRItem->AddComponent<Renderer>()->materials.push_back(2);
+		auto mesh = leftCylRItem->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cylinder");
+		leftCylRItem->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("bricksMat"));
 
 		GameObject* rightCylRItem = CreateEmpty();
 		rightCylRItem->GetComponent<Transform>()->position = Vector3(5.0f, 1.5f, -10.0f + i * 5.0f);
-		mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Cylinder"].get();
-		rightCylRItem->AddComponent<Renderer>()->materials.push_back(2);
+		mesh = rightCylRItem->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cylinder");
+		rightCylRItem->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("bricksMat"));
 	}
 
 	// Build Button
@@ -309,7 +306,7 @@ void TerrainScene::BuildObjects()
 
 		BSButton00->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(AssetManager::Instance()->meshes["Sphere"].get(), 2, 1);
+				BuildManager::buildManager->SelectModel(ASSET MESH("Sphere"), ASSET MATERIAL("bricksMat"), 1);
 			});
 		{
 			auto textobject = BSButton00->AddChildUI();
@@ -370,7 +367,7 @@ void TerrainScene::BuildObjects()
 
 		BuildingSelectButton02->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(AssetManager::Instance()->meshes["Cube"].get(), 2, 5);
+				BuildManager::buildManager->SelectModel(ASSET MESH("Cube"), ASSET MATERIAL("bricksMat"), 5);
 			});
 		{
 			auto textobject = BuildingSelectButton02->AddChildUI();
@@ -400,7 +397,7 @@ void TerrainScene::BuildObjects()
 
 		BuildingSelectButton03->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(AssetManager::Instance()->meshes["Sphere"].get(), 2, 1);
+				BuildManager::buildManager->SelectModel(ASSET MESH("Sphere"), ASSET MATERIAL("bricksMat"), 1);
 			});
 		{
 			auto textobject = BuildingSelectButton03->AddChildUI();
@@ -430,7 +427,7 @@ void TerrainScene::BuildObjects()
 
 		BuildingSelectButton04->AddComponent<Button>()->AddEvent(
 			[](void*) {
-				BuildManager::buildManager->SelectModel(AssetManager::Instance()->meshes["Cube"].get(), 2, 5);
+				BuildManager::buildManager->SelectModel(ASSET MESH("Cube"), ASSET MATERIAL("bricksMat"), 5);
 			});
 		{
 			auto textobject = BuildingSelectButton04->AddChildUI();

@@ -60,7 +60,7 @@ void AssetManager::AddTexture(std::string name, std::wstring fileName)
 	AssetManager::Instance()->textures[texture->Name] = std::move(texture);
 }
 
-void AssetManager::AddMaterial(std::string name, int diffuse, int noromal,
+void AssetManager::AddMaterial(std::string name, Texture* diffuse, int noromal,
 	Vector4 albedo, Vector3 fresnel, float roughness, Matrix4x4 matTransform)
 {	
 	static int index{ 0 };
@@ -70,7 +70,7 @@ void AssetManager::AddMaterial(std::string name, int diffuse, int noromal,
 	auto material = std::make_unique<Material>();
 	material->Name = name;
 	material->MatCBIndex = index++;
-	material->DiffuseSrvHeapIndex = diffuse;
+	material->DiffuseSrvHeapIndex = diffuse ? diffuse->Index - 2 : -1;
 	material->NormalSrvHeapIndex = noromal;
 	material->DiffuseAlbedo = albedo;
 	material->FresnelR0 = fresnel;
@@ -91,4 +91,25 @@ void AssetManager::AddFbxForAnimation(std::string name, std::string fileNmae)
 	FbxModelData data;
 	data.SetName(name);
 	data.LoadFbx(fileNmae.c_str());
+}
+
+Mesh* AssetManager::GetMesh(std::string name)
+{
+	if (auto iter = meshes.find(name); iter == meshes.end())
+		return nullptr;
+	return meshes[name].get();
+}
+
+Texture* AssetManager::GetTexture(std::string name)
+{
+	if (auto iter = textures.find(name); iter == textures.end())
+		return nullptr;
+	return textures[name].get();
+}
+
+Material* AssetManager::GetMaterial(std::string name)
+{
+	if (auto iter = materials.find(name); iter == materials.end())
+		return nullptr;
+	return materials[name].get();
 }

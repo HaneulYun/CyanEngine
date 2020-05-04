@@ -449,6 +449,6 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 			mesh->DrawArgs[name] = submesh;
 		}
-		AssetManager::Instance()->meshes[name] = std::move(mesh);
+		ASSET AddMesh(name, std::move(mesh));
 	}
 }

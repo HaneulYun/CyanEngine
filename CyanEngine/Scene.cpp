@@ -149,8 +149,8 @@ GameObject* Scene::CreateImage()
 {
 	GameObject* gameObject = CreateUI();
 
-	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Image"].get();;
-	gameObject->AddComponent<Renderer>()->materials.push_back(0);
+	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Image");
+	gameObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	gameObject->AddComponent<Image>();
 	gameObject->layer = (int)RenderLayer::UI;
 
@@ -160,8 +160,8 @@ GameObject* Scene::CreateImagePrefab()
 {
 	GameObject* gameObject = new GameObject(true);
 
-	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = AssetManager::Instance()->meshes["Image"].get();;
-	gameObject->AddComponent<Renderer>()->materials.push_back(0);
+	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Image");
+	gameObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	gameObject->AddComponent<Image>();
 	gameObject->layer = (int)RenderLayer::UI;
 

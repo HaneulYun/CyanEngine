@@ -328,8 +328,6 @@ void Graphics::PostRender()
 	currFrameResource->Fence = ++fenceValue;
 	commandQueue->Signal(fence.Get(), fenceValue);
 
-	WaitForPreviousFrame();
-	
 	//for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Particle])
 	//{
 	//	auto& mesh = renderSets.first;
