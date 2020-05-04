@@ -3,8 +3,6 @@
 
 void AssetManager::Update()
 {
-	Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
-
 	auto skyTex = std::make_unique<Texture>();
 	{
 		skyTex->Name = "skyTex";
@@ -39,10 +37,6 @@ void AssetManager::Update()
 	srvDesc.Format = skyTex->Resource->GetDesc().Format;
 	Graphics::Instance()->device->CreateShaderResourceView(skyTex->Resource.Get(), &srvDesc, handle);
 	AssetManager::Instance()->textures[skyTex->Name] = std::move(skyTex);
-
-	Graphics::Instance()->commandList->Close();
-	ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
-	Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 }
 
 void AssetManager::AddMesh(std::string name, std::unique_ptr<Mesh> mesh)
