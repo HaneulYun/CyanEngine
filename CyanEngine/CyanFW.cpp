@@ -25,7 +25,15 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	if (!sceneManager)
 		sceneManager = SceneManager::Instance();
 	if (!assetManager)
+	{
 		assetManager = AssetManager::Instance();
+		for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
+		{
+			auto resource = std::make_unique<AssetResource>();
+			resource->MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(Graphics::Instance()->device.Get(), 10, false);
+			assetManager->assetResource.push_back(std::move(resource));
+		}
+	}
 
 	return true;
 }
@@ -55,6 +63,28 @@ void CyanFW::OnFrameAdvance()
 	}
 
 	sceneManager->scene->Update();
+	// UpdateMaterialBuffer
+	auto currMaterialBuffer = assetManager->assetResource[Scene::scene->frameResourceManager.currFrameResourceIndex]->MaterialBuffer.get();
+	for (auto& e : AssetManager::Instance()->materials)
+	{
+		Material* mat = e.second.get();
+		//if (mat->NumFramesDirty > 0)
+		//{
+			Matrix4x4 matTransform = mat->MatTransform;
+
+			MaterialData matData;
+			matData.DiffuseAlbedo = mat->DiffuseAlbedo;
+			matData.FresnelR0 = mat->FresnelR0;
+			matData.Roughness = mat->Roughness;
+			matData.MatTransform = matTransform.Transpose();
+			matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
+
+			currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
+
+			--mat->NumFramesDirty;
+		//}
+	}
+
 	graphics->Render();
 
 	Input::Update();

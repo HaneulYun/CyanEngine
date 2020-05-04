@@ -23,7 +23,7 @@ void Graphics::PreRender()
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 
-	auto matBuffer = currFrameResource->MaterialBuffer->Resource();
+	auto matBuffer = AssetManager::Instance()->assetResource[Scene::scene->frameResourceManager.currFrameResourceIndex]->MaterialBuffer->Resource();
 	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
 

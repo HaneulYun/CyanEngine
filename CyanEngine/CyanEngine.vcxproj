@@ -174,6 +174,7 @@
     <ClInclude Include="Animator.h" />
     <ClInclude Include="AnimatorController.h" />
     <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="AssetResource.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
@@ -203,6 +204,7 @@
     <ClInclude Include="MonoBehavior.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectRenderManager.h" />
+    <ClInclude Include="ObjectResource.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />

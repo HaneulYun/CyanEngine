@@ -66,12 +66,16 @@ void AssetManager::AddTexture(std::string name, std::wstring fileName)
 	AssetManager::Instance()->textures[texture->Name] = std::move(texture);
 }
 
-void AssetManager::AddMaterial(UINT index, std::string name, int diffuse, int noromal,
+void AssetManager::AddMaterial(std::string name, int diffuse, int noromal,
 	Vector4 albedo, Vector3 fresnel, float roughness, Matrix4x4 matTransform)
-{
+{	
+	static int index{ 0 };
+	if (AssetManager::Instance()->materials.find(name) != AssetManager::Instance()->materials.end())
+		return;
+
 	auto material = std::make_unique<Material>();
 	material->Name = name;
-	material->MatCBIndex = index;
+	material->MatCBIndex = index++;
 	material->DiffuseSrvHeapIndex = diffuse;
 	material->NormalSrvHeapIndex = noromal;
 	material->DiffuseAlbedo = albedo;

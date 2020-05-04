@@ -197,6 +197,12 @@
     <ClInclude Include="AssetManager.h">
       <Filter>0_00_CyanEngine\01_Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectResource.h">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetResource.h">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">

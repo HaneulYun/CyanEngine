@@ -8,7 +8,7 @@ void MenuScene::BuildObjects()
 	AssetManager::Instance()->AddTexture("none", L"Textures\\none.dds");
 
 	//*** Material ***//
-	AssetManager::Instance()->AddMaterial(0, "none", 0);
+	AssetManager::Instance()->AddMaterial("none", 0);
 
 	//*** Mesh ***//
 	AssetManager::Instance()->AddMesh("Image", Mesh::CreateQuad());

@@ -2,27 +2,6 @@
 
 #include "MathHelper.h"
 
-struct InstanceData
-{
-	Matrix4x4 World;
-	Matrix4x4 TexTransform;
-	UINT MaterialIndexStride{};
-	UINT BoneTransformStride{};
-	UINT ObjPad0{};
-	UINT ObjPad1{};
-};
-
-struct MatIndexData
-{
-	UINT MaterialIndex{};
-};
-
-struct SkinnnedData
-{
-	Matrix4x4 BoneTransforms{};
-};
-
-
 struct PassConstants
 {
 	Matrix4x4	View;
@@ -43,20 +22,6 @@ struct PassConstants
 
 	XMFLOAT4	AmbientLight{ 0.0f, 0.0f, 0.0f, 1.0f };
 	Light		Lights[MaxLights]{};
-};
-
-struct MaterialData
-{
-	Vector4 DiffuseAlbedo{ 1.0f, 1.0f, 1.0f, 1.0f };
-	Vector3 FresnelR0{ 0.01f, 0.01f, 0.01f };
-	float Roughness{ 0.5f };
-
-	Matrix4x4 MatTransform{ Matrix4x4::MatrixIdentity() };
-
-	UINT DiffuseMapIndex{};
-	UINT NormalMapIndex{};
-	UINT MaterialPad1{};
-	UINT MaterialPad2{};
 };
 
 struct FrameResource
@@ -86,9 +51,9 @@ struct FrameResource
 		float Speed{};
 		UINT Type{};
 	};
+
 public:
-    
-	FrameResource(ID3D12Device* device, UINT passCount, UINT materialCount);
+	FrameResource(ID3D12Device* device, UINT passCount);
 	FrameResource(const FrameResource&) = delete;
     FrameResource& operator=(const FrameResource&) = delete;
 	~FrameResource() = default;
@@ -96,7 +61,6 @@ public:
 	ComPtr<ID3D12CommandAllocator> CmdListAlloc{ nullptr };
 
 	std::unique_ptr<UploadBuffer<PassConstants>> PassCB{ nullptr };
-	std::unique_ptr<UploadBuffer<MaterialData>> MaterialBuffer{ nullptr };
 
     UINT64 Fence = 0;
 };
