@@ -5,14 +5,14 @@ void MenuScene::BuildObjects()
 {
 	///*** Asset ***///
 	//*** Texture ***//
-	AddTexture(0, "none", L"Textures\\none.dds");
+	ASSET AddTexture("none", L"Textures\\none.dds");
 
 	//*** Material ***//
-	AddMaterial(0, "none", 0);
+	ASSET AddMaterial("none", ASSET TEXTURE("none"));
 
 	//*** Mesh ***//
-	geometries["Image"] = Mesh::CreateQuad();
-	geometries["Sphere"] = Mesh::CreateSphere();
+	ASSET AddMesh("Image", Mesh::CreateQuad());
+	ASSET AddMesh("Sphere", Mesh::CreateSphere());
 
 	///*** Game Object ***///
 
@@ -25,8 +25,8 @@ void MenuScene::BuildObjects()
 	auto skyBox = CreateEmpty();
 	{
 		skyBox->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
-		skyBox->AddComponent<Renderer>()->materials.push_back(1);
-		auto mesh = skyBox->AddComponent<MeshFilter>()->mesh = geometries["Sphere"].get();
+		skyBox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
+		auto mesh = skyBox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Sphere");
 		skyBox->layer = (int)RenderLayer::Sky;
 	}
 

@@ -108,9 +108,6 @@
     <ClInclude Include="pch.h">
       <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
     </ClInclude>
-    <ClInclude Include="scripts.h">
-      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
-    </ClInclude>
     <ClInclude Include="Meshs.h">
       <Filter>0_00_CyanEngine\30_Mesh</Filter>
     </ClInclude>
@@ -157,9 +154,6 @@
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClInclude>
     <ClInclude Include="ShadowMap.h" />
-    <ClInclude Include="FrameResource.h">
-      <Filter>0_00_CyanEngine\01_Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Image.h">
       <Filter>0_00_CyanEngine\13_UIComponent</Filter>
     </ClInclude>
@@ -192,6 +186,21 @@
     </ClInclude>
     <ClInclude Include="Constant.h" />
     <ClInclude Include="FrameResourceManager.h">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>0_00_CyanEngine\11_Core</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectResource.h">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetResource.h">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameResource.h">
       <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClInclude>
   </ItemGroup>
@@ -244,9 +253,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
     </ClCompile>
-    <ClCompile Include="framework.cpp">
-      <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
-    </ClCompile>
     <ClCompile Include="Meshs.cpp">
       <Filter>0_00_CyanEngine\30_Mesh</Filter>
     </ClCompile>
@@ -281,9 +287,6 @@
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClCompile>
     <ClCompile Include="ShadowMap.cpp" />
-    <ClCompile Include="FrameResource.cpp">
-      <Filter>0_00_CyanEngine\01_Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="AnimatorController.cpp">
       <Filter>0_00_CyanEngine\15_AniimationComponent</Filter>
     </ClCompile>
@@ -306,6 +309,12 @@
       <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
     </ClCompile>
     <ClCompile Include="FrameResourceManager.cpp">
+      <Filter>0_00_CyanEngine\10_Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="AssetManager.cpp">
+      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameResource.cpp">
       <Filter>0_00_CyanEngine\10_Scene</Filter>
     </ClCompile>
   </ItemGroup>

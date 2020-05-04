@@ -8,7 +8,7 @@ private:
 	Graphics* graphics{ nullptr };
 
 public:
-	std::deque<int> materials;
+	std::deque<Material*> materials;
 
 protected:
 	friend class GameObject;

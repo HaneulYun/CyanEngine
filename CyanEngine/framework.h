@@ -1,9 +1,9 @@
 ﻿#pragma once
 
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
-// Windows 헤더 파일
+
 #include <windows.h>
-// C 런타임 헤더 파일입니다.
+
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -60,10 +60,6 @@ using Microsoft::WRL::ComPtr;
 
 //#define _WITH_SWAPCHAIN_FULLSCREEN_STATE
 
-ID3D12Resource* CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATES d3dResourceStates = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, ID3D12Resource** ppd3dUploadBuffer = NULL);
-ID3D12Resource* CreateTextureResourceFromFile(const wchar_t* pszFileName, ID3D12Resource** ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates);
-ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElements, UINT nMipLevels, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue);
-
 #include <deque>
 #include <queue>
 #include <map>
@@ -73,10 +69,12 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 #include "Vector3.h"
 #include "Matrix4x4.h"
 
+
 #include "d3dx12.h"
 #include "d3dUtil.h"
 #include "UploadBuffer.h"
 #include "GeometryGenerator.h"
+
 
 #include "Singleton.h"
 
@@ -89,19 +87,20 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 
 #include "Object.h"
 
-#include "Mesh.h"
-#include "Meshs.h"
-
+#include "Texture.h"
 #include "Material.h"
 
 #include "Component.h"
 #include "MonoBehavior.h"
 
 #include "Transform.h"
-#include "MeshFilter.h"
 #include "Renderer.h"
-#include "SkinnedMeshRenderer.h"
 #include "Camera.h"
+
+#include "Mesh.h"
+#include "Meshs.h"
+#include "SkinnedMeshRenderer.h"
+#include "MeshFilter.h"
 #include "Terrain.h"
 
 #include "AnimatorController.h"
@@ -120,18 +119,22 @@ ID3D12Resource* CreateTexture2DResource(UINT nWidth, UINT nHeight, UINT nElement
 
 #include "ParticleSystem.h"
 
-#include "FrameResource.h"
-#include "Graphics.h"
-
 #include "GameObject.h"
+
 
 #include "FbxLoader.h"
 
+#include "AssetResource.h"
+#include "FrameResource.h"
+#include "ObjectResource.h"
+#include "Graphics.h"
+
+#include "AssetManager.h"
 #include "ObjectRenderManager.h"
 #include "FrameResourceManager.h"
 #include "Scene.h"
-#include "SceneManager.h"
 
+#include "SceneManager.h"
 #include "CyanFW.h"
 #include "CyanApp.h"
 

@@ -99,7 +99,7 @@ void GameObject::Update()
 			for (int i = 0; i < renderer->materials.size(); ++i)
 			{
 				MatIndexData skinnedConstants;
-				skinnedConstants.MaterialIndex = renderer->materials[i];
+				skinnedConstants.MaterialIndex = renderer->materials[i]->MatCBIndex;
 				matIndexBuffer->CopyData(baseindex + i, skinnedConstants);
 			}
 		}

@@ -173,6 +173,8 @@
   <ItemGroup>
     <ClInclude Include="Animator.h" />
     <ClInclude Include="AnimatorController.h" />
+    <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="AssetResource.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
@@ -202,6 +204,7 @@
     <ClInclude Include="MonoBehavior.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectRenderManager.h" />
+    <ClInclude Include="ObjectResource.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Random.h" />
@@ -210,13 +213,13 @@
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
-    <ClInclude Include="scripts.h" />
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SkinnedMeshRenderer.h" />
     <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Text.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UploadBuffer.h" />
@@ -224,6 +227,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimatorController.cpp" />
+    <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
@@ -237,7 +241,6 @@
     <ClCompile Include="FbxLoader.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="FrameResourceManager.cpp" />
-    <ClCompile Include="framework.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Input.cpp" />

@@ -91,4 +91,5 @@ public:
 	void ChangeSwapChainState();
 
 	void WaitForPreviousFrame();
+	void FlushCommandQueue();
 };

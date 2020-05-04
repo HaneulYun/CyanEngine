@@ -84,9 +84,7 @@ void FbxModelData::LoadFbx(const char* path)
 			}
 			clip->BoneAnimations[i] = boneAnim;
 		}
-
-
-		this->scene->animationClips[name] = std::move(clip);
+		AssetManager::Instance()->animationClips[name] = std::move(clip);
 	}
 }
 
@@ -451,6 +449,6 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 			mesh->DrawArgs[name] = submesh;
 		}
-		this->scene->geometries[name] = std::move(mesh);
+		ASSET AddMesh(name, std::move(mesh));
 	}
 }
