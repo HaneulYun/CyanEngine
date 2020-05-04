@@ -5,10 +5,10 @@ void MaterialScene::BuildObjects()
 {
 	///*** Asset ***///
 	//*** Texture ***//
-	ASSET AddTexture("none", L"Textures\\none.dds");
+	//ASSET AddTexture("none", L"Textures\\none.dds");
 
 	//*** Material ***//
-	ASSET AddMaterial("none", ASSET TEXTURE("none"));
+	//ASSET AddMaterial("none", ASSET TEXTURE("none"));
 
 	//*** Mesh ***//
 	//ASSET AddMesh("Image", Mesh::CreateQuad());

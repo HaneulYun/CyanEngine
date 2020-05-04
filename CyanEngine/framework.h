@@ -64,7 +64,7 @@ using Microsoft::WRL::ComPtr;
 #include <queue>
 #include <map>
 
-#define NUM_FRAME_RESOURCES 3
+#define NUM_FRAME_RESOURCES 1
 
 #include "Vector3.h"
 #include "Matrix4x4.h"
