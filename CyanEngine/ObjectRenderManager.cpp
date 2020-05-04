@@ -10,7 +10,9 @@ std::unique_ptr<ObjectsResource> RenderSets::MakeResource()
 	int matIndexStride = 1;
 	if (gameObjects[0]->GetComponent<Animator>())
 		boneStride = gameObjects[0]->GetComponent<Animator>()->controller->BoneCount();
-	if (gameObjects[0]->GetComponent<SkinnedMeshRenderer>())
+	if (gameObjects[0]->GetComponent<Renderer>())
+		matIndexStride = gameObjects[0]->GetComponent<Renderer>()->materials.size();
+	else if (gameObjects[0]->GetComponent<SkinnedMeshRenderer>())
 		matIndexStride = gameObjects[0]->GetComponent<SkinnedMeshRenderer>()->materials.size();
 
 	resource->InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(Graphics::Instance()->device.Get(), objectCount, false);
