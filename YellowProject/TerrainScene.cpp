@@ -33,10 +33,10 @@ void TerrainScene::BuildObjects()
 
 	//*** Mesh ***//
 	{
-		ASSET AddMesh("Image", Mesh::CreateQuad());
+		//ASSET AddMesh("Image", Mesh::CreateQuad());
 		ASSET AddMesh("Cube", Mesh::CreateCube());
 		ASSET AddMesh("Plane", Mesh::CreatePlane());
-		ASSET AddMesh("Sphere", Mesh::CreateSphere());
+		//ASSET AddMesh("Sphere", Mesh::CreateSphere());
 		ASSET AddMesh("Cylinder", Mesh::CreateCylinder());
 		ASSET AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 	}
