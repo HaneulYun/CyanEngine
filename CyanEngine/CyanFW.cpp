@@ -44,6 +44,7 @@ void CyanFW::OnFrameAdvance()
 
 	if (sceneManager->nextScene)
 	{
+		sceneManager->nextScene->frameResourceManager.currFrameResourceIndex = sceneManager->scene->frameResourceManager.currFrameResourceIndex;
 		Scene::scene = sceneManager->scene = sceneManager->nextScene;
 		sceneManager->nextScene = nullptr;
 

@@ -3,13 +3,6 @@
 
 void AssetManager::Update()
 {
-	auto skyTex = std::make_unique<Texture>();
-	{
-		skyTex->Name = "skyTex";
-		skyTex->Filename = L"Textures\\grasscube1024.dds";
-		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), skyTex->Filename.c_str(), skyTex->Resource, skyTex->UploadHeap);
-		skyTex->Index = 0;
-	}
 
 	auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -20,23 +13,37 @@ void AssetManager::Update()
 	for (auto& data : AssetManager::Instance()->textures)
 	{
 		auto texture = data.second.get();
+		if (texture->Resource)
+			continue;
+
 		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), texture->Index, Graphics::Instance()->srvDescriptorSize);
-		if (!texture->Resource)
-			CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
+		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
 		srvDesc.Format = texture->Resource->GetDesc().Format;
 		srvDesc.Texture2D.MipLevels = texture->Resource->GetDesc().MipLevels;
 
 		Graphics::Instance()->device->CreateShaderResourceView(texture->Resource.Get(), &srvDesc, handle);
 	}
-	handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 0, Graphics::Instance()->srvDescriptorSize);
 
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-	srvDesc.TextureCube.MostDetailedMip = 0;
-	srvDesc.TextureCube.MipLevels = skyTex->Resource->GetDesc().MipLevels;
-	srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-	srvDesc.Format = skyTex->Resource->GetDesc().Format;
-	Graphics::Instance()->device->CreateShaderResourceView(skyTex->Resource.Get(), &srvDesc, handle);
-	AssetManager::Instance()->textures[skyTex->Name] = std::move(skyTex);
+	if (textures.find("skyTex") == textures.end())
+	{
+		auto skyTex = std::make_unique<Texture>();
+		{
+			skyTex->Name = "skyTex";
+			skyTex->Filename = L"Textures\\grasscube1024.dds";
+			CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), skyTex->Filename.c_str(), skyTex->Resource, skyTex->UploadHeap);
+			skyTex->Index = 0;
+		}
+
+		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 0, Graphics::Instance()->srvDescriptorSize);
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		srvDesc.TextureCube.MostDetailedMip = 0;
+		srvDesc.TextureCube.MipLevels = skyTex->Resource->GetDesc().MipLevels;
+		srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+		srvDesc.Format = skyTex->Resource->GetDesc().Format;
+
+		Graphics::Instance()->device->CreateShaderResourceView(skyTex->Resource.Get(), &srvDesc, handle);
+		textures[skyTex->Name] = std::move(skyTex);
+	}
 }
 
 void AssetManager::AddMesh(std::string name, std::unique_ptr<Mesh> mesh)
