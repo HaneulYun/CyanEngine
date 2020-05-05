@@ -133,6 +133,7 @@ void ParticleScene::BuildObjects()
 	auto particleSystemObject = CreateEmpty();
 	{
 		particleSystemObject->AddComponent<ParticleSystem>()->particle = ASSET MESH("Particle");
+		particleSystemObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Particle");
 		particleSystemObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 		particleSystemObject->layer = (int)RenderLayer::Particle;
 	}

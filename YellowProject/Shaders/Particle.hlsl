@@ -26,6 +26,7 @@ struct PIn
 	float3 PosW		: POSITION;
 	float3 NormalW	: NORMAL;
 	float2 TexC		: TEXCOORD;
+	float alpha		: ALPHA;
 	uint PrimID		: SV_PrimitiveID;
 };
 
@@ -78,6 +79,7 @@ void GSMain(point GIn gin[1], uint primID : SV_PrimitiveID, inout TriangleStream
 		pin.NormalW = look;
 		pin.TexC = texC[i];
 		pin.PrimID = primID;
+		pin.alpha = gin[0].LifeTime / 2;
 	
 		triStream.Append(pin);
 	}
@@ -118,5 +120,5 @@ void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
 
 float4 PSMain(PIn input) : SV_TARGET
 {
-	return float4(1, 0, 0, 1);
+	return float4(1, 0, 0, input.alpha);
 }

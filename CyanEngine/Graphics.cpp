@@ -328,6 +328,8 @@ void Graphics::PostRender()
 	currFrameResource->Fence = ++fenceValue;
 	commandQueue->Signal(fence.Get(), fenceValue);
 
+	WaitForPreviousFrame();
+
 	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Particle])
 	{
 		auto& mesh = renderSets.first;
@@ -685,6 +687,18 @@ void Graphics::LoadAssets()
 	particlePsoDesc.GS = CD3DX12_SHADER_BYTECODE(particleGS.Get());
 	particlePsoDesc.PS = CD3DX12_SHADER_BYTECODE(particlePS.Get());
 	particlePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	D3D12_RENDER_TARGET_BLEND_DESC blendDesc{};
+	blendDesc.BlendEnable = true;
+	blendDesc.LogicOpEnable = false;
+	blendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	particlePsoDesc.BlendState.RenderTarget[0] = blendDesc;
 	device->CreateGraphicsPipelineState(&particlePsoDesc, IID_PPV_ARGS(&pipelineStates["particle"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC particleMakerPsoDesc = opaquePsoDesc;
@@ -696,7 +710,6 @@ void Graphics::LoadAssets()
 	particleMakerPsoDesc.DepthStencilState.StencilEnable = false;
 	particleMakerPsoDesc.DepthStencilState.DepthEnable = false;
 	particleMakerPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-	
 	D3D12_SO_DECLARATION_ENTRY soDecl[]
 	{
 		{0, "POSITION", 0, 0, 3, 0},
@@ -706,7 +719,6 @@ void Graphics::LoadAssets()
 		{0, "SPEED", 0, 0, 1, 0},
 		{0, "TYPE", 0, 0, 1, 0}
 	};
-
 	particleMakerPsoDesc.StreamOutput.pSODeclaration = soDecl;
 	particleMakerPsoDesc.StreamOutput.NumEntries = _countof(soDecl);
 	particleMakerPsoDesc.StreamOutput.pBufferStrides = NULL;
