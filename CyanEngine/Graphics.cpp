@@ -173,6 +173,8 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			commandList->SetGraphicsRootShaderResourceView(7, matIndexBuffer->Resource()->GetGPUVirtualAddress() + sizeof(MatIndexData) * i++);
 			if (layerIndex == (int)RenderLayer::Particle)
 			{
+				auto temp = mesh;
+				auto mesh = (ParticleBundle*)temp;
 				commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
 			
 				char* data = new char[sizeof(UINT64)];
@@ -183,20 +185,10 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
 				delete data;
 			
-				D3D12_STREAM_OUTPUT_BUFFER_VIEW sov;
-				sov.BufferFilledSizeLocation = mesh->VertexStreamBufferGPU->GetGPUVirtualAddress();
-				sov.BufferLocation = sov.BufferFilledSizeLocation + sizeof(UINT64);
-				sov.SizeInBytes = mesh->VertexBufferByteSize * 100;
-				
-				D3D12_VERTEX_BUFFER_VIEW vbv;
-				vbv.BufferLocation = mesh->VertexBufferGPU->GetGPUVirtualAddress() + sizeof(UINT64);
-				vbv.StrideInBytes = mesh->VertexByteStride;
-				vbv.SizeInBytes = mesh->VertexBufferByteSize * submesh.second.IndexCount;
-			
-				commandList->SOSetTargets(0, 1, &sov);
-				commandList->IASetVertexBuffers(0, 1, &vbv);
+				commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
+				commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
 				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
-				commandList->SOSetTargets(0, 1, &sov);
+				commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
 				
 				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
 				commandList->CopyResource(mesh->VertexBufferReadback.Get(), mesh->VertexStreamBufferGPU.Get());
@@ -332,8 +324,7 @@ void Graphics::PostRender()
 
 	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Particle])
 	{
-		auto& mesh = renderSets.first;
-		auto& objects = renderSets.second.gameObjects;
+		auto mesh = (ParticleBundle*)renderSets.first;
 	
 		UINT8* p;
 		mesh->VertexBufferReadback->Map(0, NULL, reinterpret_cast<void**>(&p));

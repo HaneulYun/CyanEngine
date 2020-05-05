@@ -79,6 +79,8 @@ void ObjectRenderManager::AddGameObject(GameObject* gameObject, int layer)
 		mesh = component->mesh;
 	if (auto component = gameObject->GetComponent<SkinnedMeshRenderer>(); component && !mesh)
 		mesh = component->mesh;
+	if (auto component = gameObject->GetComponent<ParticleSystem>(); component && !mesh)
+		mesh = component->particle;
 	if (!mesh)
 		return;
 
