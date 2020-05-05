@@ -52,6 +52,9 @@
     <Filter Include="Undetermined">
       <UniqueIdentifier>{2b4beec6-277a-418a-8eb6-1aebabd47f5d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\30_Core\35_ParticleComponent">
+      <UniqueIdentifier>{b5c54403-f29f-49dd-a3c9-b3365230bb18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -174,9 +177,6 @@
     <ClInclude Include="Matrix4x4.h">
       <Filter>0_00_CyanEngine\50_Math</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSystem.h">
-      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectRenderManager.h">
       <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClInclude>
@@ -212,6 +212,12 @@
     </ClInclude>
     <ClInclude Include="ShadowMap.h">
       <Filter>Undetermined</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>0_00_CyanEngine\30_Core\35_ParticleComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleBundle.h">
+      <Filter>0_00_CyanEngine\30_Core\35_ParticleComponent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -299,9 +305,6 @@
     <ClCompile Include="Vector3.cpp">
       <Filter>0_00_CyanEngine\50_Math</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSystem.cpp">
-      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectRenderManager.cpp">
       <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClCompile>
@@ -328,6 +331,12 @@
     </ClCompile>
     <ClCompile Include="ShadowMap.cpp">
       <Filter>Undetermined</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>0_00_CyanEngine\30_Core\35_ParticleComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleBundle.cpp">
+      <Filter>0_00_CyanEngine\30_Core\35_ParticleComponent</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -205,7 +205,7 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 				commandList->SetPipelineState(pipelineStates["particle"].Get());
 				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
 			}
-			if (mesh->IndexBufferByteSize)
+			else if (mesh->IndexBufferByteSize)
 				commandList->DrawIndexedInstanced( submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, submesh.second.BaseVertexLocation, 0);
 			else
 				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);

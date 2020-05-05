@@ -47,6 +47,8 @@ GIn VSMain(VIn vin)
 [maxvertexcount(4)]
 void GSMain(point GIn gin[1], uint primID : SV_PrimitiveID, inout TriangleStream<PIn> triStream)
 {
+	if (gin[0].Type == 0)
+		return;
 	float3 up = float3(0.0f, 1.0f, 0.0f);
 	float3 look = gEyePosW - gin[0].CenterW;
 	look.y = 0.0f;
@@ -92,19 +94,22 @@ void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
 
 	if (vin[0].Type == 0)
 	{
+		VIn vout;
+		bool b = false;
 		if (vin[0].LifeTime < 0)
 		{
 			vin[0].LifeTime = 0.2;
 
-			VIn vout;
 			vout = vin[0];
 
 			vout.Type = 1;
 			vout.LifeTime = 2;
 
-			pointStream.Append(vout);
+			b = true;
 		}
 		pointStream.Append(vin[0]);
+		if(b)
+			pointStream.Append(vout);
 	}
 	if (vin[0].Type == 1)
 	{
