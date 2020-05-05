@@ -13,94 +13,100 @@
     <Filter Include="0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC">
       <UniqueIdentifier>{19228a0b-f471-4577-8d86-4b14d63b2187}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\01_Graphics">
-      <UniqueIdentifier>{53165671-5924-414f-906b-b69e0320206a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="0_00_CyanEngine\10_Scene">
-      <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="0_00_CyanEngine\20_Interface">
-      <UniqueIdentifier>{01839377-33fb-4f77-ac2e-7c2ac006ab2a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="0_00_CyanEngine\11_Core">
-      <UniqueIdentifier>{41597c93-ee10-4479-9512-8b498090fa31}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="0_00_CyanEngine\21_Math">
-      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="0_00_CyanEngine\12_GraphicsComponent">
-      <UniqueIdentifier>{088748de-42c3-4051-9b78-2bb77a8e8345}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine\80_Util">
       <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\13_UIComponent">
+    <Filter Include="0_00_CyanEngine\00_CyanFW\02_AssetResource">
+      <UniqueIdentifier>{a30ca707-70ce-45a9-ac36-b6b57c405b55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\10_Graphics">
+      <UniqueIdentifier>{53165671-5924-414f-906b-b69e0320206a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\20_Scene">
+      <UniqueIdentifier>{5e94f02d-abe9-40c1-8c6f-ab72fc835ec2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\20_Scene\21_FrameResource">
+      <UniqueIdentifier>{0e8f4389-2c13-4987-a75c-ce8b0db60798}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\30_Core">
+      <UniqueIdentifier>{41597c93-ee10-4479-9512-8b498090fa31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\40_Interface">
+      <UniqueIdentifier>{01839377-33fb-4f77-ac2e-7c2ac006ab2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\50_Math">
+      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\30_Core\31_GraphicsComponent">
+      <UniqueIdentifier>{088748de-42c3-4051-9b78-2bb77a8e8345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\30_Core\32_UIComponent">
       <UniqueIdentifier>{ba054100-1a12-4802-8d8c-025fd495f8a9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\14_FixedComponent">
+    <Filter Include="0_00_CyanEngine\30_Core\33_FixedComponent">
       <UniqueIdentifier>{1b9adc8f-b973-44a8-87ab-9e9e73313bec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\15_AniimationComponent">
+    <Filter Include="0_00_CyanEngine\30_Core\34_AniimationComponent">
       <UniqueIdentifier>{773acaf6-0d09-4543-809a-68c742a682c8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\30_Mesh">
-      <UniqueIdentifier>{c6a5e6c6-5702-463a-af85-cc74b835a3b8}</UniqueIdentifier>
+    <Filter Include="Undetermined">
+      <UniqueIdentifier>{2b4beec6-277a-418a-8eb6-1aebabd47f5d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
+      <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClInclude>
     <ClInclude Include="CyanFW.h">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
-      <Filter>0_00_CyanEngine\11_Core</Filter>
+      <Filter>0_00_CyanEngine\30_Core</Filter>
     </ClInclude>
     <ClInclude Include="Component.h">
-      <Filter>0_00_CyanEngine\11_Core</Filter>
+      <Filter>0_00_CyanEngine\30_Core</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
-      <Filter>0_00_CyanEngine\11_Core</Filter>
+      <Filter>0_00_CyanEngine\30_Core</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
-      <Filter>0_00_CyanEngine\14_FixedComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="Vector3.h">
-      <Filter>0_00_CyanEngine\21_Math</Filter>
+      <Filter>0_00_CyanEngine\50_Math</Filter>
     </ClInclude>
     <ClInclude Include="Terrain.h">
-      <Filter>0_00_CyanEngine\14_FixedComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="MonoBehavior.h">
-      <Filter>0_00_CyanEngine\11_Core</Filter>
+      <Filter>0_00_CyanEngine\30_Core</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
-      <Filter>0_00_CyanEngine\20_Interface</Filter>
+      <Filter>0_00_CyanEngine\40_Interface</Filter>
     </ClInclude>
     <ClInclude Include="Random.h">
-      <Filter>0_00_CyanEngine\20_Interface</Filter>
+      <Filter>0_00_CyanEngine\40_Interface</Filter>
     </ClInclude>
     <ClInclude Include="Time.h">
-      <Filter>0_00_CyanEngine\20_Interface</Filter>
+      <Filter>0_00_CyanEngine\40_Interface</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h">
-      <Filter>0_00_CyanEngine\14_FixedComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="BoxCollider.h">
-      <Filter>0_00_CyanEngine\14_FixedComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="DDSTextureLoader12.h">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClInclude>
     <ClInclude Include="SphereCollider.h">
-      <Filter>0_00_CyanEngine\14_FixedComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="Debug.h">
-      <Filter>0_00_CyanEngine\20_Interface</Filter>
+      <Filter>0_00_CyanEngine\40_Interface</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
@@ -108,38 +114,29 @@
     <ClInclude Include="pch.h">
       <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
     </ClInclude>
-    <ClInclude Include="Meshs.h">
-      <Filter>0_00_CyanEngine\30_Mesh</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>0_00_CyanEngine\30_Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="CyanApp.h">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>0_00_CyanEngine\11_Core</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics.h">
-      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics</Filter>
     </ClInclude>
     <ClInclude Include="FbxLoader.h">
-      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClInclude>
     <ClInclude Include="MeshFilter.h">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClInclude>
     <ClInclude Include="SkinnedMeshRenderer.h">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClInclude>
     <ClInclude Include="GeometryGenerator.h">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClInclude>
     <ClInclude Include="UploadBuffer.h">
       <Filter>0_00_CyanEngine\80_Util</Filter>
@@ -153,129 +150,136 @@
     <ClInclude Include="MathHelper.h">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Image.h">
-      <Filter>0_00_CyanEngine\13_UIComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
     </ClInclude>
     <ClInclude Include="Text.h">
-      <Filter>0_00_CyanEngine\13_UIComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
     </ClInclude>
     <ClInclude Include="RectTransform.h">
-      <Filter>0_00_CyanEngine\13_UIComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
     </ClInclude>
     <ClInclude Include="Animator.h">
-      <Filter>0_00_CyanEngine\15_AniimationComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\34_AniimationComponent</Filter>
     </ClInclude>
     <ClInclude Include="AnimatorController.h">
-      <Filter>0_00_CyanEngine\15_AniimationComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\34_AniimationComponent</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
-      <Filter>0_00_CyanEngine\13_UIComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
     </ClInclude>
     <ClInclude Include="SceneManager.h">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
+      <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClInclude>
     <ClInclude Include="Matrix4x4.h">
-      <Filter>0_00_CyanEngine\21_Math</Filter>
+      <Filter>0_00_CyanEngine\50_Math</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSystem.h">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClInclude>
     <ClInclude Include="ObjectRenderManager.h">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Constant.h" />
-    <ClInclude Include="FrameResourceManager.h">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>0_00_CyanEngine\11_Core</Filter>
-    </ClInclude>
-    <ClInclude Include="AssetManager.h">
-      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+      <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClInclude>
     <ClInclude Include="ObjectResource.h">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
+      <Filter>0_00_CyanEngine\20_Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetManager.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
     </ClInclude>
     <ClInclude Include="AssetResource.h">
-      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
     </ClInclude>
     <ClInclude Include="FrameResource.h">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
+      <Filter>0_00_CyanEngine\20_Scene\21_FrameResource</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameResourceManager.h">
+      <Filter>0_00_CyanEngine\20_Scene\21_FrameResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Meshs.h">
+      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Constant.h">
+      <Filter>Undetermined</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>Undetermined</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
+      <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClCompile>
     <ClCompile Include="CyanFW.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
-      <Filter>0_00_CyanEngine\11_Core</Filter>
+      <Filter>0_00_CyanEngine\30_Core</Filter>
     </ClCompile>
     <ClCompile Include="Component.cpp">
-      <Filter>0_00_CyanEngine\11_Core</Filter>
+      <Filter>0_00_CyanEngine\30_Core</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
-      <Filter>0_00_CyanEngine\11_Core</Filter>
+      <Filter>0_00_CyanEngine\30_Core</Filter>
     </ClCompile>
     <ClCompile Include="Singleton.cpp">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
     </ClCompile>
     <ClCompile Include="Terrain.cpp">
-      <Filter>0_00_CyanEngine\14_FixedComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
-      <Filter>0_00_CyanEngine\20_Interface</Filter>
+      <Filter>0_00_CyanEngine\40_Interface</Filter>
     </ClCompile>
     <ClCompile Include="Random.cpp">
-      <Filter>0_00_CyanEngine\20_Interface</Filter>
+      <Filter>0_00_CyanEngine\40_Interface</Filter>
     </ClCompile>
     <ClCompile Include="Time.cpp">
-      <Filter>0_00_CyanEngine\20_Interface</Filter>
+      <Filter>0_00_CyanEngine\40_Interface</Filter>
     </ClCompile>
     <ClCompile Include="Collider.cpp">
-      <Filter>0_00_CyanEngine\14_FixedComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="BoxCollider.cpp">
-      <Filter>0_00_CyanEngine\14_FixedComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="DDSTextureLoader12.cpp">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClCompile>
     <ClCompile Include="SphereCollider.cpp">
-      <Filter>0_00_CyanEngine\14_FixedComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="Debug.cpp">
-      <Filter>0_00_CyanEngine\20_Interface</Filter>
+      <Filter>0_00_CyanEngine\40_Interface</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW\01_PCH_AND_ETC</Filter>
-    </ClCompile>
-    <ClCompile Include="Meshs.cpp">
-      <Filter>0_00_CyanEngine\30_Mesh</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>0_00_CyanEngine\30_Mesh</Filter>
     </ClCompile>
     <ClCompile Include="CyanApp.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
     <ClCompile Include="Graphics.cpp">
-      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics</Filter>
     </ClCompile>
     <ClCompile Include="FbxLoader.cpp">
-      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
     <ClCompile Include="GeometryGenerator.cpp">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
     <ClCompile Include="d3dUtil.cpp">
       <Filter>0_00_CyanEngine\80_Util</Filter>
@@ -286,36 +290,44 @@
     <ClCompile Include="MathHelper.cpp">
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="AnimatorController.cpp">
-      <Filter>0_00_CyanEngine\15_AniimationComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\34_AniimationComponent</Filter>
     </ClCompile>
     <ClCompile Include="SceneManager.cpp">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
+      <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClCompile>
     <ClCompile Include="Vector3.cpp">
-      <Filter>0_00_CyanEngine\21_Math</Filter>
+      <Filter>0_00_CyanEngine\50_Math</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSystem.cpp">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
     <ClCompile Include="ObjectRenderManager.cpp">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
+      <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClCompile>
     <ClCompile Include="MeshFilter.cpp">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
     <ClCompile Include="SkinnedMeshRenderer.cpp">
-      <Filter>0_00_CyanEngine\12_GraphicsComponent</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameResourceManager.cpp">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
+      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
     <ClCompile Include="AssetManager.cpp">
-      <Filter>0_00_CyanEngine\01_Graphics</Filter>
+      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
     </ClCompile>
     <ClCompile Include="FrameResource.cpp">
-      <Filter>0_00_CyanEngine\10_Scene</Filter>
+      <Filter>0_00_CyanEngine\20_Scene\21_FrameResource</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameResourceManager.cpp">
+      <Filter>0_00_CyanEngine\20_Scene\21_FrameResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Meshs.cpp">
+      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>Undetermined</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
