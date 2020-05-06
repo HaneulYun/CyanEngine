@@ -163,44 +163,48 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 
 		commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
 
-		commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
-		if (mesh->IndexBufferByteSize)
-			commandList->IASetIndexBuffer(&mesh->IndexBufferView());
-
 		int i = 0;
-		for (auto& submesh : mesh->DrawArgs)
+		if (layerIndex != (int)RenderLayer::Particle)
 		{
-			commandList->SetGraphicsRootShaderResourceView(7, matIndexBuffer->Resource()->GetGPUVirtualAddress() + sizeof(MatIndexData) * i++);
-			if (layerIndex == (int)RenderLayer::Particle)
+			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
+			if (mesh->IndexBufferByteSize)
+				commandList->IASetIndexBuffer(&mesh->IndexBufferView());
+			for (auto& submesh : mesh->DrawArgs)
 			{
-				auto temp = mesh;
-				auto mesh = (ParticleBundle*)temp;
-				commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
-			
-				char* data = new char[sizeof(UINT64)];
-				memset(data, 0, sizeof(UINT64));
-				D3D12_SUBRESOURCE_DATA subResourceData = { data, sizeof(UINT64), sizeof(UINT64) };
-				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
-				UpdateSubresources<1>(commandList.Get(), mesh->VertexStreamBufferGPU.Get(), mesh->VertexStreamBufferUploader.Get(), 0, 0, 1, &subResourceData);
-				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
-				delete data;
-			
-				commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
-				commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
-				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
-				commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
-				
-				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
-				commandList->CopyResource(mesh->VertexBufferReadback.Get(), mesh->VertexStreamBufferGPU.Get());
-				commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
-			
-				commandList->SetPipelineState(pipelineStates["particle"].Get());
-				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+				commandList->SetGraphicsRootShaderResourceView(7, matIndexBuffer->Resource()->GetGPUVirtualAddress() + sizeof(MatIndexData) * i++);
+				if (mesh->IndexBufferByteSize)
+					commandList->DrawIndexedInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, submesh.second.BaseVertexLocation, 0);
+				else
+					commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
 			}
-			else if (mesh->IndexBufferByteSize)
-				commandList->DrawIndexedInstanced( submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, submesh.second.BaseVertexLocation, 0);
-			else
-				commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+		}
+		else
+		{
+			commandList->SetGraphicsRootShaderResourceView(7, matIndexBuffer->Resource()->GetGPUVirtualAddress());
+			auto temp = mesh;
+			auto mesh = (ParticleBundle*)temp;
+			commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
+
+			char* data = new char[sizeof(UINT64)];
+			memset(data, 0, sizeof(UINT64));
+			D3D12_SUBRESOURCE_DATA subResourceData = { data, sizeof(UINT64), sizeof(UINT64) };
+			//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
+			UpdateSubresources<1>(commandList.Get(), mesh->VertexStreamBufferGPU.Get(), mesh->VertexStreamBufferUploader.Get(), 0, 0, 1, &subResourceData);
+			//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
+			delete data;
+
+			commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
+			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
+			commandList->DrawInstanced(mesh->particleCount, objects.size(), 0, 0);
+			commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
+
+			//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
+			commandList->CopyResource(mesh->VertexBufferReadback.Get(), mesh->VertexStreamBufferGPU.Get());
+			//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexStreamBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
+
+			commandList->SetPipelineState(pipelineStates["particle"].Get());
+			commandList->DrawInstanced(mesh->particleCount, objects.size(), 0, 0);
+
 		}
 	}
 }
@@ -332,7 +336,7 @@ void Graphics::PostRender()
 		UINT64 size = *reinterpret_cast<UINT64*>(p);
 		FrameResource::ParticleSpriteVertex* t = reinterpret_cast<FrameResource::ParticleSpriteVertex*>(p+8);
 	
-		mesh->DrawArgs["submesh"].IndexCount = size / sizeof(FrameResource::ParticleSpriteVertex);
+		mesh->particleCount = size / sizeof(FrameResource::ParticleSpriteVertex);
 	
 		mesh->VertexBufferReadback->Unmap(0, nullptr);
 	

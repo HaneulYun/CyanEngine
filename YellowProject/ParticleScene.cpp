@@ -5,10 +5,12 @@ void ParticleScene::BuildObjects()
 {
 	///*** Asset ***///
 	//*** Texture ***//
-	//ASSET AddTexture("none", L"Textures\\none.dds");
+	ASSET AddTexture("fireTexD", L"Textures\\fire.dds");
+	ASSET AddTexture("smokeTexD", L"Textures\\smoke.dds");
 
 	//*** Material ***//
-	//ASSET AddMaterial("none", ASSET TEXTURE("none"));
+	ASSET AddMaterial("fireMat", ASSET TEXTURE("fireTexD"));
+	ASSET AddMaterial("smokeMat", ASSET TEXTURE("smokeTexD"));
 	
 	//*** Mesh ***//
 	ASSET AddMesh("Plane", Mesh::CreatePlane());
@@ -65,10 +67,19 @@ void ParticleScene::BuildObjects()
 		grid->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}
 	
-	auto particleSystemObject = CreateEmpty();
+	auto particleSystemObjectSmoke = CreateEmpty();
 	{
-		particleSystemObject->AddComponent<ParticleSystem>()->Set();
-		particleSystemObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
-		particleSystemObject->layer = (int)RenderLayer::Particle;
+		particleSystemObjectSmoke->GetComponent<Transform>()->position = { 2, 0, 2 };
+		particleSystemObjectSmoke->AddComponent<ParticleSystem>()->Set();
+		particleSystemObjectSmoke->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("smokeMat"));
+		particleSystemObjectSmoke->layer = (int)RenderLayer::Particle;
 	}
+	auto particleSystemObjectFire = CreateEmpty();
+	{
+		particleSystemObjectFire->GetComponent<Transform>()->position = { -2, 0, -2 };
+		particleSystemObjectFire->AddComponent<ParticleSystem>()->Set();
+		particleSystemObjectFire->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("fireMat"));
+		particleSystemObjectFire->layer = (int)RenderLayer::Particle;
+	}
+
 }

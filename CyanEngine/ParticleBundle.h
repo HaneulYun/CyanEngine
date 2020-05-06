@@ -8,16 +8,16 @@ public:
 
 	ComPtr<ID3D12Resource> VertexBufferReadback{ nullptr };
 
+	int particleCount{ 1 };
+	int maxParticles{ 1000 };
+
 public:
 	D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const
 	{
-		int i = 0;
-		for (auto& submesh : DrawArgs)
-			i = submesh.second.IndexCount;
 		D3D12_VERTEX_BUFFER_VIEW vbv;
 		vbv.BufferLocation = VertexBufferGPU->GetGPUVirtualAddress() + sizeof(UINT64);
 		vbv.StrideInBytes = VertexByteStride;
-		vbv.SizeInBytes = VertexBufferByteSize * i;
+		vbv.SizeInBytes = VertexBufferByteSize * particleCount;
 
 		return vbv;
 	}
@@ -27,7 +27,7 @@ public:
 		D3D12_STREAM_OUTPUT_BUFFER_VIEW sov;
 		sov.BufferFilledSizeLocation = VertexStreamBufferGPU->GetGPUVirtualAddress();
 		sov.BufferLocation = sov.BufferFilledSizeLocation + sizeof(UINT64);
-		sov.SizeInBytes = VertexBufferByteSize * 100;
+		sov.SizeInBytes = VertexBufferByteSize * maxParticles;
 
 		return sov;
 	}
