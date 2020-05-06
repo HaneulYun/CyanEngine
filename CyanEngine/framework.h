@@ -117,6 +117,7 @@ using Microsoft::WRL::ComPtr;
 
 #include "Constant.h"
 
+#include "ParticleBundle.h"
 #include "ParticleSystem.h"
 
 #include "GameObject.h"

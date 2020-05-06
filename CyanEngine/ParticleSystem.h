@@ -5,7 +5,7 @@ class ParticleSystem : public MonoBehavior<ParticleSystem>
 private:
 
 public:
-	Mesh* particle;
+	ParticleBundle* particle;
 
 private:
 	friend class GameObject;
@@ -16,11 +16,6 @@ private:
 public:
 	~ParticleSystem() {}
 
-	void Start()
-	{
-	}
-
-	void Update()
-	{
-	}
+	void Start();
+	void Set();
 };

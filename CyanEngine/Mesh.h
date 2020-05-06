@@ -27,11 +27,6 @@ public:
 	ComPtr<ID3D12Resource> VertexBufferUploader{ nullptr };
 	ComPtr<ID3D12Resource> IndexBufferUploader{ nullptr };
 
-	ComPtr<ID3D12Resource> VertexStreamBufferGPU{ nullptr };
-	ComPtr<ID3D12Resource> VertexStreamBufferUploader{ nullptr };
-
-	ComPtr<ID3D12Resource> VertexBufferReadback{ nullptr };
-
 	UINT VertexByteStride{ 0 };
 	UINT VertexBufferByteSize{ 0 };
 	DXGI_FORMAT IndexFormat{ DXGI_FORMAT_R16_UINT };
@@ -45,7 +40,7 @@ public:
 	Mesh() = default;
 	virtual ~Mesh() = default;
 
-	D3D12_VERTEX_BUFFER_VIEW VertexBufferView()const
+	virtual D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const
 	{
 		D3D12_VERTEX_BUFFER_VIEW vbv;
 		vbv.BufferLocation = VertexBufferGPU->GetGPUVirtualAddress();
@@ -55,7 +50,7 @@ public:
 		return vbv;
 	}
 
-	D3D12_INDEX_BUFFER_VIEW IndexBufferView()const
+	D3D12_INDEX_BUFFER_VIEW IndexBufferView() const
 	{
 		D3D12_INDEX_BUFFER_VIEW ibv;
 		ibv.BufferLocation = IndexBufferGPU->GetGPUVirtualAddress();
@@ -72,8 +67,6 @@ public:
 	}
 
 public:
-	//virtual void Render(UINT nInstances = 1);
-
 	enum class GeometryType {
 		GeometryType_Cube, GeometryType_Sphere,
 		GeometryType_Cylinder, GeometryType_Plane, GeometryType_Quad
