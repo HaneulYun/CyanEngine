@@ -81,5 +81,4 @@ void ParticleScene::BuildObjects()
 		particleSystemObjectFire->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("fireMat"));
 		particleSystemObjectFire->layer = (int)RenderLayer::Particle;
 	}
-
 }
