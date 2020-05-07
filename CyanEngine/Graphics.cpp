@@ -188,12 +188,12 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			char* data = new char[sizeof(UINT64)];
 			memset(data, 0, sizeof(UINT64));
 			D3D12_SUBRESOURCE_DATA subResourceData = { data, sizeof(UINT64), sizeof(UINT64) };
-
+			
 			ParticleResource* res = mesh->particleResource[Scene::scene->frameResourceManager.currFrameResourceIndex % 3];
 			ParticleResource* resource = mesh->particleResource[(Scene::scene->frameResourceManager.currFrameResourceIndex + 1) % 3];
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
 			UpdateSubresources<1>(commandList.Get(), resource->VertexParticleBufferGPU.Get(), resource->VertexParticleBufferUploader.Get(), 0, 0, 1, &subResourceData);
-			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ));
+			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_STREAM_OUT));
 			delete data;
 			
 			commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
@@ -201,7 +201,7 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			commandList->DrawInstanced(res->particleCount, objects.size(), 0, 0);
 			commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
 			
-			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
+			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
 			commandList->CopyResource(mesh->VertexParticleBufferReadback.Get(), resource->VertexParticleBufferGPU.Get());
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
 			
@@ -331,7 +331,8 @@ void Graphics::PostRender()
 		auto mesh = (ParticleBundle*)renderSets.first;
 		
 		UINT8* p;
-		mesh->VertexParticleBufferReadback->Map(0, NULL, reinterpret_cast<void**>(&p));
+		D3D12_RANGE range{ 0, 0 };
+		mesh->VertexParticleBufferReadback->Map(0, &range, reinterpret_cast<void**>(&p));
 		
 		UINT64 size = *reinterpret_cast<UINT64*>(p);
 		FrameResource::ParticleSpriteVertex* t = reinterpret_cast<FrameResource::ParticleSpriteVertex*>(p+8);
@@ -738,7 +739,7 @@ void Graphics::LoadAssets()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 10;
+	descriptorHeapDesc.NumDescriptors = 20;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
