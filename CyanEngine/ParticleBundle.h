@@ -8,6 +8,9 @@ public:
 	ComPtr<ID3D12Resource> VertexParticleBufferGPU{ nullptr };
 	ComPtr<ID3D12Resource> VertexParticleBufferUploader{ nullptr };
 
+	char* data;
+	D3D12_SUBRESOURCE_DATA subResourceData;
+
 	int particleCount{ 1 };
 };
 

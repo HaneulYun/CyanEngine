@@ -28,6 +28,7 @@ void ParticleSystem::Set()
 	memset(data, 0, sizeof(UINT64));
 	memcpy(data + sizeof(UINT64), vertices.data(), vbByteSize);
 	D3D12_SUBRESOURCE_DATA subResourceData = { data, sizeof(UINT64) + vbByteSize, sizeof(UINT64) + vbByteSize };
+	//delete data;
 
 	for (int i = 0; i < 3; ++i)
 		mesh->particleResource[i] = new ParticleResource(mesh->maxParticles, subResourceData);

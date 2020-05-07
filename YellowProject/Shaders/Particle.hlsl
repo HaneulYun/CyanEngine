@@ -102,7 +102,7 @@ void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
 	{
 		VIn vout;
 		bool b = false;
-		if (vin[0].LifeTime < 0)
+		if (gInstanceData[0].ObjPad0 && vin[0].LifeTime < 0)
 		{
 			vin[0].LifeTime = 0.2;
 
@@ -110,6 +110,12 @@ void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
 
 			vout.Type = 1;
 			vout.LifeTime = 2;
+
+			float x = ((gDeltaTime * 10000000) % 100 - 50) / 50;
+			float y = ((gDeltaTime * 100000000) % 100) / 100;
+			float z = ((gDeltaTime * 1000000) % 100 - 50) / 50;
+			vout.Dir = normalize(float3(x, y, z));
+			vout.Speed = 2;
 
 			b = true;
 		}
@@ -123,7 +129,8 @@ void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
 		{
 			VIn vout;
 			vout = vin[0];
-			vout.PosW.y += 0.01;
+			vout.Speed = vout.LifeTime * vout.LifeTime;
+			vout.PosW += vout.Dir * vout.Speed * gDeltaTime;;
 			pointStream.Append(vout);
 		}
 	}
@@ -131,6 +138,9 @@ void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
 
 float4 PSMain(PIn input) : SV_TARGET
 {
+	//float x = ((gDeltaTime * 10000000) % 100) / 100;
+	//return float4(x, x, x, 1);
+
 	MaterialData matData = gMaterialData[input.MatIndex];
 	//float4 diffuseAlbedo = matData.DiffuseAlbedo;
 	//float3 fresnelR0 = matData.FresnelR0;
