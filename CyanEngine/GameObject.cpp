@@ -69,6 +69,9 @@ void GameObject::Update()
 			if (GetComponent<Animator>())
 				objConstants.BoneTransformStride = GetComponent<Animator>()->controller->BoneCount();
 
+			if (auto var = GetComponent<ParticleSystem>(); var)
+				objConstants.ObjPad0 = var->enabled;
+
 			instanceBuffer->CopyData(instanceIndex, objConstants);
 
 			if (NumFramesDirty > 0)
