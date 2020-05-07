@@ -30,7 +30,7 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 		for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		{
 			auto resource = std::make_unique<AssetResource>();
-			resource->MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(Graphics::Instance()->device.Get(), 10, false);
+			resource->MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(Graphics::Instance()->device.Get(), 20, false);
 			assetManager->assetResource.push_back(std::move(resource));
 		}
 	}

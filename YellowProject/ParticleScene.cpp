@@ -73,6 +73,8 @@ void ParticleScene::BuildObjects()
 		particleSystemObjectSmoke->AddComponent<ParticleSystem>()->Set();
 		particleSystemObjectSmoke->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("smokeMat"));
 		particleSystemObjectSmoke->layer = (int)RenderLayer::Particle;
+
+		particleSystemObjectSmoke->AddComponent<ParticleManager>();
 	}
 	auto particleSystemObjectFire = CreateEmpty();
 	{

@@ -32,7 +32,8 @@ void GameObject::Update()
 	if (!active)
 		return;
 	for (Component* component : components)
-		component->Update();
+		if(component->enabled)
+			component->Update();
 	for (GameObject* child : children)
 		child->Update();
 
