@@ -5,6 +5,9 @@ class Component : public Object
 private:
 	bool isDirty{ true };
 
+public:
+	bool enabled{ true };
+
 protected:
 	Component() = default;
 	Component(Component& component) = default;

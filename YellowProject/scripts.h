@@ -4,3 +4,4 @@
 #include "RotatingBehavior.h"
 #include "CharacterController.h"
 #include "BuildManager.h"
+#include "ParticleManager.h"
