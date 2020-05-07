@@ -130,6 +130,10 @@ using Microsoft::WRL::ComPtr;
 #include "ObjectResource.h"
 #include "Graphics.h"
 
+#include "QuadNode.h"
+#include "QuadTree.h"
+#include "SpatialPartitioningManager.h"
+
 #include "AssetManager.h"
 #include "ObjectRenderManager.h"
 #include "FrameResourceManager.h"
