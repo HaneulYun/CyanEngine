@@ -2,6 +2,12 @@
 
 class TerrainData
 {
+public:
+	std::wstring AlphamapTextureName{};
+	int heightmapHeight{ 0 };
+	int heightmapWidth{ 0 };
+	Vector3	size{ 0, 0, 0 };
+
 private:
 	BYTE *m_pHeightMapPixels;
 
@@ -11,8 +17,11 @@ private:
 	XMFLOAT3 m_xmf3Scale;
 
 public:
+	TerrainData() = default;
 	TerrainData(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale);
 	~TerrainData(void);
+
+	void Load();
 	
 	float GetHeight(float x, float z);
 	Vector3 GetHeightMapNormal(int x, int z);

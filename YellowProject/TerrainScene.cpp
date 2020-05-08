@@ -55,14 +55,18 @@ void TerrainScene::BuildObjects()
 		ritem->layer = (int)RenderLayer::Sky;
 	}
 
-
-
-	TerrainData* m_pHeightMapImage = new TerrainData(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
-	RenderTexture* gridMesh = new RenderTexture(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, m_pHeightMapImage);
-
 	GameObject* terrain = CreateEmpty();
+	auto terrainData = terrain->AddComponent<Terrain>();
 	{
-		terrain->AddComponent<Terrain>()->mesh = gridMesh;
+		{
+			terrainData->terrainData.AlphamapTextureName = L"Texture\\heightMap.raw";
+			terrainData->terrainData.heightmapHeight = 257;
+			terrainData->terrainData.heightmapWidth = 257;
+
+			terrainData->terrainData.size = { 256, 30, 256 };
+
+			terrainData->Set();
+		}
 		terrain->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
 	}
 
@@ -70,8 +74,8 @@ void TerrainScene::BuildObjects()
 		GameObject* manager = CreateEmpty();
 		BuildManager* buildManager = manager->AddComponent<BuildManager>();
 		buildManager->terrain = terrain;
-		buildManager->heightMap = m_pHeightMapImage;
-		buildManager->terrainMesh = gridMesh;
+		buildManager->heightMap = &terrainData->terrainData;
+		buildManager->terrainMesh = (RenderTexture*)terrainData->mesh;
 		//bm->SelectModel(geometries["Cube"].get(), 8, 5);
 		BuildManager::buildManager = buildManager;
 		ButtonManager* buttonManager = manager->AddComponent<ButtonManager>();
@@ -89,12 +93,14 @@ void TerrainScene::BuildObjects()
 	float sizex = 2, sizey = 2;
 	const int width = 256, length = 256;
 	vertices.reserve(width * length);
+
+	auto gridMesh = (RenderTexture*)terrainData->mesh;
 	for (int i = 0; i < width; ++i)
 	{
 		for (int j = 0; j < length; ++j)
 		{
 			TreeSpriteVertex v;
-			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, m_pHeightMapImage) + sizey / 2, j);
+			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, &terrainData->terrainData) + sizey / 2, j);
 			v.Size = XMFLOAT2(sizex, sizey);
 			v.look = XMFLOAT3(MathHelper::RandF(0.0f, 1.0f), 0.0f, MathHelper::RandF(0.0f, 1.0f));
 			vertices.push_back(v);

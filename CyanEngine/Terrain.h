@@ -78,6 +78,8 @@ private:
 public:
 	Mesh* mesh{ nullptr };
 
+	TerrainData terrainData;
+
 protected:
 	friend class GameObject;
 	friend class MonoBehavior<Terrain>;
@@ -92,4 +94,6 @@ public:
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
 	}
+
+	void Set();
 };

@@ -29,6 +29,27 @@ TerrainData::~TerrainData()
 	m_pHeightMapPixels = NULL;
 }
 
+void TerrainData::Load()
+{
+	m_nWidth = heightmapWidth;
+	m_nLength = heightmapHeight;
+	m_xmf3Scale = { 1, 1, 1 };
+
+	BYTE* pHeightMapPixels = new BYTE[m_nWidth * m_nLength];
+	HANDLE hFile = ::CreateFile(AlphamapTextureName.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, NULL);
+	DWORD dwBytesRead;
+	::ReadFile(hFile, pHeightMapPixels, (m_nWidth * m_nLength), &dwBytesRead, NULL);
+	::CloseHandle(hFile);
+
+	m_pHeightMapPixels = new BYTE[m_nWidth * m_nLength];
+	for (int y = 0; y < m_nLength; y++)
+		for (int x = 0; x < m_nWidth; x++)
+			m_pHeightMapPixels[x + ((m_nLength - 1 - y) * m_nWidth)] = pHeightMapPixels[x + (y * m_nWidth)];
+
+	if (pHeightMapPixels)
+		delete[] pHeightMapPixels;
+}
+
 Vector3 TerrainData::GetHeightMapNormal(int x, int z)
 {
 	if ((x < 0.0f) || (z < 0.0f) || (x >= m_nWidth) || (z >= m_nLength))
