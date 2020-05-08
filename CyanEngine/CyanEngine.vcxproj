@@ -199,7 +199,8 @@
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Meshs.h" />
+    <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="TerrainData.h" />
     <ClInclude Include="MeshFilter.h" />
     <ClInclude Include="MonoBehavior.h" />
     <ClInclude Include="Object.h" />
@@ -251,7 +252,8 @@
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshFilter.cpp" />
-    <ClCompile Include="Meshs.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="TerrainData.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectRenderManager.cpp" />
     <ClCompile Include="ParticleBundle.cpp" />

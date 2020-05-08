@@ -98,9 +98,11 @@ using Microsoft::WRL::ComPtr;
 #include "Camera.h"
 
 #include "Mesh.h"
-#include "Meshs.h"
 #include "SkinnedMeshRenderer.h"
 #include "MeshFilter.h"
+
+#include "TerrainData.h"
+#include "RenderTexture.h"
 #include "Terrain.h"
 
 #include "Collider.h"

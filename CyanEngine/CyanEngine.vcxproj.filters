@@ -231,10 +231,13 @@
     <ClInclude Include="QuadTree.h">
       <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClInclude>
-    <ClInclude Include="Meshs.h">
+    <ClInclude Include="Terrain.h">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClInclude>
-    <ClInclude Include="Terrain.h">
+    <ClInclude Include="TerrainData.h">
+      <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTexture.h">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClInclude>
   </ItemGroup>
@@ -356,10 +359,13 @@
     <ClCompile Include="QuadTree.cpp">
       <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClCompile>
-    <ClCompile Include="Meshs.cpp">
+    <ClCompile Include="Terrain.cpp">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClCompile>
-    <ClCompile Include="Terrain.cpp">
+    <ClCompile Include="TerrainData.cpp">
+      <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTexture.cpp">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClCompile>
   </ItemGroup>
