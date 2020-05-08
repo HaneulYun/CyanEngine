@@ -1,6 +1,6 @@
 #pragma once
 
-class CHeightMapImage
+class TerrainData
 {
 private:
 	BYTE *m_pHeightMapPixels;
@@ -11,8 +11,8 @@ private:
 	XMFLOAT3 m_xmf3Scale;
 
 public:
-	CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale);
-	~CHeightMapImage(void);
+	TerrainData(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale);
+	~TerrainData(void);
 	
 	float GetHeight(float x, float z);
 	Vector3 GetHeightMapNormal(int x, int z);
@@ -23,7 +23,7 @@ public:
 	int GetHeightMapLength() { return(m_nLength); }
 };
 
-class CHeightMapGridMesh : public Mesh
+class RenderTexture : public Mesh
 {
 protected:
 	int m_nWidth;
@@ -32,10 +32,10 @@ protected:
 	XMFLOAT3 m_xmf3Scale;
 public:
 
-	CHeightMapGridMesh( int xStart, int zStart, int nWidth, int nLength,
+	RenderTexture( int xStart, int zStart, int nWidth, int nLength,
 		XMFLOAT3 xmf3Scale = XMFLOAT3(1.0f, 1.0f, 1.0f),
 		XMFLOAT4 xmf4Color = XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f), void* pContext = NULL);
-	virtual ~CHeightMapGridMesh();
+	virtual ~RenderTexture();
 
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	int GetWidth() { return(m_nWidth); }

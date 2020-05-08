@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Meshs.h"
 
-CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale)
+TerrainData::TerrainData(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale)
 {
 	m_nWidth = nWidth;
 	m_nLength = nLength;
@@ -22,14 +22,14 @@ CHeightMapImage::CHeightMapImage(LPCTSTR pFileName, int nWidth, int nLength, XMF
 		delete[] pHeightMapPixels;
 }
 
-CHeightMapImage::~CHeightMapImage()
+TerrainData::~TerrainData()
 {
 	if (m_pHeightMapPixels)
 		delete[] m_pHeightMapPixels;
 	m_pHeightMapPixels = NULL;
 }
 
-Vector3 CHeightMapImage::GetHeightMapNormal(int x, int z)
+Vector3 TerrainData::GetHeightMapNormal(int x, int z)
 {
 	if ((x < 0.0f) || (z < 0.0f) || (x >= m_nWidth) || (z >= m_nLength))
 		return(Vector3(0.0f, 1.0f, 0.0f));
@@ -50,7 +50,7 @@ Vector3 CHeightMapImage::GetHeightMapNormal(int x, int z)
 	return xmf3Normal;
 }
 
-float CHeightMapImage::GetHeight(float fx, float fz)
+float TerrainData::GetHeight(float fx, float fz)
 {
 	if ((fx < 0.0f) || (fz < 0.0f) || (fx >= m_nWidth) || (fz >= m_nLength))
 		return(0.0f);
@@ -87,7 +87,7 @@ float CHeightMapImage::GetHeight(float fx, float fz)
 	return(fHeight);
 }
 
-CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext)
+RenderTexture::RenderTexture(int xStart, int zStart, int nWidth, int nLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color, void* pContext)
 {
 	VertexByteStride = sizeof(FrameResource::Vertex);
 
@@ -107,7 +107,7 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 
 	vertices.resize(nWidth * nLength);
 
-	CHeightMapImage* pHeightMapImage = (CHeightMapImage*)pContext;
+	TerrainData* pHeightMapImage = (TerrainData*)pContext;
 	int cxHeightMap = pHeightMapImage->GetHeightMapWidth();
 	int czHeightMap = pHeightMapImage->GetHeightMapLength();
 
@@ -133,7 +133,7 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 		{
 			fHeight = OnGetHeight(x, z, pContext);
 			vertices[i].Pos = Vector3((x * m_xmf3Scale.x), fHeight, (z * m_xmf3Scale.z));
-			vertices[i].Normal = ((CHeightMapImage*)pContext)->GetHeightMapNormal(x, z);
+			vertices[i].Normal = ((TerrainData*)pContext)->GetHeightMapNormal(x, z);
 			vertices[i].TexC = Vector2(float(x) / float(cxHeightMap - 1), float(czHeightMap - 1 - z) / float(czHeightMap - 1));
 			vertices[i].TangentU = Vector3(float(x) / float(m_xmf3Scale.x * 0.5f), float(z) / float(m_xmf3Scale.z * 0.5f), 0);
 			if (fHeight < fMinHeight) fMinHeight = fHeight;
@@ -196,13 +196,13 @@ CHeightMapGridMesh::CHeightMapGridMesh(int xStart, int zStart, int nWidth, int n
 	DrawArgs["submesh"] = submesh;
 }
 
-CHeightMapGridMesh::~CHeightMapGridMesh()
+RenderTexture::~RenderTexture()
 {
 }
 
-float CHeightMapGridMesh::OnGetHeight(int x, int z, void *pContext)
+float RenderTexture::OnGetHeight(int x, int z, void *pContext)
 {
-	CHeightMapImage* pHeightMapImage = (CHeightMapImage*)pContext;
+	TerrainData* pHeightMapImage = (TerrainData*)pContext;
 	BYTE* pHeightMapPixels = pHeightMapImage->GetHeightMapPixels();
 	XMFLOAT3 xmf3Scale = pHeightMapImage->GetScale();
 	int nWidth = pHeightMapImage->GetHeightMapWidth();
@@ -210,12 +210,12 @@ float CHeightMapGridMesh::OnGetHeight(int x, int z, void *pContext)
 	return(fHeight);
 }
 
-XMFLOAT4 CHeightMapGridMesh::OnGetColor(int x, int z, void* pContext)
+XMFLOAT4 RenderTexture::OnGetColor(int x, int z, void* pContext)
 {
 	//조명의 방향 벡터(정점에서 조명까지의 벡터)이다.
 	XMFLOAT3 xmf3LightDirection = XMFLOAT3(-1.0f, 1.0f, 1.0f);
 	xmf3LightDirection = NS_Vector3::Normalize(xmf3LightDirection);
-	CHeightMapImage* pHeightMapImage = (CHeightMapImage*)pContext;
+	TerrainData* pHeightMapImage = (TerrainData*)pContext;
 	XMFLOAT3 xmf3Scale = pHeightMapImage->GetScale();
 
 	//조명의 색상(세기, 밝기)이다.

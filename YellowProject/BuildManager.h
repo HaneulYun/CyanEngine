@@ -9,8 +9,8 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
 	GameObject* terrain;
-	CHeightMapImage* heightMap;
-	CHeightMapGridMesh* terrainMesh;
+	TerrainData* heightMap;
+	RenderTexture* terrainMesh;
 	float dT;
 
 	static BuildManager* buildManager;

@@ -57,8 +57,8 @@ void TerrainScene::BuildObjects()
 
 
 
-	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
-	CHeightMapGridMesh* gridMesh = new CHeightMapGridMesh(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, m_pHeightMapImage);
+	TerrainData* m_pHeightMapImage = new TerrainData(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
+	RenderTexture* gridMesh = new RenderTexture(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, m_pHeightMapImage);
 
 	GameObject* terrain = CreateEmpty();
 	{
