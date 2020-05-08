@@ -6,9 +6,6 @@
 //	//지형을 실제로 몇 배 확대할 것인가를 나타내는 스케일 벡터이다.
 //	XMFLOAT3 m_xmf3Scale;
 //
-//public:
-//	//지형의 높이 맵으로 사용할 이미지이다.
-//	TerrainData* m_pHeightMapImage;
 //	// 이 영역에 public 변수를 선언하세요.
 //
 //	void LoadTerrain(LPCTSTR pFileName, int nWidth, int nLength , int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color)
@@ -76,7 +73,7 @@ class Terrain : public MonoBehavior<Terrain>
 private:
 
 public:
-	Mesh* mesh{ nullptr };
+	//Mesh* mesh{ nullptr };
 
 	TerrainData terrainData;
 

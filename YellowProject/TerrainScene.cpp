@@ -75,7 +75,7 @@ void TerrainScene::BuildObjects()
 		BuildManager* buildManager = manager->AddComponent<BuildManager>();
 		buildManager->terrain = terrain;
 		buildManager->heightMap = &terrainData->terrainData;
-		buildManager->terrainMesh = (RenderTexture*)terrainData->mesh;
+		buildManager->terrainMesh = terrainData->terrainData.heightmapTexture;
 		//bm->SelectModel(geometries["Cube"].get(), 8, 5);
 		BuildManager::buildManager = buildManager;
 		ButtonManager* buttonManager = manager->AddComponent<ButtonManager>();
@@ -94,7 +94,7 @@ void TerrainScene::BuildObjects()
 	const int width = 256, length = 256;
 	vertices.reserve(width * length);
 
-	auto gridMesh = (RenderTexture*)terrainData->mesh;
+	auto gridMesh = terrainData->terrainData.heightmapTexture;
 	for (int i = 0; i < width; ++i)
 	{
 		for (int j = 0; j < length; ++j)

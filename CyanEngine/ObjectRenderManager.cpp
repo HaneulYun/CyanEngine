@@ -82,7 +82,7 @@ void ObjectRenderManager::AddGameObject(GameObject* gameObject, int layer)
 	if (auto component = gameObject->GetComponent<SkinnedMeshRenderer>(); component && !mesh)
 		mesh = component->mesh;
 	if (auto component = gameObject->GetComponent<Terrain>(); component && !mesh)
-		mesh = component->mesh;
+		mesh = component->terrainData.heightmapTexture;
 	if (auto component = gameObject->GetComponent<ParticleSystem>(); component && !mesh)
 		mesh = component->particle;
 	if (!mesh)

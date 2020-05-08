@@ -1,24 +1,23 @@
 #pragma once
 
+class RenderTexture;
+
 class TerrainData
 {
 public:
 	std::wstring AlphamapTextureName{};
+	RenderTexture* heightmapTexture{ nullptr };
 	int heightmapHeight{ 0 };
 	int heightmapWidth{ 0 };
 	Vector3	size{ 0, 0, 0 };
 
 private:
-	BYTE *m_pHeightMapPixels;
-
-	int m_nWidth;
-	int m_nLength;
+	BYTE *bytes;
 
 	XMFLOAT3 m_xmf3Scale;
 
 public:
 	TerrainData() = default;
-	TerrainData(LPCTSTR pFileName, int nWidth, int nLength, XMFLOAT3 xmf3Scale);
 	~TerrainData(void);
 
 	void Load();
@@ -27,7 +26,7 @@ public:
 	Vector3 GetHeightMapNormal(int x, int z);
 
 	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
-	BYTE* GetHeightMapPixels() { return(m_pHeightMapPixels); }
-	int GetHeightMapWidth() { return(m_nWidth); }
-	int GetHeightMapLength() { return(m_nLength); }
+	BYTE* GetHeightMapPixels() { return(bytes); }
+	int GetHeightMapWidth() { return(heightmapWidth); }
+	int GetHeightMapLength() { return(heightmapHeight); }
 };

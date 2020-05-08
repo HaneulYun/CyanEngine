@@ -64,7 +64,7 @@ void Graphics::Render()
 	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
-		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
 		fence->SetEventOnCompletion(currFrameResource->Fence, eventHandle);
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
