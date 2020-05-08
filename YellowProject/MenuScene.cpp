@@ -6,9 +6,12 @@ void MenuScene::BuildObjects()
 	///*** Asset ***///
 	//*** Texture ***//
 	ASSET AddTexture("none", L"Textures\\none.dds");
+	ASSET AddTexture("menuBackgroundTex", L"Textures\\menu\\background.dds");
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
+	ASSET AddMaterial("gray", ASSET TEXTURE("none"), -1, { 0.5, 0.5, 0.5, 0.5 });
+	ASSET AddMaterial("menuBackgroundMat", ASSET TEXTURE("menuBackgroundTex"), -1, { 0.8, 0.8, 0.8, 1 });
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
@@ -22,128 +25,175 @@ void MenuScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
-	auto skyBox = CreateEmpty();
+	auto background = CreateImage();
 	{
-		skyBox->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
-		skyBox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
-		auto mesh = skyBox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Sphere");
-		skyBox->layer = (int)RenderLayer::Sky;
-	}
+		background->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("menuBackgroundMat");
 
-	auto sampleSceneButton = CreateImage();
-	{
-		auto rectTransform = sampleSceneButton->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 1, 0.5 };
-		rectTransform->anchorMax = { 1, 0.5 };
-		rectTransform->pivot = { 1, 0.5 };
-		rectTransform->posX = -10;
-		rectTransform->posY = 20;
-		rectTransform->width = 150;
-		rectTransform->height = 30;
+		auto rectTransform = background->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 0 };
+		rectTransform->anchorMax = { 1, 1 };
 
-		sampleSceneButton->AddComponent<Button>()->AddEvent(
-			[](void*) {
-				Debug::Log("이게 되네;;\n");
-				SceneManager::LoadScene("MainScene");
-			});
+		auto text = background->AddComponent<Text>();
+		text->text = L"두드리오\n\n\n";
+		text->font = L"메이플스토리";
+		text->fontSize = 120;
+		text->color = { 1, 1, 1, 1 };
+		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+		textObjects.push_back(background);
+
+
+		auto sampleSceneButton = CreateImage();
 		{
-			auto textobject = sampleSceneButton->AddChildUI();
-			auto rectTransform = textobject->GetComponent<RectTransform>();
-			rectTransform->anchorMin = { 0, 0 };
-			rectTransform->anchorMax = { 1, 1 };
+			auto rectTransform = sampleSceneButton->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0.5, 0.5 };
+			rectTransform->anchorMax = { 0.5, 0.5 };
+			rectTransform->pivot = { 0.5, 0.5 };
+			rectTransform->posX = -10;
+			rectTransform->posY = 20;
+			rectTransform->width = 150;
+			rectTransform->height = 30;
 
-			Text* text = textobject->AddComponent<Text>();
-			text->text = L"Sample Scene";
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-			textObjects.push_back(textobject);
+			sampleSceneButton->AddComponent<Button>()->AddEvent(
+				[](void*) {
+					Debug::Log("이게 되네;;\n");
+					SceneManager::LoadScene("SampleScene");
+				});
+			{
+				auto textobject = sampleSceneButton->AddChildUI();
+				auto rectTransform = textobject->GetComponent<RectTransform>();
+				rectTransform->anchorMin = { 0, 0 };
+				rectTransform->anchorMax = { 1, 1 };
+
+				Text* text = textobject->AddComponent<Text>();
+				text->text = L"Sample Scene";
+				text->font = L"메이플스토리";
+				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+				textObjects.push_back(textobject);
+			}
+			sampleSceneButton->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("none");
 		}
-	}
 
-	auto materialSceneButton = CreateImage();
-	{
-		auto rectTransform = materialSceneButton->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 1, 0.5 };
-		rectTransform->anchorMax = { 1, 0.5 };
-		rectTransform->pivot = { 1, 0.5 };
-		rectTransform->posX = -10;
-		rectTransform->posY = -20;
-		rectTransform->width = 150;
-		rectTransform->height = 30;
-
-		materialSceneButton->AddComponent<Button>()->AddEvent(
-			[](void*) {
-				SceneManager::LoadScene("MaterialScene");
-			});
+		auto materialSceneButton = CreateImage();
 		{
-			auto textobject = materialSceneButton->AddChildUI();
-			auto rectTransform = textobject->GetComponent<RectTransform>();
-			rectTransform->anchorMin = { 0, 0 };
-			rectTransform->anchorMax = { 1, 1 };
+			auto rectTransform = materialSceneButton->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0.5, 0.5 };
+			rectTransform->anchorMax = { 0.5, 0.5 };
+			rectTransform->pivot = { 0.5, 0.5 };
+			rectTransform->posX = -10;
+			rectTransform->posY = -20;
+			rectTransform->width = 150;
+			rectTransform->height = 30;
 
-			Text* text = textobject->AddComponent<Text>();
-			text->text = L"Material Scene";
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-			textObjects.push_back(textobject);
+			materialSceneButton->AddComponent<Button>()->AddEvent(
+				[](void*) {
+					//SceneManager::LoadScene("MaterialScene");
+				});
+			{
+				auto textobject = materialSceneButton->AddChildUI();
+				auto rectTransform = textobject->GetComponent<RectTransform>();
+				rectTransform->anchorMin = { 0, 0 };
+				rectTransform->anchorMax = { 1, 1 };
+
+				Text* text = textobject->AddComponent<Text>();
+				text->text = L"Material Scene";
+				text->font = L"메이플스토리";
+				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+				textObjects.push_back(textobject);
+			}
+			materialSceneButton->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("none");
 		}
-	}
 
-	auto terrainSceneButton = CreateImage();
-	{
-		auto rectTransform = terrainSceneButton->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 1, 0.5 };
-		rectTransform->anchorMax = { 1, 0.5 };
-		rectTransform->pivot = { 1, 0.5 };
-		rectTransform->posX = -10;
-		rectTransform->posY = -60;
-		rectTransform->width = 150;
-		rectTransform->height = 30;
-
-		terrainSceneButton->AddComponent<Button>()->AddEvent(
-			[](void*) {
-				SceneManager::LoadScene("TerrainScene");
-			});
+		auto terrainSceneButton = CreateImage();
 		{
-			auto textobject = terrainSceneButton->AddChildUI();
-			auto rectTransform = textobject->GetComponent<RectTransform>();
-			rectTransform->anchorMin = { 0, 0 };
-			rectTransform->anchorMax = { 1, 1 };
+			auto rectTransform = terrainSceneButton->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0.5, 0.5 };
+			rectTransform->anchorMax = { 0.5, 0.5 };
+			rectTransform->pivot = { 0.5, 0.5 };
+			rectTransform->posX = -10;
+			rectTransform->posY = -60;
+			rectTransform->width = 150;
+			rectTransform->height = 30;
 
-			Text* text = textobject->AddComponent<Text>();
-			text->text = L"Terrain Scene";
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-			textObjects.push_back(textobject);
+			terrainSceneButton->AddComponent<Button>()->AddEvent(
+				[](void*) {
+					SceneManager::LoadScene("TerrainScene");
+				});
+			{
+				auto textobject = terrainSceneButton->AddChildUI();
+				auto rectTransform = textobject->GetComponent<RectTransform>();
+				rectTransform->anchorMin = { 0, 0 };
+				rectTransform->anchorMax = { 1, 1 };
+
+				Text* text = textobject->AddComponent<Text>();
+				text->text = L"Terrain Scene";
+				text->font = L"메이플스토리";
+				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+				textObjects.push_back(textobject);
+			}
 		}
-	}
 
-	auto particleSceneButton = CreateImage();
-	{
-		auto rectTransform = particleSceneButton->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 1, 0.5 };
-		rectTransform->anchorMax = { 1, 0.5 };
-		rectTransform->pivot = { 1, 0.5 };
-		rectTransform->posX = -10;
-		rectTransform->posY = -100;
-		rectTransform->width = 150;
-		rectTransform->height = 30;
-
-		particleSceneButton->AddComponent<Button>()->AddEvent(
-			[](void*) {
-				SceneManager::LoadScene("ParticleScene");
-			});
+		auto animationSceneButton = CreateImage();
 		{
-			auto textobject = particleSceneButton->AddChildUI();
-			auto rectTransform = textobject->GetComponent<RectTransform>();
-			rectTransform->anchorMin = { 0, 0 };
-			rectTransform->anchorMax = { 1, 1 };
+			auto rectTransform = animationSceneButton->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0.5, 0.5 };
+			rectTransform->anchorMax = { 0.5, 0.5 };
+			rectTransform->pivot = { 0.5, 0.5 };
+			rectTransform->posX = -10;
+			rectTransform->posY = -100;
+			rectTransform->width = 150;
+			rectTransform->height = 30;
 
-			Text* text = textobject->AddComponent<Text>();
-			text->text = L"Particle Scene";
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-			textObjects.push_back(textobject);
+			animationSceneButton->AddComponent<Button>()->AddEvent(
+				[](void*) {
+					SceneManager::LoadScene("AnimationScene");
+				});
+			{
+				auto textobject = animationSceneButton->AddChildUI();
+				auto rectTransform = textobject->GetComponent<RectTransform>();
+				rectTransform->anchorMin = { 0, 0 };
+				rectTransform->anchorMax = { 1, 1 };
+
+				Text* text = textobject->AddComponent<Text>();
+				text->text = L"Animation Scene";
+				text->font = L"메이플스토리";
+				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+				textObjects.push_back(textobject);
+			}
+		}
+
+		auto particleSceneButton = CreateImage();
+		{
+			auto rectTransform = particleSceneButton->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0.5, 0.5 };
+			rectTransform->anchorMax = { 0.5, 0.5 };
+			rectTransform->pivot = { 0.5, 0.5 };
+			rectTransform->posX = -10;
+			rectTransform->posY = -140;
+			rectTransform->width = 150;
+			rectTransform->height = 30;
+
+			particleSceneButton->AddComponent<Button>()->AddEvent(
+				[](void*) {
+					SceneManager::LoadScene("ParticleScene");
+				});
+			{
+				auto textobject = particleSceneButton->AddChildUI();
+				auto rectTransform = textobject->GetComponent<RectTransform>();
+				rectTransform->anchorMin = { 0, 0 };
+				rectTransform->anchorMax = { 1, 1 };
+
+				Text* text = textobject->AddComponent<Text>();
+				text->text = L"Particle Scene";
+				text->font = L"메이플스토리";
+				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+				textObjects.push_back(textobject);
+			}
 		}
 	}
 }

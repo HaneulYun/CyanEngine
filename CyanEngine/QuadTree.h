@@ -8,7 +8,7 @@ public:
 	int width{ 1000 };
 	int height{ 1000 };
 
-	int capacityPerNode{ 100 };
+	int nodeCapacity{ 100 };
 
 public:
 	void AddGameObject(GameObject* gameObject);
