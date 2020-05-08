@@ -103,12 +103,14 @@ using Microsoft::WRL::ComPtr;
 #include "MeshFilter.h"
 #include "Terrain.h"
 
-#include "AnimatorController.h"
-#include "Animator.h"
-
 #include "Collider.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"
+
+#include "GameObject.h"
+
+#include "AnimatorController.h"
+#include "Animator.h"
 
 #include "RectTransform.h"
 #include "Image.h"
@@ -120,7 +122,6 @@ using Microsoft::WRL::ComPtr;
 #include "ParticleBundle.h"
 #include "ParticleSystem.h"
 
-#include "GameObject.h"
 
 
 #include "FbxLoader.h"

@@ -62,8 +62,7 @@ void TerrainScene::BuildObjects()
 
 	GameObject* terrain = CreateEmpty();
 	{
-		//terrain->AddComponent<Terrain>();
-		terrain->AddComponent<MeshFilter>()->mesh = gridMesh;
+		terrain->AddComponent<Terrain>()->mesh = gridMesh;
 		terrain->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
 	}
 
