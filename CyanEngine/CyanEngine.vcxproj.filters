@@ -61,6 +61,9 @@
     <Filter Include="0_00_CyanEngine\20_Scene\23_SpatialPartitioning">
       <UniqueIdentifier>{83663467-67bf-408a-a2bb-db018624f2e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\30_Core\36_TerrainComponent">
+      <UniqueIdentifier>{3d48872c-11f4-4c5d-86b2-a217f3d29dfc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -86,9 +89,6 @@
     </ClInclude>
     <ClInclude Include="Vector3.h">
       <Filter>0_00_CyanEngine\50_Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Terrain.h">
-      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="MonoBehavior.h">
       <Filter>0_00_CyanEngine\30_Core</Filter>
@@ -204,9 +204,6 @@
     <ClInclude Include="Mesh.h">
       <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
     </ClInclude>
-    <ClInclude Include="Meshs.h">
-      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
-    </ClInclude>
     <ClInclude Include="Constant.h">
       <Filter>Undetermined</Filter>
     </ClInclude>
@@ -234,6 +231,12 @@
     <ClInclude Include="QuadTree.h">
       <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClInclude>
+    <ClInclude Include="Meshs.h">
+      <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -253,9 +256,6 @@
     </ClCompile>
     <ClCompile Include="Singleton.cpp">
       <Filter>0_00_CyanEngine\90_PATTERN</Filter>
-    </ClCompile>
-    <ClCompile Include="Terrain.cpp">
-      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
       <Filter>0_00_CyanEngine\40_Interface</Filter>
@@ -292,9 +292,6 @@
     </ClCompile>
     <ClCompile Include="FbxLoader.cpp">
       <Filter>0_00_CyanEngine\10_Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
@@ -338,9 +335,6 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
     </ClCompile>
-    <ClCompile Include="Meshs.cpp">
-      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
-    </ClCompile>
     <ClCompile Include="ShadowMap.cpp">
       <Filter>Undetermined</Filter>
     </ClCompile>
@@ -361,6 +355,12 @@
     </ClCompile>
     <ClCompile Include="QuadTree.cpp">
       <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
+    </ClCompile>
+    <ClCompile Include="Meshs.cpp">
+      <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

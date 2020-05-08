@@ -265,7 +265,6 @@
     <ClCompile Include="QuadNode.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Random.cpp" />
-    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />

@@ -36,9 +36,6 @@ void TerrainScene::BuildObjects()
 		ASSET AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 	}
 
-	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
-	CHeightMapGridMesh* gridMesh = new CHeightMapGridMesh(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, m_pHeightMapImage);
-
 	///*** Game Object ***///
 
 	GameObject* mainCamera = CreateEmpty();
@@ -58,16 +55,22 @@ void TerrainScene::BuildObjects()
 		ritem->layer = (int)RenderLayer::Sky;
 	}
 
-	GameObject* grid = CreateEmpty();
+
+
+	CHeightMapImage* m_pHeightMapImage = new CHeightMapImage(L"Texture\\heightMap.raw", 257, 257, { 1.0f, 0.1f, 1.0f });
+	CHeightMapGridMesh* gridMesh = new CHeightMapGridMesh(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, m_pHeightMapImage);
+
+	GameObject* terrain = CreateEmpty();
 	{
-		grid->AddComponent<MeshFilter>()->mesh = gridMesh;
-		grid->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
+		//terrain->AddComponent<Terrain>();
+		terrain->AddComponent<MeshFilter>()->mesh = gridMesh;
+		terrain->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
 	}
 
 	{
 		GameObject* manager = CreateEmpty();
 		BuildManager* buildManager = manager->AddComponent<BuildManager>();
-		buildManager->terrain = grid;
+		buildManager->terrain = terrain;
 		buildManager->heightMap = m_pHeightMapImage;
 		buildManager->terrainMesh = gridMesh;
 		//bm->SelectModel(geometries["Cube"].get(), 8, 5);
