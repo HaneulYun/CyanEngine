@@ -14,8 +14,6 @@ public:
 private:
 	BYTE *bytes;
 
-	XMFLOAT3 m_xmf3Scale;
-
 public:
 	TerrainData() = default;
 	~TerrainData(void);
@@ -25,7 +23,6 @@ public:
 	float GetHeight(float x, float z);
 	Vector3 GetHeightMapNormal(int x, int z);
 
-	XMFLOAT3 GetScale() { return(m_xmf3Scale); }
 	BYTE* GetHeightMapPixels() { return(bytes); }
 	int GetHeightMapWidth() { return(heightmapWidth); }
 	int GetHeightMapLength() { return(heightmapHeight); }

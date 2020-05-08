@@ -10,8 +10,6 @@ TerrainData::~TerrainData()
 
 void TerrainData::Load()
 {
-	m_xmf3Scale = { 1, 1, 1 };
-
 	BYTE* pHeightMapPixels = new BYTE[heightmapWidth * heightmapHeight];
 	HANDLE hFile = ::CreateFile(AlphamapTextureName.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, NULL);
 	DWORD dwBytesRead;
@@ -38,12 +36,12 @@ Vector3 TerrainData::GetHeightMapNormal(int x, int z)
 	int xHeightMapAdd = (x < (heightmapWidth - 1)) ? 1 : -1;
 	int zHeightMapAdd = (z < (heightmapHeight - 1)) ? heightmapWidth : -heightmapWidth;
 
-	float y1 = (float)bytes[nHeightMapIndex] * m_xmf3Scale.y;
-	float y2 = (float)bytes[nHeightMapIndex + xHeightMapAdd] * m_xmf3Scale.y;
-	float y3 = (float)bytes[nHeightMapIndex + zHeightMapAdd] * m_xmf3Scale.y;
+	float y1 = (float)bytes[nHeightMapIndex] / 255.0f * size.y;
+	float y2 = (float)bytes[nHeightMapIndex + xHeightMapAdd] / 255.0f * size.y;
+	float y3 = (float)bytes[nHeightMapIndex + zHeightMapAdd] / 255.0f * size.y;
 
-	Vector3 xmf3Edge1 = Vector3(0.0f, y3 - y1, m_xmf3Scale.z);
-	Vector3 xmf3Edge2 = Vector3(m_xmf3Scale.x, y2 - y1, 0.0f);
+	Vector3 xmf3Edge1 = Vector3(0.0f, y3 - y1, 1.0f);
+	Vector3 xmf3Edge2 = Vector3(1.0f, y2 - y1, 0.0f);
 	Vector3 xmf3Normal;
 	xmf3Normal.xmf3 = NS_Vector3::CrossProduct(xmf3Edge1.xmf3, xmf3Edge2.xmf3, true);
 

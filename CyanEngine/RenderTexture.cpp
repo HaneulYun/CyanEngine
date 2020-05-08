@@ -118,9 +118,8 @@ float RenderTexture::OnGetHeight(int x, int z, void* pContext)
 {
 	TerrainData* pHeightMapImage = (TerrainData*)pContext;
 	BYTE* pHeightMapPixels = pHeightMapImage->GetHeightMapPixels();
-	XMFLOAT3 xmf3Scale = pHeightMapImage->GetScale();
 	int nWidth = pHeightMapImage->GetHeightMapWidth();
-	float fHeight = pHeightMapPixels[x + (z * nWidth)] * xmf3Scale.y;
+	float fHeight = pHeightMapPixels[x + (z * nWidth)] / 255.0 * pHeightMapImage->size.y;
 	return(fHeight);
 }
 
@@ -130,7 +129,6 @@ XMFLOAT4 RenderTexture::OnGetColor(int x, int z, void* pContext)
 	XMFLOAT3 xmf3LightDirection = XMFLOAT3(-1.0f, 1.0f, 1.0f);
 	xmf3LightDirection = NS_Vector3::Normalize(xmf3LightDirection);
 	TerrainData* pHeightMapImage = (TerrainData*)pContext;
-	XMFLOAT3 xmf3Scale = pHeightMapImage->GetScale();
 
 	//조명의 색상(세기, 밝기)이다.
 	XMFLOAT4 xmf4IncidentLightColor(0.9f, 0.8f, 0.4f, 1.0f);
