@@ -240,6 +240,9 @@
     <ClInclude Include="RenderTexture.h">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClInclude>
+    <ClInclude Include="DetailPrototype.h">
+      <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -366,6 +369,9 @@
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClCompile>
     <ClCompile Include="RenderTexture.cpp">
+      <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="DetailPrototype.cpp">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClCompile>
   </ItemGroup>

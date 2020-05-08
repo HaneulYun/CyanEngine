@@ -107,6 +107,14 @@ void GameObject::Update()
 				matIndexBuffer->CopyData(baseindex + i, skinnedConstants);
 			}
 		}
+		if (auto terrain = GetComponent<Terrain>(); terrain)
+		{
+			int baseindex = instanceIndex * renderer->materials.size();
+
+			MatIndexData skinnedConstants;
+			skinnedConstants.MaterialIndex = terrain->terrainData.detailPrototype.material->MatCBIndex;
+			matIndexBuffer->CopyData(baseindex + 1, skinnedConstants);
+		}
 	}
 }
 

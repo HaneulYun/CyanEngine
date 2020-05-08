@@ -14,6 +14,8 @@ std::unique_ptr<ObjectsResource> RenderSets::MakeResource()
 		matIndexStride = gameObjects[0]->GetComponent<Renderer>()->materials.size();
 	else if (gameObjects[0]->GetComponent<SkinnedMeshRenderer>())
 		matIndexStride = gameObjects[0]->GetComponent<SkinnedMeshRenderer>()->materials.size();
+	if (gameObjects[0]->GetComponent<Terrain>())
+		++matIndexStride;
 
 	resource->InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(Graphics::Instance()->device.Get(), objectCount, false);
 	resource->SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(Graphics::Instance()->device.Get(), objectCount * boneStride, false);

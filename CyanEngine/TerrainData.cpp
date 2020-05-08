@@ -25,6 +25,8 @@ void TerrainData::Load()
 		delete[] pHeightMapPixels;
 
 	heightmapTexture = new RenderTexture(0, 0, 257, 257, { 1, 1, 1 }, { 1, 1, 0, 1 }, this);
+
+	detailPrototype.Set(this);
 }
 
 Vector3 TerrainData::GetHeightMapNormal(int x, int z)

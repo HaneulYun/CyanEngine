@@ -11,6 +11,8 @@ public:
 	int heightmapWidth{ 0 };
 	Vector3	size{ 0, 0, 0 };
 
+	DetailPrototype detailPrototype;
+
 private:
 	BYTE *bytes;
 

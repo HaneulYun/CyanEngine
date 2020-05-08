@@ -73,8 +73,6 @@ class Terrain : public MonoBehavior<Terrain>
 private:
 
 public:
-	//Mesh* mesh{ nullptr };
-
 	TerrainData terrainData;
 
 protected:
@@ -88,8 +86,9 @@ public:
 
 	void Start();
 
-	void Update(/*업데이트 코드를 작성하세요.*/)
+	void Update()
 	{
+
 	}
 
 	void Set();

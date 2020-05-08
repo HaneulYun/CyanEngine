@@ -101,6 +101,7 @@ using Microsoft::WRL::ComPtr;
 #include "SkinnedMeshRenderer.h"
 #include "MeshFilter.h"
 
+#include "DetailPrototype.h"
 #include "TerrainData.h"
 #include "RenderTexture.h"
 #include "Terrain.h"
