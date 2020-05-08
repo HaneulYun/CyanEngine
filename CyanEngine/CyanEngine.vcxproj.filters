@@ -55,6 +55,12 @@
     <Filter Include="0_00_CyanEngine\30_Core\35_ParticleComponent">
       <UniqueIdentifier>{b5c54403-f29f-49dd-a3c9-b3365230bb18}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\20_Scene\22_ObjectRender">
+      <UniqueIdentifier>{96c374e5-abb6-48e8-aaa7-9bfb90ca4d80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\20_Scene\23_SpatialPartitioning">
+      <UniqueIdentifier>{83663467-67bf-408a-a2bb-db018624f2e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -177,12 +183,6 @@
     <ClInclude Include="Matrix4x4.h">
       <Filter>0_00_CyanEngine\50_Math</Filter>
     </ClInclude>
-    <ClInclude Include="ObjectRenderManager.h">
-      <Filter>0_00_CyanEngine\20_Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectResource.h">
-      <Filter>0_00_CyanEngine\20_Scene</Filter>
-    </ClInclude>
     <ClInclude Include="AssetManager.h">
       <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
     </ClInclude>
@@ -218,6 +218,21 @@
     </ClInclude>
     <ClInclude Include="ParticleBundle.h">
       <Filter>0_00_CyanEngine\30_Core\35_ParticleComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectRenderManager.h">
+      <Filter>0_00_CyanEngine\20_Scene\22_ObjectRender</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectResource.h">
+      <Filter>0_00_CyanEngine\20_Scene\22_ObjectRender</Filter>
+    </ClInclude>
+    <ClInclude Include="SpatialPartitioningManager.h">
+      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadNode.h">
+      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadTree.h">
+      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -305,9 +320,6 @@
     <ClCompile Include="Vector3.cpp">
       <Filter>0_00_CyanEngine\50_Math</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectRenderManager.cpp">
-      <Filter>0_00_CyanEngine\20_Scene</Filter>
-    </ClCompile>
     <ClCompile Include="MeshFilter.cpp">
       <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
@@ -337,6 +349,18 @@
     </ClCompile>
     <ClCompile Include="ParticleBundle.cpp">
       <Filter>0_00_CyanEngine\30_Core\35_ParticleComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectRenderManager.cpp">
+      <Filter>0_00_CyanEngine\20_Scene\22_ObjectRender</Filter>
+    </ClCompile>
+    <ClCompile Include="SpatialPartitioningManager.cpp">
+      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadNode.cpp">
+      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadTree.cpp">
+      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

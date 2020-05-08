@@ -8,6 +8,7 @@ public:
 public:
 	std::deque<GameObject*> gameObjects;
 	ObjectRenderManager objectRenderManager;
+	SpatialPartitioningManager spatialPartitioningManager;
 
 	std::queue<GameObject*> creationQueue;
 	std::priority_queue<GameObject*> deletionQueue;
