@@ -224,6 +224,7 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 	}
 }
 
+
 void Graphics::RenderUI()
 {
 	UINT width = CyanFW::Instance()->GetWidth();
