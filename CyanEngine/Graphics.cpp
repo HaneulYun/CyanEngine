@@ -64,7 +64,7 @@ void Graphics::Render()
 	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
-		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+		HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
 		fence->SetEventOnCompletion(currFrameResource->Fence, eventHandle);
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
@@ -177,6 +177,24 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 				else
 					commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
 			}
+
+			if (auto terrain = objects[0]->GetComponent<Terrain>(); terrain)
+			{
+				auto detail = terrain->terrainData.detailPrototype;
+				auto mesh = detail.mesh;
+				auto material = detail.material;
+
+				commandList->SetPipelineState(pipelineStates["grass"].Get());
+				commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
+				commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
+				int j = 0;
+				for (auto& submesh : mesh->DrawArgs)
+				{
+					commandList->SetGraphicsRootShaderResourceView(7, matIndexBuffer->Resource()->GetGPUVirtualAddress() + sizeof(MatIndexData) * 1);
+					commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+				}
+				commandList->SetPipelineState(pipelineStates["opaque"].Get());
+			}
 		}
 		else
 		{
@@ -185,16 +203,11 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			auto mesh = (ParticleBundle*)temp;
 			commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
 			
-			//char* data = new char[sizeof(UINT64)];
-			//memset(data, 0, sizeof(UINT64));
-			//D3D12_SUBRESOURCE_DATA subResourceData = { data, sizeof(UINT64), sizeof(UINT64) };
-			
 			ParticleResource* res = mesh->particleResource[Scene::scene->frameResourceManager.currFrameResourceIndex % 3];
 			ParticleResource* resource = mesh->particleResource[(Scene::scene->frameResourceManager.currFrameResourceIndex + 1) % 3];
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
 			UpdateSubresources<1>(commandList.Get(), resource->VertexParticleBufferGPU.Get(), resource->VertexParticleBufferUploader.Get(), 0, 0, 1, &resource->subResourceData);
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_STREAM_OUT));
-			//delete data;
 			
 			commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
 			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());

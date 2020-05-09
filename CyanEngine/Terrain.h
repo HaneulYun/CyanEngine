@@ -1,47 +1,13 @@
 #pragma once
-#include "framework.h"
-#include "Collider.h"
-#include "SphereCollider.h"
-#include "BoxCollider.h"
-#include "GameObject.h"
 
-class Terrain : public MeshFilter
-{
-//private:
-//	// 이 영역에 private 변수를 선언하세요.
-//
 //	//높이 맵의 가로와 세로 크기이다.
 //	int m_nWidth;
 //	int m_nLength;
 //	//지형을 실제로 몇 배 확대할 것인가를 나타내는 스케일 벡터이다.
 //	XMFLOAT3 m_xmf3Scale;
 //
-//public:
-//	//지형의 높이 맵으로 사용할 이미지이다.
-//	CHeightMapImage* m_pHeightMapImage;
 //	// 이 영역에 public 변수를 선언하세요.
 //
-//private:
-//	friend class GameObject;
-//	Terrain() = default;
-//	Terrain(Terrain&) = default;
-//
-//public:
-//	~Terrain() {}
-//	virtual Component* Duplicate() { return new Terrain; };
-//	virtual Component* Duplicate(Component* component) { return new Terrain(*(Terrain*)component); }
-//
-//	void Start()
-//	{
-//		// 초기화 코드를 작성하세요.
-//	}
-//
-//	void Update()
-//	{
-//		// 업데이트 코드를 작성하세요.
-//	}
-//
-//	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 //	void LoadTerrain(LPCTSTR pFileName, int nWidth, int nLength , int nBlockWidth, int nBlockLength, XMFLOAT3 xmf3Scale, XMFLOAT4 xmf4Color)
 //	{
 //		m_nWidth = nWidth;
@@ -52,7 +18,7 @@ class Terrain : public MeshFilter
 //
 //		m_xmf3Scale = xmf3Scale;
 //
-//		m_pHeightMapImage = new CHeightMapImage(pFileName, nWidth, nLength, xmf3Scale);
+//		m_pHeightMapImage = new TerrainData(pFileName, nWidth, nLength, xmf3Scale);
 //
 //		long cxBlocks = (m_nWidth - 1) / cxQuadsPerBlock;
 //		long czBlocks = (m_nLength - 1) / czQuadsPerBlock;
@@ -62,7 +28,7 @@ class Terrain : public MeshFilter
 //		//for (int i = 0; i < m_nMeshes; i++)
 //		//	m_ppMeshes[i] = NULL;
 //
-//		CHeightMapGridMesh* pHeightMapGridMesh = NULL;
+//		RenderTexture* pHeightMapGridMesh = NULL;
 //		for (int z = 0, zStart = 0; z < czBlocks; z++)
 //		{
 //			for (int x = 0, xStart = 0; x < cxBlocks; x++)
@@ -70,9 +36,9 @@ class Terrain : public MeshFilter
 //				xStart = x * (nBlockWidth - 1);
 //				zStart = z * (nBlockLength - 1);
 //				if (!mesh)
-//					mesh = new CHeightMapGridMesh(xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
+//					mesh = new RenderTexture(xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
 //				else
-//					(new GameObject(gameObject))->GetComponent<Terrain>()->mesh = new CHeightMapGridMesh(xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
+//					(new GameObject(gameObject))->GetComponent<Terrain>()->mesh = new RenderTexture(xStart, zStart, nBlockWidth, nBlockLength, xmf3Scale, xmf4Color, m_pHeightMapImage);
 //			}
 //		}
 //
@@ -100,4 +66,30 @@ class Terrain : public MeshFilter
 //	//지형의 크기(가로/세로)를 반환한다. 높이 맵의 크기에 스케일을 곱한 값이다.
 //	float GetWidth() { return(m_nWidth * m_xmf3Scale.x); }
 //	float GetLength() { return(m_nLength * m_xmf3Scale.z); }
+//};
+
+class Terrain : public MonoBehavior<Terrain>
+{
+private:
+
+public:
+	TerrainData terrainData;
+
+protected:
+	friend class GameObject;
+	friend class MonoBehavior<Terrain>;
+	Terrain() = default;
+	Terrain(Terrain&) = default;
+
+public:
+	~Terrain() {}
+
+	void Start();
+
+	void Update()
+	{
+
+	}
+
+	void Set();
 };

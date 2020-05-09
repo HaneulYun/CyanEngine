@@ -1,5 +1,6 @@
 #pragma once
 
+class Graphics;
 class SceneManager;
 class AssetManager;
 

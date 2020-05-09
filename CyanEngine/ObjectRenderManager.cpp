@@ -14,6 +14,8 @@ std::unique_ptr<ObjectsResource> RenderSets::MakeResource()
 		matIndexStride = gameObjects[0]->GetComponent<Renderer>()->materials.size();
 	else if (gameObjects[0]->GetComponent<SkinnedMeshRenderer>())
 		matIndexStride = gameObjects[0]->GetComponent<SkinnedMeshRenderer>()->materials.size();
+	if (gameObjects[0]->GetComponent<Terrain>())
+		++matIndexStride;
 
 	resource->InstanceBuffer = std::make_unique<UploadBuffer<InstanceData>>(Graphics::Instance()->device.Get(), objectCount, false);
 	resource->SkinnedBuffer = std::make_unique<UploadBuffer<SkinnnedData>>(Graphics::Instance()->device.Get(), objectCount * boneStride, false);
@@ -81,6 +83,8 @@ void ObjectRenderManager::AddGameObject(GameObject* gameObject, int layer)
 		mesh = component->mesh;
 	if (auto component = gameObject->GetComponent<SkinnedMeshRenderer>(); component && !mesh)
 		mesh = component->mesh;
+	if (auto component = gameObject->GetComponent<Terrain>(); component && !mesh)
+		mesh = component->terrainData.heightmapTexture;
 	if (auto component = gameObject->GetComponent<ParticleSystem>(); component && !mesh)
 		mesh = component->particle;
 	if (!mesh)

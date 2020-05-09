@@ -187,6 +187,7 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="DetailPrototype.h" />
     <ClInclude Include="FbxLoader.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="FrameResourceManager.h" />
@@ -199,7 +200,8 @@
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Meshs.h" />
+    <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="TerrainData.h" />
     <ClInclude Include="MeshFilter.h" />
     <ClInclude Include="MonoBehavior.h" />
     <ClInclude Include="Object.h" />
@@ -242,6 +244,7 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="DetailPrototype.cpp" />
     <ClCompile Include="FbxLoader.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="FrameResourceManager.cpp" />
@@ -251,7 +254,8 @@
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshFilter.cpp" />
-    <ClCompile Include="Meshs.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="TerrainData.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectRenderManager.cpp" />
     <ClCompile Include="ParticleBundle.cpp" />
@@ -265,7 +269,6 @@
     <ClCompile Include="QuadNode.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Random.cpp" />
-    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
