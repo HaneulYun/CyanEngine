@@ -179,7 +179,7 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 					commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
 			}
 
-			if (auto terrain = objects[0]->GetComponent<Terrain>(); terrain)
+			if (auto terrain = objects[0]->GetComponent<Terrain>(); terrain && !isShadowMap)
 			{
 				auto detail = terrain->terrainData.detailPrototype;
 				auto mesh = detail.mesh;
