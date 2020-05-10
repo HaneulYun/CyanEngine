@@ -3,8 +3,9 @@
 
 void Graphics::Initialize()
 {
-	sceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	sceneBounds.Radius = sqrtf(20.0f * 20.0f + 20.0f * 20.0f);
+	sceneBounds.Center = XMFLOAT3(540.f, 0.0f, 540.f);
+	float width = 20, height = 20;
+	sceneBounds.Radius = sqrtf(width * width + height * height);
 	InitDirect3D();
 	InitDirect2D();
 	LoadAssets();
@@ -96,10 +97,10 @@ void Graphics::Render()
 	commandList->RSSetScissorRects(1, &scissorRect);
 
 	auto passCB = currFrameResource->PassCB->Resource();
-	
+
 	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-	for(int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
+	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 		RenderObjects(layerIndex);
 	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
@@ -178,7 +179,7 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 					commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
 			}
 
-			if (auto terrain = objects[0]->GetComponent<Terrain>(); terrain)
+			if (auto terrain = objects[0]->GetComponent<Terrain>(); terrain && !isShadowMap)
 			{
 				auto detail = terrain->terrainData.detailPrototype;
 				auto mesh = detail.mesh;
@@ -202,22 +203,22 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			auto temp = mesh;
 			auto mesh = (ParticleBundle*)temp;
 			commandList->SetPipelineState(pipelineStates["particleMaker"].Get());
-			
+
 			ParticleResource* res = mesh->particleResource[Scene::scene->frameResourceManager.currFrameResourceIndex % 3];
 			ParticleResource* resource = mesh->particleResource[(Scene::scene->frameResourceManager.currFrameResourceIndex + 1) % 3];
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
 			commandList->CopyResource(resource->VertexParticleBufferGPU.Get(), mesh->VertexParticleInitBufferGPU.Get());
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_STREAM_OUT));
-			
+
 			commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
 			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
 			commandList->DrawInstanced(res->particleCount, objects.size(), 0, 0);
 			commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());
-			
+
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_STREAM_OUT, D3D12_RESOURCE_STATE_COPY_SOURCE));
 			commandList->CopyResource(mesh->VertexParticleBufferReadback.Get(), resource->VertexParticleBufferGPU.Get());
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
-			
+
 			commandList->SetPipelineState(pipelineStates["particle"].Get());
 			commandList->DrawInstanced(res->particleCount, objects.size(), 0, 0);
 		}
@@ -311,7 +312,7 @@ void Graphics::RenderUI()
 		rt.right = (rightBottom.x / 2.0f + 0.5f) * width;
 		rt.bottom = (rightBottom.y / -2.0f + 0.5f) * height;
 
-		if(textComponent->gameObject->active)
+		if (textComponent->gameObject->active)
 			deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(), &rt, textBrushes[textComponent->brushIndex].Get());
 	}
 
@@ -343,17 +344,17 @@ void Graphics::PostRender()
 	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Particle])
 	{
 		auto mesh = (ParticleBundle*)renderSets.first;
-		
+
 		UINT8* p;
 		D3D12_RANGE range{ 0, sizeof(UINT64*) };
 		mesh->VertexParticleBufferReadback->Map(0, &range, reinterpret_cast<void**>(&p));
-		
+
 		UINT64 size = *reinterpret_cast<UINT64*>(p);
-		FrameResource::ParticleSpriteVertex* t = reinterpret_cast<FrameResource::ParticleSpriteVertex*>(p+8);
-		
+		FrameResource::ParticleSpriteVertex* t = reinterpret_cast<FrameResource::ParticleSpriteVertex*>(p + 8);
+
 		ParticleResource* resource = mesh->particleResource[(Scene::scene->frameResourceManager.currFrameResourceIndex + 1) % 3];
 		resource->particleCount = size / sizeof(FrameResource::ParticleSpriteVertex);
-		
+
 		mesh->VertexParticleBufferReadback->Unmap(0, nullptr);
 	}
 }
@@ -410,7 +411,7 @@ void Graphics::InitDirect3D()
 	msQualityLevels.SampleCount = 4;
 	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 	msQualityLevels.NumQualityLevels = 0;
-	
+
 	device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels, sizeof(msQualityLevels));
 	m_nMsaa4xQualityLevels = msQualityLevels.NumQualityLevels;
 	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
@@ -433,7 +434,7 @@ void Graphics::InitDirect3D()
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.SampleDesc.Count = 1;
-	factory->CreateSwapChainForHwnd(commandQueue.Get(), CyanApp::GetHwnd(), &swapChainDesc, nullptr, nullptr, (IDXGISwapChain1**)swapChain.GetAddressOf() );
+	factory->CreateSwapChainForHwnd(commandQueue.Get(), CyanApp::GetHwnd(), &swapChainDesc, nullptr, nullptr, (IDXGISwapChain1 * *)swapChain.GetAddressOf());
 	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
 
@@ -449,7 +450,7 @@ void Graphics::InitDirect3D()
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 
-	shadowMap = std::make_unique<ShadowMap>(device.Get(), 2048, 2048);
+	shadowMap = std::make_unique<ShadowMap>(device.Get(), 10000, 10000);
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
 	for (UINT i = 0; i < FrameCount; ++i)
@@ -471,7 +472,7 @@ void Graphics::InitDirect2D()
 	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {};
 
 	ComPtr<ID3D11Device> d3d11Device;
-	D3D11On12CreateDevice(device.Get(), d3d11DeviceFlags, nullptr, 0, reinterpret_cast<IUnknown**>(commandQueue.GetAddressOf()),
+	D3D11On12CreateDevice(device.Get(), d3d11DeviceFlags, nullptr, 0, reinterpret_cast<IUnknown * *>(commandQueue.GetAddressOf()),
 		1, 0, &d3d11Device, &d11DeviceContext, nullptr);
 	d3d11Device.As(&device11On12);
 
@@ -565,8 +566,8 @@ void Graphics::LoadAssets()
 
 	ComPtr<ID3DBlob> vertexShader_skinnedShadow = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", skinnedDefines, "VS_Shadow", "vs_5_1");
 	ComPtr<ID3DBlob> vertexShader_shadow = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "VS_Shadow", "vs_5_1");
-	ComPtr<ID3DBlob> pixelShader_shadow= d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "PS_Shadow", "ps_5_1");
-	
+	ComPtr<ID3DBlob> pixelShader_shadow = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "PS_Shadow", "ps_5_1");
+
 	ComPtr<ID3DBlob> vertexShader_skinned = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", skinnedDefines, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
 	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_1");
@@ -795,7 +796,7 @@ inline void Graphics::CreateDepthStencilView()
 	d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	d3dClearValue.DepthStencil.Depth = 1.0f;
 	d3dClearValue.DepthStencil.Stencil = 0;
-	device->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void**)&m_pd3dDepthStencilBuffer);
+	device->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void**)& m_pd3dDepthStencilBuffer);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
 	device->CreateDepthStencilView(m_pd3dDepthStencilBuffer, NULL, d3dDsvCPUDescriptorHandle);

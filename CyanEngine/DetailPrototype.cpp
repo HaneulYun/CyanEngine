@@ -11,19 +11,24 @@ void DetailPrototype::Set(TerrainData* terrainData)
 		XMFLOAT3 look;
 	};
 	std::vector<TreeSpriteVertex> vertices;
-	float sizex = 2, sizey = 2;
-	const int width = 256, length = 256;
-	vertices.reserve(width * length);
-	
-	auto gridMesh = terrainData->heightmapTexture;
-	for (int i = 0; i < width; ++i)
+	float sizex = 1, sizey = 1;
+	const int width = terrainData->heightmapWidth - 1, length = terrainData->heightmapHeight - 1;
+	float stride = 0.5f;
+	vertices.reserve(width* length);
+	for (float i = 0; i < width; i += stride)
 	{
-		for (int j = 0; j < length; ++j)
+		for (float j = 0; j < length; j += stride)
 		{
 			TreeSpriteVertex v;
-			v.Pos = XMFLOAT3(i, gridMesh->OnGetHeight(i, j, terrainData) + sizey / 2, j);
-			v.Size = XMFLOAT2(sizex, sizey);
-			v.look = XMFLOAT3(MathHelper::RandF(0.0f, 1.0f), 0.0f, MathHelper::RandF(0.0f, 1.0f));
+			float h = terrainData->GetHeight(i, j) * (terrainData->size.y / 255.0f);
+			if (h > 33.0f)
+				continue;
+			if (h > 30.0f)
+				v.Size = XMFLOAT2(sizex / (h - 30.0f), sizey / (h - 30.0f));
+			else
+				v.Size = XMFLOAT2(sizex, sizey);
+			v.Pos = XMFLOAT3(i, (terrainData->GetHeight(i, j) + sizey / 2) * (terrainData->size.y / 255.0f), j);;
+			v.look = XMFLOAT3(MathHelper::RandF(-1.0f, 1.0f), 0.0f, MathHelper::RandF(-1.0f, 1.0f));
 			vertices.push_back(v);
 		}
 	}
