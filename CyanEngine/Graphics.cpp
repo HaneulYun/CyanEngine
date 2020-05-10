@@ -206,7 +206,7 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			ParticleResource* res = mesh->particleResource[Scene::scene->frameResourceManager.currFrameResourceIndex % 3];
 			ParticleResource* resource = mesh->particleResource[(Scene::scene->frameResourceManager.currFrameResourceIndex + 1) % 3];
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
-			UpdateSubresources<1>(commandList.Get(), resource->VertexParticleBufferGPU.Get(), resource->VertexParticleBufferUploader.Get(), 0, 0, 1, &resource->subResourceData);
+			commandList->CopyResource(resource->VertexParticleBufferGPU.Get(), mesh->VertexParticleInitBufferGPU.Get());
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(resource->VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_STREAM_OUT));
 			
 			commandList->SOSetTargets(0, 1, &mesh->StreamOutputBufferView());

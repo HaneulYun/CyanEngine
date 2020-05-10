@@ -20,11 +20,6 @@ ParticleResource::ParticleResource(UINT maxParticles, D3D12_SUBRESOURCE_DATA sub
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
 	UpdateSubresources<1>(commandList.Get(), VertexParticleBufferGPU.Get(), VertexParticleBufferUploader.Get(), 0, 0, 1, &subResourceData);
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(VertexParticleBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COMMON));
-
-
-	data = new char[sizeof(UINT64)];
-	memset(data, 0, sizeof(UINT64));
-	this->subResourceData = { data, sizeof(UINT64), sizeof(UINT64) };
 }
 
 D3D12_VERTEX_BUFFER_VIEW ParticleBundle::VertexBufferView() const
