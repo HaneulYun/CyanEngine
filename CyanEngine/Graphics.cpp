@@ -4,7 +4,8 @@
 void Graphics::Initialize()
 {
 	sceneBounds.Center = XMFLOAT3(540.f, 0.0f, 540.f);
-	sceneBounds.Radius = sqrtf(200 * 200);
+	float width = 20, height = 20;
+	sceneBounds.Radius = sqrtf(width * width + height * height);
 	InitDirect3D();
 	InitDirect2D();
 	LoadAssets();

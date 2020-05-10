@@ -12,7 +12,7 @@ void DetailPrototype::Set(TerrainData* terrainData)
 	};
 	std::vector<TreeSpriteVertex> vertices;
 	float sizex = 1, sizey = 1;
-	const int width = terrainData->heightmapWidth, length = terrainData->heightmapHeight;
+	const int width = terrainData->heightmapWidth - 1, length = terrainData->heightmapHeight - 1;
 	float stride = 0.5f;
 	vertices.reserve(width* length);
 	for (float i = 0; i < width; i += stride)

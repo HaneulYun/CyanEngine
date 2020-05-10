@@ -19,7 +19,8 @@ void FrameResourceManager::Update()
 
 	// Only the first "main" light casts a shadow.
 	Vector3 lightDir = Graphics::Instance()->rotatedLightDirections[0];
-	Vector3 lightPos = (lightDir * (-2.0f * Graphics::Instance()->sceneBounds.Radius));
+	Vector3 center; center.xmf3 = Graphics::Instance()->sceneBounds.Center;
+	Vector3 lightPos = (lightDir * (-2.0f * Graphics::Instance()->sceneBounds.Radius)) + center;
 	Vector3 targetPos; targetPos.xmf3 = Graphics::Instance()->sceneBounds.Center;
 	Vector3 lightUp{ 0.0f, 1.0f, 0.0f };
 	Matrix4x4 lightView = Matrix4x4::MatrixLookAtLH(lightPos, targetPos, lightUp);
