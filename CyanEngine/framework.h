@@ -122,15 +122,13 @@ using Microsoft::WRL::ComPtr;
 
 #include "Constant.h"
 
+#include "FrameResource.h"
 #include "ParticleBundle.h"
 #include "ParticleSystem.h"
-
-
 
 #include "FbxLoader.h"
 
 #include "AssetResource.h"
-#include "FrameResource.h"
 #include "ObjectResource.h"
 #include "Graphics.h"
 

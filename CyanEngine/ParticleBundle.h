@@ -3,7 +3,7 @@
 class ParticleResource
 {
 public:
-	ParticleResource(UINT maxParticles, D3D12_SUBRESOURCE_DATA subResourceData);
+	ParticleResource(UINT maxParticles, std::vector<FrameResource::ParticleSpriteVertex>& vertices);
 
 	ComPtr<ID3D12Resource> VertexParticleBufferGPU{ nullptr };
 	ComPtr<ID3D12Resource> VertexParticleBufferUploader{ nullptr };

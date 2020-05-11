@@ -33,21 +33,10 @@ void ParticleSystem::Set()
 	//delete data;
 
 	for (int i = 0; i < 3; ++i)
-		mesh->particleResource[i] = new ParticleResource(mesh->maxParticles, subResourceData);
+		mesh->particleResource[i] = new ParticleResource(mesh->maxParticles, vertices);
 
+	mesh->VertexParticleInitBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, mesh->VertexParticleInitBufferUploader);
 
-	device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT, 0, 0), D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64), D3D12_RESOURCE_FLAG_NONE, D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT),
-		D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(mesh->VertexParticleInitBufferGPU.GetAddressOf()));
-	device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT64)),
-		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(mesh->VertexParticleInitBufferUploader.GetAddressOf()));
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexParticleInitBufferGPU.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
-	UpdateSubresources<1>(commandList.Get(), mesh->VertexParticleInitBufferGPU.Get(), mesh->VertexParticleInitBufferUploader.Get(), 0, 0, 1, &subInitResourceData);
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mesh->VertexParticleInitBufferGPU.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COMMON));
 
 
 	device->CreateCommittedResource(
