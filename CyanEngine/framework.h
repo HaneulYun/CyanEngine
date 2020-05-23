@@ -30,8 +30,6 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 
-#include <fbxsdk.h>
-
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
@@ -42,10 +40,6 @@ using Microsoft::WRL::ComPtr;
 #ifdef _WITH_TERRAIN_TESSELATION
 #define _WITH_TERRAIN_PARTITION
 #endif
-
-#pragma comment(lib, "libfbxsdk-md.lib")
-#pragma comment(lib, "libxml2-md.lib")
-#pragma comment(lib, "zlib-md.lib")
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -75,7 +69,7 @@ using Microsoft::WRL::ComPtr;
 #include "UploadBuffer.h"
 #include "GeometryGenerator.h"
 
-
+#include "FbxLoader.h"
 #include "Singleton.h"
 
 
@@ -125,8 +119,6 @@ using Microsoft::WRL::ComPtr;
 #include "FrameResource.h"
 #include "ParticleBundle.h"
 #include "ParticleSystem.h"
-
-#include "FbxLoader.h"
 
 #include "AssetResource.h"
 #include "ObjectResource.h"

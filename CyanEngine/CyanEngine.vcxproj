@@ -245,7 +245,6 @@
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DetailPrototype.cpp" />
-    <ClCompile Include="FbxLoader.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="FrameResourceManager.cpp" />
     <ClCompile Include="GameObject.cpp" />

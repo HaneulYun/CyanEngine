@@ -21,8 +21,6 @@ public:
 	void AddMaterial(std::string name, Texture* diffuse = nullptr, int noromal = -1,
 		Vector4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f }, Vector3 fresnel = { 0.01f, 0.01f, 0.01f },
 		float roughness = 1.0f, Matrix4x4 matTransform = Matrix4x4::MatrixIdentity());
-	void AddFbxForMesh(std::string name, std::string fileNmae);
-	void AddFbxForAnimation(std::string name, std::string fileNmae);
 
 	Mesh* GetMesh(std::string name);
 	Texture* GetTexture(std::string name);

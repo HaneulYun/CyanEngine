@@ -86,20 +86,6 @@ void AssetManager::AddMaterial(std::string name, Texture* diffuse, int noromal,
 	AssetManager::Instance()->materials[material->Name] = std::move(material);
 }
 
-void AssetManager::AddFbxForMesh(std::string name, std::string fileNmae)
-{
-	FbxModelData data;
-	data.SetName(name);
-	data.LoadFbx(fileNmae.c_str());
-}
-
-void AssetManager::AddFbxForAnimation(std::string name, std::string fileNmae)
-{
-	FbxModelData data;
-	data.SetName(name);
-	data.LoadFbx(fileNmae.c_str());
-}
-
 Mesh* AssetManager::GetMesh(std::string name)
 {
 	if (auto iter = meshes.find(name); iter == meshes.end())

@@ -129,9 +129,6 @@
     <ClInclude Include="Graphics.h">
       <Filter>0_00_CyanEngine\10_Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="FbxLoader.h">
-      <Filter>0_00_CyanEngine\10_Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClInclude>
@@ -243,6 +240,9 @@
     <ClInclude Include="DetailPrototype.h">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClInclude>
+    <ClInclude Include="FbxLoader.h">
+      <Filter>0_00_CyanEngine\10_Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -294,9 +294,6 @@
       <Filter>0_00_CyanEngine\00_CyanFW</Filter>
     </ClCompile>
     <ClCompile Include="Graphics.cpp">
-      <Filter>0_00_CyanEngine\10_Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="FbxLoader.cpp">
       <Filter>0_00_CyanEngine\10_Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
