@@ -54,29 +54,11 @@
     <ClInclude Include="ScriptForm.h">
       <Filter>Assets\Scripts\Form</Filter>
     </ClInclude>
-    <ClInclude Include="RotatingBehavior.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="CharacterController.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialScene.h">
-      <Filter>Assets\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="MenuScene.h">
       <Filter>Assets\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="TerrainScene.h">
-      <Filter>Assets\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleScene.h">
-      <Filter>Assets\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="BuildManager.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleManager.h">
-      <Filter>Assets\Scripts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -86,16 +68,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialScene.cpp">
-      <Filter>Assets\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainScene.cpp">
-      <Filter>Assets\Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="MenuScene.cpp">
-      <Filter>Assets\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
