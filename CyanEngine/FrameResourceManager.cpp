@@ -7,7 +7,7 @@ void FrameResourceManager::Update()
 	currFrameResource = frameResources[currFrameResourceIndex].get();
 
 	// Animate the lights
-	Graphics::Instance()->lightRotationAngle += 0.1f * Time::deltaTime;
+	//Graphics::Instance()->lightRotationAngle += 0.1f * Time::deltaTime;
 
 	Matrix4x4 R = Matrix4x4::RotationY(Graphics::Instance()->lightRotationAngle);
 	for (int i = 0; i < 3; ++i)
