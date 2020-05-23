@@ -23,7 +23,6 @@ void MenuScene::BuildObjects()
 	ASSET AddMesh("Plane", Mesh::CreatePlane());
 	///*** Game Object ***///
 
-
 	auto chessmap = CreateEmpty();
 	{	
 		chessmap->GetComponent<Transform>()->position = { 14.96f, -14.96f, 0.0f };
@@ -38,7 +37,7 @@ void MenuScene::BuildObjects()
 
 	auto mychess = CreateEmpty();
 	{
-		mychess->GetComponent<Transform>()->position = { 0.f, 0.f, -0.01f };
+		mychess->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
 		mychess->GetComponent<Transform>()->Scale({ 0.0075, 0.0075,1.0f });
 		mychess->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
 		auto mesh = mychess->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
@@ -46,21 +45,19 @@ void MenuScene::BuildObjects()
 		for (auto& sm : mesh->DrawArgs)
 			renderer->materials.push_back(ASSET MATERIAL("mychessmat"));
 		mychess->layer = (int)RenderLayer::Opaque;
-		mychess->AddComponent<CharacterController>();
+		mychess->AddComponent<CharacterController>()->player = true;
 
 		auto cameraOffset = mychess->AddChild();
 		{
 			camera = camera->main = cameraOffset->AddComponent<Camera>();
 			cameraOffset->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, 90);
-			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.99f, -0.99f };
-		
-			cameraOffset->AddComponent<CameraController>();
+			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.9999f, -0.9999f };
 		}
 	}
 
 	auto otherchessprefab = CreateEmptyPrefab();
 	{
-		otherchessprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.01f };
+		otherchessprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
 		otherchessprefab->GetComponent<Transform>()->Scale({ 0.0075, 0.0075,1.0f });
 		otherchessprefab->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
 		auto mesh = otherchessprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
@@ -68,7 +65,43 @@ void MenuScene::BuildObjects()
 		for (auto& sm : mesh->DrawArgs)
 			renderer->materials.push_back(ASSET MATERIAL("otherchessmat"));
 		otherchessprefab->layer = (int)RenderLayer::Opaque;
+		otherchessprefab->AddComponent<CharacterController>()->player = false;
 	}
 
+	auto manager = CreateEmpty();
+	{
+		Network* network = manager->AddComponent<Network>();
+		network->othersPrefab = otherchessprefab;
+		network->myCharacter = mychess;
+		Network::network = network;
+	}
 
+	auto ServerButton = CreateImage();
+	{
+		auto rectTransform = ServerButton->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 1 };
+		rectTransform->anchorMax = { 0, 1 };
+		rectTransform->pivot = { 0, 1 };
+		rectTransform->posX = 0;
+		rectTransform->posY = -10;
+		rectTransform->width = 80;
+		rectTransform->height = 30;
+
+		ServerButton->AddComponent<Button>()->AddEvent(
+			[](void*) {
+				Network::network->PressButton();
+			});
+		{
+			auto textobject = ServerButton->AddChildUI();
+			auto rectTransform = textobject->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 0 };
+			rectTransform->anchorMax = { 1, 1 };
+
+			Text* text = textobject->AddComponent<Text>();
+			text->text = L"connect";
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(textobject);
+		}
+	}
 }
