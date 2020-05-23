@@ -6,72 +6,69 @@ void MenuScene::BuildObjects()
 	///*** Asset ***///
 	//*** Texture ***//
 	ASSET AddTexture("none", L"Textures\\none.dds");
-	ASSET AddTexture("menuBackgroundTex", L"Textures\\menu\\background.dds");
+	ASSET AddTexture("chessmaptex", L"chessmap.dds");
+	ASSET AddTexture("mychesstex", L"mychess.dds");
+	ASSET AddTexture("otherchesstex", L"otherchess.dds");
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
 	ASSET AddMaterial("gray", ASSET TEXTURE("none"), -1, { 0.5, 0.5, 0.5, 0.5 });
-	ASSET AddMaterial("menuBackgroundMat", ASSET TEXTURE("menuBackgroundTex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("chessmapmat", ASSET TEXTURE("chessmaptex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("mychessmat", ASSET TEXTURE("mychesstex"), -1, { 0.8, 0.8, 0.8, 1 });	
+	ASSET AddMaterial("otherchessmat", ASSET TEXTURE("otherchesstex"), -1, { 0.8, 0.8, 0.8, 1 });
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
 	ASSET AddMesh("Sphere", Mesh::CreateSphere());
-
+	ASSET AddMesh("Plane", Mesh::CreatePlane());
 	///*** Game Object ***///
 
-	auto mainCamera = CreateEmpty();
-	{
-		camera = camera->main = mainCamera->AddComponent<Camera>();
-		mainCamera->AddComponent<CameraController>();
+
+	auto chessmap = CreateEmpty();
+	{	
+		chessmap->GetComponent<Transform>()->position = { 14.96f, -14.96f, 0.0f };
+		chessmap->GetComponent<Transform>()->Scale({ 3.0f, 3.0f, 3.0f });
+		chessmap->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
+		auto mesh = chessmap->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		auto renderer = chessmap->AddComponent<Renderer>();
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(ASSET MATERIAL("chessmapmat"));
+		chessmap->layer = (int)RenderLayer::Opaque;
 	}
 
-	auto background = CreateImage();
+	auto mychess = CreateEmpty();
 	{
-		background->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("menuBackgroundMat");
+		mychess->GetComponent<Transform>()->position = { 0.f, 0.f, -0.01f };
+		mychess->GetComponent<Transform>()->Scale({ 0.0075, 0.0075,1.0f });
+		mychess->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
+		auto mesh = mychess->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		auto renderer = mychess->AddComponent<Renderer>();
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(ASSET MATERIAL("mychessmat"));
+		mychess->layer = (int)RenderLayer::Opaque;
+		mychess->AddComponent<CharacterController>();
 
-		auto rectTransform = background->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 0, 0 };
-		rectTransform->anchorMax = { 1, 1 };
-
-		auto text = background->AddComponent<Text>();
-		text->text = L"두드리오\n\n\n";
-		text->font = L"메이플스토리";
-		text->fontSize = 120;
-		text->color = { 1, 1, 1, 1 };
-		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-		textObjects.push_back(background);
-
-		auto sampleSceneButton = CreateImage();
+		auto cameraOffset = mychess->AddChild();
 		{
-			auto rectTransform = sampleSceneButton->GetComponent<RectTransform>();
-			rectTransform->anchorMin = { 0.5, 0.5 };
-			rectTransform->anchorMax = { 0.5, 0.5 };
-			rectTransform->pivot = { 0.5, 0.5 };
-			rectTransform->posX = -10;
-			rectTransform->posY = 20;
-			rectTransform->width = 150;
-			rectTransform->height = 30;
-
-			sampleSceneButton->AddComponent<Button>()->AddEvent(
-				[](void*) {
-					Debug::Log("이게 되네;;\n");
-					SceneManager::LoadScene("SampleScene");
-				});
-			{
-				auto textobject = sampleSceneButton->AddChildUI();
-				auto rectTransform = textobject->GetComponent<RectTransform>();
-				rectTransform->anchorMin = { 0, 0 };
-				rectTransform->anchorMax = { 1, 1 };
-
-				Text* text = textobject->AddComponent<Text>();
-				text->text = L"Sample Scene";
-				text->font = L"메이플스토리";
-				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-				textObjects.push_back(textobject);
-			}
-			sampleSceneButton->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("none");
+			camera = camera->main = cameraOffset->AddComponent<Camera>();
+			cameraOffset->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, 90);
+			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.99f, -0.99f };
+		
+			cameraOffset->AddComponent<CameraController>();
 		}
 	}
+
+	auto otherchessprefab = CreateEmptyPrefab();
+	{
+		otherchessprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.01f };
+		otherchessprefab->GetComponent<Transform>()->Scale({ 0.0075, 0.0075,1.0f });
+		otherchessprefab->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
+		auto mesh = otherchessprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		auto renderer = otherchessprefab->AddComponent<Renderer>();
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(ASSET MATERIAL("otherchessmat"));
+		otherchessprefab->layer = (int)RenderLayer::Opaque;
+	}
+
+
 }
