@@ -12,7 +12,7 @@ using namespace std;
 #include "protocol.h"
 constexpr auto MAX_PACKET_SIZE = 255;
 constexpr auto MAX_BUF_SIZE = 1024;
-constexpr auto MAX_USER = 10;
+constexpr auto MAX_USER = 10000;
 
 enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT };
 enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE };
@@ -40,6 +40,7 @@ struct CLIENT
 
 	short x, y;
 	char m_name[MAX_ID_LEN + 1];
+	unsigned m_move_time;
 };
 
 CLIENT g_clients[MAX_USER];
@@ -109,6 +110,7 @@ void send_move_packet(int user_id, int mover)
 	p.type = S2C_MOVE;
 	p.x = g_clients[mover].x;
 	p.y = g_clients[mover].y;
+	p.move_time = g_clients[mover].m_move_time;
 
 	send_packet(user_id, &p);
 }
@@ -180,6 +182,7 @@ void process_packet(int user_id, char* buf)
 	case C2S_MOVE:
 	{
 		cs_packet_move* packet = reinterpret_cast<cs_packet_move*>(buf);
+		g_clients[user_id].m_move_time = packet->move_time;
 		do_move(user_id, packet->direction);
 	}
 	break;

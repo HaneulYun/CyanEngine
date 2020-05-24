@@ -11,12 +11,12 @@
 //	char id; char x; char y;
 //};
 
-constexpr auto SCREEN_WIDTH = 8;
-constexpr auto SCREEN_HEIGHT = 8;
+constexpr auto SCREEN_WIDTH = 16;
+constexpr auto SCREEN_HEIGHT = 16;
 
 constexpr auto TILE_WIDTH = 65;
-constexpr auto WINDOW_WIDTH = TILE_WIDTH * SCREEN_WIDTH + 10;   // size of window
-constexpr auto WINDOW_HEIGHT = TILE_WIDTH * SCREEN_WIDTH + 10;
+constexpr auto WINDOW_WIDTH = TILE_WIDTH * SCREEN_WIDTH / 2 + 10;   // size of window
+constexpr auto WINDOW_HEIGHT = TILE_WIDTH * SCREEN_WIDTH / 2 + 10;
 constexpr auto BUF_SIZE = 200;
 constexpr auto MAX_USER = 10;
 
@@ -160,6 +160,8 @@ public:
 						tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("blackTileMat");
 				}
 			avatar->gameObject->transform->position = { (float)avatar->x - g_left_x, (float)avatar->y - g_top_y, -1 };
+			for (auto& d : npcs)
+				d.second->gameObject->transform->position = { (float)d.second->x - g_left_x, (float)d.second->y - g_top_y, -1 };
 		}
 		//if (update_server)
 		//{

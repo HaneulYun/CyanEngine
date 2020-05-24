@@ -33,6 +33,7 @@ struct sc_packet_move {
 	char type;
 	int id;
 	short x, y;
+	unsigned move_time;
 };
 
 constexpr unsigned char D_UP = 0;
@@ -75,6 +76,7 @@ struct cs_packet_move {
 	char	size;
 	char	type;
 	char	direction;
+	unsigned move_time;
 };
 
 #pragma pack (pop)
