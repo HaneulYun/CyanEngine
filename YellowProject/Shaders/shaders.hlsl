@@ -117,6 +117,7 @@ float4 PSMain(PSInput input) : SV_TARGET
 
 
 	diffuseAlbedo *= gDiffuseMap[diffuseTexIndex].Sample(gsamAnisotropicWrap, input.TexC);
+	return diffuseAlbedo;
 
 	input.NormalW = normalize(input.NormalW);
 

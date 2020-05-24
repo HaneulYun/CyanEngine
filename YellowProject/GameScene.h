@@ -1,11 +1,11 @@
 #pragma once
 #include "Scene.h"
 
-class MenuScene : public Scene
+class GameScene : public Scene
 {
 public:
-	MenuScene() : Scene() {}
-	~MenuScene() {}
+	GameScene() : Scene() {}
+	~GameScene() {}
 
 	virtual void BuildObjects();
 };

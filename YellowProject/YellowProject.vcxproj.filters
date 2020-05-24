@@ -48,35 +48,23 @@
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="CameraController.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ScriptForm.h">
       <Filter>Assets\Scripts\Form</Filter>
     </ClInclude>
-    <ClInclude Include="RotatingBehavior.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="CharacterController.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="MenuScene.h">
-      <Filter>Assets\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="BuildManager.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleManager.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="board.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="GameScene.h">
+      <Filter>Assets\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="pawn.h">
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
     <ClInclude Include="tcpClient.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Assets\Scripts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -86,7 +74,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MenuScene.cpp">
+    <ClCompile Include="GameScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
   </ItemGroup>

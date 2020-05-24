@@ -11,7 +11,7 @@ Camera::Camera()
 
 void Camera::Start()
 {
-	projection.PerspectiveFovLH(XMConvertToRadians(FOV), CyanFW::Instance()->GetAspectRatio(), Near, Far);
+	//projection.PerspectiveFovLH(XMConvertToRadians(FOV), CyanFW::Instance()->GetAspectRatio(), Near, Far);
 }
 
 void Camera::GenerateOrthoMatrix(float _width, float _height, float _near, float _far)
