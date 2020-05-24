@@ -1,5 +1,6 @@
 #pragma once
 #include "framework.h"
+#include "..\CyanServer\protocol.h"
 
 class Pawn : public MonoBehavior<Pawn>
 {
@@ -8,6 +9,7 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 public  /*이 영역에 public 변수를 선언하세요.*/:
 	int x{ 0 };
 	int y{ 0 };
+	char name[MAX_ID_LEN];
 
 private:
 	friend class GameObject;
@@ -28,6 +30,13 @@ public:
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
+	void move(int x, int y)
+	{
+		this->x = x;
+		this->y = y;
+		SetPositionCurrentIndex();
+	}
+
 	void SetPositionIndex(int x, int y)
 	{
 		this->x = x;

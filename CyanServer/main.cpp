@@ -1,195 +1,366 @@
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#pragma comment(lib, "ws2_32")
+#include <iostream>
 #include <WS2tcpip.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <map>
+#include <MSWSock.h>
+#pragma comment (lib, "WS2_32.lib")
+#pragma comment(lib, "mswsock.lib")
 
-#define SERVER_PORT 3500
+#include <vector>
+#include <thread>
+#include <mutex>
+using namespace std;
 
-struct Pawn
+#include "protocol.h"
+constexpr auto MAX_PACKET_SIZE = 255;
+constexpr auto MAX_BUF_SIZE = 1024;
+constexpr auto MAX_USER = 10;
+
+enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT };
+enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE };
+
+struct EXOVER
 {
-	char id; char x; char y;
+	WSAOVERLAPPED	over; // 맨 위에 overlapped 구조체가 있어야 한다.
+	ENUMOP			op;
+	char			io_buf[MAX_BUF_SIZE];
+	union {
+		WSABUF		wsabuf;
+		SOCKET		c_socket;
+	};
 };
 
-struct SOCKETINFO
+struct CLIENT
 {
-	WSAOVERLAPPED recv;
-	WSAOVERLAPPED send;
-	WSABUF recvbuf;
-	WSABUF sendbuf;
-	Pawn recvdata;
-	Pawn senddata;
+	mutex m_cl;
+	SOCKET m_s;
+	int m_id;
+	EXOVER m_recv_over;
+	int m_prev_size;
+	char m_papcket_buf[MAX_PACKET_SIZE];
+	C_STATUS m_status;
 
-	SOCKET socket;
-	SOCKADDR_IN clientAddr;
-	Pawn userdata;
+	short x, y;
+	char m_name[MAX_ID_LEN + 1];
 };
 
-std::map<SOCKET, SOCKETINFO> clients;
+CLIENT g_clients[MAX_USER];
+HANDLE g_iocp;
+SOCKET l_socket;
 
-void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags);
-void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags);
-
-void err_quit(const char* msg)
+void send_packet(int user_id, void* p)
 {
-	LPVOID lpMsgBuf;
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, WSAGetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf, 0, NULL);
-	MessageBox(NULL, (LPCTSTR)lpMsgBuf, msg, MB_ICONERROR);
-	LocalFree(lpMsgBuf);
-	exit(1);
+	char* buf = reinterpret_cast<char*>(p);
+
+	CLIENT& u = g_clients[user_id];
+
+	EXOVER* exover = new EXOVER;
+	exover->op = OP_SEND;
+	ZeroMemory(&exover->over, sizeof(exover->over));
+	exover->wsabuf.buf = exover->io_buf;
+	exover->wsabuf.len = buf[0];
+	memcpy(exover->io_buf, buf, buf[0]);
+
+	WSASend(u.m_s, &exover->wsabuf, 1, NULL, 0, &exover->over, NULL);
 }
 
-void err_display(const char* msg)
+void send_login_ok_packet(int user_id)
 {
-	LPVOID lpMsgBuf;
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, WSAGetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf, 0, NULL);
-	printf("[%s] %s", msg, (char*)lpMsgBuf);
-	LocalFree(lpMsgBuf);
+	sc_packet_login_ok p;
+	p.exp = 0;
+	p.hp = 0;
+	p.id = user_id;
+	p.level = 0;
+	p.size = sizeof(p);
+	p.type = S2C_LOGIN_OK;
+	p.x = g_clients[user_id].x;
+	p.y = g_clients[user_id].y;
+
+	send_packet(user_id, &p);
 }
 
-void CALLBACK recv_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags)
+void send_enter_packet(int user_id, int o_id)
 {
-	SOCKET client_s = reinterpret_cast<int>(overlapped->hEvent);
+	sc_packet_enter p;
+	p.id = o_id;
+	p.size = sizeof(p);
+	p.type = S2C_ENTER;
+	p.x = g_clients[o_id].x;
+	p.y = g_clients[o_id].y;
+	strcpy_s(p.name, g_clients[o_id].m_name);
+	p.o_type = O_PLAYER;
 
-	if (dataBytes == 0)
+	send_packet(user_id, &p);
+}
+
+void send_leave_packet(int user_id, int o_id)
+{
+	sc_packet_leave p;
+	p.id = o_id;
+	p.size = sizeof(p);
+	p.type = S2C_LEAVE;
+
+	send_packet(user_id, &p);
+}
+
+void send_move_packet(int user_id, int mover)
+{
+	sc_packet_move p;
+	p.id = mover;
+	p.size = sizeof(p);
+	p.type = S2C_MOVE;
+	p.x = g_clients[mover].x;
+	p.y = g_clients[mover].y;
+
+	send_packet(user_id, &p);
+}
+
+void do_move(int user_id, int direction)
+{
+	CLIENT& u = g_clients[user_id];
+	int x = u.x;
+	int y = u.y;
+	switch (direction)
 	{
-		printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clients[client_s].clientAddr.sin_addr), ntohs(clients[client_s].clientAddr.sin_port));
-		closesocket(clients[client_s].socket);
-		clients.erase(client_s);
-		return;
-	}  // 클라이언트가 closesocket을 했을 경우
-
-	printf("[TCP/%s:%d] %d %d\n", inet_ntoa(clients[client_s].clientAddr.sin_addr), ntohs(clients[client_s].clientAddr.sin_port), (int)clients[client_s].recvdata.x, (int)clients[client_s].recvdata.y);
-
-	Pawn& buf = clients[client_s].recvdata;
-	Pawn& pawn = clients[client_s].userdata;
-
-	if (pawn.x == 0 && buf.x == -1 ||
-		pawn.x == 7 && buf.x == 8 ||
-		pawn.y == 0 && buf.y == -1 ||
-		pawn.y == 7 && buf.y == 8)
-		buf = pawn;
-	else if (abs(pawn.x - buf.x) + abs(pawn.y - buf.y) < 2)
-		pawn = buf;
-	else
-		buf = pawn;
-
-	for (auto& client : clients)
-	{
-		client.second.senddata = pawn;
-		client.second.sendbuf.buf = (char*)&client.second.senddata;
-		client.second.send = {};
-		client.second.send.hEvent = (HANDLE)client.second.socket;
-		WSASend(client.second.socket, &(client.second.sendbuf), 1, NULL, 0, &(client.second.send), send_callback);
+	case D_UP: if (y < (WORLD_HEIGHT - 1)) y++; 
+		break;
+	case D_DOWN: if (y > 0) y--;
+		break;
+	case D_LEFT: if (x > 0) x--;
+		break;
+	case D_RIGHT: if (x < (WORLD_WIDTH - 1)) x++;
+		break;
+	default:
+		cout << "Unknown Direction from Client move packet!\n";
+		DebugBreak();
+		exit(-1);
 	}
-
-	DWORD flags = 0;
-	clients[client_s].recv = {};
-	clients[client_s].recv.hEvent = (HANDLE)client_s;
-	WSARecv(client_s, &clients[client_s].recvbuf, 1, 0, &flags, &(clients[client_s].recv), recv_callback);
+	u.x = x;
+	u.y = y;
+	for (auto& cl : g_clients)
+	{
+		cl.m_cl.lock();
+		if (ST_ACTIVE == cl.m_status)
+			send_move_packet(cl.m_id, user_id);
+		cl.m_cl.unlock();
+	}
 }
 
-void CALLBACK send_callback(DWORD Error, DWORD dataBytes, LPWSAOVERLAPPED overlapped, DWORD lnFlags)
+void enter_game(int user_id, char name[])
 {
-	DWORD receiveBytes = 0;
+	g_clients[user_id].m_cl.lock();
+	strcpy(g_clients[user_id].m_name, name);
+	g_clients[user_id].m_name[MAX_ID_LEN] = NULL;
+	send_login_ok_packet(user_id);
 
-	SOCKET client_s = reinterpret_cast<int>(overlapped->hEvent);
+	for (int i = 0; i < MAX_USER; i++)
+	{
+		if (user_id == i) continue;
+		g_clients[i].m_cl.lock();
+		if (ST_ACTIVE == g_clients[i].m_status)
+			if (user_id != i)
+			{
+				send_enter_packet(user_id, i);
+				send_enter_packet(i, user_id);
+			}
+		g_clients[i].m_cl.unlock();
+	}
+	g_clients[user_id].m_status = ST_ACTIVE;
+	g_clients[user_id].m_cl.unlock();
+}
 
-	if (dataBytes == 0) {
-		closesocket(clients[client_s].socket);
-		clients.erase(client_s);
-		return;
-	}  // 클라이언트가 closesocket을 했을 경우
+void process_packet(int user_id, char* buf)
+{
+	switch (buf[1])
+	{
+	case C2S_LOGIN:
+	{
+		cs_packet_login* packet = reinterpret_cast<cs_packet_login*>(buf);
+		enter_game(user_id, packet->name);
+	}
+	break;
+	case C2S_MOVE:
+	{
+		cs_packet_move* packet = reinterpret_cast<cs_packet_move*>(buf);
+		do_move(user_id, packet->direction);
+	}
+	break;
+	default:
+		cout << "Unknown Packet Type Error!\n";
+		DebugBreak(); // 여기서 멈추게 된다.
+		exit(-1);
+	}
+}
 
-	// WSASend(응답에 대한)의 콜백일 경우
+void initialize_clients()
+{
+	for (int i = 0; i < MAX_USER; ++i)
+	{
+		g_clients[i].m_id = i;
+		g_clients[i].m_status = ST_FREE;
+	}
+}
+
+void disconnect(int user_id)
+{
+	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].m_status = ST_ALLOC;
+	send_leave_packet(user_id, user_id);
+	closesocket(g_clients[user_id].m_s);
+	for (auto& cl : g_clients)
+	{
+		if (user_id == cl.m_id) continue;
+		cl.m_cl.lock();
+		if (ST_ACTIVE == cl.m_status)
+			send_leave_packet(cl.m_id, user_id);
+		cl.m_cl.unlock();
+	}
+	g_clients[user_id].m_status = ST_FREE;
+	g_clients[user_id].m_cl.unlock();
+}
+
+void recv_packet_construct(int user_id, int io_byte)
+{
+	CLIENT& cu = g_clients[user_id];
+	EXOVER& r_o = cu.m_recv_over;
+
+	int rest_byte = io_byte;
+	char* p = r_o.io_buf;
+	int packet_size = 0;
+	if (0 != cu.m_prev_size)
+		packet_size = cu.m_papcket_buf[0];
+	while (rest_byte)
+	{
+		if (0 == packet_size)
+			packet_size = *p;
+		if (packet_size <= rest_byte + cu.m_prev_size)
+		{
+			memcpy(cu.m_papcket_buf + cu.m_prev_size, p, packet_size - cu.m_prev_size);
+			p += packet_size - cu.m_prev_size;
+			rest_byte -= packet_size - cu.m_prev_size;
+			packet_size = 0;
+			process_packet(user_id, cu.m_papcket_buf);
+			cu.m_prev_size = 0;
+		}
+		else
+		{
+			memcpy(cu.m_papcket_buf + cu.m_prev_size, p, rest_byte);
+			cu.m_prev_size += rest_byte;
+			rest_byte = 0;
+			p += rest_byte;
+		}
+	}
+}
+
+void worker_thread()
+{
+	while (true)
+	{
+		DWORD io_byte;
+		ULONG_PTR key;
+		WSAOVERLAPPED* over;
+		GetQueuedCompletionStatus(g_iocp, &io_byte, &key, &over, INFINITE);
+
+		EXOVER* exover = reinterpret_cast<EXOVER*>(over);
+		int user_id = static_cast<int>(key);
+		CLIENT& cl = g_clients[user_id];
+
+		switch (exover->op)
+		{
+		case OP_RECV:
+		{
+			if (!io_byte)
+				disconnect(user_id);
+			else
+			{
+				recv_packet_construct(user_id, io_byte);
+
+				ZeroMemory(&cl.m_recv_over.over, 0, sizeof(cl.m_recv_over.over));
+				DWORD flags = 0;
+				WSARecv(cl.m_s, &cl.m_recv_over.wsabuf, 1, NULL, &flags, &cl.m_recv_over.over, NULL);
+			}
+		}
+		break;
+		case OP_SEND:
+			if (!io_byte)
+				disconnect(user_id);
+			delete exover;
+			break;
+		case OP_ACCEPT:
+		{
+			int user_id = -1;
+			for (int i = 0; i < MAX_USER; ++i)
+			{
+				lock_guard<mutex> gl{ g_clients[i].m_cl };
+				if (ST_FREE == g_clients[i].m_status)
+				{
+					g_clients[i].m_status = ST_ALLOC;
+					user_id = i;
+					break;
+				}
+			}
+
+			SOCKET c_socket = exover->c_socket;
+			if (-1 == user_id)
+				closesocket(c_socket);
+			else
+			{
+				CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), g_iocp, user_id, 0);
+
+				CLIENT& nc = g_clients[user_id];
+				nc.m_prev_size = 0;
+				nc.m_recv_over.op = OP_RECV;
+				ZeroMemory(&nc.m_recv_over.over, 0, sizeof(nc.m_recv_over.over));
+				nc.m_recv_over.wsabuf.buf = nc.m_recv_over.io_buf;
+				nc.m_recv_over.wsabuf.len = MAX_BUF_SIZE;
+				nc.m_s = c_socket;
+				nc.x = rand() % WORLD_WIDTH;
+				nc.y = rand() % WORLD_HEIGHT;
+
+				DWORD flags = 0;
+				WSARecv(c_socket, &nc.m_recv_over.wsabuf, 1, NULL, &flags, &nc.m_recv_over.over, NULL);
+			}
+
+			c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+			exover->c_socket = c_socket;
+			ZeroMemory(&exover->over, sizeof(exover->over));
+			AcceptEx(l_socket, c_socket, exover->io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &exover->over);
+		}
+		break;
+		}
+	}
 }
 
 int main()
 {
-	int retval;
-
 	WSADATA WSAData;
-	if (WSAStartup(MAKEWORD(2, 0), &WSAData) != 0)
-		return 1;
+	WSAStartup(MAKEWORD(2, 2), &WSAData);
 
-	// socket()
-	SOCKET listenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	if (listenSocket == INVALID_SOCKET)
-		err_quit("socket()");
+	l_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
-	// bind()
-	SOCKADDR_IN serverAddr;
-	ZeroMemory(&serverAddr, sizeof(serverAddr));
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(SERVER_PORT);
-	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-	retval = ::bind(listenSocket, (sockaddr*)&serverAddr, sizeof(SOCKADDR_IN));
-	if (retval == SOCKET_ERROR)
-		err_quit("bind()");
+	SOCKADDR_IN s_address;
+	memset(&s_address, 0, sizeof(s_address));
+	s_address.sin_family = AF_INET;
+	s_address.sin_port = htons(SERVER_PORT); // 그냥 넣어주면 안돼요.
+	s_address.sin_addr.S_un.S_addr = htons(INADDR_ANY);
+	::bind(l_socket, reinterpret_cast<sockaddr*>(&s_address), sizeof(s_address));
+	// bind 를 그냥 쓰면 안되죠.
+	// 그냥 바인드를 쓰면 c++11 에 있는 바인드 키워드와 연결이 돼요.
+	// C++ 에 있는 바인드를 쓰지 않으려면, :: 를 해주어야 한다.
 
-	// listen()
-	retval = listen(listenSocket, 5);
-	if (retval == SOCKET_ERROR)
-		err_quit("listen()");
+	listen(l_socket, SOMAXCONN);
 
-	// 데이터 통신에 사용할 변수
-	SOCKADDR_IN clientAddr{};
-	int addrLen = sizeof(SOCKADDR_IN);
+	g_iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, 0);
 
-	char idCnt{ 0 };
-	while (1) {
-		// accept()s
-		SOCKET clientSocket = accept(listenSocket, (sockaddr*)&clientAddr, &addrLen);
-		if (clientSocket == INVALID_SOCKET)
-		{
-			err_display("accept()");
-			break;
-		}
+	initialize_clients();
 
-		// 접속한 클라이언트 정보 출력
-		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-		clients[clientSocket] = SOCKETINFO{};
-		clients[clientSocket].socket = clientSocket;
-		clients[clientSocket].clientAddr = clientAddr;
-		clients[clientSocket].recv = {};
-		clients[clientSocket].recv.hEvent = (HANDLE)clients[clientSocket].socket;
-		clients[clientSocket].recvbuf.buf = (char*)&clients[clientSocket].recvdata;
-		clients[clientSocket].recvbuf.len = sizeof(Pawn);
-		clients[clientSocket].send = {};
-		clients[clientSocket].send.hEvent = (HANDLE)clients[clientSocket].socket;
-		clients[clientSocket].sendbuf.buf = (char*)&clients[clientSocket].senddata;
-		clients[clientSocket].sendbuf.len = sizeof(Pawn);
-		clients[clientSocket].userdata = { idCnt++, 0, 0 };
-		DWORD flags = 0;
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(l_socket), g_iocp, 999, 0);
+	SOCKET c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	EXOVER accept_over;
+	ZeroMemory(&accept_over.over, sizeof(accept_over.over));
+	accept_over.op = OP_ACCEPT;
+	accept_over.c_socket = c_socket;
+	AcceptEx(l_socket, c_socket, accept_over.io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &accept_over.over);
 
-		clients[clientSocket].senddata = clients[clientSocket].userdata;
-		WSASend(clients[clientSocket].socket, &clients[clientSocket].sendbuf, 1, NULL, 0, &clients[clientSocket].send, send_callback);
-		for (auto& client : clients)
-		{
-			for (auto& user : clients)
-			{
-				client.second.senddata = user.second.userdata;
-				client.second.sendbuf.buf = (char*)&client.second.senddata;
-				client.second.send = {};
-				client.second.send.hEvent = (HANDLE)client.second.socket;
-				WSASend(client.second.socket, &(client.second.sendbuf), 1, NULL, 0, &(client.second.send), send_callback);
-			}
-		}
-		WSARecv(clients[clientSocket].socket, &clients[clientSocket].recvbuf, 1, NULL, &flags, &(clients[clientSocket].recv), recv_callback);
-	}
-
-	// closesocket()
-	closesocket(listenSocket);
-
-	// 윈속 종료
-	WSACleanup();
+	vector<thread> worker_threads;
+	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(worker_thread);
+	for (auto& th : worker_threads) th.join();
 }

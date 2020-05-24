@@ -11,9 +11,8 @@ void GameScene::BuildObjects()
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
-	ASSET AddMaterial("gray", ASSET TEXTURE("none"), -1, { 0.5, 0.5, 0.5, 0.5 });
-	ASSET AddMaterial("boardMat", ASSET TEXTURE("boardTex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("pawnMat", ASSET TEXTURE("pawnTex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("boardMat", ASSET TEXTURE("boardTex"));
+	ASSET AddMaterial("pawnMat", ASSET TEXTURE("pawnTex"));
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
@@ -28,6 +27,18 @@ void GameScene::BuildObjects()
 		camera->GenerateOrthoMatrix(800, 600, 0, 100);
 	}
 
+	GameObject* prefab = CreateEmptyPrefab();
+	{
+		prefab->transform->Scale({ 75, 75, 1 });
+		prefab->transform->Rotate({ 1, 0, 0 }, -90);
+		prefab->transform->position = { 0, 0, -1 };
+		prefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		prefab->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("pawnMat"));
+
+		prefab->AddComponent<Pawn>()->x = -1;
+		prefab->GetComponent<Pawn>()->y = -1;
+	}
+
 	GameObject* board = CreateEmpty();
 	{
 		board->transform->Scale({ 600, 600, 1 });
@@ -35,21 +46,6 @@ void GameScene::BuildObjects()
 		board->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
 		board->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("boardMat"));
 
-		board->AddComponent<TCPClient>();
-	}
-
-	for (int i = -1; i < 9; ++i)
-	{
-		GameObject* pawn = CreateEmpty();
-		pawn->transform->Scale({ 75, 75, 1 });
-		pawn->transform->Rotate({ 1, 0, 0 }, -90);
-		pawn->transform->position = { 0, 0, -1 };
-		pawn->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
-		pawn->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("pawnMat"));
-	
-		pawn->AddComponent<Pawn>()->x = -1;
-		pawn->GetComponent<Pawn>()->y = -1;
-	
-		board->GetComponent<TCPClient>()->pawns.push_back(pawn->GetComponent<Pawn>());
+		board->AddComponent<TCPClient>()->prefab = prefab;
 	}
 }
