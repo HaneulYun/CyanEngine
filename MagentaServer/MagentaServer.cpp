@@ -6,11 +6,10 @@
 
 #include <vector>
 #include <thread>
-#include <mutex>
 #include <set>
+#include <atomic>
 
 using namespace std;
-
 #include "protocol.h"
 
 constexpr auto MAX_PACKET_SIZE = 255;
@@ -30,8 +29,68 @@ struct EXOVER {
 	};
 };
 
+class RWLock
+{
+public:
+	RWLock() {}
+	~RWLock() {}
+
+	RWLock(const RWLock& rhs) = delete;
+	RWLock& operator=(const RWLock& rhs) = delete;
+
+	void EnterWriteLock()
+	{
+		while (true)
+		{
+			while (mLockFlag & LF_WRITE_MASK)
+				YieldProcessor();
+			if ((InterlockedAdd(&mLockFlag, LF_WRITE_FLAG) & LF_WRITE_MASK) == LF_WRITE_FLAG)
+			{
+				while (mLockFlag & LF_READ_MASK)
+					YieldProcessor();
+
+				return;
+			}
+			InterlockedAdd(&mLockFlag, -LF_WRITE_FLAG);
+		}
+	}
+	void LeaveWriteLock()
+	{
+		InterlockedAdd(&mLockFlag, -LF_WRITE_FLAG);
+	}
+
+	void EnterReadLock()
+	{
+		while (true)
+		{
+			while (mLockFlag & LF_WRITE_MASK)
+				YieldProcessor();
+
+			if ((InterlockedIncrement(&mLockFlag) & LF_WRITE_MASK) == 0)
+				return;
+			else
+				InterlockedDecrement(&mLockFlag);
+		}
+	}
+	void LeaveReadLock()
+	{
+		InterlockedDecrement(&mLockFlag);
+	}
+
+	long GetLockFlag() const { return mLockFlag; }
+
+private:
+	enum LockFlag
+	{
+		LF_WRITE_MASK = 0x7FF00000,
+		LF_WRITE_FLAG = 0x00100000,
+		LF_READ_MASK = 0x000FFFFF 
+	};
+	volatile long mLockFlag;
+};
+
 struct CLIENT {
-	mutex	m_cl;
+	RWLock	m_lock;
 	SOCKET	m_s;
 	int		m_id;	// 한번 세팅하면 바꾸지 않으니 mutex 할 필요 없다
 	EXOVER	m_recv_over;
@@ -51,6 +110,7 @@ SOCKET l_socket;	// 한번 정해진 다음에 바뀌지 않으니 data race 발생하지 않음
 
 #define SECTOR_WIDTH 16
 set<int> g_ObjectListSector[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
+RWLock g_SectorLock[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 
 void send_packet(int user_id, void* p)
 {
@@ -140,8 +200,12 @@ void do_move(int user_id, int direction)
 	//
 	if (u.x / SECTOR_WIDTH != x / SECTOR_WIDTH || u.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
 	{
+		g_SectorLock[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].EnterWriteLock();
 		g_ObjectListSector[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].erase(user_id);
+		g_SectorLock[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].LeaveWriteLock();
+		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
 		g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(user_id);
+		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
 	}
 	//
 
@@ -158,24 +222,33 @@ void do_move(int user_id, int direction)
 		{
 			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1)
 				continue;
+			g_SectorLock[i][j].EnterReadLock();
 			for (auto nearObj : g_ObjectListSector[i][j])
 			{
+				g_clients[nearObj].m_lock.EnterReadLock();
 				if (abs(g_clients[nearObj].x - u.x) <= 5 && abs(g_clients[nearObj].y - u.y) <= 5)
 				{
 					nearlist.emplace_back(nearObj);
 				}
+				g_clients[nearObj].m_lock.LeaveReadLock();
 			}
+			g_SectorLock[i][j].LeaveReadLock();
 		}
 	}
 	//
 	for (auto nearObj : nearlist)
 	{
+		u.m_lock.EnterWriteLock();
 		if (u.viewlist.find(nearObj) == u.viewlist.end())
 		{
 			u.viewlist.insert(nearObj);
 			if (user_id != nearObj)
 				send_enter_packet(user_id, nearObj);
 		}
+		u.m_lock.LeaveWriteLock();
+
+		if (user_id != nearObj)
+			g_clients[nearObj].m_lock.EnterWriteLock();
 		if (g_clients[nearObj].viewlist.find(user_id) != g_clients[nearObj].viewlist.end())
 			send_move_packet(nearObj, user_id);
 		else
@@ -183,6 +256,8 @@ void do_move(int user_id, int direction)
 			g_clients[nearObj].viewlist.insert(user_id);
 			send_enter_packet(nearObj, user_id);
 		}
+		if (user_id != nearObj)
+			g_clients[nearObj].m_lock.LeaveWriteLock();
 	}
 
 	vector<int> removedIDlist;
@@ -191,24 +266,34 @@ void do_move(int user_id, int direction)
 		if (find(nearlist.begin(), nearlist.end(), viewObj) == nearlist.end())
 			removedIDlist.emplace_back(viewObj);
 	}
-	
+
 	for (auto removeObj : removedIDlist)
 	{
+		u.m_lock.EnterWriteLock();
 		u.viewlist.erase(removeObj);
+		u.m_lock.LeaveWriteLock();
+
 		send_leave_packet(user_id, removeObj);
+
+		g_clients[removeObj].m_lock.EnterWriteLock();
 		if (g_clients[removeObj].viewlist.find(user_id) != g_clients[removeObj].viewlist.end())
 		{
 			g_clients[removeObj].viewlist.erase(user_id);
 			send_leave_packet(removeObj, user_id);
 		}
+		g_clients[removeObj].m_lock.LeaveWriteLock();
 	}
+
 }
 
 void enter_game(int user_id, char name[])
 {
+	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].EnterWriteLock();
 	g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].insert(user_id);
+	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].LeaveWriteLock();
 	
 	vector<int> nearlist;
+
 	for (int i = g_clients[user_id].y / SECTOR_WIDTH - 1; i <= g_clients[user_id].y / SECTOR_WIDTH + 1; ++i)
 	{
 		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1)
@@ -217,6 +302,7 @@ void enter_game(int user_id, char name[])
 		{
 			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1)
 				continue;
+			g_SectorLock[i][j].EnterReadLock();
 			for (auto nearObj : g_ObjectListSector[i][j])
 			{
 				if (abs(g_clients[nearObj].x - g_clients[user_id].x) <= 5 || abs(g_clients[nearObj].y - g_clients[user_id].y) <= 5)
@@ -224,10 +310,11 @@ void enter_game(int user_id, char name[])
 					nearlist.emplace_back(nearObj);
 				}
 			}
+			g_SectorLock[i][j].LeaveReadLock();
 		}
 	}
 
-	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].m_lock.EnterWriteLock();
 	strcpy_s(g_clients[user_id].m_name, name);
 	g_clients[user_id].m_name[MAX_ID_LEN] = NULL;
 	send_login_ok_packet(user_id);
@@ -236,18 +323,18 @@ void enter_game(int user_id, char name[])
 	{
 		if (user_id != nearObj && g_clients[nearObj].m_status == ST_ACTIVE)
 		{
-			g_clients[nearObj].m_cl.lock();
+			g_clients[nearObj].m_lock.EnterWriteLock();
 			g_clients[user_id].viewlist.insert(nearObj);
 			send_enter_packet(user_id, nearObj);
 
 			g_clients[nearObj].viewlist.insert(user_id);
 			send_enter_packet(nearObj, user_id);
-			g_clients[nearObj].m_cl.unlock();
+			g_clients[nearObj].m_lock.LeaveWriteLock();
 		}
 
 	}
 	g_clients[user_id].m_status = ST_ACTIVE;
-	g_clients[user_id].m_cl.unlock();
+	g_clients[user_id].m_lock.LeaveWriteLock();
 }
 
 void process_packet(int user_id, char* buf)
@@ -288,11 +375,13 @@ void initialize_clients()
 void disconnect(int user_id)
 {
 	//
+	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].EnterWriteLock();
 	if(g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].find(user_id) 
 		!= g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].end())
 		g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].erase(user_id);
+	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].LeaveWriteLock();
 	//
-	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].m_lock.EnterWriteLock();
 	g_clients[user_id].m_status = ST_ALLOC;
 	send_leave_packet(user_id, user_id);
 	closesocket(g_clients[user_id].m_s);
@@ -300,13 +389,13 @@ void disconnect(int user_id)
 	{
 		if (user_id == cl.m_id)
 			continue;
-		cl.m_cl.lock();
+		cl.m_lock.EnterReadLock();
 		if (ST_ACTIVE == cl.m_status)
 			send_leave_packet(cl.m_id, user_id);
-		cl.m_cl.unlock();
+		cl.m_lock.LeaveReadLock();
 	}
 	g_clients[user_id].m_status = ST_FREE;
-	g_clients[user_id].m_cl.unlock();
+	g_clients[user_id].m_lock.LeaveWriteLock();
 }
 
 // 패킷 재조립
@@ -391,12 +480,15 @@ void worker_thread()
 				// lock_guard가 등록된 블록을 빠져나갈 때 unlock을 진행
 				// 루프를 돌때마다 락이 등록되고, 사라지는 것을 반복하게 됨
 				// break 뿐만 아니라 return, continue 등에도 unlock이 적용
-				lock_guard<mutex>gl{ g_clients[i].m_cl };
+				g_clients[i].m_lock.EnterWriteLock();
 				if (ST_FREE == g_clients[i].m_status) {
 					g_clients[i].m_status = ST_ALLOC;
 					user_id = i;
+					g_clients[i].m_lock.LeaveWriteLock();
 					break;
 				}
+				else
+					g_clients[i].m_lock.LeaveWriteLock();
 			}
 
 			SOCKET c_socket = exover->c_socket;
@@ -459,6 +551,6 @@ int main()
 	AcceptEx(l_socket, c_socket, accept_over.io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &accept_over.over);	// 클라이언트 접속에 사용할 소켓을 미리 만들어놔야 함
 
 	vector <thread> worker_threads;
-	for (int i = 0; i < 1; ++i) worker_threads.emplace_back(worker_thread);
+	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(worker_thread);
 	for (auto& th : worker_threads)th.join();
 }
