@@ -12,6 +12,7 @@ void Network::ProcessPacket(char* ptr)
 	{
 		sc_packet_login_ok* my_packet = reinterpret_cast<sc_packet_login_ok*>(ptr);
 		myId = my_packet->id;
+		myCharacter->transform->position = { my_packet->x * 0.075f, -my_packet->y * 0.075f, -0.0001f };
 		CharacterController* controller = myCharacter->GetComponent<CharacterController>();
 		controller->xPos = my_packet->x;
 		controller->yPos = my_packet->y;
@@ -24,12 +25,14 @@ void Network::ProcessPacket(char* ptr)
 		int id = my_packet->id;
 
 		if (id == myId) {
+			myCharacter->transform->position = { my_packet->x * 0.075f, -my_packet->y * 0.075f, -0.0001f };
 			CharacterController* controller = myCharacter->GetComponent<CharacterController>();
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
 		}
 		else {
 			otherCharacters[id] = gameObject->scene->Duplicate(othersPrefab);
+			otherCharacters[id]->transform->position = { my_packet->x * 0.075f, -my_packet->y * 0.075f, -0.0001f };
 			strcpy_s(otherCharacters[id]->GetComponent<CharacterController>()->name, my_packet->name);
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
 			controller->xPos = my_packet->x;
@@ -42,6 +45,7 @@ void Network::ProcessPacket(char* ptr)
 		sc_packet_move* my_packet = reinterpret_cast<sc_packet_move*>(ptr);
 		int other_id = my_packet->id;
 		if (other_id == myId) {
+			myCharacter->transform->position = { my_packet->x * 0.075f, -my_packet->y * 0.075f, -0.0001f };
 			CharacterController* controller = myCharacter->GetComponent<CharacterController>();
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
@@ -49,6 +53,7 @@ void Network::ProcessPacket(char* ptr)
 		else {
 			if (0 != otherCharacters.count(other_id))
 			{
+				otherCharacters[other_id]->transform->position = { my_packet->x * 0.075f, -my_packet->y * 0.075f, -0.0001f };
 				CharacterController* controller = otherCharacters[other_id]->GetComponent<CharacterController>();
 				controller->xPos = my_packet->x;
 				controller->yPos = my_packet->y;

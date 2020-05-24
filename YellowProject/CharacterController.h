@@ -64,8 +64,8 @@ public:
 			}
 
 		}
-
-		gameObject->transform->position = { xPos * 0.075f, -yPos * 0.075f, -0.1f };
+		if (!Network::network->isConnect)
+			gameObject->transform->position = { xPos * 0.075f, -yPos * 0.075f, -0.0001f };
 
 	}
 

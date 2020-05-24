@@ -7,6 +7,8 @@
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <set>
+
 using namespace std;
 
 #include "protocol.h"
@@ -28,8 +30,6 @@ struct EXOVER {
 	};
 };
 
-
-
 struct CLIENT {
 	mutex	m_cl;
 	SOCKET	m_s;
@@ -42,11 +42,15 @@ struct CLIENT {
 	short	x, y;
 	char	m_name[MAX_ID_LEN + 1];
 	unsigned m_move_time;
+	set<int> viewlist;
 };
 
 CLIENT g_clients[MAX_USER];
 HANDLE g_iocp;
 SOCKET l_socket;	// 한번 정해진 다음에 바뀌지 않으니 data race 발생하지 않음
+
+#define SECTOR_WIDTH 16
+set<int> g_ObjectListSector[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 
 void send_packet(int user_id, void* p)
 {
@@ -132,34 +136,115 @@ void do_move(int user_id, int direction)
 		DebugBreak();
 		exit(-1);
 	}
+
+	//
+	if (u.x / SECTOR_WIDTH != x / SECTOR_WIDTH || u.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
+	{
+		g_ObjectListSector[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].erase(user_id);
+		g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(user_id);
+	}
+	//
+
 	u.x = x;
 	u.y = y;
-	for (auto& cl : g_clients)
+
+	//
+	vector<int> nearlist;
+	for (int i = u.y / SECTOR_WIDTH - 1; i <= u.y / SECTOR_WIDTH + 1; ++i)
 	{
-		cl.m_cl.lock();
-		if (ST_ACTIVE == cl.m_status)
-			send_move_packet(cl.m_id, user_id);
-		cl.m_cl.unlock();
+		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1)
+			continue;
+		for (int j = u.x / SECTOR_WIDTH - 1; j <= u.x / SECTOR_WIDTH + 1; ++j)
+		{
+			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1)
+				continue;
+			for (auto nearObj : g_ObjectListSector[i][j])
+			{
+				if (abs(g_clients[nearObj].x - u.x) <= 5 && abs(g_clients[nearObj].y - u.y) <= 5)
+				{
+					nearlist.emplace_back(nearObj);
+				}
+			}
+		}
+	}
+	//
+	for (auto nearObj : nearlist)
+	{
+		if (u.viewlist.find(nearObj) == u.viewlist.end())
+		{
+			u.viewlist.insert(nearObj);
+			if (user_id != nearObj)
+				send_enter_packet(user_id, nearObj);
+		}
+		if (g_clients[nearObj].viewlist.find(user_id) != g_clients[nearObj].viewlist.end())
+			send_move_packet(nearObj, user_id);
+		else
+		{
+			g_clients[nearObj].viewlist.insert(user_id);
+			send_enter_packet(nearObj, user_id);
+		}
+	}
+
+	vector<int> removedIDlist;
+	for (auto viewObj : u.viewlist)
+	{
+		if (find(nearlist.begin(), nearlist.end(), viewObj) == nearlist.end())
+			removedIDlist.emplace_back(viewObj);
+	}
+	
+	for (auto removeObj : removedIDlist)
+	{
+		u.viewlist.erase(removeObj);
+		send_leave_packet(user_id, removeObj);
+		if (g_clients[removeObj].viewlist.find(user_id) != g_clients[removeObj].viewlist.end())
+		{
+			g_clients[removeObj].viewlist.erase(user_id);
+			send_leave_packet(removeObj, user_id);
+		}
 	}
 }
 
 void enter_game(int user_id, char name[])
 {
+	g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].insert(user_id);
+	
+	vector<int> nearlist;
+	for (int i = g_clients[user_id].y / SECTOR_WIDTH - 1; i <= g_clients[user_id].y / SECTOR_WIDTH + 1; ++i)
+	{
+		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1)
+			continue;
+		for (int j = g_clients[user_id].x / SECTOR_WIDTH - 1; j <= g_clients[user_id].x / SECTOR_WIDTH + 1; ++j)
+		{
+			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1)
+				continue;
+			for (auto nearObj : g_ObjectListSector[i][j])
+			{
+				if (abs(g_clients[nearObj].x - g_clients[user_id].x) <= 5 || abs(g_clients[nearObj].y - g_clients[user_id].y) <= 5)
+				{
+					nearlist.emplace_back(nearObj);
+				}
+			}
+		}
+	}
+
 	g_clients[user_id].m_cl.lock();
 	strcpy_s(g_clients[user_id].m_name, name);
 	g_clients[user_id].m_name[MAX_ID_LEN] = NULL;
 	send_login_ok_packet(user_id);
 
-	for (int i = 0; i < MAX_USER; i++) {
-		if (user_id == i)// 데드락 해결
-			continue;
-		g_clients[i].m_cl.lock();
-		if (ST_ACTIVE == g_clients[i].m_status)
-			if (user_id != i) {
-				send_enter_packet(user_id, i);
-				send_enter_packet(i, user_id);
-			}
-		g_clients[i].m_cl.unlock();
+	for (auto nearObj : nearlist)
+	{
+		if (user_id != nearObj && g_clients[nearObj].m_status == ST_ACTIVE)
+		{
+			g_clients[nearObj].m_cl.lock();
+			g_clients[user_id].viewlist.insert(nearObj);
+			send_enter_packet(user_id, nearObj);
+
+			g_clients[nearObj].viewlist.insert(user_id);
+			send_enter_packet(nearObj, user_id);
+			g_clients[nearObj].m_cl.unlock();
+		}
+
 	}
 	g_clients[user_id].m_status = ST_ACTIVE;
 	g_clients[user_id].m_cl.unlock();
@@ -202,6 +287,11 @@ void initialize_clients()
 
 void disconnect(int user_id)
 {
+	//
+	if(g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].find(user_id) 
+		!= g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].end())
+		g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].erase(user_id);
+	//
 	g_clients[user_id].m_cl.lock();
 	g_clients[user_id].m_status = ST_ALLOC;
 	send_leave_packet(user_id, user_id);
@@ -325,6 +415,7 @@ void worker_thread()
 				nc.m_s = c_socket;
 				nc.x = rand() % WORLD_WIDTH;
 				nc.y = rand() % WORLD_HEIGHT;
+				nc.viewlist.clear();
 				DWORD flags = 0;
 				WSARecv(c_socket, &nc.m_recv_over.wsabuf, 1, NULL, &flags, &nc.m_recv_over.over, NULL);
 			}
@@ -368,6 +459,6 @@ int main()
 	AcceptEx(l_socket, c_socket, accept_over.io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &accept_over.over);	// 클라이언트 접속에 사용할 소켓을 미리 만들어놔야 함
 
 	vector <thread> worker_threads;
-	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(worker_thread);
+	for (int i = 0; i < 1; ++i) worker_threads.emplace_back(worker_thread);
 	for (auto& th : worker_threads)th.join();
 }
