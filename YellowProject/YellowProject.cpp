@@ -3,7 +3,11 @@
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR, int nCmdShow)
 {
-	CyanFW* cyanFW = new CyanFW(800, 600, L"YellowProject");
-	cyanFW->OnSetScene(new SampleScene());
+	CyanFW* cyanFW = new CyanFW(1280, 720, L"YellowProject");
+
+	SceneManager* sceneManager = SceneManager::Instance();
+	sceneManager->scenes["MenuScene"] = new MenuScene();
+	Scene::scene = sceneManager->scene = sceneManager->scenes["MenuScene"];
+
 	return CyanApp::Run(cyanFW, hInstance, nCmdShow);
 }

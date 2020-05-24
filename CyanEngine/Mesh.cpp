@@ -1,21 +1,6 @@
 #include "pch.h"
 #include "Mesh.h"
 
-void Mesh::Render(UINT nInstances)
-{
-	RendererManager::Instance()->commandList->IASetVertexBuffers(m_nSlot, 1, &vertexBufferView);
-	RendererManager::Instance()->commandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	if (indexBuffer)
-	{
-		RendererManager::Instance()->commandList->IASetIndexBuffer(&indexBufferView);
-		RendererManager::Instance()->commandList->DrawIndexedInstanced(m_nIndices, nInstances, 0, 0, 0);
-	}
-	else
-	{
-		RendererManager::Instance()->commandList->DrawInstanced(m_nVertices, nInstances, m_nOffset, 0);
-	}
-}
-
 void Mesh::Create(GeometryType type)
 {
 	std::vector<FrameResource::Vertex> vertices;
@@ -27,21 +12,23 @@ void Mesh::Create(GeometryType type)
 		switch (type)
 		{
 		case GeometryType::GeometryType_Cube:
-			box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 1); break;
+			box = geoGen.CreateBox(0.2f, 0.2f, 0.2f, 1); break;
 		case GeometryType::GeometryType_Sphere:
 			box = geoGen.CreateSphere(0.5f, 20, 20); break;
 		case GeometryType::GeometryType_Cylinder:
 			box = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20); break;
 		case GeometryType::GeometryType_Plane:
-			box = geoGen.CreateGrid(10.0f, 10.0f, 2, 2); break;
+			box = geoGen.CreateGrid(10, 10, 2, 2); break;
+		case GeometryType::GeometryType_Quad:
+			box = geoGen.CreateQuad(0, 1, 1, 1, 0); break;
 		}
 
 		vertices.resize(box.Vertices.size());
 		for (size_t i = 0; i < box.Vertices.size(); ++i)
 		{
-			vertices[i].Pos = box.Vertices[i].Position;
-			vertices[i].Normal = box.Vertices[i].Normal;
-			vertices[i].TexC = box.Vertices[i].TexC;
+			vertices[i].Pos.xmf3 = box.Vertices[i].Position;
+			vertices[i].Normal.xmf3 = box.Vertices[i].Normal;
+			vertices[i].TexC.xmf2 = box.Vertices[i].TexC;
 		}
 		indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
 	}
@@ -55,8 +42,8 @@ void Mesh::Create(GeometryType type)
 	D3DCreateBlob(ibByteSize, &IndexBufferCPU);
 	CopyMemory(IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-	auto device = RendererManager::Instance()->device;
-	auto commandList = RendererManager::Instance()->commandList;
+	auto device = Graphics::Instance()->device;
+	auto commandList = Graphics::Instance()->commandList;
 
 	VertexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), vertices.data(), vbByteSize, VertexBufferUploader);
 	IndexBufferGPU = d3dUtil::CreateDefaultBuffer(device.Get(), commandList.Get(), indices.data(), ibByteSize, IndexBufferUploader);

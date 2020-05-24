@@ -9,7 +9,7 @@ bool BoxCollider::Compare(Collider* _other)
 	{
 		obbBox.Center = boundingBox.Center;
 		obbBox.Extents = boundingBox.Extents;
-		XMStoreFloat4(&obbBox.Orientation, XMQuaternionRotationMatrix(XMLoadFloat4x4(&gameObject->transform->localToWorldMatrix)));
+		obbBox.Orientation = gameObject->transform->localToWorldMatrix.QuaternionRotationMatrix().xmf4;
 	}
 	if (typeid(*_other).name() == typeid(BoxCollider).name())
 	{
@@ -21,7 +21,7 @@ bool BoxCollider::Compare(Collider* _other)
 		{
 			obbOtherBox.Center = other->boundingBox.Center;
 			obbOtherBox.Extents = other->boundingBox.Extents;
-			XMStoreFloat4(&obbOtherBox.Orientation, XMQuaternionRotationMatrix(XMLoadFloat4x4(&other->gameObject->transform->localToWorldMatrix)));
+			obbOtherBox.Orientation = other->gameObject->transform->localToWorldMatrix.QuaternionRotationMatrix().xmf4;
 		}
 
 		if (obb)

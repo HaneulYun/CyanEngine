@@ -1,36 +1,16 @@
 #pragma once
 
-class RendererManager;
-class RenderItem;
-
-class Renderer : public Component
+class Renderer : public MonoBehavior<Renderer>
 {
-private:
-	RendererManager* rendererManager{ nullptr };
-
 public:
-	//std::deque<Material*> materials;
-	RenderItem* item{ nullptr };
-	Material* material{ nullptr };
+	std::deque<Material*> materials;
 
-private:
+protected:
 	friend class GameObject;
-	Renderer();
-	Renderer(Renderer& component)
-		: rendererManager(component.rendererManager)
-	{
-		if (component.material)
-		{
-			material = new Material(*component.material);
-		}
-	}
+	friend class MonoBehavior<Renderer>;
+	Renderer() = default;
+	Renderer(Renderer&) = default;
 
 public:
-	~Renderer();
-
-	void Start() override;
-	void Update() override;
-
-	virtual Component* Duplicate() { return new Renderer; };
-	virtual Component* Duplicate(Component* component) { return new Renderer(*(Renderer*)component); }
+	~Renderer() {}
 };

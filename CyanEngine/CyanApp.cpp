@@ -29,8 +29,7 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 	SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cyanFW);
 
 	cyanFW->OnCreate(hInstance, hwnd);
-	cyanFW->scene->Start();
-
+	
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
 
@@ -46,13 +45,7 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 		}
 		else
 		{
-			Time::Instance()->Tick();
-
-			cyanFW->scene->Update();
-			cyanFW->scene->Render();
-
-			Input::Update();
-
+			cyanFW->OnFrameAdvance();
 			//Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
 			//SetWindowText(hwnd, cyanFW->m_pszFrameRate);
 		}
@@ -76,6 +69,7 @@ LRESULT CALLBACK CyanApp::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_MOUSEMOVE:
 	case WM_KEYDOWN:
 	case WM_KEYUP:
+	case WM_MOUSEWHEEL:
 		if (cyanFW)
 			cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
 		return 0;

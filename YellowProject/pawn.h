@@ -44,9 +44,6 @@ public:
 		this->x = x;
 		this->y = y;
 		gameObject->transform->position = { 75 * (x - 3.5f), 75 * (y - 3.5f), -1 };
-
-		gameObject->GetComponent<Renderer>()->item->NumFramesDirty = NUM_FRAME_RESOURCES;
-		gameObject->GetComponent<Renderer>()->item->World = gameObject->transform->localToWorldMatrix;
 	}
 
 };

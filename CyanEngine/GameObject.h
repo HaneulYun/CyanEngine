@@ -1,6 +1,7 @@
 #pragma once
 
 class Scene;
+class RenderSets;
 
 enum class CollisionType
 {
@@ -11,21 +12,29 @@ enum class CollisionType
 class GameObject : public Object
 {
 public:
+	bool active{ true };
+	RenderSets* renderSet{ nullptr };
+
+public:
 	Scene* scene{ nullptr };
+	int layer{ 0 };
+	int instanceIndex{ -1 };
 
 	GameObject* parent{ nullptr };
-	std::deque<Component*> components;
 	std::deque<GameObject*> children;
+
+	std::deque<Component*> components;
 	Transform* transform{ nullptr };
 	Component* meshFilter{ nullptr };
 	Component* renderer{ nullptr };
 
-	char m_pstrFrameName[64];
-
-	int m_nMaterials = 0;
-	CMaterial** m_ppMaterials = NULL;
-
 	std::map<GameObject*, CollisionType> collisionType;
+
+public:
+	Matrix4x4 World;
+	Matrix4x4 TexTransform;
+
+	int NumFramesDirty{ -1 };
 
 private:
 	friend class Scene;
@@ -33,9 +42,9 @@ private:
 	friend class ModelManager;
 
 public:
-	GameObject(bool = true);
-	GameObject(GameObject* , bool = true);
-	~GameObject();
+	GameObject(bool isUI);
+	GameObject(GameObject*);
+	~GameObject() {}
 
 	void Start();
 	void Update();
@@ -47,10 +56,27 @@ public:
 	void OnCollisionStay(GameObject* other);
 	void OnCollisionExit(GameObject* other);
 
-	XMFLOAT4X4 GetMatrix();
+	Matrix4x4 GetMatrix();
 
-	GameObject* AddChild(GameObject* child)
+	void SetScene(Scene* scene);
+	void SetActive(bool state);
+
+	void ReleaseRenderSet();
+
+	GameObject* AddChild(GameObject* child = nullptr)
 	{
+		if (!child)
+			child = new GameObject(false);
+		child->scene = scene;
+		child->parent = this;
+		children.push_back(child);
+		return child;
+	}
+	GameObject* AddChildUI(GameObject* child = nullptr)
+	{
+		if (!child)
+			child = new GameObject(true);
+		child->scene = scene;
 		child->parent = this;
 		children.push_back(child);
 		return child;

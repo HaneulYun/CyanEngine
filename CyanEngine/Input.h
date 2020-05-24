@@ -4,7 +4,7 @@ enum class KeyCode
 {
 	Alpha0='0', Alpha1, Alpha2, Alpha3, Alpha4, Alpha5, Alpha6, Alpha7, Alpha8, Alpha9,
 	A='A', B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-	Return=13, Period='.'
+	Shift=0x10, Return = 13, Period = '.'
 };
 
 class Input : public Singleton<Input>
@@ -17,6 +17,7 @@ public:
 	static bool mouses[3];
 	static bool mouseUp[3];
 	static bool mouseDown[3];
+	static float mouseWheel;
 
 public:
 	Input();
@@ -29,4 +30,5 @@ public:
 	static bool GetMouseButton(int button);
 	static bool GetMouseButtonUp(int button);
 	static bool GetMouseButtonDown(int button);
+	static float GetMouseWheelDelta();
 };

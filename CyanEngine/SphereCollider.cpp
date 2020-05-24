@@ -14,7 +14,7 @@ bool SphereCollider::Compare(Collider* _other)
 		{
 			obbOtherBox.Center = other->boundingBox.Center;
 			obbOtherBox.Extents = other->boundingBox.Extents;
-			XMStoreFloat4(&obbOtherBox.Orientation, XMQuaternionRotationMatrix(XMLoadFloat4x4(&other->gameObject->transform->localToWorldMatrix)));
+			obbOtherBox.Orientation = other->gameObject->transform->localToWorldMatrix.QuaternionRotationMatrix().xmf4;
 		}
 
 		if (other->obb)

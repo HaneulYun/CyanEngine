@@ -22,6 +22,12 @@
     <Filter Include="Assets\Scripts">
       <UniqueIdentifier>{075fe0ba-de05-4eb5-98e9-bbfa3134b271}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Scripts\Form">
+      <UniqueIdentifier>{687a5e12-d535-4f8e-b254-b20befcf62fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shaders">
+      <UniqueIdentifier>{f6f5654e-c061-48ad-9356-3a8344f4e713}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -42,14 +48,35 @@
     <ClInclude Include="scripts.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SampleScene.h">
+    <ClInclude Include="CameraController.h">
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="scripts.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptForm.h">
+      <Filter>Assets\Scripts\Form</Filter>
+    </ClInclude>
+    <ClInclude Include="RotatingBehavior.h">
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterController.h">
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuScene.h">
       <Filter>Assets\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="pawn.h">
+    <ClInclude Include="BuildManager.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="tcpClient.h">
+    <ClInclude Include="ParticleManager.h">
       <Filter>Assets\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="board.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="tcpClient.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -59,7 +86,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SampleScene.cpp">
+    <ClCompile Include="MenuScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -75,5 +102,34 @@
     <Image Include="YellowProject.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\LightingUtil.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\shaders.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Common.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Shadow.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\UI.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Sky.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Grass.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\Particle.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Preview.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -10,6 +10,7 @@ public:
 
 	union
 	{
+		Matrix4x4 localToWorldMatrix = Matrix4x4::MatrixIdentity();
 		struct
 		{
 			Vector3 right;		float _00;
@@ -17,13 +18,12 @@ public:
 			Vector3 forward;	float _02;
 			Vector3 position;	float _03;
 		};
-		XMFLOAT4X4 localToWorldMatrix ;
 	};
 
 public:
-	Transform();
+	Transform() {};
 	Transform(Transform&) = default;
-	~Transform();
+	~Transform() {};
 
 	void Start() override {}
 	void Update() override {}
@@ -31,7 +31,15 @@ public:
 	virtual Component* Duplicate() { return new Transform; };
 	virtual Component* Duplicate(Component* component) { return new Transform(*(Transform*)component); }
 
-	void Rotate(const XMFLOAT3& axis, float angle);
-	void Scale(const XMFLOAT3& scale);
+	void Rotate(const Vector3& axis, float angle/*degree*/)
+	{
+		Matrix4x4 mtxRotate = Matrix4x4::RotationAxis(axis, XMConvertToRadians(angle));
+		localToWorldMatrix = mtxRotate * localToWorldMatrix;
+	}
+	void Scale(const Vector3& scale)
+	{
+		Matrix4x4 mtxScale = Matrix4x4::ScalingFromVector(scale);
+		localToWorldMatrix = mtxScale * localToWorldMatrix;
+	}
 };
 

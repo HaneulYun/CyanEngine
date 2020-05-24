@@ -1,12 +1,7 @@
 #include "pch.h"
 #include "MeshFilter.h"
 
-MeshFilter::MeshFilter()
+void MeshFilter::Start()
 {
-}
-
-MeshFilter::~MeshFilter()
-{
-	if (mesh)
-		delete mesh;
+	gameObject->scene->objectRenderManager.AddGameObject(gameObject, gameObject->layer);
 }

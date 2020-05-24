@@ -10,4 +10,4 @@
 #include <memory.h>
 #include <tchar.h>
 
-#include "SampleScene.h"
+#include "MenuScene.h"

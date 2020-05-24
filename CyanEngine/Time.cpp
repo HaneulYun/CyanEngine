@@ -2,6 +2,7 @@
 #include "Time.h"
 
 float Time::deltaTime = 0;
+float Time::currentTime = 0;
 
 Time::Time()
 {
@@ -17,6 +18,7 @@ Time::Time()
 		m_nLastTime = ::GetTickCount64();
 		m_fTimeScale = 0.001f;
 	}
+	baseTime = m_nLastTime;
 }
 Time::~Time()
 {
@@ -56,7 +58,8 @@ void Time::Tick(float fLockFPS)
 	{
 		::memmove(&m_fFrameTime[1], m_fFrameTime, (MAX_SAMPLE_COUNT - 1) * sizeof(float));
 		m_fFrameTime[0] = fTimeElapsed;
-		if (m_nSampleCount < MAX_SAMPLE_COUNT) m_nSampleCount++;
+		if (m_nSampleCount < MAX_SAMPLE_COUNT)
+			m_nSampleCount++;
 	}
 
 	m_nFramesPerSecond++;
@@ -74,7 +77,9 @@ void Time::Tick(float fLockFPS)
 	if (m_nSampleCount > 0)
 		m_fTimeElapsed /= m_nSampleCount;
 
-	deltaTime = m_fTimeElapsed;
+	deltaTime = fTimeElapsed;
+
+	currentTime = (m_nCurrentTime - baseTime) * m_fTimeScale;
 }
 
 unsigned long Time::GetFrameRate(LPTSTR lpszString, int nCharacters)
