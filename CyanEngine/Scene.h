@@ -2,14 +2,24 @@
 
 class Scene
 {
-protected:
-	std::deque<GameObject*> gameObjects;
-	RendererManager* rendererManager{ nullptr };
+public:
+	bool isDirty{ true };
 
+public:
+	std::deque<GameObject*> gameObjects;
+	ObjectRenderManager objectRenderManager;
+	SpatialPartitioningManager spatialPartitioningManager;
+
+	std::queue<GameObject*> creationQueue;
 	std::priority_queue<GameObject*> deletionQueue;
+	std::vector<GameObject*> textObjects;
+
+public:
+	FrameResourceManager frameResourceManager;
 
 public:
 	static Scene* scene;
+	Camera* camera{ nullptr };
 
 public:
 	Scene();
@@ -17,16 +27,21 @@ public:
 
 	virtual void Start();
 	virtual void Update();
-	virtual void Render();
 
 	virtual void BuildObjects();
 	virtual void ReleaseObjects();
 
+	// GameObject Management
 	GameObject* AddGameObject(GameObject*);
-	GameObject* CreateEmpty(bool = true);
+
+	GameObject* CreateEmpty();
 	GameObject* Duplicate(GameObject*);
 	GameObject* CreateEmptyPrefab();
 	GameObject* DuplicatePrefab(GameObject*);
+
+	GameObject* CreateUI();
+	GameObject* CreateImage();
+	GameObject* CreateImagePrefab();
 
 	void PushDelete(GameObject*);
 	void Delete(GameObject*);

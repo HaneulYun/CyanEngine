@@ -93,6 +93,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <TreatWarningAsError>false</TreatWarningAsError>
       <AdditionalIncludeDirectories>SDK\FBX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,6 +112,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <TreatWarningAsError>false</TreatWarningAsError>
       <AdditionalIncludeDirectories>SDK\FBX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -135,6 +137,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <TreatWarningAsError>false</TreatWarningAsError>
       <AdditionalIncludeDirectories>SDK\FBX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -157,6 +160,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <TreatWarningAsError>false</TreatWarningAsError>
       <AdditionalIncludeDirectories>SDK\FBX\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -167,107 +171,113 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animator.h" />
+    <ClInclude Include="AnimatorController.h" />
+    <ClInclude Include="AssetManager.h" />
+    <ClInclude Include="AssetResource.h" />
     <ClInclude Include="BoxCollider.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="Controller.h" />
-    <ClInclude Include="CTexture.h" />
+    <ClInclude Include="Constant.h" />
     <ClInclude Include="CyanApp.h" />
     <ClInclude Include="CyanFW.h" />
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="DefaultMaterial.h" />
+    <ClInclude Include="DetailPrototype.h" />
     <ClInclude Include="FrameResource.h" />
+    <ClInclude Include="FrameResourceManager.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="LoadM3d.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Meshs.h" />
+    <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="TerrainData.h" />
     <ClInclude Include="MeshFilter.h" />
-    <ClInclude Include="ModelManager.h" />
     <ClInclude Include="MonoBehavior.h" />
-    <ClInclude Include="MovingBehavior.h" />
     <ClInclude Include="Object.h" />
-    <ClInclude Include="ObjectManager.h" />
+    <ClInclude Include="ObjectRenderManager.h" />
+    <ClInclude Include="ObjectResource.h" />
+    <ClInclude Include="ParticleBundle.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="QuadNode.h" />
+    <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="RectTransform.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="RendererManager.h" />
-    <ClInclude Include="RotatingBehavior.h" />
-    <ClInclude Include="RotorBehavior.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
-    <ClInclude Include="ScriptForm.h" />
-    <ClInclude Include="scripts.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Singleton.h" />
-    <ClInclude Include="SkinnedData.h" />
+    <ClInclude Include="SkinnedMeshRenderer.h" />
+    <ClInclude Include="SpatialPartitioningManager.h" />
     <ClInclude Include="SphereCollider.h" />
-    <ClInclude Include="StandardShader.h" />
     <ClInclude Include="Terrain.h" />
-    <ClInclude Include="TextureShader.h" />
+    <ClInclude Include="Text.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UploadBuffer.h" />
     <ClInclude Include="Vector3.h" />
-    <ClInclude Include="Vertex.h" />
-    <ClInclude Include="Wave.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimatorController.cpp" />
+    <ClCompile Include="AssetManager.cpp" />
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="CTexture.cpp" />
     <ClCompile Include="CyanApp.cpp" />
     <ClCompile Include="CyanFW.cpp" />
     <ClCompile Include="d3dUtil.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="DefaultMaterial.cpp" />
+    <ClCompile Include="DetailPrototype.cpp" />
     <ClCompile Include="FrameResource.cpp" />
-    <ClCompile Include="framework.cpp" />
+    <ClCompile Include="FrameResourceManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Input.cpp" />
-    <ClCompile Include="LoadM3d.cpp" />
-    <ClCompile Include="Material.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Meshs.cpp" />
     <ClCompile Include="MeshFilter.cpp" />
-    <ClCompile Include="ModelManager.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="TerrainData.cpp" />
     <ClCompile Include="Object.cpp" />
-    <ClCompile Include="ObjectManager.cpp" />
+    <ClCompile Include="ObjectRenderManager.cpp" />
+    <ClCompile Include="ParticleBundle.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="QuadNode.cpp" />
+    <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Random.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="RendererManager.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="Singleton.cpp" />
-    <ClCompile Include="SkinnedData.cpp" />
+    <ClCompile Include="SkinnedMeshRenderer.cpp" />
+    <ClCompile Include="SpatialPartitioningManager.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
-    <ClCompile Include="StandardShader.cpp" />
     <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="Time.cpp" />
-    <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="Vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\LightingUtil.hlsl">

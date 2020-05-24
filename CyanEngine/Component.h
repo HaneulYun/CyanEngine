@@ -3,7 +3,10 @@
 class Component : public Object
 {
 private:
-	bool isStarted{ false };
+	bool isDirty{ true };
+
+public:
+	bool enabled{ true };
 
 protected:
 	Component() = default;
@@ -15,7 +18,7 @@ public:
 public:
 	virtual ~Component() {}
 
-	void UpdateComponent();
+	//void UpdateComponent();
 
 	virtual void Start() {}
 	virtual void Update() {}

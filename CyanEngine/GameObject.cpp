@@ -1,55 +1,121 @@
 #include "pch.h"
 #include "GameObject.h"
 
-GameObject::GameObject(bool addition)
+GameObject::GameObject(bool isUI)
 {
-	scene = Scene::scene;
-
-	transform = new Transform();
-	components.push_back(transform);
-
-	if (addition && scene)
-		scene->AddGameObject(this);
-}
-
-GameObject::GameObject(GameObject* original, bool addition)
-{
-	scene = Scene::scene;
-
-	if (original)
-		for (GameObject* child : original->children)
-			AddChild(new GameObject(child));
+	if(isUI)
+		transform = new RectTransform();
 	else
 		transform = new Transform();
-
-	if (original)
-		for (Component* component : original->components)
-			AddComponent(component);
-	else
-		components.push_back(transform);
-
-	if (addition && scene)
-		scene->AddGameObject(this);
+	transform->gameObject = this;
+	components.push_back(transform);
 }
 
-GameObject::~GameObject()
+GameObject::GameObject(GameObject* original)
 {
+	for (GameObject* child : original->children)
+		AddChild(new GameObject(child));
+	for (Component* component : original->components)
+		AddComponent(component);
 }
 
 void GameObject::Start()
 {
+	for (Component* component : components)
+		component->Start();
 	for (GameObject* child : children)
 		child->Start();
-	for (Component* component : components)
-		component->UpdateComponent();
 }
 
 void GameObject::Update()
 {
+	if (!active)
+		return;
+	for (Component* component : components)
+		if(component->enabled)
+			component->Update();
 	for (GameObject* child : children)
 		child->Update();
-	for (Component* component : components)
-		component->UpdateComponent();
+
+	if (instanceIndex > -1)
+	{
+		auto objectsResource = renderSet->GetResources();
+		auto instanceBuffer = objectsResource->InstanceBuffer.get();
+		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
+		auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
+
+		// instance data
+		if (NumFramesDirty)
+		{
+			Matrix4x4 worldTransform;
+			if (layer == (int)RenderLayer::UI)
+				worldTransform = RectTransform::Transform(GetMatrix());
+			else
+				worldTransform = GetMatrix();
+			Matrix4x4 world = worldTransform;
+			Matrix4x4 texTransform = TexTransform;
+
+			InstanceData objConstants;
+			objConstants.World = world.Transpose();
+			objConstants.TexTransform = texTransform.Transpose();
+			objConstants.MaterialIndexStride = 0;
+			objConstants.BoneTransformStride = 0;
+
+			Renderer* renderer = GetComponent<Renderer>();
+			if (!renderer)
+				renderer = GetComponent<SkinnedMeshRenderer>();
+			if (renderer)
+				objConstants.MaterialIndexStride = renderer->materials.size();
+			if (GetComponent<Animator>())
+				objConstants.BoneTransformStride = GetComponent<Animator>()->controller->BoneCount();
+
+			if (auto var = GetComponent<ParticleSystem>(); var)
+				objConstants.ObjPad0 = var->enabled;
+
+			instanceBuffer->CopyData(instanceIndex, objConstants);
+
+			if (NumFramesDirty > 0)
+				--NumFramesDirty;
+		}
+
+		// skinned data
+		if (GetComponent<Animator>())
+		{
+			int baseindex = instanceIndex * GetComponent<Animator>()->controller->BoneCount();
+
+			GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);
+			for (int i = 0; i < GetComponent<Animator>()->FinalTransforms.size(); ++i)
+			{
+				SkinnnedData skinnedConstants;
+				skinnedConstants.BoneTransforms = GetComponent<Animator>()->FinalTransforms[i];
+				skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
+			}
+		}
+
+		// material data
+		Renderer* renderer = GetComponent<Renderer>();
+		if (!renderer)
+			renderer = GetComponent<SkinnedMeshRenderer>();
+		if (renderer)
+		{
+			int baseindex = instanceIndex * renderer->materials.size();
+
+			for (int i = 0; i < renderer->materials.size(); ++i)
+			{
+				MatIndexData skinnedConstants;
+				skinnedConstants.MaterialIndex = renderer->materials[i]->MatCBIndex;
+				matIndexBuffer->CopyData(baseindex + i, skinnedConstants);
+			}
+		}
+		if (auto terrain = GetComponent<Terrain>(); terrain)
+		{
+			int baseindex = instanceIndex * renderer->materials.size();
+
+			MatIndexData skinnedConstants;
+			skinnedConstants.MaterialIndex = terrain->terrainData.detailPrototype.material->MatCBIndex;
+			matIndexBuffer->CopyData(baseindex + 1, skinnedConstants);
+		}
+	}
 }
 
 void GameObject::OnTriggerEnter(GameObject* other)
@@ -88,9 +154,42 @@ void GameObject::OnCollisionExit(GameObject* other)
 		component->OnCollisionExit(other);
 }
 
-XMFLOAT4X4 GameObject::GetMatrix()
+Matrix4x4 GameObject::GetMatrix()
 {
 	if (parent)
-		return NS_Matrix4x4::Multiply(transform->localToWorldMatrix, parent->GetMatrix());
+		return transform->localToWorldMatrix * parent->GetMatrix();
 	return transform->localToWorldMatrix;
+}
+
+void GameObject::SetScene(Scene* scene)
+{
+	this->scene = scene;
+	for (GameObject* child : children)
+		child->SetScene(scene);
+}
+
+void GameObject::SetActive(bool state)
+{
+	if (active != state)
+		if (renderSet)
+			renderSet->isDirty = NUM_FRAME_RESOURCES;
+	active = state;
+	for (GameObject* child : children)
+		child->SetActive(state);
+}
+
+void GameObject::ReleaseRenderSet()
+{
+	for (auto& child : children)
+		child->ReleaseRenderSet();
+	if (renderSet)
+	{
+		for (auto iter = renderSet->gameObjects.begin(); iter != renderSet->gameObjects.end(); ++iter)
+			if (*iter == this)
+			{
+				renderSet->isDirty = NUM_FRAME_RESOURCES;
+				renderSet->gameObjects.erase(iter);
+				break;
+			}
+	}
 }

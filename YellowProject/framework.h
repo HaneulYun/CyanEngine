@@ -10,4 +10,7 @@
 #include <memory.h>
 #include <tchar.h>
 
-#include "SampleScene.h"
+#include "MenuScene.h"
+#include "MaterialScene.h"
+#include "TerrainScene.h"
+#include "ParticleScene.h"

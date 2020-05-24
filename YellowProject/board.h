@@ -4,10 +4,10 @@
 class Board : public MonoBehavior<Board>
 {
 private:
-	XMFLOAT3 axis{ 0.0f, 0.0f, 1.0f };
+	Vector3 axis{ 0.0f, 0.0f, 1.0f };
 
 public:
-	XMFLOAT3 pos{ 0.0f, 0.0f, 0.0f };
+	Vector3 pos{ 0.0f, 0.0f, 0.0f };
 	float speedRotating{ 90.f };
 
 private:

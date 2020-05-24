@@ -1,8 +1,11 @@
 #include "pch.h"
 #include "Scene.h"
 
+Scene* Scene::scene{ nullptr };
+
 Scene::Scene()
 {
+	frameResourceManager.scene = this;
 }
 
 Scene::~Scene()
@@ -11,26 +14,26 @@ Scene::~Scene()
 
 void Scene::Start()
 {
-	if (!rendererManager)
-		(rendererManager = RendererManager::Instance())->Initialize();
-
-	RendererManager::Instance()->commandList->Reset(RendererManager::Instance()->commandAllocator.Get(), NULL);
 	BuildObjects();
 
-	for (int i = 0; i < gameObjects.size(); ++i)
-		gameObjects[i]->Start();
-	rendererManager->UpdateManager();;
+	AssetManager::Instance()->Update();
 
-	RendererManager::Instance()->commandList->Close();
-
-	ID3D12CommandList* ppd3dCommandLists[] = { RendererManager::Instance()->commandList.Get() };
-	RendererManager::Instance()->commandQueue->ExecuteCommandLists(_countof(ppd3dCommandLists), ppd3dCommandLists);
-
-	RendererManager::Instance()->WaitForPreviousFrame();
+	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
+		frameResourceManager.frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 2));
 }
 
 void Scene::Update()
 {
+	frameResourceManager.Update();
+
+	while (!creationQueue.empty())
+	{
+		creationQueue.front()->Start();
+		creationQueue.pop();
+	}
+
+	objectRenderManager.Update();
+
 	// fixed update
 	Collider *lhs_collider, *rhs_collider;
 	for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)
@@ -54,30 +57,39 @@ void Scene::Update()
 
 	for (GameObject* gameObject : gameObjects)
 	{
-		for (auto d : gameObject->collisionType)
+		for (auto iter = gameObject->collisionType.begin(); iter != gameObject->collisionType.end();)
 		{
-			switch (d.second)
+			switch (iter->second)
 			{
 			case CollisionType::eCollisionEnter:
-				gameObject->OnCollisionEnter(d.first); break;
+				gameObject->OnCollisionEnter(iter->first); break;
 			case CollisionType::eCollisionStay:
-				gameObject->OnCollisionStay(d.first); break;
+				gameObject->OnCollisionStay(iter->first); break;
 			case CollisionType::eCollisionExit:
-				gameObject->OnCollisionExit(d.first); break;
+				gameObject->OnCollisionExit(iter->first); break;
 			case CollisionType::eTriggerEnter:
-				gameObject->OnTriggerEnter(d.first); break;
+				gameObject->OnTriggerEnter(iter->first); break;
 			case CollisionType::eTriggerStay:
-				gameObject->OnTriggerStay(d.first); break;
-			case CollisionType::eTriggerExit:
-				gameObject->OnTriggerExit(d.first); break;
+				gameObject->OnTriggerStay(iter->first); break;
 			}
+			if (iter->second == CollisionType::eTriggerExit)
+			{
+				gameObject->OnTriggerExit(iter->first);
+				iter = gameObject->collisionType.erase(iter);
+			}
+			else
+				++iter;
 		}
 	}
+
+	// input process
+	for (GameObject* gameObject : gameObjects)
+		if (auto button = gameObject->GetComponent<Button>(); button)
+			button->OnClick();
 
 	// update
 	for (GameObject* gameObject : gameObjects)
 		gameObject->Update();
-	rendererManager->UpdateManager();
 
 	while (!deletionQueue.empty())
 	{
@@ -85,11 +97,6 @@ void Scene::Update()
 		Delete(gameObject);
 		deletionQueue.pop();
 	}
-}
-
-void Scene::Render()
-{
-	rendererManager->Render();
 }
 
 void Scene::BuildObjects()
@@ -106,19 +113,24 @@ void Scene::ReleaseObjects()
 
 GameObject* Scene::AddGameObject(GameObject* gameObject)
 {
-	gameObject->scene = this;
+	gameObject->SetScene(this);
 	gameObjects.push_back(gameObject);
+	creationQueue.push(gameObject);
 	return gameObject;
 }
 
-GameObject* Scene::CreateEmpty(bool addition)
+GameObject* Scene::CreateEmpty()
 {
-	return new GameObject(addition);
+	GameObject* newGameObject = new GameObject(false);
+	AddGameObject(newGameObject);
+	return newGameObject;
 }
 
 GameObject* Scene::Duplicate(GameObject* gameObject)
 {
-	return new GameObject(gameObject);
+	GameObject* newGameObject = new GameObject(gameObject);
+	AddGameObject(newGameObject);
+	return newGameObject;
 }
 
 GameObject* Scene::CreateEmptyPrefab()
@@ -128,7 +140,37 @@ GameObject* Scene::CreateEmptyPrefab()
 
 GameObject* Scene::DuplicatePrefab(GameObject* gameObject)
 {
-	return new GameObject(gameObject, false);
+	return new GameObject(gameObject);
+}
+
+GameObject* Scene::CreateUI()
+{
+	GameObject* newGameObject = new GameObject(true);
+	AddGameObject(newGameObject);
+	return newGameObject;
+}
+
+GameObject* Scene::CreateImage()
+{
+	GameObject* gameObject = CreateUI();
+
+	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Image");
+	gameObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
+	gameObject->AddComponent<Image>();
+	gameObject->layer = (int)RenderLayer::UI;
+
+	return gameObject;
+}
+GameObject* Scene::CreateImagePrefab()
+{
+	GameObject* gameObject = new GameObject(true);
+
+	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Image");
+	gameObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
+	gameObject->AddComponent<Image>();
+	gameObject->layer = (int)RenderLayer::UI;
+
+	return gameObject;
 }
 
 void Scene::PushDelete(GameObject* gameObject)
@@ -144,19 +186,7 @@ void Scene::Delete(GameObject* gameObject)
 	for (auto iter = gameObjects.begin(); iter != gameObjects.end(); ++iter)
 		if (*iter == gameObject)
 		{
-			Renderer* renderer = gameObject->GetComponent<Renderer>();
-			MeshFilter* meshFilter = gameObject->GetComponent<MeshFilter>();
-
-			if (!meshFilter)
-				meshFilter = gameObject->GetComponent<Terrain>();
-			auto pair = std::pair<std::string, Mesh*>(typeid(renderer->material).name(), meshFilter->mesh);
-			auto& list = rendererManager->instances[pair].second;
-			for (auto mgrIter = list.begin(); mgrIter != list.end(); ++mgrIter)
-				if (*mgrIter == gameObject)
-				{
-					list.erase(mgrIter);
-					break;
-				}
+			gameObject->ReleaseRenderSet();
 
 			delete (*iter);
 			gameObjects.erase(iter);

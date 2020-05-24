@@ -1,5 +1,9 @@
 #pragma once
 
+class Graphics;
+class SceneManager;
+class AssetManager;
+
 class CyanFW : public Singleton<CyanFW>
 {
 private:
@@ -9,9 +13,11 @@ private:
 
 	std::wstring title;
 
-
 public:
-	Scene* scene{ nullptr };
+	Graphics* graphics{ nullptr };
+	SceneManager* sceneManager{ nullptr };
+	AssetManager* assetManager{ nullptr };
+
 	_TCHAR m_pszFrameRate[50];
 
 public:
@@ -19,7 +25,7 @@ public:
 	virtual ~CyanFW();
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
-	void OnSetScene(Scene* newScene);
+	void OnFrameAdvance();
 
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
