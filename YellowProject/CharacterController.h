@@ -33,30 +33,34 @@ public:
 		{
 			if (Input::GetKeyDown(KeyCode::W) && yPos > 0)
 			{
-				yPos--;
 				if (Network::network->isConnect)
 					Network::network->send_move_packet(D_UP);
+				else
+					yPos--;
 			}
 
 			else if (Input::GetKeyDown(KeyCode::S) && yPos < WORLD_HEIGHT - 1)
 			{
-				yPos++;
 				if (Network::network->isConnect)
 					Network::network->send_move_packet(D_DOWN);
+				else
+					yPos++;
 			}
 
 			else if (Input::GetKeyDown(KeyCode::D) && xPos < WORLD_WIDTH - 1)
 			{
-				xPos++;
 				if (Network::network->isConnect)
 					Network::network->send_move_packet(D_RIGHT);
+				else
+					xPos++;
 			}
 
 			else if (Input::GetKeyDown(KeyCode::A) && xPos > 0)
 			{
-				xPos--;
 				if (Network::network->isConnect)
 					Network::network->send_move_packet(D_LEFT);
+				else
+					xPos--;
 			}
 
 		}

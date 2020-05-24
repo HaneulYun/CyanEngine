@@ -28,6 +28,8 @@ struct EXOVER {
 	};
 };
 
+
+
 struct CLIENT {
 	mutex	m_cl;
 	SOCKET	m_s;
@@ -60,7 +62,6 @@ void send_packet(int user_id, void* p)
 	memcpy(exover->io_buf, buf, buf[0]);
 	// IpBuffers 항목에 u의 wsabuf은 이미 Recv에서 쓰고 있기 때문에 사용하면 안됨
 	WSASend(u.m_s, &exover->wsabuf, 1, NULL, 0, &exover->over, NULL);
-	printf("패킷 전송\n");
 }
 
 void send_login_ok_packet(int user_id)
