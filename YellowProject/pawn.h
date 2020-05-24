@@ -34,7 +34,7 @@ public:
 	{
 		this->x = x;
 		this->y = y;
-		SetPositionCurrentIndex();
+		//SetPositionCurrentIndex();
 	}
 
 	void SetPositionIndex(int x, int y)
@@ -52,7 +52,7 @@ public:
 	{
 		this->x = x;
 		this->y = y;
-		gameObject->transform->position = { 75 * (x - 3.5f), 75 * (y - 3.5f), -1 };
+		gameObject->transform->position = { (float)x, (float)y, -1 };
 	}
 
 };

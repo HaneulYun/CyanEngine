@@ -42,6 +42,7 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 	DWORD flags{ 0 };
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
+	GameObject* tiles[SCREEN_HEIGHT][SCREEN_WIDTH];
 	GameObject* prefab;
 
 	Pawn* avatar;
@@ -135,13 +136,37 @@ public:
 				send_move_packet(D_UP);
 			else if (Input::GetKeyDown(KeyCode::S))
 				send_move_packet(D_DOWN);
+
+			//Camera::main->gameObject->transform->position = { avatar->x - 0.5f, (float)avatar->y + 0.5f, -10 };
+			for (int i = 0; i < SCREEN_WIDTH; ++i)
+				for (int j = 0; j < SCREEN_HEIGHT; ++j)
+				{
+					int tile_x = i + g_left_x;
+					int tile_y = j + g_top_y;
+
+					auto tile = tiles[j][i];
+					//tile->transform->position = { (float)i, (float)j, 0 };
+
+					if ((tile_x < 0) || (tile_y < 0))
+					{
+						tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("none");
+						continue;
+					}
+
+					if ((tile_x / 3 + tile_y / 3) % 2)
+					//if ((tile_x + tile_y) % 2)
+						tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("whiteTileMat");
+					else
+						tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("blackTileMat");
+				}
+			avatar->gameObject->transform->position = { (float)avatar->x - g_left_x, (float)avatar->y - g_top_y, -1 };
 		}
-		if (update_server)
-		{
-			update_server = false;
-			for (auto& d : npcs)
-				d.second->SetPositionCurrentIndex();
-		}
+		//if (update_server)
+		//{
+		//	update_server = false;
+		//	for (auto& d : npcs)
+		//		d.second->SetPositionCurrentIndex();
+		//}
 		SleepEx(10, TRUE);
 	}
 
@@ -161,19 +186,6 @@ public:
 			closesocket(client_s);
 			return;
 		}
-	
-		//MOVE_PACKET& buf = tcpClient->recvdata;
-
-		//if (tcpClient->users.find(buf.id) == tcpClient->users.end() && tcpClient->pawns.size())
-		//{
-		//	tcpClient->allocPawns.push_back(tcpClient->pawns.back());
-		//	tcpClient->pawns.pop_back();
-		//	tcpClient->users[buf.id] = tcpClient->allocPawns.back();
-		//}
-		//tcpClient->update_server = true;
-		//tcpClient->users[buf.id]->SetPositionIndex(buf.x, buf.y);
-		//if (tcpClient->myID == -1)
-		//	tcpClient->myID = buf.id;
 
 		if (dataBytes > 0) tcpClient->process_data(tcpClient->recvdata, dataBytes);
 	
@@ -194,8 +206,8 @@ public:
 			sc_packet_login_ok* my_packet = reinterpret_cast<sc_packet_login_ok*>(ptr);
 			g_myid = my_packet->id;
 			avatar->move(my_packet->x, my_packet->y);
-			////g_left_x = my_packet->x - (SCREEN_WIDTH / 2);
-			////g_top_y = my_packet->y - (SCREEN_HEIGHT / 2);
+			g_left_x = my_packet->x - (SCREEN_WIDTH / 2);
+			g_top_y = my_packet->y - (SCREEN_HEIGHT / 2);
 			//avatar.show();
 		}
 		break;
@@ -229,8 +241,8 @@ public:
 			int other_id = my_packet->id;
 			if (other_id == g_myid) {
 				avatar->move(my_packet->x, my_packet->y);
-				//g_left_x = my_packet->x - (SCREEN_WIDTH / 2);
-				//g_top_y = my_packet->y - (SCREEN_HEIGHT / 2);
+				g_left_x = my_packet->x - (SCREEN_WIDTH / 2);
+				g_top_y = my_packet->y - (SCREEN_HEIGHT / 2);
 			}
 			else {
 				if (0 != npcs.count(other_id))
@@ -242,18 +254,18 @@ public:
 		case S2C_LEAVE:
 		{
 			sc_packet_leave* my_packet = reinterpret_cast<sc_packet_leave*>(ptr);
-			//int other_id = my_packet->id;
-			//if (other_id == g_myid) {
-			//	avatar.hide();
-			//}
-			//else {
-			//	if (0 != npcs.count(other_id))
-			//		npcs[other_id].hide();
-			//}
+			int other_id = my_packet->id;
+			if (other_id == g_myid) {
+				avatar->gameObject->SetActive(false);//.hide();
+			}
+			else {
+				if (0 != npcs.count(other_id))
+					npcs[other_id]->gameObject->SetActive(false); //.hide();
+			}
 		}
 		break;
-		default:
-			printf("Unknown PACKET type [%d]\n", ptr[1]);
+		//default:
+		//	printf("Unknown PACKET type [%d]\n", ptr[1]);
 
 		}
 	}
