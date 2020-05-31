@@ -7,12 +7,16 @@
 #include <vector>
 #include <thread>
 #include <mutex>
+#include <unordered_set>
+#include <atomic>
 using namespace std;
 
 #include "protocol.h"
 constexpr auto MAX_PACKET_SIZE = 255;
 constexpr auto MAX_BUF_SIZE = 1024;
 constexpr auto MAX_USER = 10000;
+
+constexpr auto VIEW_RADIUS = 6;
 
 enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT };
 enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE };
@@ -36,16 +40,26 @@ struct CLIENT
 	EXOVER m_recv_over;
 	int m_prev_size;
 	char m_papcket_buf[MAX_PACKET_SIZE];
-	C_STATUS m_status;
+	atomic<C_STATUS> m_status;
 
 	short x, y;
 	char m_name[MAX_ID_LEN + 1];
 	unsigned m_move_time;
+
+	unordered_set<int> view_list;
 };
 
 CLIENT g_clients[MAX_USER];
 HANDLE g_iocp;
 SOCKET l_socket;
+
+bool is_near(int a, int b)
+{
+	if (abs(g_clients[a].x - g_clients[b].x) > VIEW_RADIUS) return false;
+	if (abs(g_clients[a].y - g_clients[b].y) > VIEW_RADIUS) return false;
+	return true;
+
+}
 
 void send_packet(int user_id, void* p)
 {
@@ -89,6 +103,10 @@ void send_enter_packet(int user_id, int o_id)
 	strcpy_s(p.name, g_clients[o_id].m_name);
 	p.o_type = O_PLAYER;
 
+	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].view_list.insert(o_id);
+	g_clients[user_id].m_cl.unlock();
+
 	send_packet(user_id, &p);
 }
 
@@ -98,6 +116,10 @@ void send_leave_packet(int user_id, int o_id)
 	p.id = o_id;
 	p.size = sizeof(p);
 	p.type = S2C_LEAVE;
+
+	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].view_list.erase(o_id);
+	g_clients[user_id].m_cl.unlock();
 
 	send_packet(user_id, &p);
 }
@@ -137,13 +159,75 @@ void do_move(int user_id, int direction)
 	}
 	u.x = x;
 	u.y = y;
+
+	g_clients[user_id].m_cl.lock();
+	unordered_set<int> old_vl = g_clients[user_id].view_list;
+	g_clients[user_id].m_cl.unlock();
+	unordered_set<int> new_vl;
 	for (auto& cl : g_clients)
 	{
-		cl.m_cl.lock();
-		if (ST_ACTIVE == cl.m_status)
-			send_move_packet(cl.m_id, user_id);
-		cl.m_cl.unlock();
+		if (ST_ACTIVE != cl.m_status) continue;
+		if (cl.m_id == user_id) continue;
+		if (true == is_near(cl.m_id, user_id))
+			new_vl.insert(cl.m_id);
 	}
+
+	send_move_packet(user_id, user_id);
+
+	for (auto np : new_vl) {
+		if (0 == old_vl.count(np)) {
+			send_enter_packet(user_id, np);
+			g_clients[np].m_cl.lock();
+			if (0 == g_clients[np].view_list.count(user_id))
+			{
+				g_clients[np].m_cl.unlock();
+				send_enter_packet(np, user_id);
+			}
+			else
+			{
+				g_clients[np].m_cl.unlock();
+				send_move_packet(np, user_id);
+			}
+		}
+		else
+		{
+			g_clients[np].m_cl.lock();
+			if (0 != g_clients[np].view_list.count(user_id))
+			{
+				g_clients[np].m_cl.unlock();
+				send_move_packet(np, user_id);
+			}
+			else
+			{
+				g_clients[np].m_cl.unlock();
+				send_enter_packet(np, user_id);
+			}
+		}
+	}
+
+	for (auto old_p : old_vl)
+	{
+		if (0 == new_vl.count(old_p))
+		{
+			send_leave_packet(user_id, old_p);
+			g_clients[old_p].m_cl.lock();
+			if (0 != g_clients[old_p].view_list.count(user_id))
+			{
+				g_clients[old_p].m_cl.unlock();
+				send_leave_packet(old_p, user_id);
+			}
+			else
+				g_clients[old_p].m_cl.unlock();
+		}
+	}
+
+	//for (auto& cl : g_clients)
+	//{
+	//	cl.m_cl.lock();
+	//	if (ST_ACTIVE == cl.m_status)
+	//		send_move_packet(cl.m_id, user_id);
+	//	cl.m_cl.unlock();
+	//}
 }
 
 void enter_game(int user_id, char name[])
@@ -152,21 +236,25 @@ void enter_game(int user_id, char name[])
 	strcpy(g_clients[user_id].m_name, name);
 	g_clients[user_id].m_name[MAX_ID_LEN] = NULL;
 	send_login_ok_packet(user_id);
+	g_clients[user_id].m_status = ST_ACTIVE;
+	g_clients[user_id].m_cl.unlock();
 
 	for (int i = 0; i < MAX_USER; i++)
 	{
 		if (user_id == i) continue;
-		g_clients[i].m_cl.lock();
-		if (ST_ACTIVE == g_clients[i].m_status)
-			if (user_id != i)
-			{
-				send_enter_packet(user_id, i);
-				send_enter_packet(i, user_id);
-			}
-		g_clients[i].m_cl.unlock();
+		if (true == is_near(user_id, i))
+		{
+			//g_clients[i].m_cl.lock();
+			if (ST_ACTIVE == g_clients[i].m_status)
+				if (user_id != i)
+				{
+					send_enter_packet(user_id, i);
+					send_enter_packet(i, user_id);
+				}
+			//g_clients[i].m_cl.unlock();
+		}
 	}
-	g_clients[user_id].m_status = ST_ACTIVE;
-	g_clients[user_id].m_cl.unlock();
+	
 }
 
 void process_packet(int user_id, char* buf)
@@ -204,17 +292,19 @@ void initialize_clients()
 
 void disconnect(int user_id)
 {
+	send_leave_packet(user_id, user_id);
+
 	g_clients[user_id].m_cl.lock();
 	g_clients[user_id].m_status = ST_ALLOC;
-	send_leave_packet(user_id, user_id);
+
 	closesocket(g_clients[user_id].m_s);
 	for (auto& cl : g_clients)
 	{
 		if (user_id == cl.m_id) continue;
-		cl.m_cl.lock();
+		//cl.m_cl.lock();
 		if (ST_ACTIVE == cl.m_status)
 			send_leave_packet(cl.m_id, user_id);
-		cl.m_cl.unlock();
+		//cl.m_cl.unlock();
 	}
 	g_clients[user_id].m_status = ST_FREE;
 	g_clients[user_id].m_cl.unlock();
@@ -315,6 +405,7 @@ void worker_thread()
 				nc.m_recv_over.wsabuf.buf = nc.m_recv_over.io_buf;
 				nc.m_recv_over.wsabuf.len = MAX_BUF_SIZE;
 				nc.m_s = c_socket;
+				nc.view_list.clear();
 				nc.x = rand() % WORLD_WIDTH;
 				nc.y = rand() % WORLD_HEIGHT;
 
