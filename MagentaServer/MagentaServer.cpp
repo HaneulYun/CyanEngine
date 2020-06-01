@@ -108,7 +108,8 @@ CLIENT g_clients[MAX_USER];
 HANDLE g_iocp;
 SOCKET l_socket;	// 한번 정해진 다음에 바뀌지 않으니 data race 발생하지 않음
 
-#define SECTOR_WIDTH 16
+#define SECTOR_WIDTH 20
+#define PLAYER_HALF_SIGHT 8
 set<int> g_ObjectListSector[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 RWLock g_SectorLock[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 
@@ -226,7 +227,7 @@ void do_move(int user_id, int direction)
 			for (auto nearObj : g_ObjectListSector[i][j])
 			{
 				g_clients[nearObj].m_lock.EnterReadLock();
-				if (abs(g_clients[nearObj].x - u.x) <= 5 && abs(g_clients[nearObj].y - u.y) <= 5)
+				if (abs(g_clients[nearObj].x - u.x) <= PLAYER_HALF_SIGHT && abs(g_clients[nearObj].y - u.y) <= PLAYER_HALF_SIGHT)
 				{
 					nearlist.emplace_back(nearObj);
 				}
@@ -305,7 +306,7 @@ void enter_game(int user_id, char name[])
 			g_SectorLock[i][j].EnterReadLock();
 			for (auto nearObj : g_ObjectListSector[i][j])
 			{
-				if (abs(g_clients[nearObj].x - g_clients[user_id].x) <= 5 || abs(g_clients[nearObj].y - g_clients[user_id].y) <= 5)
+				if (abs(g_clients[nearObj].x - g_clients[user_id].x) <= PLAYER_HALF_SIGHT || abs(g_clients[nearObj].y - g_clients[user_id].y) <= PLAYER_HALF_SIGHT)
 				{
 					nearlist.emplace_back(nearObj);
 				}

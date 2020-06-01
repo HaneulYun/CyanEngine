@@ -62,7 +62,7 @@ void MenuScene::BuildObjects()
 	auto otherchessprefab = CreateEmptyPrefab();
 	{
 		otherchessprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		otherchessprefab->GetComponent<Transform>()->Scale({ 0.0075, 0.0075,1.0f });
+		otherchessprefab->GetComponent<Transform>()->Scale({ 0.005625, 0.005625,1.0f });
 		otherchessprefab->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
 		auto mesh = otherchessprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
 		auto renderer = otherchessprefab->AddComponent<Renderer>();
