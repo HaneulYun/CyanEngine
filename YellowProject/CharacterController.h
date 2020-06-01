@@ -23,8 +23,8 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
-		xPos = 0;
-		yPos = 0;
+		xPos = 399;
+		yPos = 399;
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
@@ -65,7 +65,7 @@ public:
 
 		}
 		if (!Network::network->isConnect)
-			gameObject->transform->position = { xPos * 0.075f, -yPos * 0.075f, -0.0001f };
+			gameObject->transform->position = { xPos * 0.055f, -yPos * 0.055f, -0.0001f };
 
 	}
 

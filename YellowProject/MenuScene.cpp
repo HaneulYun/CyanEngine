@@ -12,7 +12,7 @@ void MenuScene::BuildObjects()
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
-	ASSET AddMaterial("gray", ASSET TEXTURE("none"), -1, { 0.5, 0.5, 0.5, 0.5 });
+	ASSET AddMaterial("black", ASSET TEXTURE("none"), -1, { 0.0, 0.0, 0.0, 1 });
 	ASSET AddMaterial("chessmapmat", ASSET TEXTURE("chessmaptex"), -1, { 0.8, 0.8, 0.8, 1 });
 	ASSET AddMaterial("mychessmat", ASSET TEXTURE("mychesstex"), -1, { 0.8, 0.8, 0.8, 1 });	
 	ASSET AddMaterial("otherchessmat", ASSET TEXTURE("otherchesstex"), -1, { 0.8, 0.8, 0.8, 1 });
@@ -21,24 +21,28 @@ void MenuScene::BuildObjects()
 	ASSET AddMesh("Image", Mesh::CreateQuad());
 	ASSET AddMesh("Sphere", Mesh::CreateSphere());
 	ASSET AddMesh("Plane", Mesh::CreatePlane());
+	ASSET AddMesh("Quad", Mesh::CreateQuad());
+
 	///*** Game Object ***///
 
-	auto chessmap = CreateEmpty();
-	{	
-		chessmap->GetComponent<Transform>()->position = { 14.96f, -14.96f, 0.0f };
-		chessmap->GetComponent<Transform>()->Scale({ 3.0f, 3.0f, 3.0f });
-		chessmap->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
-		auto mesh = chessmap->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
-		auto renderer = chessmap->AddComponent<Renderer>();
-		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("chessmapmat"));
-		chessmap->layer = (int)RenderLayer::Opaque;
-	}
+	GameObject* chessmap[2][2];
+	for(int i=0;i<2;++i)
+		for (int j = 0; j < 2; ++j)
+		{
+			chessmap[i][j] = CreateEmpty();
+			chessmap[i][j]->GetComponent<Transform>()->position = { -0.0275f + (j * 22.f), -21.9725f - (i * 22.f), 0.0f };
+			chessmap[i][j]->GetComponent<Transform>()->Scale({ 22.0f, 22.0f,1.0f });
+			auto mesh = chessmap[i][j]->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+			auto renderer = chessmap[i][j]->AddComponent<Renderer>();
+			for (auto& sm : mesh->DrawArgs)
+				renderer->materials.push_back(ASSET MATERIAL("chessmapmat"));
+			chessmap[i][j]->layer = (int)RenderLayer::Opaque;
+		}
 
 	auto mychess = CreateEmpty();
 	{
 		mychess->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		mychess->GetComponent<Transform>()->Scale({ 0.0075, 0.0075,1.0f });
+		mychess->GetComponent<Transform>()->Scale({ 0.005625, 0.005625,1.0f });
 		mychess->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
 		auto mesh = mychess->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
 		auto renderer = mychess->AddComponent<Renderer>();
