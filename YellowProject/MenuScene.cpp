@@ -9,6 +9,7 @@ void MenuScene::BuildObjects()
 	ASSET AddTexture("chessmaptex", L"chessmap.dds");
 	ASSET AddTexture("mychesstex", L"mychess.dds");
 	ASSET AddTexture("otherchesstex", L"otherchess.dds");
+	ASSET AddTexture("kittytex", L"kitty.dds");
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
@@ -16,6 +17,7 @@ void MenuScene::BuildObjects()
 	ASSET AddMaterial("chessmapmat", ASSET TEXTURE("chessmaptex"), -1, { 0.8, 0.8, 0.8, 1 });
 	ASSET AddMaterial("mychessmat", ASSET TEXTURE("mychesstex"), -1, { 0.8, 0.8, 0.8, 1 });	
 	ASSET AddMaterial("otherchessmat", ASSET TEXTURE("otherchesstex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("kittymat", ASSET TEXTURE("kittytex"), -1, { 0.8, 0.8, 0.8, 1 });
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
@@ -72,11 +74,25 @@ void MenuScene::BuildObjects()
 		otherchessprefab->AddComponent<CharacterController>()->player = false;
 	}
 
+	auto npcchessprefab = CreateEmptyPrefab();
+	{
+		npcchessprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
+		npcchessprefab->GetComponent<Transform>()->Scale({ 0.005625, 0.005625,1.0f });
+		npcchessprefab->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
+		auto mesh = npcchessprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		auto renderer = npcchessprefab->AddComponent<Renderer>();
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(ASSET MATERIAL("kittymat"));
+		npcchessprefab->layer = (int)RenderLayer::Opaque;
+		npcchessprefab->AddComponent<CharacterController>()->player = false;
+	}
+
 	auto manager = CreateEmpty();
 	{
 		Network* network = manager->AddComponent<Network>();
 		network->othersPrefab = otherchessprefab;
 		network->myCharacter = mychess;
+		network->npcsPrefab = npcchessprefab;
 		Network::network = network;
 	}
 

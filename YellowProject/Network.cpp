@@ -30,8 +30,17 @@ void Network::ProcessPacket(char* ptr)
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
 		}
-		else {
+		else if(my_packet->o_type == O_PLAYER){
 			otherCharacters[id] = gameObject->scene->Duplicate(othersPrefab);
+			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
+			strcpy_s(otherCharacters[id]->GetComponent<CharacterController>()->name, my_packet->name);
+			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
+			controller->xPos = my_packet->x;
+			controller->yPos = my_packet->y;
+		}
+		else
+		{
+			otherCharacters[id] = gameObject->scene->Duplicate(npcsPrefab);
 			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
 			strcpy_s(otherCharacters[id]->GetComponent<CharacterController>()->name, my_packet->name);
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();

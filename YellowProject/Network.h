@@ -31,6 +31,7 @@ public:
 public:
 	GameObject* othersPrefab = NULL;
 	GameObject* myCharacter = NULL;
+	GameObject* npcsPrefab = NULL;
 
 	unordered_map<int, GameObject*> otherCharacters;
 
