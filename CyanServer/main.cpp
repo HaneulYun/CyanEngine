@@ -67,6 +67,26 @@ NPC g_npcs[MAX_NPC];
 struct SECTOR
 {
 	unordered_set<int> ids;
+
+	void fill_list(unordered_set<int>& set, int x, int y)
+	{
+		for (int id : ids)
+		{
+			if (id < MAX_USER)
+			{
+				//int cx = g_clients[id].x;
+				//int cy = g_clients[id].y;
+				if (abs(x - g_clients[id].x) > VIEW_RADIUS) continue;
+				if (abs(y - g_clients[id].y) > VIEW_RADIUS) continue;
+			}
+			else
+			{
+				if (abs(x - g_npcs[id - MAX_USER].x) > VIEW_RADIUS) continue;
+				if (abs(y - g_npcs[id - MAX_USER].y) > VIEW_RADIUS) continue;
+			}
+			set.insert(id);
+		}
+	}
 };
 
 constexpr auto SECTOR_WIDTH = 10;
@@ -93,6 +113,19 @@ struct SPM
 		if (&os == &ns) return;
 		erase(id, ox, oy);
 		insert(id, nx, ny);
+	}
+
+	void fill_list(unordered_set<int>& set, int x, int y)
+	{
+		int l = (x - VIEW_RADIUS) / SECTOR_WIDTH;
+		int r = (x + VIEW_RADIUS) / SECTOR_WIDTH;
+		int b = (y - VIEW_RADIUS) / SECTOR_HEIGHT;
+		int t = (y + VIEW_RADIUS) / SECTOR_HEIGHT;
+		if (l < 0) l = 0; if (r > SECTOR_WIDTH_COUNT - 1) r = SECTOR_WIDTH_COUNT - 1;
+		if (b < 0) b = 0; if (t > SECTOR_HEIGHT_COUNT - 1) t = SECTOR_HEIGHT_COUNT - 1;
+		for (int j = b; j <= t; ++j)
+			for (int i = l; i <= r; ++i)
+				sectors[j][i].fill_list(set, x, y);
 	}
 };
 SPM spm;
@@ -278,18 +311,23 @@ void do_move(int user_id, int direction)
 	g_clients[user_id].m_cl.lock();
 	unordered_set<int> old_vl = g_clients[user_id].view_list;
 	g_clients[user_id].m_cl.unlock();
+
 	unordered_set<int> new_vl;
-	for (auto& cl : g_clients)
-	{
-		if (ST_ACTIVE != cl.m_status) continue;
-		if (cl.m_id == user_id) continue;
-		if (true == is_near(cl.m_id, user_id))
-			new_vl.insert(cl.m_id);
-	}
+	spm.fill_list(new_vl, g_clients[user_id].x, g_clients[user_id].y);
+	//for (auto& cl : g_clients)
+	//{
+	//	if (ST_ACTIVE != cl.m_status) continue;
+	//	if (cl.m_id == user_id) continue;
+	//	if (true == is_near(cl.m_id, user_id))
+	//		new_vl.insert(cl.m_id);
+	//}
 
 	send_move_packet(user_id, user_id);
 
+	if (new_vl.count(user_id))
+		new_vl.erase(user_id);
 	for (auto np : new_vl) {
+		if (np >= MAX_USER) continue;
 		if (0 == old_vl.count(np)) {
 			send_enter_packet(user_id, np);
 			g_clients[np].m_cl.lock();
@@ -336,13 +374,12 @@ void do_move(int user_id, int direction)
 		}
 	}
 
-	for (auto& npc : g_npcs)
+	for (auto id : new_vl)
 	{
-		if (npc.m_is_active) continue;
-		if (abs(u.x - npc.x) > VIEW_RADIUS + 2) continue;
-		if (abs(u.y - npc.y) > VIEW_RADIUS + 2) continue;
-		if (CAS(&npc.m_is_active, false, true))
-			add_timer(npc.m_id, MOVE_EVENT, 1000);
+		if (id < MAX_USER) continue;
+		if (g_npcs[id - MAX_USER].m_is_active) continue;
+		if (CAS(&g_npcs[id - MAX_USER].m_is_active, false, true))
+			add_timer(g_npcs[id - MAX_USER].m_id, MOVE_EVENT, 1000);
 	}
 }
 
@@ -462,14 +499,17 @@ void recv_packet_construct(int user_id, int io_byte)
 void broadcast_move(int id)
 {
 	NPC& npc = g_npcs[id - MAX_USER];
-	for (auto& cl : g_clients)
-	{
-		if (ST_ACTIVE != cl.m_status) continue;
-		if (abs(cl.x - npc.x) > VIEW_RADIUS) continue;
-		if (abs(cl.y - npc.y) > VIEW_RADIUS) continue;
 
+	unordered_set<int> new_vl;
+	spm.fill_list(new_vl, npc.x, npc.y);
+
+	for (auto np : new_vl)
+	{
+		if (np >= MAX_USER) continue;
+
+		auto& cl = g_clients[np];
 		cl.m_cl.lock();
-		int count = cl.view_list_npc.count(id);
+		int count = cl.view_list_npc.count(np);
 		cl.m_cl.unlock();
 		if (count == 0)
 			send_enter_packet(cl.m_id, id);
@@ -481,21 +521,26 @@ void broadcast_move(int id)
 void move_npc(int id)
 {
 	NPC& npc = g_npcs[id - MAX_USER];
+	int x = npc.x;
+	int y = npc.y;
 	switch (rand() % 4)
 	{
-	case D_UP: if (npc.y < (WORLD_HEIGHT - 1)) ++npc.y;
+	case D_UP: if (y < (WORLD_HEIGHT - 1)) ++y;
 		break;
-	case D_DOWN: if (npc.y > 0) --npc.y;
+	case D_DOWN: if (y > 0) --y;
 		break;
-	case D_LEFT: if (npc.x > 0) --npc.x;
+	case D_LEFT: if (x > 0) --x;
 		break;
-	case D_RIGHT: if (npc.x < (WORLD_WIDTH - 1)) ++npc.x;
+	case D_RIGHT: if (x < (WORLD_WIDTH - 1)) ++x;
 		break;
 	default:
 		cout << "Unknown Direction from Client move packet!\n";
 		DebugBreak();
 		exit(-1);
 	}
+	spm.update(npc.m_id, npc.x, npc.y, x, y);
+	npc.x = x;
+	npc.y = y;
 
 	broadcast_move(id);
 }
@@ -609,6 +654,7 @@ void NPC_Create()
 		g_npcs[i].m_id = MAX_USER + i;
 		g_npcs[i].x = rand() % WORLD_WIDTH;
 		g_npcs[i].y = rand() % WORLD_HEIGHT;
+		//spm.insert(g_npcs[i].m_id, g_npcs[i].x, g_npcs[i].y);
 	}
 }
 
