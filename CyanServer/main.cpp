@@ -171,19 +171,6 @@ bool is_near(int a, int b)
 	return true;
 }
 
-bool near_player_exist(int id)
-{
-	NPC& npc = g_npcs[id - MAX_USER];
-	for (auto& cl : g_clients)
-	{
-		if (ST_ACTIVE != cl.m_status) continue;
-		if (abs(cl.x - npc.x) > VIEW_RADIUS) continue;
-		if (abs(cl.y - npc.y) > VIEW_RADIUS) continue;
-		return true;
-	}
-	return false;
-}
-
 void send_packet(int user_id, void* p)
 {
 	char* buf = reinterpret_cast<char*>(p);
@@ -509,7 +496,7 @@ void broadcast_move(int id)
 
 		auto& cl = g_clients[np];
 		cl.m_cl.lock();
-		int count = cl.view_list_npc.count(np);
+		int count = cl.view_list_npc.count(id);
 		cl.m_cl.unlock();
 		if (count == 0)
 			send_enter_packet(cl.m_id, id);
@@ -626,10 +613,33 @@ void worker_thread()
 		case MOVE_EVENT:
 		{
 			move_npc(user_id);
-			if (near_player_exist(user_id))
+
+			unordered_set<int> new_vl;
+			spm.fill_list(new_vl, g_npcs[user_id - MAX_USER].x, g_npcs[user_id - MAX_USER].y);
+
+			bool near_player_exist = false;
+
+			for (auto id : new_vl)
+				if (id < MAX_USER)
+					near_player_exist = true;
+
+			if (near_player_exist)
 				add_timer(user_id, MOVE_EVENT, 1000);
 			else
+			{
 				g_npcs[user_id - MAX_USER].m_is_active = false;
+
+				for (auto& cl : g_clients)
+				{
+					if (cl.m_status != ST_ACTIVE) continue;
+
+					if (cl.view_list_npc.count(user_id))
+					{
+						send_leave_packet(cl.m_id, user_id);
+						cl.view_list_npc.erase(user_id);
+					}
+				}
+			}
 		}
 		break;
 		}
@@ -654,7 +664,7 @@ void NPC_Create()
 		g_npcs[i].m_id = MAX_USER + i;
 		g_npcs[i].x = rand() % WORLD_WIDTH;
 		g_npcs[i].y = rand() % WORLD_HEIGHT;
-		//spm.insert(g_npcs[i].m_id, g_npcs[i].x, g_npcs[i].y);
+		spm.insert(g_npcs[i].m_id, g_npcs[i].x, g_npcs[i].y);
 	}
 }
 
@@ -665,6 +675,7 @@ void timer_thread()
 	do {
 		Sleep(1);
 		timer_lock.lock();
+		cout << timer_queue.size() << endl;
 		do {
 			if (!timer_queue.size())
 				break;
