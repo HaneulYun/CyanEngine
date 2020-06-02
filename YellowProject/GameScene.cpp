@@ -26,9 +26,9 @@ void GameScene::BuildObjects()
 
 	auto mainCamera = CreateEmpty();
 	{
-		mainCamera->transform->position = { 7.5, 7.5, -10 };
+		mainCamera->transform->position = { 9.5, 9.5, -10 };
 		camera = camera->main = mainCamera->AddComponent<Camera>();
-		camera->GenerateOrthoMatrix(16, 16, 0, 100);
+		camera->GenerateOrthoMatrix(20, 20, 0, 100);
 		
 	}
 
