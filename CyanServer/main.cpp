@@ -103,11 +103,12 @@ bool is_near(int a, int b)
 
 bool near_player_exist(int id)
 {
+	NPC& npc = g_npcs[id - MAX_USER];
 	for (auto& cl : g_clients)
 	{
 		if (ST_ACTIVE != cl.m_status) continue;
-		if (abs(cl.x - g_npcs[id].x) > VIEW_RADIUS) continue;
-		if (abs(cl.y - g_npcs[id].y) > VIEW_RADIUS) continue;
+		if (abs(cl.x - npc.x) > VIEW_RADIUS) continue;
+		if (abs(cl.y - npc.y) > VIEW_RADIUS) continue;
 		return true;
 	}
 	return false;
@@ -182,9 +183,18 @@ void send_move_packet(int user_id, int mover)
 	p.id = mover;
 	p.size = sizeof(p);
 	p.type = S2C_MOVE;
-	p.x = g_clients[mover].x;
-	p.y = g_clients[mover].y;
-	p.move_time = g_clients[mover].m_move_time;
+	if (mover < MAX_USER)
+	{
+		p.x = g_clients[mover].x;
+		p.y = g_clients[mover].y;
+		p.move_time = g_clients[mover].m_move_time;
+	}
+	else
+	{
+		p.x = g_npcs[mover - MAX_USER].x;
+		p.y = g_npcs[mover - MAX_USER].y;
+		p.move_time = 0;
+	}
 
 	send_packet(user_id, &p);
 }
@@ -391,24 +401,41 @@ void recv_packet_construct(int user_id, int io_byte)
 	}
 }
 
+void broadcast_move(int id)
+{
+	NPC& npc = g_npcs[id - MAX_USER];
+	for (auto& cl : g_clients)
+	{
+		if (ST_ACTIVE != cl.m_status) continue;
+		if (abs(cl.x - npc.x) > VIEW_RADIUS) continue;
+		if (abs(cl.y - npc.y) > VIEW_RADIUS) continue;
+
+		//send_enter_packet(cl.m_id, id);
+		send_move_packet(cl.m_id, id);
+		//send_leave_packet(cl.m_id, id);
+	}
+}
+
 void move_npc(int id)
 {
-	NPC& npc = g_npcs[id];
+	NPC& npc = g_npcs[id - MAX_USER];
 	switch (rand() % 4)
 	{
-	case D_UP: if (g_npcs[id].y < (WORLD_HEIGHT - 1)) ++g_npcs[id].y;
+	case D_UP: if (npc.y < (WORLD_HEIGHT - 1)) ++npc.y;
 		break;
-	case D_DOWN: if (g_npcs[id].y > 0) --g_npcs[id].y;
+	case D_DOWN: if (npc.y > 0) --npc.y;
 		break;
-	case D_LEFT: if (g_npcs[id].x > 0) --g_npcs[id].x;
+	case D_LEFT: if (npc.x > 0) --npc.x;
 		break;
-	case D_RIGHT: if (g_npcs[id].x < (WORLD_WIDTH - 1)) ++g_npcs[id].x;
+	case D_RIGHT: if (npc.x < (WORLD_WIDTH - 1)) ++npc.x;
 		break;
 	default:
 		cout << "Unknown Direction from Client move packet!\n";
 		DebugBreak();
 		exit(-1);
 	}
+
+	broadcast_move(id);
 }
 
 void worker_thread()
@@ -493,7 +520,7 @@ void worker_thread()
 			if (near_player_exist(user_id))
 				add_timer(user_id, MOVE_EVENT, 1000);
 			else
-				g_npcs[user_id].m_is_active = false;
+				g_npcs[user_id - MAX_USER].m_is_active = false;
 		}
 		break;
 		}
@@ -502,7 +529,7 @@ void worker_thread()
 
 void process_event(const event_type& e)
 {
-	EXOVER* overlap_ex = &g_npcs[e.obj_id].exover;
+	EXOVER* overlap_ex = &g_npcs[e.obj_id - MAX_USER].exover;
 	ZeroMemory(&overlap_ex->over, sizeof(overlap_ex->over));
 	overlap_ex->op = MOVE_EVENT;
 	PostQueuedCompletionStatus(g_iocp, 1, e.obj_id, &overlap_ex->over);
@@ -515,7 +542,7 @@ void NPC_Create()
 	for (int i = 0; i < MAX_NPC; ++i)
 	{
 		g_npcs[i].m_is_active = false;
-		g_npcs[i].m_id = i;
+		g_npcs[i].m_id = MAX_USER + i;
 		g_npcs[i].x = rand() / WORLD_WIDTH;
 		g_npcs[i].y = rand() / WORLD_HEIGHT;
 	}
