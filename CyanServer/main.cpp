@@ -51,6 +51,7 @@ struct CLIENT
 	unsigned m_move_time;
 
 	unordered_set<int> view_list;
+	unordered_set<int> view_list_npc;
 };
 CLIENT g_clients[MAX_USER];
 
@@ -62,6 +63,39 @@ struct NPC
 	short x, y;
 };
 NPC g_npcs[MAX_NPC];
+
+struct SECTOR
+{
+	unordered_set<int> ids;
+};
+
+constexpr auto SECTOR_WIDTH = 10;
+constexpr auto SECTOR_HEIGHT = 10;
+constexpr auto SECTOR_WIDTH_COUNT = WORLD_WIDTH / SECTOR_WIDTH;
+constexpr auto SECTOR_HEIGHT_COUNT = WORLD_HEIGHT / SECTOR_HEIGHT;;
+struct SPM
+{
+	SECTOR sectors[SECTOR_HEIGHT_COUNT][SECTOR_WIDTH_COUNT];
+
+	void insert(int id, int x, int y)
+	{
+		sectors[y / SECTOR_HEIGHT][x / SECTOR_WIDTH].ids.insert(id);
+	}
+	void erase(int id, int x, int y)
+	{
+		auto& sector = sectors[y / SECTOR_HEIGHT][x / SECTOR_WIDTH];
+		if (sector.ids.count(id)) sector.ids.erase(id);
+	}
+	void update(int id, int ox, int oy, int nx, int ny)
+	{
+		auto& os = sectors[oy / SECTOR_HEIGHT][ox / SECTOR_WIDTH];
+		auto& ns = sectors[ny / SECTOR_HEIGHT][nx / SECTOR_WIDTH];
+		if (&os == &ns) return;
+		erase(id, ox, oy);
+		insert(id, nx, ny);
+	}
+};
+SPM spm;
 
 struct event_type
 {
@@ -76,6 +110,7 @@ struct event_type
 	}
 };
 priority_queue<event_type> timer_queue;
+mutex timer_lock;
 
 bool CAS(atomic_bool* x, bool c, bool n)
 {
@@ -88,7 +123,9 @@ void add_timer(int obj_id, int event_id, int wakeup_time)
 	e.obj_id = obj_id;
 	e.wakeup_time = high_resolution_clock::now() + seconds(wakeup_time / 1000);
 	e.event_id = event_id;
+	timer_lock.lock();
 	timer_queue.push(e);
+	timer_lock.unlock();
 }
 
 HANDLE g_iocp;
@@ -151,15 +188,30 @@ void send_enter_packet(int user_id, int o_id)
 	p.id = o_id;
 	p.size = sizeof(p);
 	p.type = S2C_ENTER;
-	p.x = g_clients[o_id].x;
-	p.y = g_clients[o_id].y;
-	strcpy_s(p.name, g_clients[o_id].m_name);
-	p.o_type = O_PLAYER;
 
-	g_clients[user_id].m_cl.lock();
-	g_clients[user_id].view_list.insert(o_id);
-	g_clients[user_id].m_cl.unlock();
 
+	if (o_id < MAX_USER)
+	{
+		p.x = g_clients[o_id].x;
+		p.y = g_clients[o_id].y;
+		strcpy_s(p.name, g_clients[o_id].m_name);
+		p.o_type = O_PLAYER;
+
+		g_clients[user_id].m_cl.lock();
+		g_clients[user_id].view_list.insert(o_id);
+		g_clients[user_id].m_cl.unlock();
+	}
+	else
+	{
+		p.x = g_npcs[o_id - MAX_USER].x;
+		p.y = g_npcs[o_id - MAX_USER].y;
+		strcpy_s(p.name, "");
+		p.o_type = O_NPC;
+
+		g_clients[user_id].m_cl.lock();
+		g_clients[user_id].view_list_npc.insert(o_id);
+		g_clients[user_id].m_cl.unlock();
+	}
 	send_packet(user_id, &p);
 }
 
@@ -219,6 +271,7 @@ void do_move(int user_id, int direction)
 		DebugBreak();
 		exit(-1);
 	}
+	spm.update(u.m_id, u.x, u.y, x, y);
 	u.x = x;
 	u.y = y;
 
@@ -284,8 +337,13 @@ void do_move(int user_id, int direction)
 	}
 
 	for (auto& npc : g_npcs)
-		if (!npc.m_is_active)
-			CAS(&npc.m_is_active, false, true);
+	{
+		if (npc.m_is_active) continue;
+		if (abs(u.x - npc.x) > VIEW_RADIUS + 2) continue;
+		if (abs(u.y - npc.y) > VIEW_RADIUS + 2) continue;
+		if (CAS(&npc.m_is_active, false, true))
+			add_timer(npc.m_id, MOVE_EVENT, 1000);
+	}
 }
 
 void enter_game(int user_id, char name[])
@@ -354,7 +412,7 @@ void disconnect(int user_id)
 
 	g_clients[user_id].m_cl.lock();
 	g_clients[user_id].m_status = ST_ALLOC;
-
+	spm.erase(user_id, g_clients[user_id].x, g_clients[user_id].y);
 	closesocket(g_clients[user_id].m_s);
 	for (auto& cl : g_clients)
 	{
@@ -410,9 +468,13 @@ void broadcast_move(int id)
 		if (abs(cl.x - npc.x) > VIEW_RADIUS) continue;
 		if (abs(cl.y - npc.y) > VIEW_RADIUS) continue;
 
-		//send_enter_packet(cl.m_id, id);
-		send_move_packet(cl.m_id, id);
-		//send_leave_packet(cl.m_id, id);
+		cl.m_cl.lock();
+		int count = cl.view_list_npc.count(id);
+		cl.m_cl.unlock();
+		if (count == 0)
+			send_enter_packet(cl.m_id, id);
+		else
+			send_move_packet(cl.m_id, id);
 	}
 }
 
@@ -504,6 +566,8 @@ void worker_thread()
 				nc.x = rand() % WORLD_WIDTH;
 				nc.y = rand() % WORLD_HEIGHT;
 
+				spm.insert(nc.m_id, nc.x, nc.y);
+
 				DWORD flags = 0;
 				WSARecv(c_socket, &nc.m_recv_over.wsabuf, 1, NULL, &flags, &nc.m_recv_over.over, NULL);
 			}
@@ -543,8 +607,8 @@ void NPC_Create()
 	{
 		g_npcs[i].m_is_active = false;
 		g_npcs[i].m_id = MAX_USER + i;
-		g_npcs[i].x = rand() / WORLD_WIDTH;
-		g_npcs[i].y = rand() / WORLD_HEIGHT;
+		g_npcs[i].x = rand() % WORLD_WIDTH;
+		g_npcs[i].y = rand() % WORLD_HEIGHT;
 	}
 }
 
@@ -554,6 +618,7 @@ void timer_thread()
 
 	do {
 		Sleep(1);
+		timer_lock.lock();
 		do {
 			if (!timer_queue.size())
 				break;
@@ -564,6 +629,7 @@ void timer_thread()
 			timer_queue.pop();
 			process_event(e);
 		} while (true);
+		timer_lock.unlock();
 	} while (true);
 }
 

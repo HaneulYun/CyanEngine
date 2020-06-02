@@ -24,7 +24,7 @@ constexpr auto MAX_USER = 10;
 class TCPClient : public MonoBehavior<TCPClient>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	int NPC_ID_START = 10000;
+	int NPC_ID_START = 20000;
 
 	bool isIP{ false };
 	std::wstring ip;
