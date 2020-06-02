@@ -10,17 +10,19 @@
 #include <mutex>
 #include <unordered_set>
 #include <atomic>
+#include <chrono>
 using namespace std;
+using namespace chrono;
 
 #include "protocol.h"
 constexpr auto MAX_PACKET_SIZE = 255;
 constexpr auto MAX_BUF_SIZE = 1024;
 constexpr auto MAX_USER = 10000;
-constexpr auto MAX_NPC = 10000;
+constexpr auto MAX_NPC = 200000;
 
 constexpr auto VIEW_RADIUS = 8;
 
-enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT };
+enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, MOVE_EVENT };
 enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE };
 
 struct EXOVER
@@ -50,8 +52,16 @@ struct CLIENT
 
 	unordered_set<int> view_list;
 };
+CLIENT g_clients[MAX_USER];
 
-CLIENT g_clients[MAX_USER + MAX_NPC];
+struct NPC
+{
+	EXOVER exover;
+	int m_id;
+	short x, y;
+};
+NPC g_npcs[MAX_NPC];
+
 HANDLE g_iocp;
 SOCKET l_socket;
 
@@ -285,7 +295,7 @@ void process_packet(int user_id, char* buf)
 
 void initialize_clients()
 {
-	for (int i = 0; i < MAX_USER + MAX_NPC; ++i)
+	for (int i = 0; i < MAX_USER; ++i)
 	{
 		g_clients[i].m_id = i;
 		g_clients[i].m_status = ST_FREE;
@@ -342,6 +352,26 @@ void recv_packet_construct(int user_id, int io_byte)
 			rest_byte = 0;
 			p += rest_byte;
 		}
+	}
+}
+
+void move_npc(int id)
+{
+	NPC& npc = g_npcs[id];
+	switch (rand() % 4)
+	{
+	case D_UP: if (g_npcs[id].y < (WORLD_HEIGHT - 1)) ++g_npcs[id].y;
+		break;
+	case D_DOWN: if (g_npcs[id].y > 0) --g_npcs[id].y;
+		break;
+	case D_LEFT: if (g_npcs[id].x > 0) --g_npcs[id].x;
+		break;
+	case D_RIGHT: if (g_npcs[id].x < (WORLD_WIDTH - 1)) ++g_npcs[id].x;
+		break;
+	default:
+		cout << "Unknown Direction from Client move packet!\n";
+		DebugBreak();
+		exit(-1);
 	}
 }
 
@@ -421,38 +451,76 @@ void worker_thread()
 			AcceptEx(l_socket, c_socket, exover->io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &exover->over);
 		}
 		break;
+		case MOVE_EVENT:
+		{
+			move_npc(user_id);
+		}
+		break;
 		}
 	}
 }
 
-struct TimerEvent
+struct event_type
 {
-	int a;
+	int obj_id;
+	high_resolution_clock::time_point wakeup_time;
+	int event_id;
+	int target_id;
 
-	bool operator<(const TimerEvent& rhs) const
+	constexpr bool operator<(const event_type& rhs) const
 	{
-		return a < rhs.a;
+		return wakeup_time > rhs.wakeup_time;
 	}
 };
+priority_queue<event_type> timer_queue;
 
-void process_event(TimerEvent timerEvent)
+void push(int obj_id, int event_id, high_resolution_clock::time_point wakeup_time)
 {
+	event_type e{};
+	e.obj_id = obj_id;
+	e.wakeup_time = wakeup_time;
+	e.event_id = event_id;
+	timer_queue.push(e);
+}
 
+void process_event(const event_type& e)
+{
+	EXOVER* overlap_ex = &g_npcs[e.obj_id].exover;
+	ZeroMemory(&overlap_ex->over, sizeof(overlap_ex->over));
+	overlap_ex->op = MOVE_EVENT;
+	PostQueuedCompletionStatus(g_iocp, 1, e.obj_id, &overlap_ex->over);
+
+	push(e.obj_id, MOVE_EVENT, high_resolution_clock::now() + 1s);
+}
+
+
+void NPC_Create()
+{
+	high_resolution_clock::time_point currentTime = high_resolution_clock::now();
+	for (int i = 0; i < MAX_NPC; ++i)
+	{
+		g_npcs[i].m_id = i;
+		g_npcs[i].x = rand() / WORLD_WIDTH;
+		g_npcs[i].y = rand() / WORLD_HEIGHT;
+		push(g_npcs[i].m_id, MOVE_EVENT, currentTime + 1s);
+	}
 }
 
 void timer_thread()
 {
-	priority_queue<TimerEvent> timer_queue;
+	NPC_Create();
+
 	do {
 		Sleep(1);
 		do {
 			if (!timer_queue.size())
 				break;
-			TimerEvent timerEvent = timer_queue.top();
-			if (timerEvent.a > 0)
+			high_resolution_clock::time_point current_time = high_resolution_clock::now();
+			event_type e = timer_queue.top();
+			if (e.wakeup_time > current_time)
 				break;
 			timer_queue.pop();
-			process_event(timerEvent);
+			process_event(e);
 		} while (true);
 	} while (true);
 }
