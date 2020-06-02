@@ -5,6 +5,7 @@
 #pragma comment(lib, "mswsock.lib")
 
 #include <vector>
+#include <queue>
 #include <thread>
 #include <mutex>
 #include <unordered_set>
@@ -15,6 +16,7 @@ using namespace std;
 constexpr auto MAX_PACKET_SIZE = 255;
 constexpr auto MAX_BUF_SIZE = 1024;
 constexpr auto MAX_USER = 10000;
+constexpr auto MAX_NPC = 10000;
 
 constexpr auto VIEW_RADIUS = 8;
 
@@ -49,7 +51,7 @@ struct CLIENT
 	unordered_set<int> view_list;
 };
 
-CLIENT g_clients[MAX_USER];
+CLIENT g_clients[MAX_USER + MAX_NPC];
 HANDLE g_iocp;
 SOCKET l_socket;
 
@@ -283,7 +285,7 @@ void process_packet(int user_id, char* buf)
 
 void initialize_clients()
 {
-	for (int i = 0; i < MAX_USER; ++i)
+	for (int i = 0; i < MAX_USER + MAX_NPC; ++i)
 	{
 		g_clients[i].m_id = i;
 		g_clients[i].m_status = ST_FREE;
@@ -423,6 +425,38 @@ void worker_thread()
 	}
 }
 
+struct TimerEvent
+{
+	int a;
+
+	bool operator<(const TimerEvent& rhs) const
+	{
+		return a < rhs.a;
+	}
+};
+
+void process_event(TimerEvent timerEvent)
+{
+
+}
+
+void timer_thread()
+{
+	priority_queue<TimerEvent> timer_queue;
+	do {
+		Sleep(1);
+		do {
+			if (!timer_queue.size())
+				break;
+			TimerEvent timerEvent = timer_queue.top();
+			if (timerEvent.a > 0)
+				break;
+			timer_queue.pop();
+			process_event(timerEvent);
+		} while (true);
+	} while (true);
+}
+
 int main()
 {
 	WSADATA WSAData;
@@ -455,6 +489,9 @@ int main()
 	AcceptEx(l_socket, c_socket, accept_over.io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &accept_over.over);
 
 	vector<thread> worker_threads;
+	thread timer_thread{ ::timer_thread };
 	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(worker_thread);
+
+	timer_thread.join();
 	for (auto& th : worker_threads) th.join();
 }
