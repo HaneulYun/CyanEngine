@@ -815,7 +815,7 @@ int main()
 
 	vector <thread> worker_threads;
 	thread timer_threads(timer_thread);
-	for (int i = 0; i < 1; ++i) worker_threads.emplace_back(worker_thread);
+	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(worker_thread);
 	for (auto& th : worker_threads)th.join();
 	timer_threads.join();
 }
