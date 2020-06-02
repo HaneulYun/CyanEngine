@@ -17,7 +17,7 @@ using namespace chrono;
 #include "protocol.h"
 constexpr auto MAX_PACKET_SIZE = 255;
 constexpr auto MAX_BUF_SIZE = 1024;
-constexpr auto MAX_USER = 10000;
+constexpr auto MAX_USER = 20000;
 constexpr auto MAX_NPC = 200000;
 
 constexpr auto VIEW_RADIUS = 8;
@@ -56,11 +56,40 @@ CLIENT g_clients[MAX_USER];
 
 struct NPC
 {
+	atomic_bool m_is_active;
 	EXOVER exover;
 	int m_id;
 	short x, y;
 };
 NPC g_npcs[MAX_NPC];
+
+struct event_type
+{
+	int obj_id;
+	high_resolution_clock::time_point wakeup_time;
+	int event_id;
+	int target_id;
+
+	constexpr bool operator<(const event_type& rhs) const
+	{
+		return wakeup_time > rhs.wakeup_time;
+	}
+};
+priority_queue<event_type> timer_queue;
+
+bool CAS(atomic_bool* x, bool c, bool n)
+{
+	return atomic_compare_exchange_strong(x, &c, n);
+}
+
+void add_timer(int obj_id, int event_id, int wakeup_time)
+{
+	event_type e{};
+	e.obj_id = obj_id;
+	e.wakeup_time = high_resolution_clock::now() + seconds(wakeup_time / 1000);
+	e.event_id = event_id;
+	timer_queue.push(e);
+}
 
 HANDLE g_iocp;
 SOCKET l_socket;
@@ -70,7 +99,18 @@ bool is_near(int a, int b)
 	if (abs(g_clients[a].x - g_clients[b].x) > VIEW_RADIUS) return false;
 	if (abs(g_clients[a].y - g_clients[b].y) > VIEW_RADIUS) return false;
 	return true;
+}
 
+bool near_player_exist(int id)
+{
+	for (auto& cl : g_clients)
+	{
+		if (ST_ACTIVE != cl.m_status) continue;
+		if (abs(cl.x - g_npcs[id].x) > VIEW_RADIUS) continue;
+		if (abs(cl.y - g_npcs[id].y) > VIEW_RADIUS) continue;
+		return true;
+	}
+	return false;
 }
 
 void send_packet(int user_id, void* p)
@@ -233,13 +273,9 @@ void do_move(int user_id, int direction)
 		}
 	}
 
-	//for (auto& cl : g_clients)
-	//{
-	//	cl.m_cl.lock();
-	//	if (ST_ACTIVE == cl.m_status)
-	//		send_move_packet(cl.m_id, user_id);
-	//	cl.m_cl.unlock();
-	//}
+	for (auto& npc : g_npcs)
+		if (!npc.m_is_active)
+			CAS(&npc.m_is_active, false, true);
 }
 
 void enter_game(int user_id, char name[])
@@ -454,33 +490,14 @@ void worker_thread()
 		case MOVE_EVENT:
 		{
 			move_npc(user_id);
+			if (near_player_exist(user_id))
+				add_timer(user_id, MOVE_EVENT, 1000);
+			else
+				g_npcs[user_id].m_is_active = false;
 		}
 		break;
 		}
 	}
-}
-
-struct event_type
-{
-	int obj_id;
-	high_resolution_clock::time_point wakeup_time;
-	int event_id;
-	int target_id;
-
-	constexpr bool operator<(const event_type& rhs) const
-	{
-		return wakeup_time > rhs.wakeup_time;
-	}
-};
-priority_queue<event_type> timer_queue;
-
-void push(int obj_id, int event_id, high_resolution_clock::time_point wakeup_time)
-{
-	event_type e{};
-	e.obj_id = obj_id;
-	e.wakeup_time = wakeup_time;
-	e.event_id = event_id;
-	timer_queue.push(e);
 }
 
 void process_event(const event_type& e)
@@ -489,8 +506,6 @@ void process_event(const event_type& e)
 	ZeroMemory(&overlap_ex->over, sizeof(overlap_ex->over));
 	overlap_ex->op = MOVE_EVENT;
 	PostQueuedCompletionStatus(g_iocp, 1, e.obj_id, &overlap_ex->over);
-
-	push(e.obj_id, MOVE_EVENT, high_resolution_clock::now() + 1s);
 }
 
 
@@ -499,10 +514,10 @@ void NPC_Create()
 	high_resolution_clock::time_point currentTime = high_resolution_clock::now();
 	for (int i = 0; i < MAX_NPC; ++i)
 	{
+		g_npcs[i].m_is_active = false;
 		g_npcs[i].m_id = i;
 		g_npcs[i].x = rand() / WORLD_WIDTH;
 		g_npcs[i].y = rand() / WORLD_HEIGHT;
-		push(g_npcs[i].m_id, MOVE_EVENT, currentTime + 1s);
 	}
 }
 
