@@ -67,15 +67,15 @@ NPC g_npcs[MAX_NPC];
 struct SECTOR
 {
 	unordered_set<int> ids;
+	mutex sl;
 
 	void fill_list(unordered_set<int>& set, int x, int y)
 	{
+		sl.lock();
 		for (int id : ids)
 		{
 			if (id < MAX_USER)
 			{
-				//int cx = g_clients[id].x;
-				//int cy = g_clients[id].y;
 				if (abs(x - g_clients[id].x) > VIEW_RADIUS) continue;
 				if (abs(y - g_clients[id].y) > VIEW_RADIUS) continue;
 			}
@@ -86,6 +86,7 @@ struct SECTOR
 			}
 			set.insert(id);
 		}
+		sl.unlock();
 	}
 };
 
@@ -99,12 +100,20 @@ struct SPM
 
 	void insert(int id, int x, int y)
 	{
-		sectors[y / SECTOR_HEIGHT][x / SECTOR_WIDTH].ids.insert(id);
+		auto& sector = sectors[y / SECTOR_HEIGHT][x / SECTOR_WIDTH];
+		sector.sl.lock();
+		sector.ids.insert(id);
+		sector.sl.unlock();
 	}
 	void erase(int id, int x, int y)
 	{
 		auto& sector = sectors[y / SECTOR_HEIGHT][x / SECTOR_WIDTH];
-		if (sector.ids.count(id)) sector.ids.erase(id);
+		if (sector.ids.count(id))
+		{
+			sector.sl.lock();
+			sector.ids.erase(id);
+			sector.sl.unlock();
+		}
 	}
 	void update(int id, int ox, int oy, int nx, int ny)
 	{
@@ -243,7 +252,10 @@ void send_leave_packet(int user_id, int o_id)
 	p.type = S2C_LEAVE;
 
 	g_clients[user_id].m_cl.lock();
-	g_clients[user_id].view_list.erase(o_id);
+	if(o_id < MAX_USER)
+		g_clients[user_id].view_list.erase(o_id);
+	else
+		g_clients[user_id].view_list_npc.erase(o_id);
 	g_clients[user_id].m_cl.unlock();
 
 	send_packet(user_id, &p);
@@ -632,12 +644,7 @@ void worker_thread()
 				for (auto& cl : g_clients)
 				{
 					if (cl.m_status != ST_ACTIVE) continue;
-
-					if (cl.view_list_npc.count(user_id))
-					{
-						send_leave_packet(cl.m_id, user_id);
-						cl.view_list_npc.erase(user_id);
-					}
+					send_leave_packet(cl.m_id, user_id);
 				}
 			}
 		}
@@ -674,19 +681,22 @@ void timer_thread()
 
 	do {
 		Sleep(1);
-		timer_lock.lock();
 		cout << timer_queue.size() << endl;
 		do {
 			if (!timer_queue.size())
 				break;
 			high_resolution_clock::time_point current_time = high_resolution_clock::now();
+			timer_lock.lock();
 			event_type e = timer_queue.top();
 			if (e.wakeup_time > current_time)
+			{
+				timer_lock.unlock();
 				break;
+			}
 			timer_queue.pop();
+			timer_lock.unlock();
 			process_event(e);
 		} while (true);
-		timer_lock.unlock();
 	} while (true);
 }
 
