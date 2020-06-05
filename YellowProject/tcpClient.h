@@ -226,10 +226,11 @@ public:
 				//avatar.show();
 			}
 			else {
+				npcs[id] = Scene::scene->Duplicate(prefab)->GetComponent<Pawn>();
 				if (id < NPC_ID_START)
-					npcs[id] = Scene::scene->Duplicate(prefab)->GetComponent<Pawn>();
+					npcs[id]->gameObject->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("userMat");
 				else
-					npcs[id] = Scene::scene->Duplicate(prefab)->GetComponent<Pawn>();
+					npcs[id]->gameObject->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("npcMat");
 				strcpy(npcs[id]->name, my_packet->name);
 				//npcs[id].set_name(my_packet->name);
 				npcs[id]->move(my_packet->x, my_packet->y);
@@ -305,7 +306,7 @@ public:
 
 	void send_move_packet(unsigned char dir)
 	{
-		cs_packet_move m_packet;
+		cs_packet_move m_packet{};
 		m_packet.type = C2S_MOVE;
 		m_packet.size = sizeof(m_packet);
 		m_packet.direction = dir;

@@ -10,6 +10,9 @@ void GameScene::BuildObjects()
 	ASSET AddTexture("blackTileTex", L"Textures\\black_tile.dds");
 	ASSET AddTexture("whiteTileTex", L"Textures\\white_tile.dds");
 	ASSET AddTexture("pawnTex", L"Textures\\pawn.dds");
+	ASSET AddTexture("playerTex", L"Textures\\p2.dds");
+	ASSET AddTexture("userTex", L"Textures\\p1.dds");
+	ASSET AddTexture("npcTex", L"Textures\\p5.dds");
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
@@ -17,6 +20,9 @@ void GameScene::BuildObjects()
 	ASSET AddMaterial("blackTileMat", ASSET TEXTURE("blackTileTex"));
 	ASSET AddMaterial("whiteTileMat", ASSET TEXTURE("whiteTileTex"));
 	ASSET AddMaterial("pawnMat", ASSET TEXTURE("pawnTex"));
+	ASSET AddMaterial("playerMat", ASSET TEXTURE("playerTex"));
+	ASSET AddMaterial("userMat", ASSET TEXTURE("userTex"));
+	ASSET AddMaterial("npcMat", ASSET TEXTURE("npcTex"));
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
@@ -37,7 +43,7 @@ void GameScene::BuildObjects()
 		prefab->transform->Rotate({ 1, 0, 0 }, -90);
 		prefab->transform->position = { 0, 0, -1 };
 		prefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
-		prefab->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("pawnMat"));
+		prefab->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("playerMat"));
 
 		prefab->AddComponent<Pawn>()->x = -1;
 		prefab->GetComponent<Pawn>()->y = -1;
