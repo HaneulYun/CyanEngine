@@ -306,7 +306,7 @@ public:
 
 	void send_move_packet(unsigned char dir)
 	{
-		cs_packet_move m_packet;
+		cs_packet_move m_packet{};
 		m_packet.type = C2S_MOVE;
 		m_packet.size = sizeof(m_packet);
 		m_packet.direction = dir;

@@ -313,47 +313,50 @@ void do_move(int user_id, int direction)
 
 	unordered_set<int> new_vl;
 	spm.fill_list(new_vl, g_clients[user_id].x, g_clients[user_id].y);
-	//for (auto& cl : g_clients)
-	//{
-	//	if (ST_ACTIVE != cl.m_status) continue;
-	//	if (cl.m_id == user_id) continue;
-	//	if (true == is_near(cl.m_id, user_id))
-	//		new_vl.insert(cl.m_id);
-	//}
 
 	send_move_packet(user_id, user_id);
 
 	if (new_vl.count(user_id))
 		new_vl.erase(user_id);
-	for (auto np : new_vl) {
-		if (np >= MAX_USER) continue;
-		if (0 == old_vl.count(np)) {
-			send_enter_packet(user_id, np);
-			g_clients[np].m_cl.lock();
-			if (0 == g_clients[np].view_list.count(user_id))
-			{
-				g_clients[np].m_cl.unlock();
-				send_enter_packet(np, user_id);
+	for (auto id : new_vl) {
+		if (id < MAX_USER)
+		{
+			if (0 == old_vl.count(id)) {
+				send_enter_packet(user_id, id);
+				g_clients[id].m_cl.lock();
+				if (0 == g_clients[id].view_list.count(user_id))
+				{
+					g_clients[id].m_cl.unlock();
+					send_enter_packet(id, user_id);
+				}
+				else
+				{
+					g_clients[id].m_cl.unlock();
+					send_move_packet(id, user_id);
+				}
 			}
 			else
 			{
-				g_clients[np].m_cl.unlock();
-				send_move_packet(np, user_id);
+				g_clients[id].m_cl.lock();
+				if (0 != g_clients[id].view_list.count(user_id))
+				{
+					g_clients[id].m_cl.unlock();
+					send_move_packet(id, user_id);
+				}
+				else
+				{
+					g_clients[id].m_cl.unlock();
+					send_enter_packet(id, user_id);
+				}
 			}
 		}
 		else
 		{
-			g_clients[np].m_cl.lock();
-			if (0 != g_clients[np].view_list.count(user_id))
-			{
-				g_clients[np].m_cl.unlock();
-				send_move_packet(np, user_id);
-			}
-			else
-			{
-				g_clients[np].m_cl.unlock();
-				send_enter_packet(np, user_id);
-			}
+			if (g_clients[user_id].m_move_time) continue;
+			if (id < MAX_USER) continue;
+			if (g_npcs[id - MAX_USER].m_is_active) continue;
+			if (CAS(&g_npcs[id - MAX_USER].m_is_active, false, true))
+				add_timer(g_npcs[id - MAX_USER].m_id, MOVE_EVENT, 1000);
 		}
 	}
 
@@ -371,14 +374,6 @@ void do_move(int user_id, int direction)
 			else
 				g_clients[old_p].m_cl.unlock();
 		}
-	}
-
-	for (auto id : new_vl)
-	{
-		if (id < MAX_USER) continue;
-		if (g_npcs[id - MAX_USER].m_is_active) continue;
-		if (CAS(&g_npcs[id - MAX_USER].m_is_active, false, true))
-			add_timer(g_npcs[id - MAX_USER].m_id, MOVE_EVENT, 1000);
 	}
 }
 
@@ -633,7 +628,11 @@ void worker_thread()
 
 			for (auto id : new_vl)
 				if (id < MAX_USER)
+				{
+					if (g_clients[id].m_move_time) continue;
 					near_player_exist = true;
+					break;
+				}
 
 			if (near_player_exist)
 				add_timer(user_id, MOVE_EVENT, 1000);
@@ -681,7 +680,6 @@ void timer_thread()
 
 	do {
 		Sleep(1);
-		cout << timer_queue.size() << endl;
 		do {
 			if (!timer_queue.size())
 				break;
