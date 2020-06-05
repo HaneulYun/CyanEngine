@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include <atomic>
 #include <chrono>
+#include <queue>
 using namespace std;
 using namespace chrono;
 
@@ -20,7 +21,23 @@ constexpr auto MAX_USER = 10000;
 
 constexpr auto VIEW_RADIUS = 6;
 
-enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT };
+enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE };
+struct event_type
+{
+	int obj_id;
+	ENUMOP event_id;
+	high_resolution_clock::time_point wakeup_time;
+	int target_id;
+
+	constexpr bool operator < (const event_type& right) const
+	{
+		return (wakeup_time > right.wakeup_time);
+	}
+};
+
+priority_queue<event_type> timer_queue;
+mutex timer_lock;
+
 enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE };
 
 struct EXOVER
@@ -55,6 +72,14 @@ struct CLIENT
 CLIENT g_clients[NPC_ID_START + NUM_NPC];
 HANDLE g_iocp;
 SOCKET l_socket;
+
+void add_timer(int obj_id, ENUMOP op_type, int duration)
+{
+	timer_lock.lock();
+	event_type ev{ obj_id, op_type, high_resolution_clock::now() + milliseconds(duration), 0 };
+	timer_queue.push(ev);
+	timer_lock.unlock();
+}
 
 bool is_player(int id)
 {
@@ -239,6 +264,50 @@ void do_move(int user_id, int direction)
 	//		send_move_packet(cl.m_id, user_id);
 	//	cl.m_cl.unlock();
 	//}
+}
+
+void random_move_npc(int id)
+{
+	int x = g_clients[id].x;
+	int y = g_clients[id].y;
+	switch (rand() % 4)
+	{
+	case 0: if (x < (WORLD_WIDTH - 1)) ++x; break;
+	case 1: if (x > 0) --x; break;
+	case 2: if (y < (WORLD_HEIGHT - 1)) ++y; break;
+	case 3: if (y > 0) --y; break;
+	}
+	g_clients[id].x = x;
+	g_clients[id].y = y;
+	for (int i = 0; i < NPC_ID_START; ++i)
+	{
+		if (ST_ACTIVE != g_clients[i].m_status) continue;
+		if (true == is_near(i, id))
+		{
+			g_clients[i].m_cl.lock();
+			if (0 != g_clients[i].view_list.count(id))
+			{
+				g_clients[i].m_cl.unlock();
+				send_move_packet(i, id);
+			}
+			else
+			{
+				g_clients[i].m_cl.unlock();
+				send_enter_packet(i, id);
+			}
+		}
+		else
+		{
+			g_clients[i].m_cl.lock();
+			if (0 != g_clients[i].view_list.count(id))
+			{
+				g_clients[i].m_cl.unlock();
+				send_leave_packet(i, id);
+			}
+			else
+				g_clients[i].m_cl.unlock();
+		}
+	}
 }
 
 void enter_game(int user_id, char name[])
@@ -432,6 +501,14 @@ void worker_thread()
 			AcceptEx(l_socket, c_socket, exover->io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &exover->over);
 		}
 		break;
+		case OP_RANDOM_MOVE:
+			random_move_npc(user_id);
+			add_timer(user_id, OP_RANDOM_MOVE, 1000);
+			delete exover;
+			break;
+		default:
+			cout << "Unknown Operation in worker_thread!!!\n";
+			while (true);
 		}
 	}
 }
@@ -446,51 +523,8 @@ void init_npc()
 		g_clients[i].m_status = ST_ACTIVE;
 		g_clients[i].x = rand() % WORLD_WIDTH;
 		g_clients[i].y = rand() % WORLD_HEIGHT;
-		g_clients[i].m_last_move_time = high_resolution_clock::now();
-	}
-}
-
-void random_move_npc(int id)
-{
-	int x = g_clients[id].x;
-	int y = g_clients[id].y;
-	switch (rand() % 4)
-	{
-	case 0: if (x < (WORLD_WIDTH - 1)) ++x; break;
-	case 1: if (x > 0) --x; break;
-	case 2: if (y < (WORLD_HEIGHT - 1)) ++y; break;
-	case 3: if (y > 0) --y; break;
-	}
-	g_clients[id].x = x;
-	g_clients[id].y = y;
-	for (int i = 0; i < NPC_ID_START; ++i)
-	{
-		if (ST_ACTIVE != g_clients[i].m_status) continue;
-		if (true == is_near(i, id))
-		{
-			g_clients[i].m_cl.lock();
-			if (0 != g_clients[i].view_list.count(id))
-			{
-				g_clients[i].m_cl.unlock();
-				send_move_packet(i, id);
-			}
-			else
-			{
-				g_clients[i].m_cl.unlock();
-				send_enter_packet(i, id);
-			}
-		}
-		else
-		{
-			g_clients[i].m_cl.lock();
-			if (0 != g_clients[i].view_list.count(id))
-			{
-				g_clients[i].m_cl.unlock();
-				send_leave_packet(i, id);
-			}
-			else
-				g_clients[i].m_cl.unlock();
-		}
+		//g_clients[i].m_last_move_time = high_resolution_clock::now();
+		add_timer(i, OP_RANDOM_MOVE, 1000);
 	}
 }
 
@@ -509,6 +543,40 @@ void do_ai()
 		}
 		auto ai_time = high_resolution_clock::now() - ai_start_time;
 		cout << "AI Exec Time = " << duration_cast<milliseconds>(ai_time).count() << "ms\n";
+	}
+}
+
+void do_timer()
+{
+	while (true)
+	{
+		this_thread::sleep_for(1ms);
+		while (true)
+		{
+			timer_lock.lock();
+			if (true == timer_queue.empty())
+			{
+				timer_lock.unlock();
+				break;
+			}
+			if (timer_queue.top().wakeup_time > high_resolution_clock::now())
+			{
+				timer_lock.unlock();
+				break;
+			}
+			event_type ev = timer_queue.top();
+			timer_queue.pop();
+			timer_lock.unlock();
+			switch (ev.event_id)
+			{
+			case OP_RANDOM_MOVE:
+				EXOVER* over = new EXOVER;
+				over->op = ev.event_id;
+				PostQueuedCompletionStatus(g_iocp, 1, ev.obj_id, &over->over);
+				//random_move_npc(ev.obj_id);
+				//add_timer(ev.obj_id, ev.event_id, 1000);
+			}
+		}
 	}
 }
 
@@ -550,8 +618,10 @@ int main()
 	vector<thread> worker_threads;
 	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(worker_thread);
 
-	thread ai_thread{ do_ai };
+	//thread ai_thread{ do_ai };
+	//ai_thread.join();
 
-	ai_thread.join();
+	thread timer_thread{ do_timer };
+
 	for (auto& th : worker_threads) th.join();
 }
