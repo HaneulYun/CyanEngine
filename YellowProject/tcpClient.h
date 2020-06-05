@@ -18,13 +18,13 @@ constexpr auto TILE_WIDTH = 65;
 constexpr auto WINDOW_WIDTH = TILE_WIDTH * SCREEN_WIDTH / 2 + 10;   // size of window
 constexpr auto WINDOW_HEIGHT = TILE_WIDTH * SCREEN_WIDTH / 2 + 10;
 constexpr auto BUF_SIZE = 200;
-constexpr auto MAX_USER = 10;
+constexpr auto MAX_USER = NPC_ID_START;
 
 
 class TCPClient : public MonoBehavior<TCPClient>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
-	int NPC_ID_START = 10000;
+	//int NPC_ID_START = 10000;
 
 	bool isIP{ false };
 	std::wstring ip;
