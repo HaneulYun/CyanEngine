@@ -48,6 +48,8 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	Pawn* avatar;
 	std::unordered_map<int, Pawn*> npcs;
 
+	Text* coordinateText;
+
 	//char myID{ -1 };
 	int g_left_x;
 	int g_top_y;
@@ -174,6 +176,9 @@ public:
 				rect->anchorMin = { (x+0.5f) / 20, (y+0.5f) / 20 };
 				rect->anchorMax = { (x+0.5f) / 20, (y+0.5f) / 20 };
 			}
+			wchar_t wstr[20];
+			wsprintf(wstr, L"(%d, %d)", avatar->x, avatar->y);
+			coordinateText->text = wstr;
 		}
 		SleepEx(10, TRUE);
 	}

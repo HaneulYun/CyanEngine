@@ -51,7 +51,7 @@ void GameScene::BuildObjects()
 		text->text = L"(0, 0)";
 		text->font = L"메이플스토리";
 		text->fontSize = 40;
-		text->color = { 96 / 255.f, 235 / 255.f, 211 / 255.f, 1 };
+		text->color = { 217 / 255.f, 120 / 255.f, 235 / 255.f, 1 };
 		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 	}
 
@@ -77,7 +77,7 @@ void GameScene::BuildObjects()
 			text->text = L"NONE";
 			text->font = L"메이플스토리";
 			text->fontSize = 15;
-			text->color = { 96 / 255.f, 235 / 255.f, 211 / 255.f, 1 };
+			text->color = { 235 / 255.f, 207 / 255.f, 73 / 255.f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		}
 	}
@@ -90,6 +90,7 @@ void GameScene::BuildObjects()
 		//board->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("boardMat"));
 	
 		board->AddComponent<TCPClient>()->prefab = prefab;
+		board->GetComponent<TCPClient>()->coordinateText = coordinatePrinter->GetComponent<Text>();
 	}
 
 	for (int i = 0; i < SCREEN_WIDTH; ++i)
