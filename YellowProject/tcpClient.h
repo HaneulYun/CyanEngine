@@ -253,7 +253,6 @@ public:
 			}
 		}
 		break;
-
 		case S2C_LEAVE:
 		{
 			sc_packet_leave* my_packet = reinterpret_cast<sc_packet_leave*>(ptr);
@@ -264,6 +263,16 @@ public:
 			else {
 				if (0 != npcs.count(other_id))
 					npcs[other_id]->gameObject->SetActive(false); //.hide();
+			}
+		}
+		break;
+		case S2C_CHAT:
+		{
+			sc_packet_chat* my_packet = reinterpret_cast<sc_packet_chat*>(ptr);
+			int o_id = my_packet->id;
+			if (0 != npcs.count(o_id))
+			{
+				//npcs[o_id]->add_chat(my_packet->mess);
 			}
 		}
 		break;
