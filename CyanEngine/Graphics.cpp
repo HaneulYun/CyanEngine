@@ -236,10 +236,21 @@ void Graphics::RenderUI()
 	deviceContext->BeginDraw();
 	deviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
 
-	for (GameObject* gameObject : Scene::scene->textObjects)
+	for (GameObject* gameObject : Scene::scene->gameObjects)
 	{
+		if (!gameObject->active)
+			continue;
 		Text* textComponent = gameObject->GetComponent<Text>();
-		//if (textComponent == nullptr) continue;
+		if (textComponent == nullptr)
+		{
+			for (auto child : gameObject->children)
+			{
+				textComponent = child->GetComponent<Text>();
+				gameObject = child;
+			}
+		}
+		if (!textComponent)
+			continue;
 
 		if (textComponent->brushIndex == -1)
 		{
@@ -302,7 +313,8 @@ void Graphics::RenderUI()
 		D2D_RECT_F rt;
 
 		RectTransform* rect = gameObject->GetComponent<RectTransform>();
-		Matrix4x4 mat = RectTransform::Transform(gameObject->GetMatrix());
+		//Matrix4x4 mat = RectTransform::Transform(gameObject->GetMatrix());
+		Matrix4x4 mat = RectTransform::Transform(rect->localToWorldMatrix);
 
 		Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
 		Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };

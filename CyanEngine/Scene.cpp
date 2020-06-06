@@ -150,6 +150,12 @@ GameObject* Scene::CreateUI()
 	return newGameObject;
 }
 
+GameObject* Scene::CreateUIPrefab()
+{
+	GameObject* newGameObject = new GameObject(true);
+	return newGameObject;
+}
+
 GameObject* Scene::CreateImage()
 {
 	GameObject* gameObject = CreateUI();
@@ -163,7 +169,7 @@ GameObject* Scene::CreateImage()
 }
 GameObject* Scene::CreateImagePrefab()
 {
-	GameObject* gameObject = new GameObject(true);
+	GameObject* gameObject = CreateUIPrefab();
 
 	auto mesh = gameObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Image");
 	gameObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));

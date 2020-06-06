@@ -11,8 +11,8 @@
 //	char id; char x; char y;
 //};
 
-constexpr auto SCREEN_WIDTH = 16;
-constexpr auto SCREEN_HEIGHT = 16;
+constexpr auto SCREEN_WIDTH = 20;
+constexpr auto SCREEN_HEIGHT = 20;
 
 constexpr auto TILE_WIDTH = 65;
 constexpr auto WINDOW_WIDTH = TILE_WIDTH * SCREEN_WIDTH / 2 + 10;   // size of window
@@ -116,7 +116,7 @@ public:
 				int t_id = GetCurrentProcessId();
 				sprintf(l_packet.name, "P%03d", t_id % 1000);
 				strcpy(avatar->name, l_packet.name);
-				//avatar->set_name(l_packet.name);
+				avatar->setName();// set_name(l_packet.name);
 				send_packet(&l_packet);
 
 				recv = {};
@@ -159,16 +159,22 @@ public:
 					else
 						tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("blackTileMat");
 				}
+			float x = (float)avatar->x - g_left_x;
+			float y = (float)avatar->y - g_top_y;
 			avatar->gameObject->transform->position = { (float)avatar->x - g_left_x, (float)avatar->y - g_top_y, -1 };
+			auto rect = avatar->gameObject->children[0]->GetComponent<RectTransform>();
+			rect->anchorMin = { (x + 0.5f) / 20, (y + 0.5f) / 20 };
+			rect->anchorMax = { (x + 0.5f) / 20, (y + 0.5f) / 20 };
 			for (auto& d : npcs)
-				d.second->gameObject->transform->position = { (float)d.second->x - g_left_x, (float)d.second->y - g_top_y, -1 };
+			{
+				float x = (float)d.second->x - g_left_x;
+				float y = (float)d.second->y - g_top_y;
+				d.second->gameObject->transform->position = { x, y, -1 };
+				auto rect = d.second->gameObject->children[0]->GetComponent<RectTransform>();
+				rect->anchorMin = { (x+0.5f) / 20, (y+0.5f) / 20 };
+				rect->anchorMax = { (x+0.5f) / 20, (y+0.5f) / 20 };
+			}
 		}
-		//if (update_server)
-		//{
-		//	update_server = false;
-		//	for (auto& d : npcs)
-		//		d.second->SetPositionCurrentIndex();
-		//}
 		SleepEx(10, TRUE);
 	}
 
@@ -232,7 +238,7 @@ public:
 				else
 					npcs[id]->gameObject->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("npcMat");
 				strcpy(npcs[id]->name, my_packet->name);
-				//npcs[id].set_name(my_packet->name);
+				npcs[id]->setName();
 				npcs[id]->move(my_packet->x, my_packet->y);
 				//npcs[id].show();
 			}

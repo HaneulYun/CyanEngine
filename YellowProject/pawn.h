@@ -30,6 +30,19 @@ public:
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
+	void setName()
+	{
+		Text* text{ nullptr };
+		for (auto child : gameObject->children)
+			if (text = child->GetComponent<Text>(); text)
+				break;
+		if (text)
+		{
+			std::wstring wstr(name, &name[MAX_ID_LEN]);
+			text->text = wstr;
+		}
+	}
+
 	void move(int x, int y)
 	{
 		this->x = x;

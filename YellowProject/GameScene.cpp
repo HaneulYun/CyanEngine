@@ -32,10 +32,27 @@ void GameScene::BuildObjects()
 
 	auto mainCamera = CreateEmpty();
 	{
-		mainCamera->transform->position = { 7.5, 7.5, -10 };
+		mainCamera->transform->position = { 9.5, 9.5, -10 };
 		camera = camera->main = mainCamera->AddComponent<Camera>();
-		camera->GenerateOrthoMatrix(16, 16, 0, 100);
+		camera->GenerateOrthoMatrix(20, 20, 0, 100);
 		
+	}
+
+	GameObject* coordinatePrinter = CreateUI();
+	{
+		auto rect = coordinatePrinter->GetComponent<RectTransform>();
+		rect->anchorMin = { 0.5, 1.0 };
+		rect->anchorMax = { 0.5, 1.0 };
+		rect->pivot = { 0.5, 1.0 };
+		rect->width = 200;
+		rect->height = 200;
+
+		auto text = coordinatePrinter->AddComponent<Text>();
+		text->text = L"(0, 0)";
+		text->font = L"메이플스토리";
+		text->fontSize = 40;
+		text->color = { 96 / 255.f, 235 / 255.f, 211 / 255.f, 1 };
+		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 	}
 
 	GameObject* prefab = CreateEmptyPrefab();
@@ -47,6 +64,22 @@ void GameScene::BuildObjects()
 
 		prefab->AddComponent<Pawn>()->x = -1;
 		prefab->GetComponent<Pawn>()->y = -1;
+
+		GameObject* textPrinter = CreateUIPrefab();
+		{
+			prefab->AddChildUI(textPrinter);
+			auto rect = textPrinter->GetComponent<RectTransform>();
+			rect->width = 50;
+			rect->height = 50;
+			rect->pivot = { 0.5, 0.5 };
+
+			auto text = textPrinter->AddComponent<Text>();
+			text->text = L"NONE";
+			text->font = L"메이플스토리";
+			text->fontSize = 15;
+			text->color = { 96 / 255.f, 235 / 255.f, 211 / 255.f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
 	}
 
 	GameObject* board = CreateEmpty();
