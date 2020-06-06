@@ -65,19 +65,35 @@ void GameScene::BuildObjects()
 		prefab->AddComponent<Pawn>()->x = -1;
 		prefab->GetComponent<Pawn>()->y = -1;
 
-		GameObject* textPrinter = CreateUIPrefab();
+		GameObject* name = CreateUIPrefab();
 		{
-			prefab->AddChildUI(textPrinter);
-			auto rect = textPrinter->GetComponent<RectTransform>();
+			prefab->AddChildUI(name);
+			auto rect = name->GetComponent<RectTransform>();
 			rect->width = 50;
 			rect->height = 50;
 			rect->pivot = { 0.5, 0.5 };
 
-			auto text = textPrinter->AddComponent<Text>();
+			auto text = name->AddComponent<Text>();
 			text->text = L"NONE";
 			text->font = L"메이플스토리";
 			text->fontSize = 15;
 			text->color = { 235 / 255.f, 207 / 255.f, 73 / 255.f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
+
+		GameObject* chat = CreateUIPrefab();
+		{
+			prefab->AddChildUI(chat);
+			auto rect = chat->GetComponent<RectTransform>();
+			rect->width = 50;
+			rect->height = 50;
+			rect->pivot = { 0.5, 0.5 };
+
+			auto text = chat->AddComponent<Text>();
+			text->text = L"";
+			text->font = L"메이플스토리";
+			text->fontSize = 15;
+			text->color = { 87 / 255.f, 120 / 255.f, 207 / 255.f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		}
 	}

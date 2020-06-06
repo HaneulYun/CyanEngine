@@ -240,92 +240,93 @@ void Graphics::RenderUI()
 	{
 		if (!gameObject->active)
 			continue;
-		Text* textComponent = gameObject->GetComponent<Text>();
-		if (textComponent == nullptr)
-		{
-			for (auto child : gameObject->children)
-			{
-				textComponent = child->GetComponent<Text>();
-				gameObject = child;
-			}
-		}
-		if (!textComponent)
-			continue;
 
-		if (textComponent->brushIndex == -1)
+		std::vector<Text*> texts;
+		texts.push_back(gameObject->GetComponent<Text>());
+		//Text* textComponent = gameObject->GetComponent<Text>();
+		for (auto child : gameObject->children)
+			texts.push_back(child->GetComponent<Text>());
+
+		for (auto textComponent : texts)
 		{
-			for (int i = 0; i < textBrushes.size(); ++i)
-			{
-				if (!std::memcmp(&textComponent->color, &textBrushes[i]->GetColor(), sizeof(D2D1_COLOR_F)))
-				{
-					textComponent->brushIndex = i;
-					break;
-				}
-			}
+			if (!textComponent)
+				continue;
+
 			if (textComponent->brushIndex == -1)
 			{
-				ComPtr<ID2D1SolidColorBrush> textBrush;
-				D2D_COLOR_F color{ textComponent->color.r, textComponent->color.g,textComponent->color.b,textComponent->color.a };
-				deviceContext->CreateSolidColorBrush(color, &textBrush);
-				textComponent->brushIndex = textBrushes.size();
-				textBrushes.push_back(textBrush);
-			}
-		}
-
-		if (textComponent->formatIndex == -1)
-		{
-			for (int i = 0; i < textFormats.size(); ++i)
-			{
-				WCHAR name[15];
-				textFormats[i]->GetFontFamilyName(name, textFormats[i]->GetFontFamilyNameLength());
-
-				if (name == textComponent->font.c_str() &&
-					textFormats[i]->GetFontSize() == textComponent->fontSize &&
-					textFormats[i]->GetParagraphAlignment() == textComponent->paragraphAlignment &&
-					textFormats[i]->GetTextAlignment() == textComponent->textAlignment &&
-					textFormats[i]->GetFontWeight() == textComponent->fontWeight &&
-					textFormats[i]->GetFontStyle() == textComponent->style)
+				for (int i = 0; i < textBrushes.size(); ++i)
 				{
-					textComponent->formatIndex = i;
-					break;
+					if (!std::memcmp(&textComponent->color, &textBrushes[i]->GetColor(), sizeof(D2D1_COLOR_F)))
+					{
+						textComponent->brushIndex = i;
+						break;
+					}
+				}
+				if (textComponent->brushIndex == -1)
+				{
+					ComPtr<ID2D1SolidColorBrush> textBrush;
+					D2D_COLOR_F color{ textComponent->color.r, textComponent->color.g,textComponent->color.b,textComponent->color.a };
+					deviceContext->CreateSolidColorBrush(color, &textBrush);
+					textComponent->brushIndex = textBrushes.size();
+					textBrushes.push_back(textBrush);
 				}
 			}
+
 			if (textComponent->formatIndex == -1)
 			{
-				ComPtr<IDWriteTextFormat> textFormat;
-				writeFactory->CreateTextFormat(
-					textComponent->font.c_str(),
-					NULL,
-					textComponent->fontWeight,
-					textComponent->style,
-					DWRITE_FONT_STRETCH_NORMAL,
-					textComponent->fontSize,
-					L"ko-KR",
-					&textFormat
-				);
-				textFormat->SetTextAlignment(textComponent->textAlignment);
-				textFormat->SetParagraphAlignment(textComponent->paragraphAlignment);
-				textComponent->formatIndex = textFormats.size();
-				textFormats.push_back(textFormat);
+				for (int i = 0; i < textFormats.size(); ++i)
+				{
+					WCHAR name[15];
+					textFormats[i]->GetFontFamilyName(name, textFormats[i]->GetFontFamilyNameLength());
+
+					if (name == textComponent->font.c_str() &&
+						textFormats[i]->GetFontSize() == textComponent->fontSize &&
+						textFormats[i]->GetParagraphAlignment() == textComponent->paragraphAlignment &&
+						textFormats[i]->GetTextAlignment() == textComponent->textAlignment &&
+						textFormats[i]->GetFontWeight() == textComponent->fontWeight &&
+						textFormats[i]->GetFontStyle() == textComponent->style)
+					{
+						textComponent->formatIndex = i;
+						break;
+					}
+				}
+				if (textComponent->formatIndex == -1)
+				{
+					ComPtr<IDWriteTextFormat> textFormat;
+					writeFactory->CreateTextFormat(
+						textComponent->font.c_str(),
+						NULL,
+						textComponent->fontWeight,
+						textComponent->style,
+						DWRITE_FONT_STRETCH_NORMAL,
+						textComponent->fontSize,
+						L"ko-KR",
+						&textFormat
+					);
+					textFormat->SetTextAlignment(textComponent->textAlignment);
+					textFormat->SetParagraphAlignment(textComponent->paragraphAlignment);
+					textComponent->formatIndex = textFormats.size();
+					textFormats.push_back(textFormat);
+				}
 			}
+
+			D2D_RECT_F rt;
+
+			RectTransform* rect = textComponent->gameObject->GetComponent<RectTransform>();
+			//Matrix4x4 mat = RectTransform::Transform(gameObject->GetMatrix());
+			Matrix4x4 mat = RectTransform::Transform(rect->localToWorldMatrix);
+
+			Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
+			Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };
+
+			rt.left = (leftTop.x / 2.0f + 0.5f) * width;
+			rt.top = (leftTop.y / -2.0f + 0.5f) * height;
+			rt.right = (rightBottom.x / 2.0f + 0.5f) * width;
+			rt.bottom = (rightBottom.y / -2.0f + 0.5f) * height;
+
+			if (textComponent->gameObject->active)
+				deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(), &rt, textBrushes[textComponent->brushIndex].Get());
 		}
-
-		D2D_RECT_F rt;
-
-		RectTransform* rect = gameObject->GetComponent<RectTransform>();
-		//Matrix4x4 mat = RectTransform::Transform(gameObject->GetMatrix());
-		Matrix4x4 mat = RectTransform::Transform(rect->localToWorldMatrix);
-
-		Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
-		Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };
-
-		rt.left = (leftTop.x / 2.0f + 0.5f) * width;
-		rt.top = (leftTop.y / -2.0f + 0.5f) * height;
-		rt.right = (rightBottom.x / 2.0f + 0.5f) * width;
-		rt.bottom = (rightBottom.y / -2.0f + 0.5f) * height;
-
-		if (textComponent->gameObject->active)
-			deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(), &rt, textBrushes[textComponent->brushIndex].Get());
 	}
 
 	deviceContext->EndDraw();

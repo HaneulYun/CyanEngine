@@ -167,6 +167,10 @@ public:
 			auto rect = avatar->gameObject->children[0]->GetComponent<RectTransform>();
 			rect->anchorMin = { (x + 0.5f) / 20, (y + 0.5f) / 20 };
 			rect->anchorMax = { (x + 0.5f) / 20, (y + 0.5f) / 20 };
+
+			rect = avatar->gameObject->children[1]->GetComponent<RectTransform>();
+			rect->anchorMin = { (x + 0.5f) / 20, (y) / 20 };
+			rect->anchorMax = { (x + 0.5f) / 20, (y) / 20 };
 			for (auto& d : npcs)
 			{
 				float x = (float)d.second->x - g_left_x;
@@ -175,6 +179,10 @@ public:
 				auto rect = d.second->gameObject->children[0]->GetComponent<RectTransform>();
 				rect->anchorMin = { (x+0.5f) / 20, (y+0.5f) / 20 };
 				rect->anchorMax = { (x+0.5f) / 20, (y+0.5f) / 20 };
+
+				rect = d.second->gameObject->children[1]->GetComponent<RectTransform>();
+				rect->anchorMin = { (x + 0.5f) / 20, (y) / 20 };
+				rect->anchorMax = { (x + 0.5f) / 20, (y) / 20 };
 			}
 			wchar_t wstr[20];
 			wsprintf(wstr, L"(%d, %d)", avatar->x, avatar->y);
@@ -283,7 +291,7 @@ public:
 			int o_id = my_packet->id;
 			if (0 != npcs.count(o_id))
 			{
-				//npcs[o_id]->add_chat(my_packet->mess);
+				npcs[o_id]->addChat(my_packet->mess);
 			}
 		}
 		break;
