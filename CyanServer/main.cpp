@@ -102,7 +102,6 @@ bool is_near(int a, int b)
 	if (abs(g_clients[a].x - g_clients[b].x) > VIEW_RADIUS) return false;
 	if (abs(g_clients[a].y - g_clients[b].y) > VIEW_RADIUS) return false;
 	return true;
-
 }
 
 void send_packet(int user_id, void* p)
@@ -206,7 +205,7 @@ void do_move(int user_id, int direction)
 	int y = u.y;
 	switch (direction)
 	{
-	case D_UP: if (y < (WORLD_HEIGHT - 1)) y++; 
+	case D_UP: if (y < (WORLD_HEIGHT - 1)) y++;
 		break;
 	case D_DOWN: if (y > 0) y--;
 		break;
@@ -357,7 +356,7 @@ void enter_game(int user_id, char name[])
 	g_clients[user_id].m_status = ST_ACTIVE;
 	g_clients[user_id].m_cl.unlock();
 
-	for (auto&cl : g_clients)
+	for (auto& cl : g_clients)
 	{
 		int i = cl.m_id;
 		if (user_id == i) continue;
@@ -369,13 +368,13 @@ void enter_game(int user_id, char name[])
 			if (ST_ACTIVE == g_clients[i].m_status)
 			{
 				send_enter_packet(user_id, i);
-				if(true == is_player(i))
+				if (true == is_player(i))
 					send_enter_packet(i, user_id);
 			}
 			//g_clients[i].m_cl.unlock();
 		}
 	}
-	
+
 }
 
 void process_packet(int user_id, char* buf)
@@ -582,7 +581,7 @@ int API_SendMessage(lua_State* L)
 {
 	int my_id = (int)lua_tointeger(L, -3);
 	int user_id = (int)lua_tointeger(L, -2);
-	char *mess = (char*)lua_tostring(L, -1);
+	char* mess = (char*)lua_tostring(L, -1);
 
 	send_chat_packet(user_id, my_id, mess);
 	lua_pop(L, 3);
