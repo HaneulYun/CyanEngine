@@ -3,12 +3,12 @@
 constexpr int MAX_ID_LEN = 50;
 constexpr int MAX_STR_LEN = 255;
 
-#define WORLD_WIDTH		800		
-#define WORLD_HEIGHT	800
+#define WORLD_WIDTH		400		
+#define WORLD_HEIGHT	400
 
 #define SERVER_PORT		9000
 #define NPC_ID_START	200000
-#define NUM_NPC			200000
+#define NUM_NPC			2000
 
 #define C2S_LOGIN	1
 #define C2S_MOVE	2
@@ -17,6 +17,7 @@ constexpr int MAX_STR_LEN = 255;
 #define S2C_MOVE			2
 #define S2C_ENTER			3
 #define S2C_LEAVE			4
+#define S2C_CHAT			5
 
 #pragma pack(push ,1)
 
@@ -55,6 +56,13 @@ struct sc_packet_leave {
 	char size;
 	char type;
 	int id;
+};
+
+struct sc_packet_chat {
+	char size;
+	char type;
+	int	id;
+	char mess[MAX_STR_LEN];
 };
 
 struct cs_packet_login {

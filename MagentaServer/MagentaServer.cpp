@@ -3,6 +3,13 @@
 #include <MSWSock.h>
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "mswsock.lib")
+#pragma comment(lib, "lua53.lib")
+
+extern "C" {
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
+}
 
 #include <vector>
 #include <thread>
@@ -21,7 +28,7 @@ constexpr auto MAX_USER = 10000;
 
 constexpr auto VIEW_RADIUS = 8;
 
-enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE };
+enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PLAYER_MOVE };
 
 struct event_type {
 	int obj_id;
@@ -47,6 +54,7 @@ struct EXOVER {
 	union {
 		WSABUF			wsabuf;
 		SOCKET			c_socket;
+		int				p_id;
 	};
 };
 
@@ -65,6 +73,8 @@ struct CLIENT {
 	high_resolution_clock::time_point m_last_move_time;
 
 	unordered_set<int> view_list;
+	lua_State* L;
+	mutex lua_l;
 };
 
 CLIENT g_clients[NPC_ID_START + NUM_NPC];
@@ -167,6 +177,17 @@ void send_move_packet(int user_id, int mover)
 	send_packet(user_id, &p);
 }
 
+void send_chat_packet(int user_id, int chatter, char mess[])
+{
+	sc_packet_chat p;
+	p.id = chatter;
+	p.size = sizeof(p);
+	p.type = S2C_CHAT;
+	strcpy_s(p.mess, mess);
+
+	send_packet(user_id, &p);
+}
+
 void activate_npc(int id)
 {
 	C_STATUS old_state = ST_SLEEP;
@@ -203,6 +224,12 @@ void do_move(int user_id, int direction)
 		if (ST_SLEEP == cl.m_status) activate_npc(cl.m_id);
 		if (ST_ACTIVE != cl.m_status)continue;
 		if (cl.m_id == user_id)continue;
+		if (false == is_player(cl.m_id)) {
+			EXOVER* over = new EXOVER;
+			over->op = OP_PLAYER_MOVE;
+			over->p_id = user_id;
+			PostQueuedCompletionStatus(g_iocp, 1, cl.m_id, &over->over);
+		}
 		new_vl.insert(cl.m_id);
 	}
 	send_move_packet(user_id, user_id);
@@ -503,12 +530,53 @@ void worker_thread()
 			delete exover;
 		}
 		break;
+		case OP_PLAYER_MOVE:
+		{
+			g_clients[user_id].lua_l.lock();
+			lua_State* L = g_clients[user_id].L;
+			lua_getglobal(L, "event_player_move");
+			lua_pushnumber(L, exover->p_id);
+			lua_pcall(L, 1, 0, 0);
+			//lua_pop(L, 1);
+			g_clients[user_id].lua_l.unlock();
+			delete exover;
+		}
+		break;
 		default:
 			cout << "Unknown Operation in worker_thread!!\n";
 			while (true);
 			break;
 		}
 	}
+}
+
+int API_SendMessage(lua_State* L)
+{
+	int my_id = (int)lua_tointeger(L, -3);
+	int user_id = (int)lua_tointeger(L, -2);
+	char* mess = (char*)lua_tostring(L, -1);
+
+	send_chat_packet(user_id, my_id, mess);
+	lua_pop(L, 3);
+	return 0;
+}
+
+int API_get_x(lua_State* L)
+{
+	int obj_id = (int)lua_tointeger(L, -1);
+	lua_pop(L, 2);
+	int x = g_clients[obj_id].x;
+	lua_pushnumber(L, x);
+	return 1;
+}
+
+int API_get_y(lua_State* L)
+{
+	int obj_id = (int)lua_tointeger(L, -1);
+	lua_pop(L, 2);
+	int y = g_clients[obj_id].y;
+	lua_pushnumber(L, y);
+	return 1;
 }
 
 void init_npc()
@@ -521,6 +589,18 @@ void init_npc()
 		g_clients[i].x = rand() % WORLD_WIDTH;
 		g_clients[i].y = rand() % WORLD_HEIGHT;
 		//add_timer(i, OP_RANDOM_MOVE, 1000);
+		lua_State *L = g_clients[i].L = luaL_newstate();
+		luaL_openlibs(L);
+		luaL_loadfile(L, "NPC.LUA");
+		lua_pcall(L, 0, 0, 0);
+		lua_getglobal(L, "set_uid");
+		lua_pushnumber(L, i);
+		lua_pcall(L, 1, 0, 0);
+		lua_pop(L, 1);
+
+		lua_register(L, "API_sendmessage", API_SendMessage);
+		lua_register(L, "API_get_x", API_get_x);
+		lua_register(L, "API_get_y", API_get_y);
 	}
 }
 
