@@ -3,8 +3,8 @@
 constexpr int MAX_ID_LEN = 50;
 constexpr int MAX_STR_LEN = 255;
 
-#define WORLD_WIDTH		800
-#define WORLD_HEIGHT	800
+#define WORLD_WIDTH		4000
+#define WORLD_HEIGHT	4000
 
 #define SERVER_PORT		9000
 #define NPC_ID_START	20000

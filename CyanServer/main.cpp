@@ -38,7 +38,7 @@ struct event_type
 priority_queue<event_type> timer_queue;
 mutex timer_lock;
 
-enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE };
+enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE, ST_SLEEP };
 
 struct EXOVER
 {
@@ -170,6 +170,13 @@ void send_move_packet(int user_id, int mover)
 	send_packet(user_id, &p);
 }
 
+void activate_npc(int id)
+{
+	C_STATUS old_state = ST_SLEEP;
+	if (true == atomic_compare_exchange_strong(&g_clients[id].m_status, &old_state, ST_ACTIVE))
+		add_timer(id, OP_RANDOM_MOVE, 1000);
+}
+
 void do_move(int user_id, int direction)
 {
 	CLIENT& u = g_clients[user_id];
@@ -199,10 +206,11 @@ void do_move(int user_id, int direction)
 	unordered_set<int> new_vl;
 	for (auto& cl : g_clients)
 	{
+		if (false == is_near(cl.m_id, user_id)) continue;
+		if (ST_SLEEP == cl.m_status) activate_npc(cl.m_id);
 		if (ST_ACTIVE != cl.m_status) continue;
 		if (cl.m_id == user_id) continue;
-		if (true == is_near(cl.m_id, user_id))
-			new_vl.insert(cl.m_id);
+		new_vl.insert(cl.m_id);
 	}
 
 	send_move_packet(user_id, user_id);
@@ -210,7 +218,8 @@ void do_move(int user_id, int direction)
 	for (auto np : new_vl) {
 		if (0 == old_vl.count(np)) {
 			send_enter_packet(user_id, np);
-			if (false == is_player(np)) continue;
+			if (false == is_player(np))
+				continue;
 			g_clients[np].m_cl.lock();
 			if (0 == g_clients[np].view_list.count(user_id))
 			{
@@ -326,6 +335,8 @@ void enter_game(int user_id, char name[])
 		if (true == is_near(user_id, i))
 		{
 			//g_clients[i].m_cl.lock();
+			if (ST_SLEEP == g_clients[i].m_status)
+				activate_npc(i);
 			if (ST_ACTIVE == g_clients[i].m_status)
 			{
 				send_enter_packet(user_id, i);
@@ -502,9 +513,21 @@ void worker_thread()
 		}
 		break;
 		case OP_RANDOM_MOVE:
+		{
+
 			random_move_npc(user_id);
-			add_timer(user_id, OP_RANDOM_MOVE, 1000);
+			bool keep_alive = false;
+			for (int i = 0; i < NPC_ID_START; ++i)
+				if (true == is_near(user_id, i))
+					if (ST_ACTIVE == g_clients[i].m_status)
+					{
+						keep_alive = true;
+						break;
+					}
+			if (true == keep_alive) add_timer(user_id, OP_RANDOM_MOVE, 1000);
+			else g_clients[user_id].m_status = ST_SLEEP;
 			delete exover;
+		}
 			break;
 		default:
 			cout << "Unknown Operation in worker_thread!!!\n";
@@ -520,11 +543,11 @@ void init_npc()
 		g_clients[i].m_s = 0;
 		g_clients[i].m_id = i;
 		sprintf(g_clients[i].m_name, "NPC%d", i);
-		g_clients[i].m_status = ST_ACTIVE;
+		g_clients[i].m_status = ST_SLEEP;
 		g_clients[i].x = rand() % WORLD_WIDTH;
 		g_clients[i].y = rand() % WORLD_HEIGHT;
 		//g_clients[i].m_last_move_time = high_resolution_clock::now();
-		add_timer(i, OP_RANDOM_MOVE, 1000);
+		//add_timer(i, OP_RANDOM_MOVE, 1000);
 	}
 }
 
