@@ -4,24 +4,41 @@
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "mswsock.lib")
 
+#include <vector>
 #include <thread>
 #include <mutex>
 #include <unordered_set>
 #include <atomic>
+#include <chrono>
 #include <queue>
 using namespace std;
-#include "protocol.h"
+using namespace chrono;
 
+#include "protocol.h"
 constexpr auto MAX_PACKET_SIZE = 255;
 constexpr auto MAX_BUF_SIZE = 1024;
 constexpr auto MAX_USER = 10000;
-constexpr auto MAX_NPC = 200000;
 
 constexpr auto VIEW_RADIUS = 8;
-enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_MOVE };
-enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE };
 
-#define SECTOR_WIDTH 20
+enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE };
+
+struct event_type {
+	int obj_id;
+	int event_id;
+	high_resolution_clock::time_point wakeup_time;
+	int target_id;
+
+	constexpr bool operator <(const event_type& left) const
+	{
+		return (wakeup_time > left.wakeup_time);
+	}
+};
+
+priority_queue<event_type> timer_queue;	// 포인터로 선언해서 new delete 하라
+mutex timer_lock;
+
+enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE, ST_SLEEP };
 
 struct EXOVER {
 	WSAOVERLAPPED	over;
@@ -33,83 +50,8 @@ struct EXOVER {
 	};
 };
 
-struct event_type {
-	int		obj_id;
-	chrono::high_resolution_clock::time_point wakeup_time;
-	int		event_id;
-	int		target_id;
-
-	constexpr bool operator< (const event_type& _Left) const
-	{
-		return (wakeup_time > _Left.wakeup_time);
-	}
-};
-
-class RWLock
-{
-public:
-	RWLock() {}
-	~RWLock() {}
-
-	RWLock(const RWLock& rhs) = delete;
-	RWLock& operator=(const RWLock& rhs) = delete;
-
-	void EnterWriteLock()
-	{
-		while (true)
-		{
-			while (mLockFlag & LF_WRITE_MASK)
-				YieldProcessor();
-			if ((InterlockedAdd(&mLockFlag, LF_WRITE_FLAG) & LF_WRITE_MASK) == LF_WRITE_FLAG)
-			{
-				while (mLockFlag & LF_READ_MASK)
-					YieldProcessor();
-
-				return;
-			}
-			InterlockedAdd(&mLockFlag, -LF_WRITE_FLAG);
-		}
-	}
-	void LeaveWriteLock()
-	{
-		InterlockedAdd(&mLockFlag, -LF_WRITE_FLAG);
-	}
-
-	void EnterReadLock()
-	{
-		while (true)
-		{
-			while (mLockFlag & LF_WRITE_MASK)
-				YieldProcessor();
-
-			if ((InterlockedIncrement(&mLockFlag) & LF_WRITE_MASK) == 0)
-				return;
-			else
-				InterlockedDecrement(&mLockFlag);
-		}
-	}
-	void LeaveReadLock()
-	{
-		InterlockedDecrement(&mLockFlag);
-	}
-
-	long GetLockFlag() const { return mLockFlag; }
-
-private:
-	enum LockFlag
-	{
-		LF_WRITE_MASK = 0x7FF00000,
-		LF_WRITE_FLAG = 0x00100000,
-		LF_READ_MASK = 0x000FFFFF
-	};
-	volatile long mLockFlag;
-};
-
-unordered_set<int> g_ObjectListSector[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
-RWLock g_SectorLock[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
-
 struct CLIENT {
-	RWLock	m_lock;
+	mutex	m_cl;
 	SOCKET	m_s;
 	int		m_id;	// 한번 세팅하면 바꾸지 않으니 mutex 할 필요 없다
 	EXOVER	m_recv_over;
@@ -120,141 +62,26 @@ struct CLIENT {
 	short	x, y;
 	char	m_name[MAX_ID_LEN + 1];
 	unsigned m_move_time;
+	high_resolution_clock::time_point m_last_move_time;
 
 	unordered_set<int> view_list;
 };
 
-CLIENT g_clients[MAX_USER];
+CLIENT g_clients[NPC_ID_START + NUM_NPC];
 HANDLE g_iocp;
 SOCKET l_socket;	// 한번 정해진 다음에 바뀌지 않으니 data race 발생하지 않음
-EXOVER npcover;
 
-void send_enter_npc_packet(int user_id, int o_id);
-void send_leave_npc_packet(int user_id, int o_id);
-void send_move_npc_packet(int user_id, int mover);
-
-class NPC
-{
-public:
-	RWLock m_lock;
-	short x, y;
-	int	m_id;
-	atomic_bool is_activate;
-
-	unordered_set<int> view_list;
-
-	bool is_near(int a)
-	{
-		if (abs(g_clients[a].x - x) > VIEW_RADIUS)	return false;
-		if (abs(g_clients[a].y - y) > VIEW_RADIUS)	return false;
-		return true;
-	}
-
-	void move_npc()
-	{
-		int direction = rand() % 4;
-
-		short prevX = x, prevY = y;
-		switch (direction)
-		{
-		case D_UP:	if (y > 0)	y--;	break;
-		case D_DOWN:if (y < (WORLD_HEIGHT - 1))	y++;	break;
-		case D_LEFT:if (x > 0)	x--;	break;
-		case D_RIGHT:if (x < (WORLD_WIDTH - 1)) x++;	break;
-		default:
-			break;
-		}
-
-		if (prevX / SECTOR_WIDTH != x / SECTOR_WIDTH || prevY / SECTOR_WIDTH != y / SECTOR_WIDTH)
-		{
-			g_SectorLock[prevY / SECTOR_WIDTH][prevX / SECTOR_WIDTH].EnterWriteLock();
-			g_ObjectListSector[prevY / SECTOR_WIDTH][prevX / SECTOR_WIDTH].erase(m_id);
-			g_SectorLock[prevY / SECTOR_WIDTH][prevX / SECTOR_WIDTH].LeaveWriteLock();
-			g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
-			g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(m_id);
-			g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
-		}
-
-		m_lock.EnterReadLock();
-		unordered_set<int> old_vl = view_list;
-		m_lock.LeaveReadLock();
-		unordered_set<int> new_vl;
-		for (int i = y / SECTOR_WIDTH - 1; i <= y / SECTOR_WIDTH + 1; ++i)
-		{
-			if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1)
-				continue;
-			for (int j = x / SECTOR_WIDTH - 1; j <= x / SECTOR_WIDTH + 1; ++j)
-			{
-				if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1)
-					continue;
-				g_SectorLock[i][j].EnterReadLock();
-				for (auto nearObj : g_ObjectListSector[i][j])
-				{
-					if (nearObj >= MAX_USER) continue;
-					if (g_clients[nearObj].m_status != ST_ACTIVE) continue;
-					if (true == is_near(nearObj))
-					{
-						new_vl.insert(nearObj);
-					}
-				}
-				g_SectorLock[i][j].LeaveReadLock();
-			}
-		}
-
-		for (auto np : new_vl)
-		{
-			if (0 == old_vl.count(np)) {
-				send_enter_npc_packet(np, m_id);
-			}
-			else {
-				send_move_npc_packet(np, m_id);
-			}
-		}
-
-		for (auto old_p : old_vl) {
-			if (0 == new_vl.count(old_p)) {
-				send_leave_npc_packet(old_p, m_id);
-			}
-		}
-	}
-};
-
-priority_queue<event_type> timer_queue;
-mutex timer_lock;
-
-NPC g_npcs[MAX_NPC];
-
-void add_timer(int id, int ev_type, int time)
+void add_timer(int obj_id, ENUMOP op_type, int duration)
 {
 	timer_lock.lock();
-	event_type t;
-	t.event_id = OP_MOVE;
-	t.target_id = id;
-	t.wakeup_time = chrono::high_resolution_clock::now() +chrono::milliseconds(1000);
-	timer_queue.push(t);
+	event_type ev{ obj_id, op_type, high_resolution_clock::now() + milliseconds(duration), 0 };
+	timer_queue.push(ev);
 	timer_lock.unlock();
 }
 
-bool CAS(atomic_bool* x, bool c, bool n)
+bool is_player(int id)
 {
-	return atomic_compare_exchange_strong(x, &c, n);
-}
-
-void NPC_Create()
-{
-	for (int i = 0; i < MAX_NPC; ++i) {
-		g_npcs[i].x = rand() % WORLD_WIDTH;
-		g_npcs[i].y = rand() % WORLD_HEIGHT;
-
-		g_npcs[i].m_id = i + MAX_USER;
-
-		g_SectorLock[g_npcs[i].y / SECTOR_WIDTH][g_npcs[i].x / SECTOR_WIDTH].EnterWriteLock();
-		g_ObjectListSector[g_npcs[i].y / SECTOR_WIDTH][g_npcs[i].x / SECTOR_WIDTH].insert(g_npcs[i].m_id);
-		g_SectorLock[g_npcs[i].y / SECTOR_WIDTH][g_npcs[i].x / SECTOR_WIDTH].LeaveWriteLock();
-
-		g_npcs[i].is_activate = false;
-		g_npcs[i].view_list.clear();
-	}
+	return id < NPC_ID_START;
 }
 
 bool is_near(int a, int b)
@@ -304,29 +131,11 @@ void send_enter_packet(int user_id, int o_id)
 	p.x = g_clients[o_id].x;
 	p.y = g_clients[o_id].y;
 	strcpy_s(p.name, g_clients[o_id].m_name);
-	p.o_type = O_PLAYER;
+	p.o_type = O_HUMAN;
 
-	g_clients[user_id].m_lock.EnterWriteLock();
+	g_clients[user_id].m_cl.lock();
 	g_clients[user_id].view_list.insert(o_id);
-	g_clients[user_id].m_lock.LeaveWriteLock();
-
-	send_packet(user_id, &p);
-}
-
-void send_enter_npc_packet(int user_id, int o_id)
-{
-	sc_packet_enter p;
-	p.id = o_id;
-	p.size = sizeof(p);
-	p.type = S2C_ENTER;
-	p.x = g_npcs[o_id - MAX_USER].x;
-	p.y = g_npcs[o_id - MAX_USER].y;
-	strcpy_s(p.name, "");// g_npcs[o_id].m_name);
-	p.o_type = O_NPC;
-
-	g_npcs[o_id - MAX_USER].m_lock.EnterWriteLock();
-	g_npcs[o_id - MAX_USER].view_list.insert(user_id);
-	g_npcs[o_id - MAX_USER].m_lock.LeaveWriteLock();
+	g_clients[user_id].m_cl.unlock();
 
 	send_packet(user_id, &p);
 }
@@ -338,23 +147,9 @@ void send_leave_packet(int user_id, int o_id)
 	p.size = sizeof(p);
 	p.type = S2C_LEAVE;
 
-	g_clients[user_id].m_lock.EnterWriteLock();
+	g_clients[user_id].m_cl.lock();
 	g_clients[user_id].view_list.erase(o_id);
-	g_clients[user_id].m_lock.LeaveWriteLock();
-
-	send_packet(user_id, &p);
-}
-
-void send_leave_npc_packet(int user_id, int o_id)
-{
-	sc_packet_leave p;
-	p.id = o_id;
-	p.size = sizeof(p);
-	p.type = S2C_LEAVE;
-
-	g_npcs[o_id - MAX_USER].m_lock.EnterWriteLock();
-	g_npcs[o_id - MAX_USER].view_list.erase(user_id);
-	g_npcs[o_id - MAX_USER].m_lock.LeaveWriteLock();
+	g_clients[user_id].m_cl.unlock();
 
 	send_packet(user_id, &p);
 }
@@ -372,16 +167,11 @@ void send_move_packet(int user_id, int mover)
 	send_packet(user_id, &p);
 }
 
-void send_move_npc_packet(int user_id, int o_id)
+void activate_npc(int id)
 {
-	sc_packet_move p;
-	p.id = o_id;
-	p.size = sizeof(p);
-	p.type = S2C_MOVE;
-	p.x = g_npcs[o_id - MAX_USER].x;
-	p.y = g_npcs[o_id - MAX_USER].y;
-
-	send_packet(user_id, &p);
+	C_STATUS old_state = ST_SLEEP;
+	if (true == atomic_compare_exchange_strong(&g_clients[id].m_status, &old_state, ST_ACTIVE))
+		add_timer(id, OP_RANDOM_MOVE, 1000);
 }
 
 void do_move(int user_id, int direction)
@@ -401,166 +191,127 @@ void do_move(int user_id, int direction)
 		exit(-1);
 	}
 
-	//
-	if (u.x / SECTOR_WIDTH != x / SECTOR_WIDTH || u.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
-	{
-		g_SectorLock[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].EnterWriteLock();
-		g_ObjectListSector[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].erase(user_id);
-		g_SectorLock[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].LeaveWriteLock();
-		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
-		g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(user_id);
-		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
-	}
-	//
-
 	u.x = x;
 	u.y = y;
 
-	//
-	g_clients[user_id].m_lock.EnterReadLock();
+	g_clients[user_id].m_cl.lock();
 	unordered_set<int> old_vl = g_clients[user_id].view_list;
-	g_clients[user_id].m_lock.LeaveReadLock();
+	g_clients[user_id].m_cl.unlock();
 	unordered_set<int> new_vl;
-
-	for (int i = u.y / SECTOR_WIDTH - 1; i <= u.y / SECTOR_WIDTH + 1; ++i)
-	{
-		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1)
-			continue;
-		for (int j = u.x / SECTOR_WIDTH - 1; j <= u.x / SECTOR_WIDTH + 1; ++j)
-		{
-			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1)
-				continue;
-			g_SectorLock[i][j].EnterReadLock();
-			for (auto nearObj : g_ObjectListSector[i][j])
-			{
-				if (nearObj == user_id) continue;
-				if (nearObj < MAX_USER)
-				{
-					if (g_clients[nearObj].m_status != ST_ACTIVE)
-						continue;
-					if (true == is_near(nearObj, user_id))
-					{
-						new_vl.insert(nearObj);
-					}
-				}
-				else
-				{
-					if (true == g_npcs[nearObj - MAX_USER].is_near(user_id))
-					{
-						if (0 == g_npcs[nearObj - MAX_USER].is_activate) {
-							if (CAS(&g_npcs[nearObj - MAX_USER].is_activate, false, true))
-								add_timer(nearObj - MAX_USER, OP_MOVE, 1000);
-						}
-					}
-				}
-			}
-			g_SectorLock[i][j].LeaveReadLock();
-		}
+	for (auto& cl : g_clients) {
+		if(false == is_near(cl.m_id, user_id))	continue;
+		if (ST_SLEEP == cl.m_status) activate_npc(cl.m_id);
+		if (ST_ACTIVE != cl.m_status)continue;
+		if (cl.m_id == user_id)continue;
+		new_vl.insert(cl.m_id);
 	}
-
 	send_move_packet(user_id, user_id);
-	//
-	for (auto np : new_vl)
-	{
-		if (0 == old_vl.count(np)) {
+
+	for (auto np : new_vl) {
+		if (0 == old_vl.count(np)) {	// Object가 새로 시야에 들어왔을 때
 			send_enter_packet(user_id, np);
-			g_clients[np].m_lock.EnterReadLock();
+			if (false == is_player(np))
+				continue;
+			g_clients[np].m_cl.lock();
 			if (0 == g_clients[np].view_list.count(user_id)) {
-				g_clients[np].m_lock.LeaveReadLock();
+				g_clients[np].m_cl.unlock();
 				send_enter_packet(np, user_id);
 			}
 			else {
-				g_clients[np].m_lock.LeaveReadLock();
+				g_clients[np].m_cl.unlock();
 				send_move_packet(np, user_id);
 			}
 		}
-		else {
-			g_clients[np].m_lock.EnterReadLock();
+		else {	// 계속 시야에 존재하고 있을 때
+			if (false == is_player(np))	continue;
+			g_clients[np].m_cl.lock();
 			if (0 != g_clients[np].view_list.count(user_id)) {
-				g_clients[np].m_lock.LeaveReadLock();
+				g_clients[np].m_cl.unlock();
 				send_move_packet(np, user_id);
 			}
 			else {
-				g_clients[np].m_lock.LeaveReadLock();
+				g_clients[np].m_cl.unlock();
 				send_enter_packet(np, user_id);
 			}
 		}
 	}
 
-	for (auto old_p : old_vl){
+	for (auto old_p : old_vl) {		// Object가 시야에서 벗어났을 때
 		if (0 == new_vl.count(old_p)) {
 			send_leave_packet(user_id, old_p);
-			g_clients[old_p].m_lock.EnterReadLock();
+			if (false == is_player(old_p))	continue;
+			g_clients[old_p].m_cl.lock();
 			if (0 != g_clients[old_p].view_list.count(user_id)) {
-				g_clients[old_p].m_lock.LeaveReadLock();
+				g_clients[old_p].m_cl.unlock();
 				send_leave_packet(old_p, user_id);
 			}
 			else {
-				g_clients[old_p].m_lock.LeaveReadLock();
+				g_clients[old_p].m_cl.unlock();
 			}
 		}
 	}
-	//
+}
+
+void random_move_npc(int id)
+{
+	int x = g_clients[id].x;
+	int y = g_clients[id].y;
+	switch (rand() % 4) {
+	case 0:	if (x < (WORLD_WIDTH - 1))	x++; break;
+	case 1:	if (x > 0)	x--; break;
+	case 2:	if (y < (WORLD_HEIGHT - 1))	y++; break;
+	case 3:	if (y > 0)	y--; break;
+	}
+
+	g_clients[id].x = x;
+	g_clients[id].y = y;
+
+	for (int i = 0; i < NPC_ID_START; ++i) {
+		if (ST_ACTIVE != g_clients[i].m_status)	continue;
+		if (true == is_near(i, id)) {
+			g_clients[i].m_cl.lock();
+			if (0 != g_clients[i].view_list.count(id)) {
+				g_clients[i].m_cl.unlock();
+				send_move_packet(i, id);
+			}
+			else {
+				g_clients[i].m_cl.unlock();
+				send_enter_packet(i, id);
+			}
+		}
+		else {
+			g_clients[i].m_cl.lock();
+			if (0 != g_clients[i].view_list.count(id)) {
+				g_clients[i].m_cl.unlock();
+				send_leave_packet(i, id);
+			}
+			else
+				g_clients[i].m_cl.unlock();
+		}
+	}
 }
 
 void enter_game(int user_id, char name[])
 {
-	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].EnterWriteLock();
-	g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].insert(user_id);
-	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].LeaveWriteLock();
-	
-	unordered_set<int> new_vl;
-
-	for (int i = g_clients[user_id].y / SECTOR_WIDTH - 1; i <= g_clients[user_id].y / SECTOR_WIDTH + 1; ++i)
-	{
-		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1)
-			continue;
-		for (int j = g_clients[user_id].x / SECTOR_WIDTH - 1; j <= g_clients[user_id].x / SECTOR_WIDTH + 1; ++j)
-		{
-			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1)
-				continue;
-			g_SectorLock[i][j].EnterReadLock();
-			for (auto nearObj : g_ObjectListSector[i][j])
-			{
-				if (nearObj >= MAX_USER)
-				{
-					if (true == g_npcs[nearObj - MAX_USER].is_near(user_id))
-					{
-						if (0 == g_npcs[nearObj - MAX_USER].is_activate) {
-							if (CAS(&g_npcs[nearObj - MAX_USER].is_activate, false, true))
-								add_timer(nearObj - MAX_USER, OP_MOVE, 1000);
-						}
-					}
-				}
-				else
-				{
-					if (nearObj == user_id || g_clients[nearObj].m_status != ST_ACTIVE) continue;
-					if (true == is_near(nearObj, user_id))
-					{
-						new_vl.insert(nearObj);
-					}
-				}
-			}
-			g_SectorLock[i][j].LeaveReadLock();
-		}
-	}
-
-	g_clients[user_id].m_lock.EnterWriteLock();
+	g_clients[user_id].m_cl.lock();
 	strcpy_s(g_clients[user_id].m_name, name);
 	g_clients[user_id].m_name[MAX_ID_LEN] = NULL;
 	send_login_ok_packet(user_id);
 	g_clients[user_id].m_status = ST_ACTIVE;
-	g_clients[user_id].m_lock.LeaveWriteLock();
+	g_clients[user_id].m_cl.unlock();
 
-	for (auto nearObj : new_vl)
+	for (auto& cl : g_clients)
 	{
-		if (user_id == nearObj) continue;
-		if (true == is_near(user_id, nearObj)) {
-			if (ST_ACTIVE == g_clients[nearObj].m_status) {
-				if (user_id != nearObj) {
-					send_enter_packet(user_id, nearObj);
-					send_enter_packet(nearObj, user_id);
-				}
+		int i = cl.m_id;
+		if (user_id == i) continue;
+		if (true == is_near(user_id, i)) {
+			if (ST_SLEEP == g_clients[i].m_status) {
+				activate_npc(i);
+			}
+			if (ST_ACTIVE == g_clients[i].m_status) {
+				send_enter_packet(user_id, i);
+				if (true == is_player(i))
+					send_enter_packet(i, user_id);
 			}
 		}
 	}
@@ -603,27 +354,21 @@ void initialize_clients()
 
 void disconnect(int user_id)
 {
-	//
-	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].EnterWriteLock();
-	if(g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].count(user_id) != 0)
-		g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].erase(user_id);
-	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].LeaveWriteLock();
-	//
-
 	send_leave_packet(user_id, user_id);
 
-	g_clients[user_id].m_lock.EnterWriteLock();
+	g_clients[user_id].m_cl.lock();
 	g_clients[user_id].m_status = ST_ALLOC;
 
 	closesocket(g_clients[user_id].m_s);
-	for (auto& cl : g_clients)
+	for (int i = 0; i < NPC_ID_START; ++i)
 	{
+		CLIENT& cl = g_clients[i];
 		if (user_id == cl.m_id) continue;
 		if (ST_ACTIVE == cl.m_status)
 			send_leave_packet(cl.m_id, user_id);
 	}
 	g_clients[user_id].m_status = ST_FREE;
-	g_clients[user_id].m_lock.LeaveWriteLock();
+	g_clients[user_id].m_cl.unlock();
 }
 
 // 패킷 재조립
@@ -679,15 +424,6 @@ void worker_thread()
 		CLIENT& cl = g_clients[user_id];
 
 		switch (exover->op) {
-		case OP_MOVE:
-		{
-			g_npcs[user_id].move_npc();
-			g_npcs[user_id].m_lock.EnterReadLock();
-			if (!g_npcs[user_id].view_list.empty())	add_timer(user_id, OP_MOVE, 1000);
-			else g_npcs[user_id].is_activate = false;
-			g_npcs[user_id].m_lock.LeaveReadLock();
-		}
-			break;
 		case OP_RECV:
 			// send나 recv의 경우에만 이 처리를 해줘야 함
 			if (0 == io_byte)
@@ -751,43 +487,79 @@ void worker_thread()
 			AcceptEx(l_socket, c_socket, exover->io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &exover->over);
 		}
 		break;
+		case OP_RANDOM_MOVE:
+		{
+			random_move_npc(user_id);
+			bool keep_alive = false;
+			for (int i = 0; i < NPC_ID_START; ++i) {
+				if (true == is_near(user_id, i))
+					if (ST_ACTIVE == g_clients[i].m_status) {
+						keep_alive = true;
+						break;
+					}
+			}
+			if (true == keep_alive) add_timer(user_id, OP_RANDOM_MOVE, 1000);
+			else g_clients[user_id].m_status = ST_SLEEP;
+			delete exover;
+		}
+		break;
+		default:
+			cout << "Unknown Operation in worker_thread!!\n";
+			while (true);
+			break;
 		}
 	}
 }
 
-void process_event(event_type ev)
+void init_npc()
 {
-	npcover.op = OP_MOVE;
-	
-	PostQueuedCompletionStatus(g_iocp, 0, ev.target_id, &npcover.over);
+	for (int i = NPC_ID_START; i < NPC_ID_START + NUM_NPC; ++i) {
+		g_clients[i].m_s = 0;
+		g_clients[i].m_id = i;
+		sprintf_s(g_clients[i].m_name, "NPC%d", i);
+		g_clients[i].m_status = ST_SLEEP;
+		g_clients[i].x = rand() % WORLD_WIDTH;
+		g_clients[i].y = rand() % WORLD_HEIGHT;
+		//add_timer(i, OP_RANDOM_MOVE, 1000);
+	}
 }
 
-void timer_thread()
+void do_timer()
 {
-	do {
-		Sleep(1);
-		do {
-			if (!timer_queue.empty()) {
-				timer_lock.lock();
-				event_type k = timer_queue.top();
-				auto current_time = chrono::high_resolution_clock::now();
-				if (k.wakeup_time > current_time)
-				{
-					timer_lock.unlock();
-					break;
-				}
-				timer_queue.pop();
+	while (true) {
+		this_thread::sleep_for(1ms);
+		while (true)
+		{
+			timer_lock.lock();
+			if (true == timer_queue.empty()) {
 				timer_lock.unlock();
-				process_event(k);
+				break;
 			}
-		} while (true);
-	} while (true);
+			if (timer_queue.top().wakeup_time > high_resolution_clock::now()) {
+				timer_lock.unlock();
+				break;
+			}event_type ev = timer_queue.top();
+			timer_queue.pop();
+			timer_lock.unlock();
+			switch (ev.event_id) {
+			case OP_RANDOM_MOVE:
+				EXOVER* over = new EXOVER;
+				over->op = OP_RANDOM_MOVE;
+				PostQueuedCompletionStatus(g_iocp, 1, ev.obj_id, &over->over);
+				break;
+			}
+		}
+	}
 }
 
 int main()
 {
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);
+
+	cout << "NPC Initialize start.\n";
+	init_npc();
+	cout << "NPC Initialize finished.\n";
 
 	l_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
@@ -802,7 +574,6 @@ int main()
 
 	g_iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, 0);
 
-	NPC_Create();
 	initialize_clients();
 
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(l_socket), g_iocp, 999, 0);
@@ -814,8 +585,11 @@ int main()
 	AcceptEx(l_socket, c_socket, accept_over.io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &accept_over.over);	// 클라이언트 접속에 사용할 소켓을 미리 만들어놔야 함
 
 	vector <thread> worker_threads;
-	thread timer_threads(timer_thread);
 	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(worker_thread);
+
+	//thread ai_thread{ do_ai };
+	//ai_thread.join();
+	thread timer_thread{ do_timer };
+	timer_thread.join();
 	for (auto& th : worker_threads)th.join();
-	timer_threads.join();
 }
