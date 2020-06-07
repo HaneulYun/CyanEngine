@@ -13,7 +13,6 @@ extern "C" {
 
 #include <vector>
 #include <thread>
-#include <mutex>
 #include <unordered_set>
 #include <atomic>
 #include <chrono>
@@ -30,9 +29,74 @@ constexpr auto VIEW_RADIUS = 8;
 
 enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PLAYER_MOVE };
 
+class RWLock
+{
+public:
+	RWLock() {}
+	~RWLock() {}
+
+	RWLock(const RWLock& rhs) = delete;
+	RWLock& operator=(const RWLock& rhs) = delete;
+
+	void EnterWriteLock()
+	{
+		while (true)
+		{
+			while (mLockFlag & LF_WRITE_MASK)
+				YieldProcessor();
+			if ((InterlockedAdd(&mLockFlag, LF_WRITE_FLAG) & LF_WRITE_MASK) == LF_WRITE_FLAG)
+			{
+				while (mLockFlag & LF_READ_MASK)
+					YieldProcessor();
+
+				return;
+			}
+			InterlockedAdd(&mLockFlag, -LF_WRITE_FLAG);
+		}
+	}
+	void LeaveWriteLock()
+	{
+		InterlockedAdd(&mLockFlag, -LF_WRITE_FLAG);
+	}
+
+	void EnterReadLock()
+	{
+		while (true)
+		{
+			while (mLockFlag & LF_WRITE_MASK)
+				YieldProcessor();
+
+			if ((InterlockedIncrement(&mLockFlag) & LF_WRITE_MASK) == 0)
+				return;
+			else
+				InterlockedDecrement(&mLockFlag);
+		}
+	}
+	void LeaveReadLock()
+	{
+		InterlockedDecrement(&mLockFlag);
+	}
+
+	long GetLockFlag() const { return mLockFlag; }
+
+private:
+	enum LockFlag
+	{
+		LF_WRITE_MASK = 0x7FF00000,
+		LF_WRITE_FLAG = 0x00100000,
+		LF_READ_MASK = 0x000FFFFF
+	};
+	volatile long mLockFlag;
+};
+
+#define SECTOR_WIDTH 20
+
+unordered_set<int> g_ObjectListSector[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
+RWLock g_SectorLock[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
+
 struct event_type {
 	int obj_id;
-	int event_id;
+	ENUMOP event_id;
 	high_resolution_clock::time_point wakeup_time;
 	int target_id;
 
@@ -43,7 +107,7 @@ struct event_type {
 };
 
 priority_queue<event_type> timer_queue;	// 포인터로 선언해서 new delete 하라
-mutex timer_lock;
+RWLock timer_lock;
 
 enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE, ST_SLEEP };
 
@@ -59,7 +123,7 @@ struct EXOVER {
 };
 
 struct CLIENT {
-	mutex	m_cl;
+	RWLock	m_cl;
 	SOCKET	m_s;
 	int		m_id;	// 한번 세팅하면 바꾸지 않으니 mutex 할 필요 없다
 	EXOVER	m_recv_over;
@@ -74,7 +138,7 @@ struct CLIENT {
 
 	unordered_set<int> view_list;
 	lua_State* L;
-	mutex lua_l;
+	RWLock lua_l;
 };
 
 CLIENT g_clients[NPC_ID_START + NUM_NPC];
@@ -83,10 +147,10 @@ SOCKET l_socket;	// 한번 정해진 다음에 바뀌지 않으니 data race 발생하지 않음
 
 void add_timer(int obj_id, ENUMOP op_type, int duration)
 {
-	timer_lock.lock();
+	timer_lock.EnterWriteLock();
 	event_type ev{ obj_id, op_type, high_resolution_clock::now() + milliseconds(duration), 0 };
 	timer_queue.push(ev);
-	timer_lock.unlock();
+	timer_lock.LeaveWriteLock();
 }
 
 bool is_player(int id)
@@ -143,9 +207,9 @@ void send_enter_packet(int user_id, int o_id)
 	strcpy_s(p.name, g_clients[o_id].m_name);
 	p.o_type = O_HUMAN;
 
-	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].m_cl.EnterWriteLock();
 	g_clients[user_id].view_list.insert(o_id);
-	g_clients[user_id].m_cl.unlock();
+	g_clients[user_id].m_cl.LeaveWriteLock();
 
 	send_packet(user_id, &p);
 }
@@ -157,9 +221,9 @@ void send_leave_packet(int user_id, int o_id)
 	p.size = sizeof(p);
 	p.type = S2C_LEAVE;
 
-	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].m_cl.EnterWriteLock();
 	g_clients[user_id].view_list.erase(o_id);
-	g_clients[user_id].m_cl.unlock();
+	g_clients[user_id].m_cl.LeaveWriteLock();
 
 	send_packet(user_id, &p);
 }
@@ -212,26 +276,46 @@ void do_move(int user_id, int direction)
 		exit(-1);
 	}
 
+	if (u.x / SECTOR_WIDTH != x / SECTOR_WIDTH || u.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
+	{
+		g_SectorLock[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].EnterWriteLock();
+		g_ObjectListSector[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].erase(user_id);
+		g_SectorLock[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].LeaveWriteLock();
+		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
+		g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(user_id);
+		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
+	}
+
 	u.x = x;
 	u.y = y;
 
-	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].m_cl.EnterReadLock();
 	unordered_set<int> old_vl = g_clients[user_id].view_list;
-	g_clients[user_id].m_cl.unlock();
+	g_clients[user_id].m_cl.LeaveReadLock();
 	unordered_set<int> new_vl;
-	for (auto& cl : g_clients) {
-		if(false == is_near(cl.m_id, user_id))	continue;
-		if (ST_SLEEP == cl.m_status) activate_npc(cl.m_id);
-		if (ST_ACTIVE != cl.m_status)continue;
-		if (cl.m_id == user_id)continue;
-		if (false == is_player(cl.m_id)) {
-			EXOVER* over = new EXOVER;
-			over->op = OP_PLAYER_MOVE;
-			over->p_id = user_id;
-			PostQueuedCompletionStatus(g_iocp, 1, cl.m_id, &over->over);
+
+	for (int i = u.y / SECTOR_WIDTH - 1; i <= u.y / SECTOR_WIDTH + 1; ++i) {
+		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
+		for (int j = u.x / SECTOR_WIDTH - 1; j <= u.x / SECTOR_WIDTH + 1; ++j) {
+			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1) continue;
+			g_SectorLock[i][j].EnterReadLock();
+			for (auto nearObj : g_ObjectListSector[i][j]) {
+				if (false == is_near(nearObj, user_id))	continue;
+				if (ST_SLEEP == g_clients[nearObj].m_status) activate_npc(nearObj);
+				if (ST_ACTIVE != g_clients[nearObj].m_status)continue;
+				if (nearObj == user_id)continue;
+				if (false == is_player(nearObj)) {
+					EXOVER* over = new EXOVER;
+					over->op = OP_PLAYER_MOVE;
+					over->p_id = user_id;
+					PostQueuedCompletionStatus(g_iocp, 1, nearObj, &over->over);
+				}
+				new_vl.insert(nearObj);
+			}
+			g_SectorLock[i][j].LeaveReadLock();
 		}
-		new_vl.insert(cl.m_id);
 	}
+
 	send_move_packet(user_id, user_id);
 
 	for (auto np : new_vl) {
@@ -239,25 +323,25 @@ void do_move(int user_id, int direction)
 			send_enter_packet(user_id, np);
 			if (false == is_player(np))
 				continue;
-			g_clients[np].m_cl.lock();
+			g_clients[np].m_cl.EnterReadLock();
 			if (0 == g_clients[np].view_list.count(user_id)) {
-				g_clients[np].m_cl.unlock();
+				g_clients[np].m_cl.LeaveReadLock();
 				send_enter_packet(np, user_id);
 			}
 			else {
-				g_clients[np].m_cl.unlock();
+				g_clients[np].m_cl.LeaveReadLock();
 				send_move_packet(np, user_id);
 			}
 		}
 		else {	// 계속 시야에 존재하고 있을 때
 			if (false == is_player(np))	continue;
-			g_clients[np].m_cl.lock();
+			g_clients[np].m_cl.EnterReadLock();
 			if (0 != g_clients[np].view_list.count(user_id)) {
-				g_clients[np].m_cl.unlock();
+				g_clients[np].m_cl.LeaveReadLock();
 				send_move_packet(np, user_id);
 			}
 			else {
-				g_clients[np].m_cl.unlock();
+				g_clients[np].m_cl.LeaveReadLock();
 				send_enter_packet(np, user_id);
 			}
 		}
@@ -267,13 +351,13 @@ void do_move(int user_id, int direction)
 		if (0 == new_vl.count(old_p)) {
 			send_leave_packet(user_id, old_p);
 			if (false == is_player(old_p))	continue;
-			g_clients[old_p].m_cl.lock();
+			g_clients[old_p].m_cl.EnterReadLock();
 			if (0 != g_clients[old_p].view_list.count(user_id)) {
-				g_clients[old_p].m_cl.unlock();
+				g_clients[old_p].m_cl.LeaveReadLock();
 				send_leave_packet(old_p, user_id);
 			}
 			else {
-				g_clients[old_p].m_cl.unlock();
+				g_clients[old_p].m_cl.LeaveReadLock();
 			}
 		}
 	}
@@ -290,56 +374,85 @@ void random_move_npc(int id)
 	case 3:	if (y > 0)	y--; break;
 	}
 
+	if (g_clients[id].x / SECTOR_WIDTH != x / SECTOR_WIDTH || g_clients[id].y / SECTOR_WIDTH != y / SECTOR_WIDTH)
+	{
+		g_SectorLock[g_clients[id].y / SECTOR_WIDTH][g_clients[id].x / SECTOR_WIDTH].EnterWriteLock();
+		g_ObjectListSector[g_clients[id].y / SECTOR_WIDTH][g_clients[id].x / SECTOR_WIDTH].erase(id);
+		g_SectorLock[g_clients[id].y / SECTOR_WIDTH][g_clients[id].x / SECTOR_WIDTH].LeaveWriteLock();
+		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
+		g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(id);
+		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
+	}
+
 	g_clients[id].x = x;
 	g_clients[id].y = y;
 
-	for (int i = 0; i < NPC_ID_START; ++i) {
-		if (ST_ACTIVE != g_clients[i].m_status)	continue;
-		if (true == is_near(i, id)) {
-			g_clients[i].m_cl.lock();
-			if (0 != g_clients[i].view_list.count(id)) {
-				g_clients[i].m_cl.unlock();
-				send_move_packet(i, id);
+	for (int i = g_clients[id].y / SECTOR_WIDTH - 1; i <= g_clients[id].y / SECTOR_WIDTH + 1; ++i) {
+		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
+		for (int j = g_clients[id].x / SECTOR_WIDTH - 1; j <= g_clients[id].x / SECTOR_WIDTH + 1; ++j) {
+			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1) continue;
+			g_SectorLock[i][j].EnterReadLock();
+			for (auto nearObj : g_ObjectListSector[i][j]) {
+				if (ST_ACTIVE != g_clients[nearObj].m_status)	continue;
+				if (false == is_player(nearObj))	continue;
+				if (true == is_near(nearObj, id)) {
+					g_clients[nearObj].m_cl.EnterReadLock();
+					if (0 != g_clients[nearObj].view_list.count(id)) {
+						g_clients[nearObj].m_cl.LeaveReadLock();
+						send_move_packet(nearObj, id);
+					}
+					else {
+						g_clients[nearObj].m_cl.LeaveReadLock();
+						send_enter_packet(nearObj, id);
+					}
+				}
+				else {
+					g_clients[nearObj].m_cl.EnterReadLock();
+					if (0 != g_clients[nearObj].view_list.count(id)) {
+						g_clients[nearObj].m_cl.LeaveReadLock();
+						send_leave_packet(nearObj, id);
+					}
+					else
+						g_clients[nearObj].m_cl.LeaveReadLock();
+				}
 			}
-			else {
-				g_clients[i].m_cl.unlock();
-				send_enter_packet(i, id);
-			}
-		}
-		else {
-			g_clients[i].m_cl.lock();
-			if (0 != g_clients[i].view_list.count(id)) {
-				g_clients[i].m_cl.unlock();
-				send_leave_packet(i, id);
-			}
-			else
-				g_clients[i].m_cl.unlock();
+			g_SectorLock[i][j].LeaveReadLock();
 		}
 	}
 }
 
 void enter_game(int user_id, char name[])
 {
-	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].m_cl.EnterWriteLock();
 	strcpy_s(g_clients[user_id].m_name, name);
 	g_clients[user_id].m_name[MAX_ID_LEN] = NULL;
 	send_login_ok_packet(user_id);
 	g_clients[user_id].m_status = ST_ACTIVE;
-	g_clients[user_id].m_cl.unlock();
+	g_clients[user_id].m_cl.LeaveWriteLock();
 
-	for (auto& cl : g_clients)
-	{
-		int i = cl.m_id;
-		if (user_id == i) continue;
-		if (true == is_near(user_id, i)) {
-			if (ST_SLEEP == g_clients[i].m_status) {
-				activate_npc(i);
+	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].EnterWriteLock();
+	g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].insert(user_id);
+	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].LeaveWriteLock();
+
+	for (int i = g_clients[user_id].y / SECTOR_WIDTH - 1; i <= g_clients[user_id].y / SECTOR_WIDTH + 1; ++i){
+		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
+		for (int j = g_clients[user_id].x / SECTOR_WIDTH - 1; j <= g_clients[user_id].x / SECTOR_WIDTH + 1; ++j){
+			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1) continue;
+			g_SectorLock[i][j].EnterReadLock();
+			for (auto nearObj : g_ObjectListSector[i][j]){
+				if (nearObj == user_id) continue;
+				if (true == is_near(user_id, nearObj)) {
+					if (ST_SLEEP == g_clients[nearObj].m_status) {
+						activate_npc(nearObj);
+					}
+					if (ST_ACTIVE == g_clients[nearObj].m_status) {
+						send_enter_packet(user_id, nearObj);
+						if (true == is_player(nearObj))
+							send_enter_packet(nearObj, user_id);
+					}
+				}
 			}
-			if (ST_ACTIVE == g_clients[i].m_status) {
-				send_enter_packet(user_id, i);
-				if (true == is_player(i))
-					send_enter_packet(i, user_id);
-			}
+			g_SectorLock[i][j].LeaveReadLock();
 		}
 	}
 }
@@ -381,9 +494,14 @@ void initialize_clients()
 
 void disconnect(int user_id)
 {
+	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].EnterWriteLock();
+	if (g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].count(user_id) != 0)
+		g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].erase(user_id);
+	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].LeaveWriteLock();
+
 	send_leave_packet(user_id, user_id);
 
-	g_clients[user_id].m_cl.lock();
+	g_clients[user_id].m_cl.EnterWriteLock();
 	g_clients[user_id].m_status = ST_ALLOC;
 
 	closesocket(g_clients[user_id].m_s);
@@ -395,7 +513,7 @@ void disconnect(int user_id)
 			send_leave_packet(cl.m_id, user_id);
 	}
 	g_clients[user_id].m_status = ST_FREE;
-	g_clients[user_id].m_cl.unlock();
+	g_clients[user_id].m_cl.LeaveWriteLock();
 }
 
 // 패킷 재조립
@@ -532,20 +650,19 @@ void worker_thread()
 		break;
 		case OP_PLAYER_MOVE:
 		{
-			g_clients[user_id].lua_l.lock();
+			g_clients[user_id].lua_l.EnterWriteLock();
 			lua_State* L = g_clients[user_id].L;
 			lua_getglobal(L, "event_player_move");
 			lua_pushnumber(L, exover->p_id);
 			lua_pcall(L, 1, 0, 0);
 			//lua_pop(L, 1);
-			g_clients[user_id].lua_l.unlock();
+			g_clients[user_id].lua_l.LeaveWriteLock();
 			delete exover;
 		}
 		break;
 		default:
 			cout << "Unknown Operation in worker_thread!!\n";
 			while (true);
-			break;
 		}
 	}
 }
@@ -588,17 +705,25 @@ void init_npc()
 		g_clients[i].m_status = ST_SLEEP;
 		g_clients[i].x = rand() % WORLD_WIDTH;
 		g_clients[i].y = rand() % WORLD_HEIGHT;
+
+		g_SectorLock[g_clients[i].y / SECTOR_WIDTH][g_clients[i].x / SECTOR_WIDTH].EnterWriteLock();
+		g_ObjectListSector[g_clients[i].y / SECTOR_WIDTH][g_clients[i].x / SECTOR_WIDTH].insert(g_clients[i].m_id);
+		g_SectorLock[g_clients[i].y / SECTOR_WIDTH][g_clients[i].x / SECTOR_WIDTH].LeaveWriteLock();
+
+		//g_clients[i].m_last_move_time = high_resolution_clock::now();
 		//add_timer(i, OP_RANDOM_MOVE, 1000);
-		lua_State *L = g_clients[i].L = luaL_newstate();
+		lua_State* L = g_clients[i].L = luaL_newstate();
 		luaL_openlibs(L);
 		luaL_loadfile(L, "NPC.LUA");
-		lua_pcall(L, 0, 0, 0);
+		int error = lua_pcall(L, 0, 0, 0);
+		if (error) cout << lua_tostring(L, -1);
 		lua_getglobal(L, "set_uid");
 		lua_pushnumber(L, i);
-		lua_pcall(L, 1, 0, 0);
-		lua_pop(L, 1);
+		error = lua_pcall(L, 1, 0, 0);
+		if (error) cout << lua_tostring(L, -1);
+		//lua_pop(L, 1);
 
-		lua_register(L, "API_sendmessage", API_SendMessage);
+		lua_register(L, "API_send_message", API_SendMessage);
 		lua_register(L, "API_get_x", API_get_x);
 		lua_register(L, "API_get_y", API_get_y);
 	}
@@ -608,25 +733,28 @@ void do_timer()
 {
 	while (true) {
 		this_thread::sleep_for(1ms);
-		while (true)
-		{
-			timer_lock.lock();
+		while (true) {
+			timer_lock.EnterWriteLock();
 			if (true == timer_queue.empty()) {
-				timer_lock.unlock();
+				timer_lock.LeaveWriteLock();
 				break;
 			}
+			auto now_t = high_resolution_clock::now();
+			event_type temp_ev = timer_queue.top();
 			if (timer_queue.top().wakeup_time > high_resolution_clock::now()) {
-				timer_lock.unlock();
+				timer_lock.LeaveWriteLock();
 				break;
-			}event_type ev = timer_queue.top();
+			}
+			event_type ev = timer_queue.top();
 			timer_queue.pop();
-			timer_lock.unlock();
+			timer_lock.LeaveWriteLock();
 			switch (ev.event_id) {
 			case OP_RANDOM_MOVE:
 				EXOVER* over = new EXOVER;
-				over->op = OP_RANDOM_MOVE;
+				over->op = ev.event_id;
 				PostQueuedCompletionStatus(g_iocp, 1, ev.obj_id, &over->over);
-				break;
+				//random_move_npc(ev.obj_id);
+				//add_timer(ev.obj_id, ev.event_id, 1000);
 			}
 		}
 	}

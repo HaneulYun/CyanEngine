@@ -1,14 +1,14 @@
 #pragma once
 
 constexpr int MAX_ID_LEN = 50;
-constexpr int MAX_STR_LEN = 255;
+constexpr int MAX_STR_LEN = 80;
 
-#define WORLD_WIDTH		400		
+#define WORLD_WIDTH		400
 #define WORLD_HEIGHT	400
 
 #define SERVER_PORT		9000
-#define NPC_ID_START	200000
-#define NUM_NPC			2000
+#define NPC_ID_START    20000
+#define NUM_NPC			20000
 
 #define C2S_LOGIN	1
 #define C2S_MOVE	2
@@ -41,7 +41,7 @@ struct sc_packet_move {
 
 constexpr unsigned char O_HUMAN = 0;
 constexpr unsigned char O_ELF = 1;
-constexpr unsigned char O_ORC = 1;
+constexpr unsigned char O_ORC = 2;
 
 struct sc_packet_enter {
 	char size;
@@ -61,7 +61,7 @@ struct sc_packet_leave {
 struct sc_packet_chat {
 	char size;
 	char type;
-	int	id;
+	int	 id;
 	char mess[MAX_STR_LEN];
 };
 

@@ -86,6 +86,12 @@ void Network::ProcessPacket(char* ptr)
 	}
 	break;
 
+	case S2C_CHAT:
+	{
+
+	}
+	break;
+
 	default:
 		printf("Unknown PACKET type [%d]\n", ptr[1]);
 	}

@@ -27,19 +27,17 @@ void MenuScene::BuildObjects()
 
 	///*** Game Object ***///
 
-	GameObject* chessmap[2][2];
-	for(int i=0;i<2;++i)
-		for (int j = 0; j < 2; ++j)
-		{
-			chessmap[i][j] = CreateEmpty();
-			chessmap[i][j]->GetComponent<Transform>()->position = { -0.0275f + (j * 22.f), -21.9725f - (i * 22.f), 0.0f };
-			chessmap[i][j]->GetComponent<Transform>()->Scale({ 22.0f, 22.0f,1.0f });
-			auto mesh = chessmap[i][j]->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
-			auto renderer = chessmap[i][j]->AddComponent<Renderer>();
-			for (auto& sm : mesh->DrawArgs)
-				renderer->materials.push_back(ASSET MATERIAL("chessmapmat"));
-			chessmap[i][j]->layer = (int)RenderLayer::Opaque;
-		}
+	auto chessmap = CreateEmpty();
+	{
+		chessmap = CreateEmpty();
+		chessmap->GetComponent<Transform>()->position = { -0.0275f, -21.9725f, 0.0f };
+		chessmap->GetComponent<Transform>()->Scale({ 22.0f, 22.0f,1.0f });
+		auto mesh = chessmap->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+		auto renderer = chessmap->AddComponent<Renderer>();
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(ASSET MATERIAL("chessmapmat"));
+		chessmap->layer = (int)RenderLayer::Opaque;
+	}
 
 	auto mychess = CreateEmpty();
 	{
