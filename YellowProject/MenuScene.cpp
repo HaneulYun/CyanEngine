@@ -110,16 +110,16 @@ void MenuScene::BuildObjects()
 				Network::network->PressButton();
 			});
 		{
-			auto textobject = ServerButton->AddChildUI();
-			auto rectTransform = textobject->GetComponent<RectTransform>();
-			rectTransform->anchorMin = { 0, 0 };
-			rectTransform->anchorMax = { 1, 1 };
+			//auto textobject = ServerButton->AddChildUI();
+			//auto rectTransform = textobject->GetComponent<RectTransform>();
+			//rectTransform->anchorMin = { 0, 0 };
+			//rectTransform->anchorMax = { 1, 1 };
 
-			Text* text = textobject->AddComponent<Text>();
+			Text* text = ServerButton->AddComponent<Text>();
 			text->text = L"connect";
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-			textObjects.push_back(textobject);
+			textObjects.push_back(ServerButton);
 		}
 	}
 }

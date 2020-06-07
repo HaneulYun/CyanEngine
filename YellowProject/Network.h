@@ -207,7 +207,7 @@ public:
 				ip->SetActive(true);
 			if (ipImage == nullptr)
 			{
-				ipImage = Scene::scene->CreateImage();
+				ipImage = Scene::scene->CreateUI();
 				{
 					auto rectTransform = ipImage->GetComponent<RectTransform>();
 					rectTransform->anchorMin = { 0, 1 };
@@ -219,18 +219,13 @@ public:
 					rectTransform->height = 15;
 
 					{
-						auto textobject = ipImage->AddChildUI();
-						auto rectTransform = textobject->GetComponent<RectTransform>();
-						rectTransform->anchorMin = { 0, 0 };
-						rectTransform->anchorMax = { 1, 1 };
-
-						inputIp = textobject->AddComponent<Text>();
+						inputIp = ipImage->AddComponent<Text>();
 						inputIp->text = wserverIp;
 						inputIp->fontSize = 10;
 						inputIp->color = { 0.0f, 0.0f, 0.0f, 1.0f };
 						inputIp->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 						inputIp->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-						Scene::scene->textObjects.push_back(textobject);
+						Scene::scene->textObjects.push_back(ipImage);
 					}
 				}
 			}
