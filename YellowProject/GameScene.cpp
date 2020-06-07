@@ -74,7 +74,7 @@ void GameScene::BuildObjects()
 			rect->pivot = { 0.5, 0.5 };
 
 			auto text = name->AddComponent<Text>();
-			text->text = L"NONE";
+			text->text = L"";
 			text->font = L"메이플스토리";
 			text->fontSize = 15;
 			text->color = { 235 / 255.f, 207 / 255.f, 73 / 255.f, 1 };
