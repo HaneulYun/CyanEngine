@@ -58,18 +58,35 @@ void MenuScene::BuildObjects()
 			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.9999f, -0.9999f };
 		}
 
-		auto rectTransform = mychess->AddComponent<RectTransform>();
-		rectTransform->anchorMin = { 0, 0.08 };
-		rectTransform->anchorMax = { 1, 1 };
-		rectTransform->pivot = { 0, 0 };
+		auto name = CreateUI();
+		{
+			mychess->AddChildUI(name);
+			auto rect = name->GetComponent<RectTransform>();
+			rect->width = 50;
+			rect->height = 50;
+			rect->pivot = { 0.5, 0.5 };
 
-		Text* text = mychess->AddComponent<Text>();
-		text->text = L"Test";
-		text->fontSize = 10;
-		text->color = { 1.0f, 1.0f, 0.0f, 1.0f };
-		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-		//Scene::scene->textObjects.push_back(mychess);
+			auto text = name->AddComponent<Text>();
+			text->text = L"Test";
+			text->fontSize = 10;
+			text->color = { 1.0f, 1.0f, 0.0f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
+
+		auto* chat = CreateUI();
+		{
+			mychess->AddChildUI(chat);
+			auto rect = chat->GetComponent<RectTransform>();
+			rect->width = 50;
+			rect->height = 50;
+			rect->pivot = { 0.5, 1.0 };
+
+			auto text = chat->AddComponent<Text>();
+			text->text = L"chatTest";
+			text->fontSize = 10;
+			text->color = { 1.0f, 0.0f, 1.0f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
 	}
 
 	auto otherchessprefab = CreateEmptyPrefab();
@@ -84,17 +101,35 @@ void MenuScene::BuildObjects()
 		otherchessprefab->layer = (int)RenderLayer::Opaque;
 		otherchessprefab->AddComponent<CharacterController>()->player = false;
 
-		auto rectTransform = otherchessprefab->AddComponent<RectTransform>();
-		rectTransform->anchorMin = { 0, 0.08 };
-		rectTransform->anchorMax = { 1, 1 };
-		rectTransform->pivot = { 0, 0 };
+		auto name = CreateUI();
+		{
+			mychess->AddChildUI(name);
+			auto rect = name->GetComponent<RectTransform>();
+			rect->width = 50;
+			rect->height = 50;
+			rect->pivot = { 0.5, 0.5 };
 
-		Text* text = otherchessprefab->AddComponent<Text>();
-		text->text = L"Test";
-		text->fontSize = 10;
-		text->color = { 1.0f, 1.0f, 0.0f, 1.0f };
-		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			auto text = name->AddComponent<Text>();
+			text->text = L"Test";
+			text->fontSize = 10;
+			text->color = { 1.0f, 1.0f, 0.0f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
+
+		auto* chat = CreateUI();
+		{
+			mychess->AddChildUI(chat);
+			auto rect = chat->GetComponent<RectTransform>();
+			rect->width = 50;
+			rect->height = 50;
+			rect->pivot = { 0.5, 1.0 };
+
+			auto text = chat->AddComponent<Text>();
+			text->text = L"chatTest";
+			text->fontSize = 10;
+			text->color = { 1.0f, 0.0f, 1.0f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
 	}
 
 	auto npcchessprefab = CreateEmptyPrefab();
