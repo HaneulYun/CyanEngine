@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <chrono>
 #include "..\CyanEngine\framework.h"
 #include "Network.h"
 
@@ -11,6 +12,7 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	int xPos, yPos;
 	bool player{ false };
 	char name[MAX_ID_LEN];
+	chrono::high_resolution_clock::time_point chatEndTime;
 
 private:
 	friend class GameObject;
@@ -67,6 +69,14 @@ public:
 		if (!Network::network->isConnect)
 			gameObject->transform->position = { xPos * 0.055f, -yPos * 0.055f, -0.0001f };
 
+		if (chatEndTime < chrono::high_resolution_clock::now())
+		{
+			Text* text = gameObject->children[1]->GetComponent<Text>();
+			if (text)
+			{
+				text->text = L"";
+			}
+		}
 	}
 
 	void setName()
@@ -74,22 +84,29 @@ public:
 		Text* text = gameObject->children[0]->GetComponent<Text>();
 		if (text)
 		{
-			std::wstring wstr(name, &name[MAX_ID_LEN]);
-			text->text = wstr;
+			std::string namestr = name;
+			text->text.assign(namestr.begin(), namestr.end());
 		}
 	}
 
-	//void addChat(char chat[])
-	//{
-	//	using namespace std::chrono;
-	//	Text* text = gameObject->children[1]->GetComponent<Text>();
-	//	if (text)
-	//	{
-	//		std::wstring wstr(chat, &chat[strlen(chat)]);
-	//		text->text = wstr;
-	//		m_time_out = std::chrono::high_resolution_clock::now() + 1s;
-	//	}
-	//}
+	void renewTextPos(int x, int y)
+	{
+		gameObject->children[0]->GetComponent<RectTransform>()->anchorMin = { (x - 1) / 21.f, (21.5f - y) / 21.f };
+		gameObject->children[0]->GetComponent<RectTransform>()->anchorMax = { (x + 2) / 21.f, (19.5f - y) / 21.f };
+		gameObject->children[1]->GetComponent<RectTransform>()->anchorMin = { (x - 1) / 21.f, (20.f - y) / 21.f };
+		gameObject->children[1]->GetComponent<RectTransform>()->anchorMax = { (x + 2) / 21.f, (21.f - y) / 21.f };
+	}
+	
+	void addChat(char chat[])
+	{
+		Text* text = gameObject->children[1]->GetComponent<Text>();
+		if (text)
+		{
+			std::wstring wstr(chat, &chat[strlen(chat)]);
+			text->text = wstr;
+			chatEndTime = std::chrono::high_resolution_clock::now() + 1s;
+		}
+	}
 	
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };

@@ -32,7 +32,7 @@ void Network::ProcessPacket(char* ptr)
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
 		}
-		else if(my_packet->o_type == O_HUMAN){
+		else if(id < NPC_ID_START){
 			otherCharacters[id] = gameObject->scene->Duplicate(othersPrefab);
 			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
@@ -40,6 +40,9 @@ void Network::ProcessPacket(char* ptr)
 			controller->setName();
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
+			int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
+			int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
+			controller->renewTextPos(x, y);
 		}
 		else
 		{
@@ -47,9 +50,12 @@ void Network::ProcessPacket(char* ptr)
 			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
 			strcpy_s(controller->name, my_packet->name);
-			//	controller->setName();
+			controller->setName();
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
+			int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
+			int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
+			controller->renewTextPos(x, y);
 		}
 	}
 	break;
@@ -70,6 +76,9 @@ void Network::ProcessPacket(char* ptr)
 				CharacterController* controller = otherCharacters[other_id]->GetComponent<CharacterController>();
 				controller->xPos = my_packet->x;
 				controller->yPos = my_packet->y;
+				int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
+				int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
+				controller->renewTextPos(x, y);
 			}
 		}
 	}
@@ -92,7 +101,19 @@ void Network::ProcessPacket(char* ptr)
 
 	case S2C_CHAT:
 	{
+		sc_packet_chat* my_packet = reinterpret_cast<sc_packet_chat*>(ptr);
+		int id = my_packet->id;
 
+		if (id == myId) {
+			myCharacter->GetComponent<CharacterController>()->addChat(my_packet->mess);
+		}
+		else {
+			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
+			int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
+			int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
+			controller->renewTextPos(x, y);
+			otherCharacters[id]->GetComponent<CharacterController>()->addChat(my_packet->mess);
+		}
 	}
 	break;
 
@@ -155,9 +176,7 @@ void Network::Login()
 	cs_packet_login l_packet;
 	l_packet.size = sizeof(l_packet);
 	l_packet.type = C2S_LOGIN;
-	int t_id = GetCurrentProcessId();
-	sprintf_s(l_packet.name, "P%03d", t_id % 1000);
-	strcpy_s(myCharacter->GetComponent<CharacterController>()->name, l_packet.name);
-	myCharacter->GetComponent<CharacterController>()->setName();
+	strcpy_s(l_packet.name, myCharacter->GetComponent<CharacterController>()->name);
+
 	send_packet(&l_packet);
 }

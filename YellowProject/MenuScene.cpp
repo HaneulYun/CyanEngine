@@ -51,23 +51,16 @@ void MenuScene::BuildObjects()
 		mychess->layer = (int)RenderLayer::Opaque;
 		mychess->AddComponent<CharacterController>()->player = true;
 
-		auto cameraOffset = mychess->AddChild();
-		{
-			camera = camera->main = cameraOffset->AddComponent<Camera>();
-			cameraOffset->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, 90);
-			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.9999f, -0.9999f };
-		}
-
 		auto name = CreateUI();
 		{
 			mychess->AddChildUI(name);
 			auto rect = name->GetComponent<RectTransform>();
-			rect->width = 50;
+			rect->width = 200;
 			rect->height = 50;
 			rect->pivot = { 0.5, 0.5 };
 
 			auto text = name->AddComponent<Text>();
-			text->text = L"Test";
+			text->text = L"";
 			text->fontSize = 10;
 			text->color = { 1.0f, 1.0f, 0.0f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
@@ -77,16 +70,27 @@ void MenuScene::BuildObjects()
 		{
 			mychess->AddChildUI(chat);
 			auto rect = chat->GetComponent<RectTransform>();
-			rect->width = 50;
+			rect->width = 200;
 			rect->height = 50;
 			rect->pivot = { 0.5, 1.0 };
 
 			auto text = chat->AddComponent<Text>();
-			text->text = L"chatTest";
+			text->text = L"";
 			text->fontSize = 10;
 			text->color = { 1.0f, 0.0f, 1.0f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		}
+
+		auto cameraOffset = mychess->AddChild();
+		{
+			camera = camera->main = cameraOffset->AddComponent<Camera>();
+			cameraOffset->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, 90);
+			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.9999f, -0.9999f };
+		}
+
+		int t_id = GetCurrentProcessId();
+		sprintf_s(mychess->GetComponent<CharacterController>()->name, "P%03d", t_id % 1000);
+		mychess->GetComponent<CharacterController>()->setName();
 	}
 
 	auto otherchessprefab = CreateEmptyPrefab();
@@ -103,14 +107,14 @@ void MenuScene::BuildObjects()
 
 		auto name = CreateUIPrefab();
 		{
-			mychess->AddChildUI(name);
+			otherchessprefab->AddChildUI(name);
 			auto rect = name->GetComponent<RectTransform>();
-			rect->width = 50;
+			rect->width = 200;
 			rect->height = 50;
 			rect->pivot = { 0.5, 0.5 };
 
 			auto text = name->AddComponent<Text>();
-			text->text = L"Test";
+			text->text = L"";
 			text->fontSize = 10;
 			text->color = { 1.0f, 1.0f, 0.0f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
@@ -118,14 +122,14 @@ void MenuScene::BuildObjects()
 
 		auto* chat = CreateUIPrefab();
 		{
-			mychess->AddChildUI(chat);
+			otherchessprefab->AddChildUI(chat);
 			auto rect = chat->GetComponent<RectTransform>();
-			rect->width = 50;
+			rect->width = 200;
 			rect->height = 50;
 			rect->pivot = { 0.5, 1.0 };
 
 			auto text = chat->AddComponent<Text>();
-			text->text = L"chatTest";
+			text->text = L"";
 			text->fontSize = 10;
 			text->color = { 1.0f, 0.0f, 1.0f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
@@ -143,6 +147,36 @@ void MenuScene::BuildObjects()
 			renderer->materials.push_back(ASSET MATERIAL("kittymat"));
 		npcchessprefab->layer = (int)RenderLayer::Opaque;
 		npcchessprefab->AddComponent<CharacterController>()->player = false;
+
+		auto name = CreateUIPrefab();
+		{
+			npcchessprefab->AddChildUI(name);
+			auto rect = name->GetComponent<RectTransform>();
+			rect->width = 2000;
+			rect->height = 50;
+			rect->pivot = { 0.5, 0.5 };
+
+			auto text = name->AddComponent<Text>();
+			text->text = L"";
+			text->fontSize = 10;
+			text->color = { 1.0f, 1.0f, 0.0f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
+
+		auto* chat = CreateUIPrefab();
+		{
+			npcchessprefab->AddChildUI(chat);
+			auto rect = chat->GetComponent<RectTransform>();
+			rect->width = 200;
+			rect->height = 50;
+			rect->pivot = { 0.5, 1.0 };
+
+			auto text = chat->AddComponent<Text>();
+			text->text = L"";
+			text->fontSize = 10;
+			text->color = { 1.0f, 0.0f, 1.0f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
 	}
 
 	auto manager = CreateEmpty();
