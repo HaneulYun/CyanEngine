@@ -57,6 +57,19 @@ void MenuScene::BuildObjects()
 			cameraOffset->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, 90);
 			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.9999f, -0.9999f };
 		}
+
+		auto rectTransform = mychess->AddComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 0.08 };
+		rectTransform->anchorMax = { 1, 1 };
+		rectTransform->pivot = { 0, 0 };
+
+		Text* text = mychess->AddComponent<Text>();
+		text->text = L"Test";
+		text->fontSize = 10;
+		text->color = { 1.0f, 1.0f, 0.0f, 1.0f };
+		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+		//Scene::scene->textObjects.push_back(mychess);
 	}
 
 	auto otherchessprefab = CreateEmptyPrefab();
@@ -70,6 +83,18 @@ void MenuScene::BuildObjects()
 			renderer->materials.push_back(ASSET MATERIAL("otherchessmat"));
 		otherchessprefab->layer = (int)RenderLayer::Opaque;
 		otherchessprefab->AddComponent<CharacterController>()->player = false;
+
+		auto rectTransform = otherchessprefab->AddComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 0.08 };
+		rectTransform->anchorMax = { 1, 1 };
+		rectTransform->pivot = { 0, 0 };
+
+		Text* text = otherchessprefab->AddComponent<Text>();
+		text->text = L"Test";
+		text->fontSize = 10;
+		text->color = { 1.0f, 1.0f, 0.0f, 1.0f };
+		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 	}
 
 	auto npcchessprefab = CreateEmptyPrefab();

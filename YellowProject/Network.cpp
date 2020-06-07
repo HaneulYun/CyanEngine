@@ -33,8 +33,10 @@ void Network::ProcessPacket(char* ptr)
 		else if(my_packet->o_type == O_HUMAN){
 			otherCharacters[id] = gameObject->scene->Duplicate(othersPrefab);
 			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
-			strcpy_s(otherCharacters[id]->GetComponent<CharacterController>()->name, my_packet->name);
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
+			strcpy_s(controller->name, my_packet->name);
+			std::string name = my_packet->name;
+			otherCharacters[id]->GetComponent<Text>()->text.assign(name.begin(), name.end());
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
 		}
@@ -42,8 +44,10 @@ void Network::ProcessPacket(char* ptr)
 		{
 			otherCharacters[id] = gameObject->scene->Duplicate(npcsPrefab);
 			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
-			strcpy_s(otherCharacters[id]->GetComponent<CharacterController>()->name, my_packet->name);
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
+			strcpy_s(controller->name, my_packet->name);
+			std::string name = my_packet->name;
+			otherCharacters[id]->GetComponent<Text>()->text.assign(name.begin(), name.end());
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
 		}
