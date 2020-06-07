@@ -27,7 +27,7 @@ constexpr auto MAX_USER = 10000;
 
 constexpr auto VIEW_RADIUS = 8;
 
-enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PLAYER_MOVE };
+enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PLAYER_MOVE, OP_RUN, OP_RUN_FINISH };
 
 class RWLock
 {
@@ -653,9 +653,30 @@ void worker_thread()
 			g_clients[user_id].lua_l.EnterWriteLock();
 			lua_State* L = g_clients[user_id].L;
 			lua_getglobal(L, "event_player_move");
-			lua_pushnumber(L, exover->p_id);
+			lua_pushnumber(L, exover->p_id);	
 			lua_pcall(L, 1, 0, 0);
 			//lua_pop(L, 1);
+			g_clients[user_id].lua_l.LeaveWriteLock();
+			delete exover;
+		}
+		break;
+		case OP_RUN:
+		{
+			g_clients[user_id].lua_l.EnterWriteLock();
+			lua_State* L = g_clients[user_id].L;
+			lua_getglobal(L, "event_run");
+			lua_pcall(L, 0, 0, 0);
+			//lua_pop(L, 1);
+			g_clients[user_id].lua_l.LeaveWriteLock();
+			delete exover;
+		}
+		break;
+		case OP_RUN_FINISH:
+		{
+			g_clients[user_id].lua_l.EnterWriteLock();
+			lua_State* L = g_clients[user_id].L;
+			lua_getglobal(L, "event_run_finished");
+			lua_pcall(L, 0, 0, 0);
 			g_clients[user_id].lua_l.LeaveWriteLock();
 			delete exover;
 		}
@@ -696,6 +717,27 @@ int API_get_y(lua_State* L)
 	return 1;
 }
 
+int API_add_timer_run(lua_State* L)
+{
+	int my_id = (int)lua_tointeger(L, -1);
+
+	add_timer(my_id, OP_RUN, 1000);
+	lua_pop(L, 2);
+	return 0;
+}
+
+int API_run_finished(lua_State* L)
+{
+	int my_id = (int)lua_tointeger(L, -1);
+
+	EXOVER* over = new EXOVER;
+	over->op = OP_RUN_FINISH;
+
+	PostQueuedCompletionStatus(g_iocp, 1, my_id, &over->over);
+	lua_pop(L, 2);
+	return 0;
+}
+
 void init_npc()
 {
 	for (int i = NPC_ID_START; i < NPC_ID_START + NUM_NPC; ++i) {
@@ -726,6 +768,8 @@ void init_npc()
 		lua_register(L, "API_send_message", API_SendMessage);
 		lua_register(L, "API_get_x", API_get_x);
 		lua_register(L, "API_get_y", API_get_y);
+		lua_register(L, "API_add_timer_run", API_add_timer_run);
+		lua_register(L, "API_run_finished", API_run_finished);
 	}
 }
 
@@ -750,6 +794,7 @@ void do_timer()
 			timer_lock.LeaveWriteLock();
 			switch (ev.event_id) {
 			case OP_RANDOM_MOVE:
+			case OP_RUN:
 				EXOVER* over = new EXOVER;
 				over->op = ev.event_id;
 				PostQueuedCompletionStatus(g_iocp, 1, ev.obj_id, &over->over);
