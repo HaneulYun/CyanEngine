@@ -69,5 +69,27 @@ public:
 
 	}
 
+	void setName()
+	{
+		Text* text = gameObject->children[0]->GetComponent<Text>();
+		if (text)
+		{
+			std::wstring wstr(name, &name[MAX_ID_LEN]);
+			text->text = wstr;
+		}
+	}
+
+	//void addChat(char chat[])
+	//{
+	//	using namespace std::chrono;
+	//	Text* text = gameObject->children[1]->GetComponent<Text>();
+	//	if (text)
+	//	{
+	//		std::wstring wstr(chat, &chat[strlen(chat)]);
+	//		text->text = wstr;
+	//		m_time_out = std::chrono::high_resolution_clock::now() + 1s;
+	//	}
+	//}
+	
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };

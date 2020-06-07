@@ -27,6 +27,8 @@ void Network::ProcessPacket(char* ptr)
 		if (id == myId) {
 			myCharacter->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
 			CharacterController* controller = myCharacter->GetComponent<CharacterController>();
+			strcpy_s(controller->name, my_packet->name);
+			controller->setName();
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
 		}
@@ -35,8 +37,7 @@ void Network::ProcessPacket(char* ptr)
 			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
 			strcpy_s(controller->name, my_packet->name);
-			std::string name = my_packet->name;
-			otherCharacters[id]->GetComponent<Text>()->text.assign(name.begin(), name.end());
+			controller->setName();
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
 		}
@@ -46,8 +47,7 @@ void Network::ProcessPacket(char* ptr)
 			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
 			strcpy_s(controller->name, my_packet->name);
-			std::string name = my_packet->name;
-			otherCharacters[id]->GetComponent<Text>()->text.assign(name.begin(), name.end());
+			//	controller->setName();
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
 		}
@@ -158,5 +158,6 @@ void Network::Login()
 	int t_id = GetCurrentProcessId();
 	sprintf_s(l_packet.name, "P%03d", t_id % 1000);
 	strcpy_s(myCharacter->GetComponent<CharacterController>()->name, l_packet.name);
+	myCharacter->GetComponent<CharacterController>()->setName();
 	send_packet(&l_packet);
 }
