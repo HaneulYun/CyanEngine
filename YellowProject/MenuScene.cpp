@@ -152,7 +152,7 @@ void MenuScene::BuildObjects()
 		{
 			npcchessprefab->AddChildUI(name);
 			auto rect = name->GetComponent<RectTransform>();
-			rect->width = 2000;
+			rect->width = 200;
 			rect->height = 50;
 			rect->pivot = { 0.5, 0.5 };
 

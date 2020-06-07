@@ -36,26 +36,32 @@ void Network::ProcessPacket(char* ptr)
 			otherCharacters[id] = gameObject->scene->Duplicate(othersPrefab);
 			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
-			strcpy_s(controller->name, my_packet->name);
-			controller->setName();
-			controller->xPos = my_packet->x;
-			controller->yPos = my_packet->y;
-			int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
-			int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
-			controller->renewTextPos(x, y);
+			if (controller)
+			{
+				strcpy_s(controller->name, my_packet->name);
+				controller->setName();
+				controller->xPos = my_packet->x;
+				controller->yPos = my_packet->y;
+				int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
+				int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
+				controller->renewTextPos(x, y);
+			}
 		}
 		else
 		{
 			otherCharacters[id] = gameObject->scene->Duplicate(npcsPrefab);
 			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
-			strcpy_s(controller->name, my_packet->name);
-			controller->setName();
-			controller->xPos = my_packet->x;
-			controller->yPos = my_packet->y;
-			int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
-			int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
-			controller->renewTextPos(x, y);
+			if (controller)
+			{
+				strcpy_s(controller->name, my_packet->name);
+				controller->setName();
+				controller->xPos = my_packet->x;
+				controller->yPos = my_packet->y;
+				int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
+				int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
+				controller->renewTextPos(x, y);
+			}
 		}
 	}
 	break;
@@ -68,17 +74,30 @@ void Network::ProcessPacket(char* ptr)
 			CharacterController* controller = myCharacter->GetComponent<CharacterController>();
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
+			for (auto oc : otherCharacters)
+			{
+				CharacterController* occontroller = oc.second->GetComponent<CharacterController>();
+				if (occontroller)
+				{
+					int x = occontroller->xPos - controller->xPos + 10;
+					int y = occontroller->yPos - controller->yPos + 10;
+					occontroller->renewTextPos(x, y);
+				}
+			}
 		}
 		else {
 			if (0 != otherCharacters.count(other_id))
 			{
 				otherCharacters[other_id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
 				CharacterController* controller = otherCharacters[other_id]->GetComponent<CharacterController>();
-				controller->xPos = my_packet->x;
-				controller->yPos = my_packet->y;
-				int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
-				int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
-				controller->renewTextPos(x, y);
+				if (controller)
+				{
+					controller->xPos = my_packet->x;
+					controller->yPos = my_packet->y;
+					int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
+					int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
+					controller->renewTextPos(x, y);
+				}
 			}
 		}
 	}
@@ -108,11 +127,17 @@ void Network::ProcessPacket(char* ptr)
 			myCharacter->GetComponent<CharacterController>()->addChat(my_packet->mess);
 		}
 		else {
-			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
-			int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
-			int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
-			controller->renewTextPos(x, y);
-			otherCharacters[id]->GetComponent<CharacterController>()->addChat(my_packet->mess);
+			if (0 != otherCharacters.count(id))
+			{
+				CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
+				if (controller)
+				{
+					int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
+					int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
+					controller->renewTextPos(x, y);
+					otherCharacters[id]->GetComponent<CharacterController>()->addChat(my_packet->mess);
+				}
+			}
 		}
 	}
 	break;

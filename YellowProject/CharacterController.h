@@ -25,8 +25,9 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
-		xPos = 399;
-		yPos = 399;
+		xPos = 0;
+		yPos = 0;
+		chatEndTime = chrono::high_resolution_clock::now();
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)

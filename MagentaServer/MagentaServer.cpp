@@ -145,10 +145,10 @@ CLIENT g_clients[NPC_ID_START + NUM_NPC];
 HANDLE g_iocp;
 SOCKET l_socket;	// 한번 정해진 다음에 바뀌지 않으니 data race 발생하지 않음
 
-void add_timer(int obj_id, ENUMOP op_type, int duration)
+void add_timer(int obj_id, ENUMOP op_type, int duration, int tg_id)
 {
 	timer_lock.EnterWriteLock();
-	event_type ev{ obj_id, op_type, high_resolution_clock::now() + milliseconds(duration), 0 };
+	event_type ev{ obj_id, op_type, high_resolution_clock::now() + milliseconds(duration), tg_id };
 	timer_queue.push(ev);
 	timer_lock.LeaveWriteLock();
 }
@@ -256,7 +256,7 @@ void activate_npc(int id)
 {
 	C_STATUS old_state = ST_SLEEP;
 	if (true == atomic_compare_exchange_strong(&g_clients[id].m_status, &old_state, ST_ACTIVE))
-		add_timer(id, OP_RANDOM_MOVE, 1000);
+		add_timer(id, OP_RANDOM_MOVE, 1000, 0);
 }
 
 void do_move(int user_id, int direction)
@@ -643,7 +643,7 @@ void worker_thread()
 						break;
 					}
 			}
-			if (true == keep_alive) add_timer(user_id, OP_RANDOM_MOVE, 1000);
+			if (true == keep_alive) add_timer(user_id, OP_RANDOM_MOVE, 1000, 0);
 			else g_clients[user_id].m_status = ST_SLEEP;
 			delete exover;
 		}
@@ -665,7 +665,8 @@ void worker_thread()
 			g_clients[user_id].lua_l.EnterWriteLock();
 			lua_State* L = g_clients[user_id].L;
 			lua_getglobal(L, "event_run");
-			lua_pcall(L, 0, 0, 0);
+			lua_pushnumber(L, exover->p_id);
+			lua_pcall(L, 1, 0, 0);
 			//lua_pop(L, 1);
 			g_clients[user_id].lua_l.LeaveWriteLock();
 			delete exover;
@@ -676,7 +677,8 @@ void worker_thread()
 			g_clients[user_id].lua_l.EnterWriteLock();
 			lua_State* L = g_clients[user_id].L;
 			lua_getglobal(L, "event_run_finished");
-			lua_pcall(L, 0, 0, 0);
+			lua_pushnumber(L, exover->p_id);
+			lua_pcall(L, 1, 0, 0);
 			g_clients[user_id].lua_l.LeaveWriteLock();
 			delete exover;
 		}
@@ -719,19 +721,21 @@ int API_get_y(lua_State* L)
 
 int API_add_timer_run(lua_State* L)
 {
-	int my_id = (int)lua_tointeger(L, -1);
-
-	add_timer(my_id, OP_RUN, 1000);
+	int my_id = (int)lua_tointeger(L, -2);
+	int user_id = (int)lua_tointeger(L, -1);
+	add_timer(my_id, OP_RUN, 1000, user_id);
 	lua_pop(L, 2);
 	return 0;
 }
 
 int API_run_finished(lua_State* L)
 {
-	int my_id = (int)lua_tointeger(L, -1);
+	int my_id = (int)lua_tointeger(L, -2);
+	int user_id = (int)lua_tointeger(L, -1);
 
 	EXOVER* over = new EXOVER;
 	over->op = OP_RUN_FINISH;
+	over->p_id = user_id;
 
 	PostQueuedCompletionStatus(g_iocp, 1, my_id, &over->over);
 	lua_pop(L, 2);
@@ -797,6 +801,7 @@ void do_timer()
 			case OP_RUN:
 				EXOVER* over = new EXOVER;
 				over->op = ev.event_id;
+				over->p_id = ev.target_id;
 				PostQueuedCompletionStatus(g_iocp, 1, ev.obj_id, &over->over);
 				//random_move_npc(ev.obj_id);
 				//add_timer(ev.obj_id, ev.event_id, 1000);
