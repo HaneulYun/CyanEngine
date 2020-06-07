@@ -101,7 +101,7 @@ void MenuScene::BuildObjects()
 		otherchessprefab->layer = (int)RenderLayer::Opaque;
 		otherchessprefab->AddComponent<CharacterController>()->player = false;
 
-		auto name = CreateUI();
+		auto name = CreateUIPrefab();
 		{
 			mychess->AddChildUI(name);
 			auto rect = name->GetComponent<RectTransform>();
@@ -116,7 +116,7 @@ void MenuScene::BuildObjects()
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		}
 
-		auto* chat = CreateUI();
+		auto* chat = CreateUIPrefab();
 		{
 			mychess->AddChildUI(chat);
 			auto rect = chat->GetComponent<RectTransform>();

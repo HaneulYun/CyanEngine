@@ -40,6 +40,7 @@ public:
 	GameObject* DuplicatePrefab(GameObject*);
 
 	GameObject* CreateUI();
+	GameObject* CreateUIPrefab();
 	GameObject* CreateImage();
 	GameObject* CreateImagePrefab();
 

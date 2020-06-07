@@ -150,6 +150,12 @@ GameObject* Scene::CreateUI()
 	return newGameObject;
 }
 
+GameObject* Scene::CreateUIPrefab()
+{
+	GameObject* newGameObject = new GameObject(true);
+	return newGameObject;
+}
+
 GameObject* Scene::CreateImage()
 {
 	GameObject* gameObject = CreateUI();
