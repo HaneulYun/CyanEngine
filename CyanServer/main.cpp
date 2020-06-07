@@ -25,11 +25,11 @@ using namespace chrono;
 #include "protocol.h"
 constexpr auto MAX_PACKET_SIZE = 255;
 constexpr auto MAX_BUF_SIZE = 1024;
-constexpr auto MAX_USER = 10000;
+constexpr auto MAX_USER = NPC_ID_START;
 
 constexpr auto VIEW_RADIUS = 8;
 
-enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PLAYER_MOVE };
+enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PLAYER_MOVE, OP_MOVE_SELF, OP_SEND_BYE };
 struct event_type
 {
 	int obj_id;
@@ -84,10 +84,10 @@ CLIENT g_clients[NPC_ID_START + NUM_NPC];
 HANDLE g_iocp;
 SOCKET l_socket;
 
-void add_timer(int obj_id, ENUMOP op_type, int duration)
+void add_timer(int obj_id, ENUMOP op_type, int duration, int target_id = 0)
 {
 	timer_lock.lock();
-	event_type ev{ obj_id, op_type, high_resolution_clock::now() + milliseconds(duration), 0 };
+	event_type ev{ obj_id, op_type, high_resolution_clock::now() + milliseconds(duration), target_id };
 	timer_queue.push(ev);
 	timer_lock.unlock();
 }
@@ -180,7 +180,7 @@ void send_move_packet(int user_id, int mover)
 	send_packet(user_id, &p);
 }
 
-void send_chat_packet(int user_id, int chatter, char mess[])
+void send_chat_packet(int user_id, int chatter, const char mess[])
 {
 	sc_packet_chat p;
 	p.id = chatter;
@@ -195,7 +195,7 @@ void activate_npc(int id)
 {
 	C_STATUS old_state = ST_SLEEP;
 	if (true == atomic_compare_exchange_strong(&g_clients[id].m_status, &old_state, ST_ACTIVE))
-		add_timer(id, OP_RANDOM_MOVE, 1000);
+		add_timer(id, OP_MOVE_SELF, 1000);
 }
 
 void do_move(int user_id, int direction)
@@ -542,7 +542,6 @@ void worker_thread()
 		break;
 		case OP_RANDOM_MOVE:
 		{
-
 			random_move_npc(user_id);
 			bool keep_alive = false;
 			for (int i = 0; i < NPC_ID_START; ++i)
@@ -565,8 +564,37 @@ void worker_thread()
 			lua_pushnumber(L, exover->p_id);
 			int error = lua_pcall(L, 1, 0, 0);
 			if (error) cout << lua_tostring(L, -1);
-			//lua_pop(L, 1);
 			g_clients[user_id].lua_l.unlock();
+			delete exover;
+		}
+		break;
+		case OP_MOVE_SELF:
+		{
+			g_clients[user_id].lua_l.lock();
+			lua_State* L = g_clients[user_id].L;
+			lua_getglobal(L, "event_npc_move");
+			lua_pushnumber(L, user_id);
+			int error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+			g_clients[user_id].lua_l.unlock();
+
+			bool keep_alive = false;
+			for (int i = 0; i < NPC_ID_START; ++i)
+				if (true == is_near(user_id, i))
+					if (ST_ACTIVE == g_clients[i].m_status)
+					{
+						keep_alive = true;
+						break;
+					}
+			if (true == keep_alive) add_timer(user_id, OP_MOVE_SELF, 1000);
+			else g_clients[user_id].m_status = ST_SLEEP;
+			delete exover;
+		}
+		break;
+		case OP_SEND_BYE:
+		{
+			string mess = "BYE";
+			send_chat_packet(user_id, exover->p_id, mess.c_str());
 			delete exover;
 		}
 		break;
@@ -575,6 +603,24 @@ void worker_thread()
 			while (true);
 		}
 	}
+}
+
+int API_RandomMove(lua_State* L)
+{
+	int o_id = (int)lua_tointeger(L, -1);
+	random_move_npc(o_id);
+	lua_pop(L, 1);
+	return 0;
+}
+
+int API_PushQueueByeMessage(lua_State* L)
+{
+	int my_id = (int)lua_tointeger(L, -2);
+	int user_id = (int)lua_tointeger(L, -1);
+
+	add_timer(user_id, OP_SEND_BYE, 3000, my_id);
+	lua_pop(L, 2);
+	return 0;
 }
 
 int API_SendMessage(lua_State* L)
@@ -627,6 +673,8 @@ void init_npc()
 		lua_pcall(L, 1, 0, 0);
 		lua_pop(L, 1);
 
+		lua_register(L, "API_random_move", API_RandomMove);
+		lua_register(L, "API_push_queue_bye_message", API_PushQueueByeMessage);
 		lua_register(L, "API_send_message", API_SendMessage);
 		lua_register(L, "API_get_x", API_get_x);
 		lua_register(L, "API_get_y", API_get_y);
@@ -674,12 +722,23 @@ void do_timer()
 			timer_lock.unlock();
 			switch (ev.event_id)
 			{
-			case OP_RANDOM_MOVE:
+			case OP_MOVE_SELF:
+			{
 				EXOVER* over = new EXOVER;
 				over->op = ev.event_id;
 				PostQueuedCompletionStatus(g_iocp, 1, ev.obj_id, &over->over);
 				//random_move_npc(ev.obj_id);
 				//add_timer(ev.obj_id, ev.event_id, 1000);
+			}
+			break;
+			case OP_SEND_BYE:
+			{
+				EXOVER* over = new EXOVER;
+				over->op = ev.event_id;
+				over->p_id = ev.target_id;
+				PostQueuedCompletionStatus(g_iocp, 1, ev.obj_id, &over->over);
+			}
+			break;
 			}
 		}
 	}
