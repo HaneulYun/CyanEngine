@@ -26,23 +26,23 @@ void AssetManager::Update()
 
 	if (textures.find("skyTex") == textures.end())
 	{
-		auto skyTex = std::make_unique<Texture>();
-		{
-			skyTex->Name = "skyTex";
-			skyTex->Filename = L"Textures\\grasscube1024.dds";
-			CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), skyTex->Filename.c_str(), skyTex->Resource, skyTex->UploadHeap);
-			skyTex->Index = 0;
-		}
-
-		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 0, Graphics::Instance()->srvDescriptorSize);
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		srvDesc.TextureCube.MostDetailedMip = 0;
-		srvDesc.TextureCube.MipLevels = skyTex->Resource->GetDesc().MipLevels;
-		srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-		srvDesc.Format = skyTex->Resource->GetDesc().Format;
-
-		Graphics::Instance()->device->CreateShaderResourceView(skyTex->Resource.Get(), &srvDesc, handle);
-		textures[skyTex->Name] = std::move(skyTex);
+		//auto skyTex = std::make_unique<Texture>();
+		//{
+		//	skyTex->Name = "skyTex";
+		//	skyTex->Filename = L"Textures\\grasscube1024.dds";
+		//	CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), skyTex->Filename.c_str(), skyTex->Resource, skyTex->UploadHeap);
+		//	skyTex->Index = 0;
+		//}
+		//
+		//handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 0, Graphics::Instance()->srvDescriptorSize);
+		//srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+		//srvDesc.TextureCube.MostDetailedMip = 0;
+		//srvDesc.TextureCube.MipLevels = skyTex->Resource->GetDesc().MipLevels;
+		//srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+		//srvDesc.Format = skyTex->Resource->GetDesc().Format;
+		//
+		//Graphics::Instance()->device->CreateShaderResourceView(skyTex->Resource.Get(), &srvDesc, handle);
+		//textures[skyTex->Name] = std::move(skyTex);
 	}
 }
 

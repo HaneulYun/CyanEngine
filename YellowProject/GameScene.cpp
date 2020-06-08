@@ -6,20 +6,16 @@ void GameScene::BuildObjects()
 	///*** Asset ***///
 	//*** Texture ***//
 	ASSET AddTexture("none", L"Textures\\none.dds");
-	ASSET AddTexture("boardTex", L"Textures\\board.dds");
 	ASSET AddTexture("blackTileTex", L"Textures\\black_tile.dds");
 	ASSET AddTexture("whiteTileTex", L"Textures\\white_tile.dds");
-	ASSET AddTexture("pawnTex", L"Textures\\pawn.dds");
 	ASSET AddTexture("playerTex", L"Textures\\p2.dds");
 	ASSET AddTexture("userTex", L"Textures\\p1.dds");
 	ASSET AddTexture("npcTex", L"Textures\\p5.dds");
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
-	ASSET AddMaterial("boardMat", ASSET TEXTURE("boardTex"));
 	ASSET AddMaterial("blackTileMat", ASSET TEXTURE("blackTileTex"));
 	ASSET AddMaterial("whiteTileMat", ASSET TEXTURE("whiteTileTex"));
-	ASSET AddMaterial("pawnMat", ASSET TEXTURE("pawnTex"));
 	ASSET AddMaterial("playerMat", ASSET TEXTURE("playerTex"));
 	ASSET AddMaterial("userMat", ASSET TEXTURE("userTex"));
 	ASSET AddMaterial("npcMat", ASSET TEXTURE("npcTex"));
