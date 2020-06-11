@@ -94,15 +94,47 @@ void GameScene::BuildObjects()
 		}
 	}
 
+	auto TextEditForID = CreateUI();
+	{
+		auto rect = TextEditForID->GetComponent<RectTransform>();
+		rect->anchorMin = { 0.5, 0.8 };
+		rect->anchorMax = { 0.5, 0.8 };
+		rect->width = 400;
+		rect->height = 100;
+
+		auto text = TextEditForID->AddComponent<Text>();
+		text->text = L"ID : (input here)";
+		text->font = L"메이플스토리";
+		text->fontSize = 40;
+		text->color = { 217 / 255.f, 120 / 255.f, 235 / 255.f, 1 };
+		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+	}
+
+	auto TextEditForIP = CreateUI();
+	{
+		auto rect = TextEditForIP->GetComponent<RectTransform>();
+		rect->anchorMin = { 0.5, 0.7 };
+		rect->anchorMax = { 0.5, 0.7 };
+		rect->width = 400;
+		rect->height = 100;
+
+		auto text = TextEditForIP->AddComponent<Text>();
+		text->text = L"IP : (input here)";
+		text->font = L"메이플스토리";
+		text->fontSize = 40;
+		text->color = { 217 / 255.f, 120 / 255.f, 235 / 255.f, 1 };
+		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+	}
+
 	GameObject* board = CreateEmpty();
 	{
 		board->transform->Scale({ 8, 8, 1 });
 		board->transform->Rotate({ 1, 0, 0 }, -90);
-		//board->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
-		//board->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("boardMat"));
 	
 		board->AddComponent<TCPClient>()->prefab = prefab;
 		board->GetComponent<TCPClient>()->coordinateText = coordinatePrinter->GetComponent<Text>();
+		board->GetComponent<TCPClient>()->idEditor = TextEditForID;
+		board->GetComponent<TCPClient>()->ipEditor = TextEditForIP;
 	}
 
 	for (int i = 0; i < SCREEN_WIDTH; ++i)

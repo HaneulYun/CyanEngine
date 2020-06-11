@@ -25,9 +25,10 @@ class TCPClient : public MonoBehavior<TCPClient>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
 	//int NPC_ID_START = 10000;
-
 	bool isIP{ false };
 	std::wstring ip;
+
+	bool isID{ false };
 
 	WSADATA WSAData;
 	SOCKET serverSocket;
@@ -49,6 +50,8 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	std::unordered_map<int, Pawn*> npcs;
 
 	Text* coordinateText;
+	GameObject* ipEditor{ nullptr };
+	GameObject* idEditor{ nullptr };
 
 	//char myID{ -1 };
 	int g_left_x;
@@ -70,10 +73,6 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
-		std::wstring title(L"Yellow Project _ Input IP Here : ");
-
-		SetWindowText(CyanApp::GetHwnd(), title.c_str());
-
 		avatar = Scene::scene->Duplicate(prefab)->GetComponent<Pawn>();
 	}
 
@@ -86,19 +85,20 @@ public:
 				if (Input::GetKeyDown((KeyCode)keyCode))
 				{
 					ip += keyCode;
-					std::wstring title(L"Yellow Project _ Input IP Here : ");
-					SetWindowText(CyanApp::GetHwnd(), (title + ip).c_str());
+					std::wstring idis(L"IP : ");
+					ipEditor->GetComponent<Text>()->text = idis + ip;
 				}
 			}
 			if (Input::GetKeyDown(KeyCode::Period))
 			{
 				ip += '.';
-				std::wstring title(L"Yellow Project _ Input IP Here : ");
-				SetWindowText(CyanApp::GetHwnd(), (title + ip).c_str());
+				std::wstring idis(L"IP : ");
+				ipEditor->GetComponent<Text>()->text = idis + ip;
 			}
 			if (Input::GetKeyDown(KeyCode::Return))
 			{
 				isIP = true;
+				ipEditor->SetActive(false);
 
 				WSAStartup(MAKEWORD(2, 0), &WSAData);
 				serverSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
