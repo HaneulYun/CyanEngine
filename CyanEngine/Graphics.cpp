@@ -314,7 +314,7 @@ void Graphics::RenderUI()
 
 			RectTransform* rect = textComponent->gameObject->GetComponent<RectTransform>();
 			//Matrix4x4 mat = RectTransform::Transform(gameObject->GetMatrix());
-			Matrix4x4 mat = RectTransform::Transform(rect->localToWorldMatrix);
+			Matrix4x4 mat = RectTransform::Transform(rect->GetMatrix());
 
 			Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
 			Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };

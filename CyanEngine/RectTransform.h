@@ -75,6 +75,15 @@ public:
 
 		localToWorldMatrix._43 = posZ;
 	}
+
+	Matrix4x4 GetMatrix()
+	{
+		if (gameObject->parent)
+			if(auto rect = gameObject->parent->GetComponent<RectTransform>(); rect)
+				return localToWorldMatrix * rect->GetMatrix();
+		return localToWorldMatrix;
+	}
+
 	static Matrix4x4 Transform(Matrix4x4 mtx)
 	{
 		mtx._11 = mtx._11 * 2;
