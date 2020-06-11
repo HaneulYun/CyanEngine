@@ -29,6 +29,7 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 	std::wstring ip;
 
 	bool isID{ false };
+	std::wstring id;
 
 	WSADATA WSAData;
 	SOCKET serverSocket;
@@ -78,22 +79,54 @@ public:
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
-		if (!isIP)
+		if (!isID)
+		{
+			bool shift = false;
+			if (Input::GetKey(KeyCode::Shift))
+				shift = true;
+			for (char keyCode = '0'; keyCode <= '9'; ++keyCode)
+			{
+				if (Input::GetKeyDown((KeyCode)keyCode))
+				{
+					id += keyCode;
+					std::wstring idis(L"ID : ");
+					idEditor->GetComponent<Text>()->text = idis + id;
+				}
+			}
+			for (char keyCode = 'A'; keyCode <= 'Z'; ++keyCode)
+			{
+				if (Input::GetKeyDown((KeyCode)keyCode))
+				{
+					char key = keyCode;
+					if (!shift)
+						key += ('a' - 'A');
+					id += key;
+					std::wstring idis(L"ID : ");
+					idEditor->GetComponent<Text>()->text = idis + id;
+				}
+			}
+			if (Input::GetKeyDown(KeyCode::Return))
+			{
+				isID = true;
+				idEditor->SetActive(false);
+			}
+		}
+		else if (!isIP)
 		{
 			for (char keyCode = '0'; keyCode <= '9'; ++keyCode)
 			{
 				if (Input::GetKeyDown((KeyCode)keyCode))
 				{
 					ip += keyCode;
-					std::wstring idis(L"IP : ");
-					ipEditor->GetComponent<Text>()->text = idis + ip;
+					std::wstring ipis(L"IP : ");
+					ipEditor->GetComponent<Text>()->text = ipis + ip;
 				}
 			}
 			if (Input::GetKeyDown(KeyCode::Period))
 			{
 				ip += '.';
-				std::wstring idis(L"IP : ");
-				ipEditor->GetComponent<Text>()->text = idis + ip;
+				std::wstring ipis(L"IP : ");
+				ipEditor->GetComponent<Text>()->text = ipis + ip;
 			}
 			if (Input::GetKeyDown(KeyCode::Return))
 			{
@@ -115,8 +148,7 @@ public:
 				cs_packet_login l_packet;
 				l_packet.size = sizeof(l_packet);
 				l_packet.type = C2S_LOGIN;
-				int t_id = GetCurrentProcessId();
-				sprintf(l_packet.name, "P%03d", t_id % 1000);
+				sprintf(l_packet.name, "%ls", id.c_str());
 				strcpy(avatar->name, l_packet.name);
 				avatar->setName();// set_name(l_packet.name);
 				send_packet(&l_packet);
