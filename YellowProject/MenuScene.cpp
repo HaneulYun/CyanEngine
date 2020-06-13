@@ -87,10 +87,6 @@ void MenuScene::BuildObjects()
 			cameraOffset->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, 90);
 			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.9999f, -0.9999f };
 		}
-
-		int t_id = GetCurrentProcessId();
-		sprintf_s(mychess->GetComponent<CharacterController>()->name, "P%03d", t_id % 1000);
-		mychess->GetComponent<CharacterController>()->setName();
 	}
 
 	auto otherchessprefab = CreateEmptyPrefab();
@@ -214,6 +210,28 @@ void MenuScene::BuildObjects()
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 			textObjects.push_back(ServerButton);
+		}
+	}
+
+	auto coordinate = CreateImage();
+	{
+		auto rectTransform = coordinate->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 1 };
+		rectTransform->anchorMax = { 0, 1 };
+		rectTransform->pivot = { 0, 1 };
+		rectTransform->posX = 320;
+		rectTransform->posY = -10;
+		rectTransform->width = 80;
+		rectTransform->height = 30;
+
+		{
+			Text* text = coordinate->AddComponent<Text>();
+			text->text = L"(0, 30)";
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(coordinate);
+
+			mychess->GetComponent<CharacterController>()->coord = text;
 		}
 	}
 }

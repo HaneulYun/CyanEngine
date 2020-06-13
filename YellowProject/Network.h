@@ -11,17 +11,18 @@ using namespace std;
 class Network : public MonoBehavior<Network>
 {
 private:
-	GameObject* ip{ nullptr };
-	GameObject* ipImage{ nullptr };
-	Text* inputIp{ nullptr };
+	GameObject* firstText{ nullptr };
+	GameObject* secondText{ nullptr };
 
 public:
 	WSADATA WSAData;
 	std::wstring wserverIp;
+	std::wstring wmyname;
 	SOCKET serverSocket;
 	int myId;
 	int retval;
 
+	bool setname{ false };
 	bool isConnect{ false };
 	bool tryConnect{ false };
 	bool pressButton{ false };
@@ -47,7 +48,7 @@ public:
 		closesocket(serverSocket);
 		WSACleanup();
 	}
-
+	void Update();
 	void ProcessPacket(char* ptr);
 	void process_data(char* net_buf, size_t io_byte);
 
@@ -62,6 +63,48 @@ public:
 	{
 		WSAStartup(MAKEWORD(2, 0), &WSAData);
 		serverSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, 0);
+
+		firstText = Scene::scene->CreateUI();
+		{
+			auto rectTransform = firstText->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 1 };
+			rectTransform->anchorMax = { 0, 1 };
+			rectTransform->pivot = { 0, 1 };
+			rectTransform->posX = 100;
+			rectTransform->posY = -30;
+			rectTransform->width = 100;
+			rectTransform->height = 15;
+
+			Text* text = firstText->AddComponent<Text>();
+			text->text = L"";
+			text->fontSize = 10;
+			text->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			Scene::scene->textObjects.push_back(firstText);
+		}
+		firstText->SetActive(false);
+
+		secondText = Scene::scene->CreateUI();
+		{
+			auto rectTransform = secondText->GetComponent<RectTransform>();
+			rectTransform->anchorMin = { 0, 1 };
+			rectTransform->anchorMax = { 0, 1 };
+			rectTransform->pivot = { 0, 1 };
+			rectTransform->posX = 200;
+			rectTransform->posY = -30;
+			rectTransform->width = 100;
+			rectTransform->height = 15;
+
+			Text* text = secondText->AddComponent<Text>();
+			text->text = L"";
+			text->fontSize = 10;
+			text->color = { 0.0f, 0.0f, 0.0f, 1.0f };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			Scene::scene->textObjects.push_back(secondText);
+		}
+		secondText->SetActive(false);
 	}
 
 	int connect_nonblock(SOCKET sockfd, const struct sockaddr FAR* name, int namelen, int timeout)
@@ -101,147 +144,26 @@ public:
 		return 0;
 	}
 
-	void Update()
-	{
-		if (!isConnect && !tryConnect)
-		{
-			for (char key = '0'; key <= '9'; ++key)
-			{
-				if (Input::GetKeyDown((KeyCode)key))
-				{
-					wserverIp += key;
-					if (inputIp != nullptr)
-						inputIp->text = wserverIp;
-				}
-			}
-			if (Input::GetKeyDown(KeyCode::Period))
-			{
-				wserverIp += '.';
-				if (inputIp != nullptr)
-					inputIp->text = wserverIp;
-			}
-			if (Input::GetKeyDown(KeyCode::O))
-			{
-				if (!wserverIp.empty())
-					wserverIp.pop_back();
-				if (inputIp != nullptr)
-					inputIp->text = wserverIp;
-			}
-			if (Input::GetKeyDown(KeyCode::Return) && ip != nullptr && ipImage != nullptr)
-			{
-				std::string serverIp;
-				serverIp.assign(wserverIp.begin(), wserverIp.end());
-
-				SOCKADDR_IN serveraddr{};
-				serveraddr.sin_family = AF_INET;
-				serveraddr.sin_addr.s_addr = inet_addr(serverIp.c_str());
-				serveraddr.sin_port = htons(SERVER_PORT);
-
-				retval = connect_nonblock(serverSocket, (SOCKADDR*)&serveraddr, sizeof(serveraddr), 5);
-
-				tryConnect = true;
-				pressButton = false;
-
-				ip->SetActive(false);
-				ipImage->SetActive(false);
-
-				wserverIp.clear();
-			}
-		}
-		if (tryConnect)
-		{
-			if (retval == SOCKET_ERROR)
-			{
-				tryConnect = false;
-				isConnect = false;
-				wserverIp.clear();
-			}
-			else if (retval == 0)
-			{
-				tryConnect = false;
-				isConnect = true;
-				wserverIp.clear();
-				unsigned long on = true;
-				int nRet = ioctlsocket(serverSocket, FIONBIO, &on);
-				Login();
-			}
-		}
-		if (isConnect)
-		{
-			Receiver();
-		}
-	}
-
 	void PressButton()
 	{
 		if (!isConnect && !tryConnect && !pressButton)
 		{
+			wmyname.clear();
 			wserverIp.clear();
-			if (inputIp != nullptr)
-				inputIp->text = wserverIp;
 			pressButton = true;
 
-			if (ip == nullptr)
-			{
-				ip = Scene::scene->CreateUI();
-				{
-					auto rectTransform = ip->GetComponent<RectTransform>();
-					rectTransform->anchorMin = { 0, 1 };
-					rectTransform->anchorMax = { 0, 1 };
-					rectTransform->pivot = { 0, 1 };
-					rectTransform->posX = 100;
-					rectTransform->posY = -30;
-					rectTransform->width = 100;
-					rectTransform->height = 15;
-
-					Text* text = ip->AddComponent<Text>();
-					text->text = L"Input Server IP : ";
-					text->fontSize = 10;
-					text->color = { 1.0f, 1.0f, 1.0f, 1.0f };
-					text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-					text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-					Scene::scene->textObjects.push_back(ip);
-				}
-			}
-			else
-				ip->SetActive(true);
-			if (ipImage == nullptr)
-			{
-				ipImage = Scene::scene->CreateUI();
-				{
-					auto rectTransform = ipImage->GetComponent<RectTransform>();
-					rectTransform->anchorMin = { 0, 1 };
-					rectTransform->anchorMax = { 0, 1 };
-					rectTransform->pivot = { 0, 1 };
-					rectTransform->posX = 200;
-					rectTransform->posY = -30;
-					rectTransform->width = 100;
-					rectTransform->height = 15;
-
-					{
-						inputIp = ipImage->AddComponent<Text>();
-						inputIp->text = wserverIp;
-						inputIp->fontSize = 10;
-						inputIp->color = { 0.0f, 0.0f, 0.0f, 1.0f };
-						inputIp->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-						inputIp->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-						Scene::scene->textObjects.push_back(ipImage);
-					}
-				}
-			}
-			else
-				ipImage->SetActive(true);
+			firstText->GetComponent<Text>()->text = L"Input your Name : ";
+			firstText->SetActive(true);
+			secondText->GetComponent<Text>()->text = L"";
+			secondText->SetActive(true);
 		}
 		else if (pressButton)
 		{
 			pressButton = false;
+			wmyname.clear();
 			wserverIp.clear();
-			if (inputIp != nullptr)
-				inputIp->text = wserverIp;
-			if (ip != nullptr)
-				ip->SetActive(false);
-			if (ipImage != nullptr)
-				ipImage->SetActive(false);
+			firstText->SetActive(false);
+			secondText->SetActive(false);
 		}
 	}
 };

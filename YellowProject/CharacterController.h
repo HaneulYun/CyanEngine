@@ -12,6 +12,7 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	int xPos, yPos;
 	bool player{ false };
 	char name[MAX_ID_LEN];
+	Text* coord{ nullptr };
 	chrono::high_resolution_clock::time_point chatEndTime;
 
 private:
@@ -34,6 +35,13 @@ public:
 	{
 		if (player)
 		{
+			if (coord != nullptr)
+			{
+				char coordtext[20];
+				sprintf(coordtext, "(%d, %d)", xPos, yPos);
+				string coords = coordtext;
+				coord->text.assign(coords.begin(), coords.end());
+			}
 			if (Input::GetKeyDown(KeyCode::W) && yPos > 0)
 			{
 				if (Network::network->isConnect)

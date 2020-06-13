@@ -205,3 +205,123 @@ void Network::Login()
 
 	send_packet(&l_packet);
 }
+
+void Network::Update()
+{
+	if (!isConnect && !tryConnect && pressButton)
+	{
+		for (char key = '0'; key <= '9'; ++key)
+		{
+			if (Input::GetKeyDown((KeyCode)key))
+			{
+				if (!setname)
+				{
+					wmyname += key;
+					secondText->GetComponent<Text>()->text = wmyname;
+				}
+				else
+				{
+					wserverIp += key;
+					secondText->GetComponent<Text>()->text = wserverIp;
+				}
+			}
+		}
+		for (char key = 'A'; key <= 'Z'; ++key)
+		{
+			if (Input::GetKeyDown((KeyCode)key))
+			{
+				if (!setname)
+				{
+					wmyname += key;
+					secondText->GetComponent<Text>()->text = wmyname;
+				}
+			}
+		}
+		if (Input::GetKeyDown(KeyCode::Period))
+		{
+			if (!setname)
+			{
+				wmyname += '.';
+				secondText->GetComponent<Text>()->text = wmyname;
+			}
+			else
+			{
+				wserverIp += '.';
+				secondText->GetComponent<Text>()->text = wserverIp;
+			}
+		}
+		if (Input::GetKeyDown(KeyCode::Shift))
+		{
+			if (!setname)
+			{
+				if (!wmyname.empty())
+					wmyname.pop_back();
+				secondText->GetComponent<Text>()->text = wmyname;
+			}
+			else
+			{
+				if (!wserverIp.empty())
+					wserverIp.pop_back();
+				secondText->GetComponent<Text>()->text = wserverIp;
+			}
+		}
+		if (Input::GetKeyDown(KeyCode::Return))
+		{
+			if (!setname)
+			{
+				firstText->GetComponent<Text>()->text = L"Input Server IP : ";
+				secondText->GetComponent<Text>()->text = L"";
+				string myname;
+				myname.assign(wmyname.begin(), wmyname.end());
+				strncpy(myCharacter->GetComponent<CharacterController>()->name, myname.c_str(), myname.length());
+				myCharacter->GetComponent<CharacterController>()->setName();
+				setname = true;
+			}
+			else
+			{
+				std::string serverIp;
+				serverIp.assign(wserverIp.begin(), wserverIp.end());
+
+				SOCKADDR_IN serveraddr{};
+				serveraddr.sin_family = AF_INET;
+				serveraddr.sin_addr.s_addr = inet_addr(serverIp.c_str());
+				serveraddr.sin_port = htons(SERVER_PORT);
+
+				retval = connect_nonblock(serverSocket, (SOCKADDR*)&serveraddr, sizeof(serveraddr), 5);
+
+				tryConnect = true;
+				pressButton = false;
+
+				firstText->SetActive(false);
+				secondText->SetActive(false);
+
+				wserverIp.clear();
+			}
+		}
+	}
+	if (tryConnect)
+	{
+		if (retval == SOCKET_ERROR)
+		{
+			tryConnect = false;
+			isConnect = false;
+			setname = false;
+			wmyname.clear();
+			wserverIp.clear();
+		}
+		else if (retval == 0)
+		{
+			tryConnect = false;
+			isConnect = true;
+			wserverIp.clear();
+			unsigned long on = true;
+			int nRet = ioctlsocket(serverSocket, FIONBIO, &on);
+			Login();
+			wmyname.clear();
+		}
+	}
+	if (isConnect)
+	{
+		Receiver();
+	}
+}
