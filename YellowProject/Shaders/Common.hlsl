@@ -51,7 +51,7 @@ StructuredBuffer<MatIndexData> gMaterialIndexData : register(t3, space1);
 
 TextureCube gCubeMap : register(t0);
 Texture2D gShadowMap : register(t1);
-Texture2D gDiffuseMap[5] : register(t2);
+Texture2D gDiffuseMap[18] : register(t2);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);

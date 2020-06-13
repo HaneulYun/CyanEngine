@@ -513,7 +513,7 @@ void Graphics::LoadAssets()
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1;
 
 	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 7, 0, 0, 0);
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 20, 0, 0, 0);
 
 	CD3DX12_ROOT_PARAMETER rootParameters[8];
 	//rootParameters[0].InitAsConstantBufferView(0);
