@@ -139,14 +139,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="Database.h" />
+    <ClInclude Include="etc.h" />
+    <ClInclude Include="IOCPServer.h" />
     <ClInclude Include="lauxlib.h" />
     <ClInclude Include="lua.h" />
     <ClInclude Include="lua.hpp" />
     <ClInclude Include="luaconf.h" />
     <ClInclude Include="lualib.h" />
     <ClInclude Include="protocol.h" />
+    <ClInclude Include="RWLock.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="IOCPServer.cpp" />
     <ClCompile Include="MagentaServer.cpp" />
   </ItemGroup>
   <ItemGroup>

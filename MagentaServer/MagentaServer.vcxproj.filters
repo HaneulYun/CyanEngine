@@ -13,29 +13,56 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="헤더 파일\lua">
+      <UniqueIdentifier>{c1646de4-5592-45fe-bc1f-934cd02a690c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protocol.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="lauxlib.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\lua</Filter>
     </ClInclude>
     <ClInclude Include="lua.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\lua</Filter>
     </ClInclude>
     <ClInclude Include="lua.hpp">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\lua</Filter>
     </ClInclude>
     <ClInclude Include="luaconf.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\lua</Filter>
     </ClInclude>
     <ClInclude Include="lualib.h">
+      <Filter>헤더 파일\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPServer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RWLock.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Database.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="etc.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagentaServer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPServer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
