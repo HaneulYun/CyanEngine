@@ -218,6 +218,7 @@ void IOCPServer::process_packet(int user_id, char* buf)
 	case C2S_CHAT:
 	{
 		cs_packet_chat* packet = reinterpret_cast<cs_packet_chat*>(buf);
+		printf("chatchat\n");
 		chatting(user_id, packet->message);
 	}
 	break;
@@ -251,7 +252,7 @@ void IOCPServer::recv_packet_construct(int user_id, int io_byte)
 	{
 		// 우리가 처리해야 되는 패킷을 전에 처리해본 적이 없을 때
 		// == 패킷의 시작 부분이 있다
-		if (0 == packet_size)	packet_size = *p;
+		if (0 == packet_size)	packet_size = (unsigned char)*p;
 		// 패킷을 완성할 수 있다
 		if (packet_size <= rest_byte + cu.m_prev_size) {
 			memcpy(cu.m_packet_buf + cu.m_prev_size, p, packet_size - cu.m_prev_size);
@@ -585,7 +586,7 @@ void IOCPServer::disconnect(int user_id)
 
 void IOCPServer::send_packet(int user_id, void* p)
 {
-	char* buf = reinterpret_cast<char*>(p);
+	unsigned char* buf = reinterpret_cast<unsigned char*>(p);
 
 	Client& u = g_clients[user_id];
 

@@ -18,6 +18,8 @@ public:
 	WSADATA WSAData;
 	std::wstring wserverIp;
 	std::wstring wmyname;
+	std::wstring wchat;
+
 	SOCKET serverSocket;
 	int myId;
 	int retval;
@@ -26,6 +28,9 @@ public:
 	bool isConnect{ false };
 	bool tryConnect{ false };
 	bool pressButton{ false };
+	bool pressChatButton{ false };
+	Text* chatText[4];
+	Text* chatInputText{ nullptr };
 
 	static Network* network;
 
@@ -55,9 +60,11 @@ public:
 	void Receiver();
 
 	void send_packet(void* packet);
-	void send_move_packet(unsigned char dir);
-
 	void Login();
+	void Logout();
+	void send_move_packet(unsigned char dir);
+	void send_attack_packet();
+	void send_chat_packet(wchar_t msg[]);
 
 	void Start()
 	{
@@ -164,6 +171,28 @@ public:
 			wserverIp.clear();
 			firstText->SetActive(false);
 			secondText->SetActive(false);
+		}
+	}
+
+	void addChat(wchar_t chatter[], wchar_t chat[])
+	{
+		for (int i = 2; i >= 0; --i)
+		{
+			chatText[i + 1]->text = chatText[i]->text;
+		}
+		wstring name = chatter;
+		wstring msg = chat;
+		chatText[0]->text = name + L": " + msg;
+	}
+
+	void PressChatButton()
+	{
+		if (isConnect)
+		{
+			if (pressChatButton)
+				pressChatButton = false;
+			else
+				pressChatButton = true;
 		}
 	}
 };

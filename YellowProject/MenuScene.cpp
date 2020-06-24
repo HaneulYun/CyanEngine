@@ -18,6 +18,7 @@ void MenuScene::BuildObjects()
 	ASSET AddMaterial("mychessmat", ASSET TEXTURE("mychesstex"), -1, { 0.8, 0.8, 0.8, 1 });	
 	ASSET AddMaterial("otherchessmat", ASSET TEXTURE("otherchesstex"), -1, { 0.8, 0.8, 0.8, 1 });
 	ASSET AddMaterial("kittymat", ASSET TEXTURE("kittytex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("pink", ASSET TEXTURE("none"), -1, { 1.0, 0.8, 0.8, 1 });
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
@@ -27,17 +28,19 @@ void MenuScene::BuildObjects()
 
 	///*** Game Object ***///
 
-	auto chessmap = CreateEmpty();
-	{
-		chessmap = CreateEmpty();
-		chessmap->GetComponent<Transform>()->position = { -0.0275f, -21.9725f, 0.0f };
-		chessmap->GetComponent<Transform>()->Scale({ 22.0f, 22.0f,1.0f });
-		auto mesh = chessmap->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
-		auto renderer = chessmap->AddComponent<Renderer>();
-		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("chessmapmat"));
-		chessmap->layer = (int)RenderLayer::Opaque;
-	}
+	GameObject* chessmap[2][2];
+	for (int i = 0; i < 2; ++i)
+		for (int j = 0; j < 2; ++j)
+		{
+			chessmap[i][j] = CreateEmpty();
+			chessmap[i][j]->GetComponent<Transform>()->position = { -0.0275f + (j * 22.f), -21.9725f - (i * 22.f), 0.0f };
+			chessmap[i][j]->GetComponent<Transform>()->Scale({ 22.0f, 22.0f,1.0f });
+			auto mesh = chessmap[i][j]->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+			auto renderer = chessmap[i][j]->AddComponent<Renderer>();
+			for (auto& sm : mesh->DrawArgs)
+				renderer->materials.push_back(ASSET MATERIAL("chessmapmat"));
+			chessmap[i][j]->layer = (int)RenderLayer::Opaque;
+		}
 
 	auto mychess = CreateEmpty();
 	{
@@ -232,6 +235,44 @@ void MenuScene::BuildObjects()
 			textObjects.push_back(coordinate);
 
 			mychess->GetComponent<CharacterController>()->coord = text;
+		}
+	}
+
+	GameObject* chatting[5];
+	for (int i = 0; i < 5; ++i)
+	{
+		chatting[i] = CreateImage();
+		auto rectTransform = chatting[i]->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 1 };
+		rectTransform->anchorMax = { 0, 1 };
+		rectTransform->pivot = { 0, 1 };
+		rectTransform->posX = 0;
+		rectTransform->posY = -380 + (i * 20);
+		rectTransform->width = 300;
+		rectTransform->height = 20;
+
+		{
+			Text* text = chatting[i]->AddComponent<Text>();
+			text->text = L"";
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(chatting[i]);
+
+			if (i != 0)
+			{
+				auto renderer = chatting[i]->GetComponent<Renderer>();
+				renderer->materials[0] = ASSET MATERIAL("pink");
+
+				Network::network->chatText[i - 1] = text;
+			}
+			else
+			{
+				chatting[i]->AddComponent<Button>()->AddEvent(
+					[](void*) {
+						Network::network->PressChatButton();
+					});
+				Network::network->chatInputText = text;
+			}
 		}
 	}
 }

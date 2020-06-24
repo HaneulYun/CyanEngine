@@ -27,7 +27,7 @@ constexpr int MAX_STR_LEN = 80;
 #pragma pack(push ,1)
 
 struct sc_packet_login_ok {
-	char size;
+	unsigned char size;
 	char type;
 	int id;
 	short x, y;
@@ -37,12 +37,12 @@ struct sc_packet_login_ok {
 };
 
 struct sc_packet_login_fail {
-	char size;
+	unsigned char size;
 	char type;
 };
 
 struct sc_packet_move {
-	char size;
+	unsigned char size;
 	char type;
 	int id;
 	short x, y;
@@ -54,7 +54,7 @@ constexpr unsigned char O_ELF = 1;
 constexpr unsigned char O_ORC = 2;
 
 struct sc_packet_enter {
-	char size;
+	unsigned char size;
 	char type;
 	int id;
 	char name[MAX_ID_LEN];
@@ -63,26 +63,26 @@ struct sc_packet_enter {
 };
 
 struct sc_packet_leave {
-	char size;
+	unsigned char size;
 	char type;
 	int id;
 };
 
 struct sc_packet_chat {
-	char size;
+	unsigned char size;
 	char type;
 	int	 id;
 	wchar_t mess[MAX_STR_LEN];
 };
 
 struct cs_packet_login {
-	char	size;
+	unsigned char	size;
 	char	type;
 	char	name[MAX_ID_LEN];
 };
 
 struct sc_packet_stat_change {
-	char size;
+	unsigned char size;
 	char type;
 	short hp;
 	short level;
@@ -95,25 +95,25 @@ constexpr unsigned char D_LEFT = 2;
 constexpr unsigned char D_RIGHT = 3;
 
 struct cs_packet_move {
-	char	size;
+	unsigned char	size;
 	char	type;
 	char	direction;
 	unsigned move_time;
 };
 
 struct cs_packet_attack {
-	char size;
+	unsigned char size;
 	char type;
 };
 
 struct cs_packet_chat {
-	char size;
+	unsigned char size;
 	char type;
 	wchar_t message[MAX_STR_LEN];
 };
 
 struct cs_packet_logout {
-	char size;
+	unsigned char size;
 	char type;
 };
 #pragma pack (pop)

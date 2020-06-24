@@ -13,7 +13,6 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	bool player{ false };
 	char name[MAX_ID_LEN];
 	Text* coord{ nullptr };
-	chrono::high_resolution_clock::time_point chatEndTime;
 
 private:
 	friend class GameObject;
@@ -28,7 +27,6 @@ public:
 	{
 		xPos = 0;
 		yPos = 0;
-		chatEndTime = chrono::high_resolution_clock::now();
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
@@ -44,7 +42,7 @@ public:
 			}
 			if (Input::GetKeyDown(KeyCode::W) && yPos > 0)
 			{
-				if (Network::network->isConnect)
+				if (Network::network->isConnect && Network::network->pressChatButton == false)
 					Network::network->send_move_packet(D_UP);
 				else
 					yPos--;
@@ -52,7 +50,7 @@ public:
 
 			else if (Input::GetKeyDown(KeyCode::S) && yPos < WORLD_HEIGHT - 1)
 			{
-				if (Network::network->isConnect)
+				if (Network::network->isConnect && Network::network->pressChatButton == false)
 					Network::network->send_move_packet(D_DOWN);
 				else
 					yPos++;
@@ -60,7 +58,7 @@ public:
 
 			else if (Input::GetKeyDown(KeyCode::D) && xPos < WORLD_WIDTH - 1)
 			{
-				if (Network::network->isConnect)
+				if (Network::network->isConnect && Network::network->pressChatButton == false)
 					Network::network->send_move_packet(D_RIGHT);
 				else
 					xPos++;
@@ -68,7 +66,7 @@ public:
 
 			else if (Input::GetKeyDown(KeyCode::A) && xPos > 0)
 			{
-				if (Network::network->isConnect)
+				if (Network::network->isConnect && Network::network->pressChatButton == false)
 					Network::network->send_move_packet(D_LEFT);
 				else
 					xPos--;
@@ -77,15 +75,6 @@ public:
 		}
 		if (!Network::network->isConnect)
 			gameObject->transform->position = { xPos * 0.055f, -yPos * 0.055f, -0.0001f };
-
-		if (chatEndTime < chrono::high_resolution_clock::now())
-		{
-			Text* text = gameObject->children[1]->GetComponent<Text>();
-			if (text)
-			{
-				text->text = L"";
-			}
-		}
 	}
 
 	void setName()
@@ -105,17 +94,5 @@ public:
 		gameObject->children[1]->GetComponent<RectTransform>()->anchorMin = { (x - 1) / 21.f, (20.f - y) / 21.f };
 		gameObject->children[1]->GetComponent<RectTransform>()->anchorMax = { (x + 2) / 21.f, (21.f - y) / 21.f };
 	}
-	
-	void addChat(wchar_t chat[])
-	{
-		Text* text = gameObject->children[1]->GetComponent<Text>();
-		if (text)
-		{
-			std::wstring wstr(chat);
-			text->text = wstr;
-			chatEndTime = std::chrono::high_resolution_clock::now() + 1s;
-		}
-	}
-	
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.
 };

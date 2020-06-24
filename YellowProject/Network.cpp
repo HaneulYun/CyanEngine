@@ -18,7 +18,11 @@ void Network::ProcessPacket(char* ptr)
 		controller->yPos = my_packet->y;
 	}
 	break;
-
+	case S2C_LOGIN_FAIL:
+	{
+		sc_packet_login_fail* my_packet = reinterpret_cast<sc_packet_login_fail*>(ptr);
+	}
+	break;
 	case S2C_ENTER:
 	{
 		sc_packet_enter* my_packet = reinterpret_cast<sc_packet_enter*>(ptr);
@@ -102,7 +106,6 @@ void Network::ProcessPacket(char* ptr)
 		}
 	}
 	break;
-
 	case S2C_LEAVE:
 	{
 		sc_packet_leave* my_packet = reinterpret_cast<sc_packet_leave*>(ptr);
@@ -122,26 +125,30 @@ void Network::ProcessPacket(char* ptr)
 	{
 		sc_packet_chat* my_packet = reinterpret_cast<sc_packet_chat*>(ptr);
 		int id = my_packet->id;
-
-		if (id == myId) {
-			myCharacter->GetComponent<CharacterController>()->addChat(my_packet->mess);
+		if (id == myId)
+		{
+			CharacterController* controller = myCharacter->GetComponent<CharacterController>();
+			wstring name;
+			string cname = controller->name;
+			name.assign(cname.begin(), cname.end());
+			addChat(_wcsdup(name.c_str()), my_packet->mess);
 		}
-		else {
-			if (0 != otherCharacters.count(id))
-			{
-				CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
-				if (controller)
-				{
-					int x = controller->xPos - myCharacter->GetComponent<CharacterController>()->xPos + 10;
-					int y = controller->yPos - myCharacter->GetComponent<CharacterController>()->yPos + 10;
-					controller->renewTextPos(x, y);
-					otherCharacters[id]->GetComponent<CharacterController>()->addChat(my_packet->mess);
-				}
-			}
+		else
+		{
+			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
+			wstring name;
+			string cname = controller->name;
+			name.assign(cname.begin(), cname.end());
+			addChat(_wcsdup(name.c_str()), my_packet->mess);
 		}
 	}
 	break;
 
+	case S2C_STAT_CHANGE:
+	{
+		sc_packet_stat_change* my_packet = reinterpret_cast<sc_packet_stat_change*>(ptr);
+	}
+	break;
 	default:
 		printf("Unknown PACKET type [%d]\n", ptr[1]);
 	}
@@ -155,7 +162,7 @@ void Network::process_data(char* net_buf, size_t io_byte)
 	static char packet_buffer[BUFSIZE];
 
 	while (0 != io_byte) {
-		if (0 == in_packet_size) in_packet_size = ptr[0];
+		if (0 == in_packet_size) in_packet_size = (unsigned char)ptr[0];
 		if (io_byte + saved_packet_size >= in_packet_size) {
 			memcpy(packet_buffer + saved_packet_size, ptr, in_packet_size - saved_packet_size);
 			ProcessPacket(packet_buffer);
@@ -183,7 +190,7 @@ void Network::Receiver()
 void Network::send_packet(void* packet)
 {
 	char* p = reinterpret_cast<char*>(packet);
-	send(serverSocket, p, p[0], 0);
+	send(serverSocket, p, (unsigned char)p[0], 0);
 }
 
 void Network::send_move_packet(unsigned char dir)
@@ -196,12 +203,40 @@ void Network::send_move_packet(unsigned char dir)
 	send_packet(&m_packet);
 }
 
+void Network::send_attack_packet()
+{
+	cs_packet_attack m_packet;
+	m_packet.type = C2S_ATTACK;
+	m_packet.size = sizeof(m_packet);
+
+	send_packet(&m_packet);
+}
+
+void Network::send_chat_packet(wchar_t msg[])
+{
+	cs_packet_chat m_packet;
+	m_packet.type = C2S_CHAT;
+	m_packet.size = sizeof(m_packet);
+	wcscpy_s(m_packet.message, msg);
+
+	send_packet(&m_packet);
+}
+
 void Network::Login()
 {
 	cs_packet_login l_packet;
 	l_packet.size = sizeof(l_packet);
 	l_packet.type = C2S_LOGIN;
 	strcpy_s(l_packet.name, myCharacter->GetComponent<CharacterController>()->name);
+
+	send_packet(&l_packet);
+}
+
+void Network::Logout()
+{
+	cs_packet_logout l_packet;
+	l_packet.size = sizeof(l_packet);
+	l_packet.type = C2S_LOGOUT;
 
 	send_packet(&l_packet);
 }
@@ -297,6 +332,43 @@ void Network::Update()
 
 				wserverIp.clear();
 			}
+		}
+	}
+	if (isConnect && pressChatButton)
+	{
+		for (char key = '0'; key <= '9'; ++key)
+		{
+			if (Input::GetKeyDown((KeyCode)key))
+			{
+				wchat += key;
+				chatInputText->text = wchat;
+			}
+		}
+		for (char key = 'A'; key <= 'Z'; ++key)
+		{
+			if (Input::GetKeyDown((KeyCode)key))
+			{
+				wchat += key;
+				chatInputText->text = wchat;
+			}
+		}
+		if (Input::GetKeyDown(KeyCode::Period))
+		{
+			wchat += '.';
+			chatInputText->text = wchat;
+		}
+		if (Input::GetKeyDown(KeyCode::Shift))
+		{
+			if (!wchat.empty())
+				wchat.pop_back();
+			chatInputText->text = wchat;
+		}
+		if (Input::GetKeyDown(KeyCode::Return))
+		{
+			send_chat_packet(_wcsdup(wchat.c_str()));
+			wchat.clear();
+			chatInputText->text = wchat;
+			pressChatButton = false;
 		}
 	}
 	if (tryConnect)
