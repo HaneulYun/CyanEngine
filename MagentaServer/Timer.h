@@ -14,12 +14,18 @@ public:
 	
 	HANDLE g_iocp;
 	priority_queue<event_type> timer_queue;	// 포인터로 선언해서 new delete 하라
+	thread timer_thread;
 	RWLock timer_lock;
 
 	Timer() {}
-	~Timer() {}
+	~Timer() { timer_thread.join(); }
 
-	void init_timer(HANDLE iocp) { g_iocp = iocp; }
+	void init_timer(HANDLE iocp)
+	{
+		g_iocp = iocp;
+
+		timer_thread = thread(&Timer::do_timer, this);
+	}
 
 	void add_timer(int obj_id, ENUMOP op_type, int duration, int tg_id)
 	{

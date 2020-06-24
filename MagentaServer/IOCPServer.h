@@ -55,6 +55,7 @@ private:
 
 	void enter_game(int user_id, char name[]);
 	void do_move(int user_id, int direction);
+	void chatting(int user_id, wchar_t mess[]);
 	void disconnect(int user_id);
 
 	void send_packet(int user_id, void* p);

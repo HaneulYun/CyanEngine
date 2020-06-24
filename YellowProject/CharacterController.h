@@ -106,12 +106,12 @@ public:
 		gameObject->children[1]->GetComponent<RectTransform>()->anchorMax = { (x + 2) / 21.f, (21.f - y) / 21.f };
 	}
 	
-	void addChat(char chat[])
+	void addChat(wchar_t chat[])
 	{
 		Text* text = gameObject->children[1]->GetComponent<Text>();
 		if (text)
 		{
-			std::wstring wstr(chat, &chat[strlen(chat)]);
+			std::wstring wstr(chat);
 			text->text = wstr;
 			chatEndTime = std::chrono::high_resolution_clock::now() + 1s;
 		}

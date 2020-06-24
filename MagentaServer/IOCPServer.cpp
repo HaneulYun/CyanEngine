@@ -33,11 +33,9 @@ IOCPServer::IOCPServer()
 	AcceptEx(l_socket, c_socket, accept_over.io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &accept_over.over);	// 클라이언트 접속에 사용할 소켓을 미리 만들어놔야 함
 
 	vector <thread> worker_threads;
-	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(&this->worker_thread);
-
+	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(&IOCPServer::worker_thread, this);
 	timer.init_timer(g_iocp);
-	thread timer_thread{ &timer.do_timer };
-	timer_thread.join();
+
 	for (auto& th : worker_threads)th.join();
 }
 
@@ -62,37 +60,38 @@ bool IOCPServer::is_near(int a, int b)
 
 void IOCPServer::init_npc()
 {
-	for (int i = NPC_ID_START; i < NPC_ID_START + NUM_NPC; ++i) {
-		g_clients[i].m_s = 0;
-		g_clients[i].m_id = i;
-		sprintf_s(g_clients[i].m_name, "NPC%d", i);
-		g_clients[i].m_status = ST_SLEEP;
-		g_clients[i].x = rand() % WORLD_WIDTH;
-		g_clients[i].y = rand() % WORLD_HEIGHT;
-
-		g_SectorLock[g_clients[i].y / SECTOR_WIDTH][g_clients[i].x / SECTOR_WIDTH].EnterWriteLock();
-		g_ObjectListSector[g_clients[i].y / SECTOR_WIDTH][g_clients[i].x / SECTOR_WIDTH].insert(g_clients[i].m_id);
-		g_SectorLock[g_clients[i].y / SECTOR_WIDTH][g_clients[i].x / SECTOR_WIDTH].LeaveWriteLock();
-
-		//g_clients[i].m_last_move_time = high_resolution_clock::now();
-		//add_timer(i, OP_RANDOM_MOVE, 1000);
-		lua_State* L = g_clients[i].L = luaL_newstate();
-		luaL_openlibs(L);
-		luaL_loadfile(L, "NPC.LUA");
-		int error = lua_pcall(L, 0, 0, 0);
-		if (error) cout << lua_tostring(L, -1);
-		lua_getglobal(L, "set_uid");
-		lua_pushnumber(L, i);
-		error = lua_pcall(L, 1, 0, 0);
-		if (error) cout << lua_tostring(L, -1);
-		//lua_pop(L, 1);
-
-		lua_register(L, "API_send_message", &this->API_SendMessage);
-		lua_register(L, "API_get_x", &this->API_get_x);
-		lua_register(L, "API_get_y", &this->API_get_y);
-		lua_register(L, "API_add_timer_run", &this->API_add_timer_run);
-		lua_register(L, "API_run_finished", &this->API_run_finished);
-	}
+	//for (int i = NPC_ID_START; i < NPC_ID_START + NUM_NPC; ++i) {
+	//	g_clients[i].m_s = 0;
+	//	g_clients[i].m_id = i;
+	//	sprintf_s(g_clients[i].m_name, "NPC%d", i);
+	//	g_clients[i].m_status = ST_SLEEP;
+	//	g_clients[i].x = rand() % WORLD_WIDTH;
+	//	g_clients[i].y = rand() % WORLD_HEIGHT;
+	//
+	//	g_SectorLock[g_clients[i].y / SECTOR_WIDTH][g_clients[i].x / SECTOR_WIDTH].EnterWriteLock();
+	//	g_ObjectListSector[g_clients[i].y / SECTOR_WIDTH][g_clients[i].x / SECTOR_WIDTH].insert(g_clients[i].m_id);
+	//	g_SectorLock[g_clients[i].y / SECTOR_WIDTH][g_clients[i].x / SECTOR_WIDTH].LeaveWriteLock();
+	//
+	//	//g_clients[i].m_last_move_time = high_resolution_clock::now();
+	//	//add_timer(i, OP_RANDOM_MOVE, 1000);
+	//	lua_State* L = g_clients[i].L = luaL_newstate();
+	//
+	//	luaL_openlibs(L);
+	//	luaL_loadfile(L, "NPC.LUA");
+	//	int error = lua_pcall(L, 0, 0, 0);
+	//	if (error) cout << lua_tostring(L, -1);
+	//	lua_getglobal(L, "set_uid");
+	//	lua_pushnumber(L, i);
+	//	error = lua_pcall(L, 1, 0, 0);
+	//	if (error) cout << lua_tostring(L, -1);
+	//	//lua_pop(L, 1);
+	//
+	//	lua_register(L, "API_send_message", IOCPServer::API_SendMessage);
+	//	lua_register(L, "API_get_x", API_get_x);
+	//	lua_register(L, "API_get_y", API_get_y);
+	//	lua_register(L, "API_add_timer_run", API_add_timer_run);
+	//	lua_register(L, "API_run_finished", API_run_finished);
+	//}
 }
 
 void IOCPServer::activate_npc(int id)
@@ -197,8 +196,11 @@ void IOCPServer::process_packet(int user_id, char* buf)
 			g_clients[user_id].y = p.y;
 			enter_game(user_id, packet->name);
 		}
-		else
+		else if(!canEnter)
+		{
+			send_login_fail_packet(user_id);
 			disconnect(user_id);
+		}
 	}
 	break;
 	case C2S_MOVE:
@@ -216,6 +218,7 @@ void IOCPServer::process_packet(int user_id, char* buf)
 	case C2S_CHAT:
 	{
 		cs_packet_chat* packet = reinterpret_cast<cs_packet_chat*>(buf);
+		chatting(user_id, packet->message);
 	}
 	break;
 	case C2S_LOGOUT:
@@ -541,6 +544,16 @@ void IOCPServer::do_move(int user_id, int direction)
 				g_clients[old_p].m_cl.LeaveReadLock();
 			}
 		}
+	}
+}
+
+void IOCPServer::chatting(int user_id, wchar_t mess[])
+{
+	for (int i = 0; i < NPC_ID_START; ++i)
+	{
+		Client& cl = g_clients[i];
+		if (ST_ACTIVE == cl.m_status)
+			send_chat_packet(cl.m_id, user_id, mess);
 	}
 }
 
