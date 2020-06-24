@@ -33,10 +33,10 @@ IOCPServer::IOCPServer()
 	AcceptEx(l_socket, c_socket, accept_over.io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &accept_over.over);	// 클라이언트 접속에 사용할 소켓을 미리 만들어놔야 함
 
 	vector <thread> worker_threads;
-	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(this->worker_thread);
+	for (int i = 0; i < 4; ++i) worker_threads.emplace_back(&this->worker_thread);
 
 	timer.init_timer(g_iocp);
-	thread timer_thread{ timer.do_timer };
+	thread timer_thread{ &timer.do_timer };
 	timer_thread.join();
 	for (auto& th : worker_threads)th.join();
 }
@@ -87,11 +87,11 @@ void IOCPServer::init_npc()
 		if (error) cout << lua_tostring(L, -1);
 		//lua_pop(L, 1);
 
-		lua_register(L, "API_send_message", this->API_SendMessage);
-		lua_register(L, "API_get_x", this->API_get_x);
-		lua_register(L, "API_get_y", this->API_get_y);
-		lua_register(L, "API_add_timer_run", this->API_add_timer_run);
-		lua_register(L, "API_run_finished", this->API_run_finished);
+		lua_register(L, "API_send_message", &this->API_SendMessage);
+		lua_register(L, "API_get_x", &this->API_get_x);
+		lua_register(L, "API_get_y", &this->API_get_y);
+		lua_register(L, "API_add_timer_run", &this->API_add_timer_run);
+		lua_register(L, "API_run_finished", &this->API_run_finished);
 	}
 }
 

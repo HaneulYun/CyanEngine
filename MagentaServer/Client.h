@@ -3,11 +3,12 @@
 #include <chrono>
 #include "RWLock.h"
 #include "etc.h"
+#include "protocol.h"
 
 using namespace std;
 using namespace chrono;
 
-class Client
+struct Client
 {
 public:
 	RWLock	m_cl;

@@ -1,4 +1,8 @@
 #pragma once
+#include <chrono>
+
+using namespace std;
+using namespace chrono;
 
 enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE, ST_SLEEP };
 enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PLAYER_MOVE, OP_RUN, OP_RUN_FINISH };
