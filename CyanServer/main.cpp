@@ -547,67 +547,71 @@ void disconnect(int user_id)
 			send_leave_packet(cl.m_id, user_id);
 		//cl.m_cl.unlock();
 	}
-	SQLHENV henv;
-	SQLHDBC hdbc;
-	SQLHSTMT hstmt = 0;
-	SQLRETURN retcode;
 
-	SQLWCHAR data_id[20];
-	SQLINTEGER data_x, data_y;
+	if (user_id < NPC_ID_START)
+	{
+		SQLHENV henv;
+		SQLHDBC hdbc;
+		SQLHSTMT hstmt = 0;
+		SQLRETURN retcode;
 
-	SQLLEN cbid = 0, cbx = 0, cby = 0;
+		SQLWCHAR data_id[20];
+		SQLINTEGER data_x, data_y;
 
-	setlocale(LC_ALL, "korean");
+		SQLLEN cbid = 0, cbx = 0, cby = 0;
 
-	// Allocate environment handle  
-	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+		setlocale(LC_ALL, "korean");
 
-	// Set the ODBC version environment attribute  
-	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-		retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
+		// Allocate environment handle  
+		retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
 
-		// Allocate connection handle  
+		// Set the ODBC version environment attribute  
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-			retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
+			retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
 
-			// Set login timeout to 5 seconds  
+			// Allocate connection handle  
 			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
+				retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
 
-				// Connect to data source  
-				retcode = SQLConnect(hdbc, (SQLWCHAR*)L"game_db_odbc_2017182027", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
-
-				// Allocate statement handle  
+				// Set login timeout to 5 seconds  
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-					printf("ODBC connect OK!\n");
-					retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
+					SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
-					string nn = g_clients[user_id].m_name;
-					wstring n(nn.begin(), nn.end());
-					wstring exec = L"EXEC update_id " + n + L", ";
-					exec += to_wstring(g_clients[user_id].x);
-					exec += L", ";
-					exec += to_wstring(g_clients[user_id].y);
-					retcode = SQLExecDirect(hstmt, (SQLWCHAR*)exec.c_str(), SQL_NTS);
+					// Connect to data source  
+					retcode = SQLConnect(hdbc, (SQLWCHAR*)L"game_db_odbc_2017182027", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
+
+					// Allocate statement handle  
 					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						printf("Update OK\n");
-					}
+						printf("ODBC connect OK!\n");
+						retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
 
-					// Process data  
-					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						SQLCancel(hstmt);
-						SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
-					}
+						string nn = g_clients[user_id].m_name;
+						wstring n(nn.begin(), nn.end());
+						wstring exec = L"EXEC update_id " + n + L", ";
+						exec += to_wstring(g_clients[user_id].x);
+						exec += L", ";
+						exec += to_wstring(g_clients[user_id].y);
+						retcode = SQLExecDirect(hstmt, (SQLWCHAR*)exec.c_str(), SQL_NTS);
+						if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+							printf("Update OK\n");
+						}
 
-					SQLDisconnect(hdbc);
+						// Process data  
+						if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+							SQLCancel(hstmt);
+							SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+						}
+
+						SQLDisconnect(hdbc);
+					}
+					else
+						HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+
+					SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 				}
-				else
-					HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-
-				SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 			}
+			SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		}
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 	}
 
 	g_clients[user_id].m_status = ST_FREE;
