@@ -46,13 +46,13 @@ public:
 		}
 	}
 
-	void addChat(char chat[])
+	void addChat(wchar_t chat[])
 	{
 		using namespace std::chrono;
 		Text* text = gameObject->children[1]->GetComponent<Text>();
 		if (text)
 		{
-			std::wstring wstr(chat, &chat[strlen(chat)]);
+			std::wstring wstr(chat, &chat[wcslen(chat)]);
 			text->text = wstr;
 			m_time_out = std::chrono::high_resolution_clock::now() + 1s;
 		}

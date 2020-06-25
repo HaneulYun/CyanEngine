@@ -186,13 +186,13 @@ void send_move_packet(int user_id, int mover)
 	send_packet(user_id, &p);
 }
 
-void send_chat_packet(int user_id, int chatter, const char mess[])
+void send_chat_packet(int user_id, int chatter, const wchar_t mess[])
 {
 	sc_packet_chat p;
 	p.id = chatter;
 	p.size = sizeof(p);
 	p.type = S2C_CHAT;
-	strcpy(p.mess, mess);
+	wcscpy(p.mess, mess);
 
 	send_packet(user_id, &p);
 }
@@ -776,7 +776,7 @@ void worker_thread()
 		break;
 		case OP_SEND_BYE:
 		{
-			string mess = "BYE";
+			wstring mess = L"BYE";
 			send_chat_packet(user_id, exover->p_id, mess.c_str());
 			delete exover;
 		}
@@ -810,7 +810,7 @@ int API_SendMessage(lua_State* L)
 {
 	int my_id = (int)lua_tointeger(L, -3);
 	int user_id = (int)lua_tointeger(L, -2);
-	char* mess = (char*)lua_tostring(L, -1);
+	wchar_t* mess = (wchar_t*)lua_tostring(L, -1);
 
 	send_chat_packet(user_id, my_id, mess);
 	lua_pop(L, 3);
