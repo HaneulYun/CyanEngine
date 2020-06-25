@@ -327,8 +327,8 @@ public:
 			}
 		}
 		break;
-		//default:
-		//	printf("Unknown PACKET type [%d]\n", ptr[1]);
+		default:
+			printf("Unknown PACKET type [%d]\n", ptr[1]);
 
 		}
 	}
@@ -341,7 +341,7 @@ public:
 		static char packet_buffer[BUF_SIZE];
 
 		while (0 != io_byte) {
-			if (0 == in_packet_size) in_packet_size = ptr[0];
+			if (0 == in_packet_size) in_packet_size = (unsigned char)ptr[0];
 			if (io_byte + saved_packet_size >= in_packet_size) {
 				memcpy(packet_buffer + saved_packet_size, ptr, in_packet_size - saved_packet_size);
 				ProcessPacket(packet_buffer);

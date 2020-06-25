@@ -120,8 +120,8 @@ void send_packet(int user_id, void* p)
 	exover->op = OP_SEND;
 	ZeroMemory(&exover->over, sizeof(exover->over));
 	exover->wsabuf.buf = exover->io_buf;
-	exover->wsabuf.len = buf[0];
-	memcpy(exover->io_buf, buf, buf[0]);
+	exover->wsabuf.len = unsigned char(buf[0]);
+	memcpy(exover->io_buf, buf, unsigned char(buf[0]));
 
 	WSASend(u.m_s, &exover->wsabuf, 1, NULL, 0, &exover->over, NULL);
 }
@@ -810,9 +810,10 @@ int API_SendMessage(lua_State* L)
 {
 	int my_id = (int)lua_tointeger(L, -3);
 	int user_id = (int)lua_tointeger(L, -2);
-	wchar_t* mess = (wchar_t*)lua_tostring(L, -1);
+	char* mess = (char*)lua_tostring(L, -1);
+	wstring w_mess(mess, &mess[strlen(mess)]);
 
-	send_chat_packet(user_id, my_id, mess);
+	send_chat_packet(user_id, my_id, w_mess.c_str());
 	lua_pop(L, 3);
 	return 0;
 }
