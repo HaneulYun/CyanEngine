@@ -59,6 +59,9 @@ LRESULT CALLBACK CyanApp::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 {
 	CyanFW* cyanFW = reinterpret_cast<CyanFW*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
+	if (cyanFW)
+		cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+
 	switch (message)
 	{
 	case WM_SIZE:
@@ -70,9 +73,7 @@ LRESULT CALLBACK CyanApp::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_KEYDOWN:
 	case WM_KEYUP:
 	case WM_MOUSEWHEEL:
-		if (cyanFW)
-			cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
-		return 0;
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
