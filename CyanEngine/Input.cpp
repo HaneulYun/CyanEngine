@@ -104,15 +104,9 @@ void Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, L
 	case WM_KEYUP:
 		switch (wParam)
 		{
-		case VK_ESCAPE:
-			PostQuitMessage(0);
-			break;
 		case VK_OEM_PERIOD:
 			Input::keys[(int)KeyCode::Period] = false;
 			Input::keyUp[(int)KeyCode::Period] = true;
-			break;
-		case VK_F9:
-			Graphics::Instance()->ChangeSwapChainState();
 			break;
 		}
 		Input::keys[('a' <= wParam && wParam <= 'z') ? wParam - ('a' - 'A') : wParam] = false;

@@ -95,6 +95,7 @@ LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wPa
 {
 	Input::ProcessingWindowMessage(hWnd, nMessageID, wParam, lParam);
 
+
 	switch (nMessageID)
 	{
 	case WM_SIZE:
@@ -108,7 +109,17 @@ LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wPa
 	case WM_MOUSEMOVE:
 	case WM_MOUSEWHEEL:
 	case WM_KEYDOWN:
+		break;
 	case WM_KEYUP:
+		switch (wParam)
+		{
+		case VK_ESCAPE:
+			PostQuitMessage(0);
+			break;
+		case VK_F9:
+			Graphics::Instance()->ChangeSwapChainState();
+			break;
+		}
 		break;
 	}
 
