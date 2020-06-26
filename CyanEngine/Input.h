@@ -9,8 +9,10 @@ enum class KeyCode
 
 class Input : public Singleton<Input>
 {
-private:
+public:
 	static wchar_t buffer[256];
+	static wchar_t cbuffer[10];
+	static int bufferLen;
 
 public:
 	static Vector3 mousePosition;
@@ -35,5 +37,5 @@ public:
 	static bool GetMouseButtonDown(int button);
 	static float GetMouseWheelDelta();
 
-	static void ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	static int ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 };

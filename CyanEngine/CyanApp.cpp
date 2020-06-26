@@ -60,7 +60,8 @@ LRESULT CALLBACK CyanApp::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 	CyanFW* cyanFW = reinterpret_cast<CyanFW*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
 	if (cyanFW)
-		cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+		if(!cyanFW->OnProcessingWindowMessage(hWnd, message, wParam, lParam))
+			return 0;
 
 	switch (message)
 	{

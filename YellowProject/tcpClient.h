@@ -216,10 +216,15 @@ public:
 				rect->anchorMin = { (x + 0.5f) / 20, (y) / 20 };
 				rect->anchorMax = { (x + 0.5f) / 20, (y) / 20 };
 			}
-			wchar_t wstr[20];
-			wsprintf(wstr, L"(%d, %d)", avatar->x, avatar->y);
-			coordinateText->text = wstr;
+			//wchar_t wstr[20];
+			//wsprintf(wstr, L"(%d, %d)", avatar->x, avatar->y);
+			//coordinateText->text = wstr;
 		}
+		wchar_t str[256];
+		wsprintf(str, L"%s", Input::buffer);
+		std::wstring wstr(str, &str[wcslen(str)]);
+		coordinateText->text = wstr;
+
 		SleepEx(10, TRUE);
 	}
 

@@ -93,8 +93,8 @@ void CyanFW::OnFrameAdvance()
 
 LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	Input::ProcessingWindowMessage(hWnd, nMessageID, wParam, lParam);
-
+	if (!Input::ProcessingWindowMessage(hWnd, nMessageID, wParam, lParam))
+		return 0;
 
 	switch (nMessageID)
 	{
@@ -123,5 +123,5 @@ LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wPa
 		break;
 	}
 
-	return 0;
+	return 1;
 }
