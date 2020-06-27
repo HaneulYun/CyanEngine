@@ -364,7 +364,7 @@ void MenuScene::BuildObjects()
 		rectTransform->pivot = { 0, 1 };
 		rectTransform->posX = 0;
 		rectTransform->posY = -380 + (i * 20);
-		rectTransform->width = 300;
+		rectTransform->width = 350;
 		rectTransform->height = 20;
 
 		{

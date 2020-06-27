@@ -156,15 +156,16 @@ public:
 		{
 			wmyname.clear();
 			wserverIp.clear();
-			pressButton = true;
-
 			firstText->GetComponent<Text>()->text = L"Input your Name : ";
 			firstText->SetActive(true);
 			secondText->GetComponent<Text>()->text = L"";
 			secondText->SetActive(true);
+
+			pressButton = true;
 		}
 		else if (pressButton)
 		{
+			setname = false;
 			pressButton = false;
 			wmyname.clear();
 			wserverIp.clear();

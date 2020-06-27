@@ -27,7 +27,7 @@ public:
 	int		m_prev_size;
 	char	m_packet_buf[MAX_PACKET_SIZE];
 	atomic <C_STATUS> m_status;
-
+	char	m_otype;
 	Inform	m_inform;
 
 	unsigned m_move_time;
@@ -57,17 +57,6 @@ public:
 		{
 			m_inform.exp -= toNextLevelExp;
 			m_inform.level++;
-		}
-	}
-
-	void die()
-	{
-		if (m_inform.hp <= 0)
-		{
-			m_inform.hp = 98 + pow(2, m_inform.level);
-			m_inform.exp /= 2;
-			m_inform.x = 20;
-			m_inform.y = 5;
 		}
 	}
 };

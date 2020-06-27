@@ -58,6 +58,7 @@ public:
 				case OP_RANDOM_MOVE:
 				case OP_RUN:
 				case OP_HEAL:
+				case OP_RESPAWN:
 					EXOVER* over = new EXOVER;
 					over->op = ev.event_id;
 					over->p_id = ev.target_id;

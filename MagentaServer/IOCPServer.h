@@ -53,6 +53,7 @@ private:
 	void init_npc();
 	void activate_npc(int id);
 	void random_move_npc(int id);
+	void respawn_npc(int id);
 	
 	void initialize_clients();
 	void process_packet(int user_id, char* buf);
@@ -61,6 +62,9 @@ private:
 
 	void enter_game(int user_id, char name[]);
 	void do_move(int user_id, int direction);
+	void do_attack(int user_id);
+	void player_damaged(int user_id, int monster_id);
+	void monster_damaged(int user_id, int monster_id);
 	void chatting(int user_id, wchar_t mess[]);
 	void disconnect(int user_id);
 

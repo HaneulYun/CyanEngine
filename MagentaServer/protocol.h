@@ -50,8 +50,10 @@ struct sc_packet_move {
 };
 
 constexpr unsigned char O_HUMAN = 0;
-constexpr unsigned char O_ELF = 1;
-constexpr unsigned char O_ORC = 2;
+constexpr unsigned char O_EEVEE = 1;
+constexpr unsigned char O_JOLTEON = 2;
+constexpr unsigned char O_FLAREON = 3;
+constexpr unsigned char O_VAPOREON = 4;
 
 struct sc_packet_enter {
 	unsigned char size;

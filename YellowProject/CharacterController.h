@@ -43,7 +43,10 @@ public:
 	void attack()
 	{
 		for (int i = 0; i < 4; ++i)
+		{
+			if(attackEffect[i])
 			attackEffect[i]->SetActive(true);
+		}
 		effectEndTime = chrono::high_resolution_clock::now() + 300ms;
 		attackCooltime = chrono::high_resolution_clock::now() + 1s;
 	}
@@ -51,7 +54,10 @@ public:
 	void attackCancel()
 	{
 		for (int i = 0; i < 4; ++i)
-			attackEffect[i]->SetActive(false);
+		{
+			if(attackEffect[i])
+				attackEffect[i]->SetActive(false);
+		}
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
