@@ -218,6 +218,7 @@ void IOCPServer::process_packet(int user_id, char* buf)
 	case C2S_ATTACK:
 	{
 		cs_packet_attack* packet = reinterpret_cast<cs_packet_attack*>(buf);
+		//do_attack(user_id);
 	}
 	break;
 	case C2S_CHAT:

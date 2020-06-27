@@ -203,6 +203,30 @@ void MenuScene::BuildObjects()
 		}
 	}
 
+	auto logoutButton = CreateImage();
+	{
+		auto rectTransform = logoutButton->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 1 };
+		rectTransform->anchorMax = { 0, 1 };
+		rectTransform->pivot = { 0, 1 };
+		rectTransform->posX = 320;
+		rectTransform->posY = 0;
+		rectTransform->width = 80;
+		rectTransform->height = 20;
+
+		logoutButton->AddComponent<Button>()->AddEvent(
+			[](void*) {
+				Network::network->Logout();
+			});
+		{
+			Text* text = logoutButton->AddComponent<Text>();
+			text->text = L"logout";
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(logoutButton);
+		}
+	}
+
 	auto coordinate = CreateImage();
 	{
 		auto rectTransform = coordinate->GetComponent<RectTransform>();

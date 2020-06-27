@@ -27,6 +27,8 @@ void Network::ProcessPacket(char* ptr)
 		setname = false;
 		isConnect = false;
 		tryConnect = false;
+
+		closesocket(serverSocket);
 	}
 	break;
 	case S2C_ENTER:
@@ -250,6 +252,16 @@ void Network::Logout()
 	l_packet.type = C2S_LOGOUT;
 
 	send_packet(&l_packet);
+
+	isConnect = false;
+	tryConnect = false;
+	setname = false;
+
+	closesocket(serverSocket);
+
+	for (auto oc : otherCharacters)
+		Scene::scene->PushDelete(oc.second);
+	otherCharacters.clear();
 }
 
 void Network::Update()
@@ -327,6 +339,8 @@ void Network::Update()
 			}
 			else
 			{
+				serverSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, 0);
+
 				std::string serverIp;
 				serverIp.assign(wserverIp.begin(), wserverIp.end());
 

@@ -69,7 +69,6 @@ public:
 	void Start()
 	{
 		WSAStartup(MAKEWORD(2, 0), &WSAData);
-		serverSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, 0);
 
 		firstText = Scene::scene->CreateUI();
 		{
