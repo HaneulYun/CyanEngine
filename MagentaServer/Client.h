@@ -47,4 +47,27 @@ public:
 		if (m_inform.hp >= maxHp)
 			m_inform.hp = maxHp;
 	}
+
+	void exp_plus(int exp)
+	{
+		int toNextLevelExp = 100 * pow(2, m_inform.level - 1);
+		
+		m_inform.exp += exp;
+		if (m_inform.exp >= toNextLevelExp)
+		{
+			m_inform.exp -= toNextLevelExp;
+			m_inform.level++;
+		}
+	}
+
+	void die()
+	{
+		if (m_inform.hp <= 0)
+		{
+			m_inform.hp = 98 + pow(2, m_inform.level);
+			m_inform.exp /= 2;
+			m_inform.x = 0;
+			m_inform.y = 0;
+		}
+	}
 };

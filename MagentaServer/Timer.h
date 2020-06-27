@@ -57,6 +57,7 @@ public:
 				switch (ev.event_id) {
 				case OP_RANDOM_MOVE:
 				case OP_RUN:
+				case OP_HEAL:
 					EXOVER* over = new EXOVER;
 					over->op = ev.event_id;
 					over->p_id = ev.target_id;

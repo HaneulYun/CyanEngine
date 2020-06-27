@@ -151,10 +151,10 @@ void Network::ProcessPacket(char* ptr)
 	{
 		sc_packet_stat_change* my_packet = reinterpret_cast<sc_packet_stat_change*>(ptr);
 	
-		//CharacterController* controller = myCharacter->GetComponent<CharacterController>();
-		//controller->level = my_packet->level;
-		//controller->exp = my_packet->exp;
-		//controller->hp = my_packet->hp;
+		CharacterController* controller = myCharacter->GetComponent<CharacterController>();
+		controller->level = my_packet->level;
+		controller->exp = my_packet->exp;
+		controller->hp = my_packet->hp;
 	}
 	break;
 	default:

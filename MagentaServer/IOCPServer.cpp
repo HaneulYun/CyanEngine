@@ -344,9 +344,9 @@ void IOCPServer::worker_thread()
 				nc.view_list.clear();
 				nc.m_inform.x = rand() % WORLD_WIDTH;
 				nc.m_inform.y = rand() % WORLD_HEIGHT;
-				//nc.m_inform.exp = 0;
-				//nc.m_inform.hp = 100;
-				//nc.m_inform.level = 1;
+				nc.m_inform.exp = 0;
+				nc.m_inform.hp = 100;
+				nc.m_inform.level = 1;
 				DWORD flags = 0;
 				WSARecv(c_socket, &nc.m_recv_over.wsabuf, 1, NULL, &flags, &nc.m_recv_over.over, NULL);
 			}
@@ -408,14 +408,14 @@ void IOCPServer::worker_thread()
 			delete exover;
 		}
 		break;
-		//case OP_HEAL:
-		//{
-		//	g_clients[user_id].heal_player();
-		//	send_stat_change_packet(user_id);
-		//	if (g_clients[user_id].m_inform.hp < 98 + pow(2, g_clients[user_id].m_inform.level))
-		//		timer.add_timer(user_id, OP_HEAL, 5000, 0);
-		//}
-		//break;
+		case OP_HEAL:
+		{
+			g_clients[user_id].heal_player();
+			send_stat_change_packet(user_id);
+			if (g_clients[user_id].m_inform.hp < 98 + pow(2, g_clients[user_id].m_inform.level))
+				timer.add_timer(user_id, OP_HEAL, 5000, 0);
+		}
+		break;
 		default:
 			cout << "Unknown Operation in worker_thread!!\n";
 			while (true);
@@ -458,109 +458,114 @@ void IOCPServer::enter_game(int user_id, char name[])
 		}
 	}
 
-	//if (g_clients[user_id].m_inform.hp < 98 + pow(2, g_clients[user_id].m_inform.level))
-	//	timer.add_timer(user_id, OP_HEAL, 5000, 0);
+	if (g_clients[user_id].m_inform.hp < 98 + pow(2, g_clients[user_id].m_inform.level))
+		timer.add_timer(user_id, OP_HEAL, 5000, 0);
 }
 
 void IOCPServer::do_move(int user_id, int direction)
 {
 	Client& u = g_clients[user_id];
-	int x = u.m_inform.x;
-	int y = u.m_inform.y;
-	switch (direction)
+	if(high_resolution_clock::now() - u.m_last_move_time >= 1s)
 	{
-	case D_UP:	if (y > 0)	y--;	break;
-	case D_DOWN:if (y < (WORLD_HEIGHT - 1))	y++;	break;
-	case D_LEFT:if (x > 0)	x--;	break;
-	case D_RIGHT:if (x < (WORLD_WIDTH - 1)) x++;	break;
-	default:
-		cout << "Unknown Direction from Client move packet!\n";
-		DebugBreak();
-		exit(-1);
-	}
+		Client& u = g_clients[user_id];
+		int x = u.m_inform.x;
+		int y = u.m_inform.y;
+		switch (direction)
+		{
+		case D_UP:	if (y > 0)	y--;	break;
+		case D_DOWN:if (y < (WORLD_HEIGHT - 1))	y++;	break;
+		case D_LEFT:if (x > 0)	x--;	break;
+		case D_RIGHT:if (x < (WORLD_WIDTH - 1)) x++;	break;
+		default:
+			cout << "Unknown Direction from Client move packet!\n";
+			DebugBreak();
+			exit(-1);
+		}
 
-	if (u.m_inform.x / SECTOR_WIDTH != x / SECTOR_WIDTH || u.m_inform.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
-	{
-		g_SectorLock[u.m_inform.y / SECTOR_WIDTH][u.m_inform.x / SECTOR_WIDTH].EnterWriteLock();
-		g_ObjectListSector[u.m_inform.y / SECTOR_WIDTH][u.m_inform.x / SECTOR_WIDTH].erase(user_id);
-		g_SectorLock[u.m_inform.y / SECTOR_WIDTH][u.m_inform.x / SECTOR_WIDTH].LeaveWriteLock();
-		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
-		g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(user_id);
-		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
-	}
+		if (u.m_inform.x / SECTOR_WIDTH != x / SECTOR_WIDTH || u.m_inform.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
+		{
+			g_SectorLock[u.m_inform.y / SECTOR_WIDTH][u.m_inform.x / SECTOR_WIDTH].EnterWriteLock();
+			g_ObjectListSector[u.m_inform.y / SECTOR_WIDTH][u.m_inform.x / SECTOR_WIDTH].erase(user_id);
+			g_SectorLock[u.m_inform.y / SECTOR_WIDTH][u.m_inform.x / SECTOR_WIDTH].LeaveWriteLock();
+			g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
+			g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(user_id);
+			g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
+		}
 
-	u.m_inform.x = x;
-	u.m_inform.y = y;
+		u.m_inform.x = x;
+		u.m_inform.y = y;
+		u.m_last_move_time = high_resolution_clock::now();
 
-	g_clients[user_id].m_cl.EnterReadLock();
-	unordered_set<int> old_vl = g_clients[user_id].view_list;
-	g_clients[user_id].m_cl.LeaveReadLock();
-	unordered_set<int> new_vl;
+		g_clients[user_id].m_cl.EnterReadLock();
+		unordered_set<int> old_vl = g_clients[user_id].view_list;
+		g_clients[user_id].m_cl.LeaveReadLock();
+		unordered_set<int> new_vl;
 
-	for (int i = u.m_inform.y / SECTOR_WIDTH - 1; i <= u.m_inform.y / SECTOR_WIDTH + 1; ++i) {
-		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
-		for (int j = u.m_inform.x / SECTOR_WIDTH - 1; j <= u.m_inform.x / SECTOR_WIDTH + 1; ++j) {
-			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1) continue;
-			g_SectorLock[i][j].EnterReadLock();
-			for (auto nearObj : g_ObjectListSector[i][j]) {
-				if (false == is_near(nearObj, user_id))	continue;
-				if (ST_SLEEP == g_clients[nearObj].m_status) activate_npc(nearObj);
-				if (ST_ACTIVE != g_clients[nearObj].m_status)continue;
-				if (nearObj == user_id)continue;
-				if (false == is_player(nearObj)) {
-					EXOVER* over = new EXOVER;
-					over->op = OP_PLAYER_MOVE;
-					over->p_id = user_id;
-					PostQueuedCompletionStatus(g_iocp, 1, nearObj, &over->over);
+		for (int i = u.m_inform.y / SECTOR_WIDTH - 1; i <= u.m_inform.y / SECTOR_WIDTH + 1; ++i) {
+			if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
+			for (int j = u.m_inform.x / SECTOR_WIDTH - 1; j <= u.m_inform.x / SECTOR_WIDTH + 1; ++j) {
+				if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1) continue;
+				g_SectorLock[i][j].EnterReadLock();
+				for (auto nearObj : g_ObjectListSector[i][j]) {
+					if (false == is_near(nearObj, user_id))	continue;
+					if (ST_SLEEP == g_clients[nearObj].m_status) activate_npc(nearObj);
+					if (ST_ACTIVE != g_clients[nearObj].m_status)continue;
+					if (nearObj == user_id)continue;
+					if (false == is_player(nearObj)) {
+						EXOVER* over = new EXOVER;
+						over->op = OP_PLAYER_MOVE;
+						over->p_id = user_id;
+						PostQueuedCompletionStatus(g_iocp, 1, nearObj, &over->over);
+					}
+					new_vl.insert(nearObj);
 				}
-				new_vl.insert(nearObj);
-			}
-			g_SectorLock[i][j].LeaveReadLock();
-		}
-	}
-
-	send_move_packet(user_id, user_id);
-
-	for (auto np : new_vl) {
-		if (0 == old_vl.count(np)) {	// Object가 새로 시야에 들어왔을 때
-			send_enter_packet(user_id, np);
-			if (false == is_player(np))
-				continue;
-			g_clients[np].m_cl.EnterReadLock();
-			if (0 == g_clients[np].view_list.count(user_id)) {
-				g_clients[np].m_cl.LeaveReadLock();
-				send_enter_packet(np, user_id);
-			}
-			else {
-				g_clients[np].m_cl.LeaveReadLock();
-				send_move_packet(np, user_id);
+				g_SectorLock[i][j].LeaveReadLock();
 			}
 		}
-		else {	// 계속 시야에 존재하고 있을 때
-			if (false == is_player(np))	continue;
-			g_clients[np].m_cl.EnterReadLock();
-			if (0 != g_clients[np].view_list.count(user_id)) {
-				g_clients[np].m_cl.LeaveReadLock();
-				send_move_packet(np, user_id);
+
+		send_move_packet(user_id, user_id);
+
+		for (auto np : new_vl) {
+			if (0 == old_vl.count(np)) {	// Object가 새로 시야에 들어왔을 때
+				send_enter_packet(user_id, np);
+				if (false == is_player(np))
+					continue;
+				g_clients[np].m_cl.EnterReadLock();
+				if (0 == g_clients[np].view_list.count(user_id)) {
+					g_clients[np].m_cl.LeaveReadLock();
+					send_enter_packet(np, user_id);
+				}
+				else {
+					g_clients[np].m_cl.LeaveReadLock();
+					send_move_packet(np, user_id);
+				}
 			}
-			else {
-				g_clients[np].m_cl.LeaveReadLock();
-				send_enter_packet(np, user_id);
+			else {	// 계속 시야에 존재하고 있을 때
+				if (false == is_player(np))	continue;
+				g_clients[np].m_cl.EnterReadLock();
+				if (0 != g_clients[np].view_list.count(user_id)) {
+					g_clients[np].m_cl.LeaveReadLock();
+					send_move_packet(np, user_id);
+				}
+				else {
+					g_clients[np].m_cl.LeaveReadLock();
+					send_enter_packet(np, user_id);
+				}
 			}
 		}
-	}
 
-	for (auto old_p : old_vl) {		// Object가 시야에서 벗어났을 때
-		if (0 == new_vl.count(old_p)) {
-			send_leave_packet(user_id, old_p);
-			if (false == is_player(old_p))	continue;
-			g_clients[old_p].m_cl.EnterReadLock();
-			if (0 != g_clients[old_p].view_list.count(user_id)) {
-				g_clients[old_p].m_cl.LeaveReadLock();
-				send_leave_packet(old_p, user_id);
-			}
-			else {
-				g_clients[old_p].m_cl.LeaveReadLock();
+		for (auto old_p : old_vl) {		// Object가 시야에서 벗어났을 때
+			if (0 == new_vl.count(old_p)) {
+				send_leave_packet(user_id, old_p);
+				if (false == is_player(old_p))	continue;
+				g_clients[old_p].m_cl.EnterReadLock();
+				if (0 != g_clients[old_p].view_list.count(user_id)) {
+					g_clients[old_p].m_cl.LeaveReadLock();
+					send_leave_packet(old_p, user_id);
+				}
+				else {
+					g_clients[old_p].m_cl.LeaveReadLock();
+				}
 			}
 		}
 	}
@@ -627,9 +632,9 @@ void IOCPServer::send_login_ok_packet(int user_id)
 	p.id = user_id;
 	p.x = g_clients[user_id].m_inform.x;
 	p.y = g_clients[user_id].m_inform.y;
-	//p.hp = g_clients[user_id].m_inform.hp;
-	//p.level = g_clients[user_id].m_inform.level;
-	//p.exp = g_clients[user_id].m_inform.exp;
+	p.hp = g_clients[user_id].m_inform.hp;
+	p.level = g_clients[user_id].m_inform.level;
+	p.exp = g_clients[user_id].m_inform.exp;
 
 	send_packet(user_id, &p);
 }
