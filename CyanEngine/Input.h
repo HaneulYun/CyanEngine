@@ -37,5 +37,7 @@ public:
 	static bool GetMouseButtonDown(int button);
 	static float GetMouseWheelDelta();
 
+	static void ClearBuffer();
+
 	static int ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 };

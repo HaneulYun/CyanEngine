@@ -81,57 +81,29 @@ public:
 	{
 		if (!isID)
 		{
-			bool shift = false;
-			if (Input::GetKey(KeyCode::Shift))
-				shift = true;
-			for (char keyCode = '0'; keyCode <= '9'; ++keyCode)
-			{
-				if (Input::GetKeyDown((KeyCode)keyCode))
-				{
-					id += keyCode;
-					std::wstring idis(L"ID : ");
-					idEditor->GetComponent<Text>()->text = idis + id;
-				}
-			}
-			for (char keyCode = 'A'; keyCode <= 'Z'; ++keyCode)
-			{
-				if (Input::GetKeyDown((KeyCode)keyCode))
-				{
-					char key = keyCode;
-					if (!shift)
-						key += ('a' - 'A');
-					id += key;
-					std::wstring idis(L"ID : ");
-					idEditor->GetComponent<Text>()->text = idis + id;
-				}
-			}
+
 			if (Input::GetKeyDown(KeyCode::Return))
 			{
 				isID = true;
 				idEditor->SetActive(false);
+				Input::ClearBuffer();
+			}
+			else
+			{
+				wchar_t wstr[256];
+				wsprintf(wstr, L"%s", Input::buffer);
+				id = wstr;
+				std::wstring idis(L"ID : ");
+				idEditor->GetComponent<Text>()->text = idis + wstr;
 			}
 		}
 		else if (!isIP)
 		{
-			for (char keyCode = '0'; keyCode <= '9'; ++keyCode)
-			{
-				if (Input::GetKeyDown((KeyCode)keyCode))
-				{
-					ip += keyCode;
-					std::wstring ipis(L"IP : ");
-					ipEditor->GetComponent<Text>()->text = ipis + ip;
-				}
-			}
-			if (Input::GetKeyDown(KeyCode::Period))
-			{
-				ip += '.';
-				std::wstring ipis(L"IP : ");
-				ipEditor->GetComponent<Text>()->text = ipis + ip;
-			}
 			if (Input::GetKeyDown(KeyCode::Return))
 			{
 				isIP = true;
 				ipEditor->SetActive(false);
+				Input::ClearBuffer();
 
 				WSAStartup(MAKEWORD(2, 0), &WSAData);
 				serverSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
@@ -158,6 +130,14 @@ public:
 				recvbuf.buf = (char*)&recvdata;
 				recvbuf.len = BUF_SIZE;
 				WSARecv(serverSocket, &recvbuf, 1, NULL, &flags, &recv, recv_callback);
+			}
+			else
+			{
+				wchar_t wstr[256];
+				wsprintf(wstr, L"%s", Input::buffer);
+				ip = wstr;
+				std::wstring ipis(L"IP : ");
+				ipEditor->GetComponent<Text>()->text = ipis + wstr;
 			}
 		}
 		else
@@ -216,15 +196,11 @@ public:
 				rect->anchorMin = { (x + 0.5f) / 20, (y) / 20 };
 				rect->anchorMax = { (x + 0.5f) / 20, (y) / 20 };
 			}
-			//wchar_t wstr[20];
-			//wsprintf(wstr, L"(%d, %d)", avatar->x, avatar->y);
-			//coordinateText->text = wstr;
-		}
-		wchar_t str[256];
-		wsprintf(str, L"%s", Input::buffer);
-		std::wstring wstr(str, &str[wcslen(str)]);
-		coordinateText->text = wstr;
 
+			wchar_t wstr[20];
+			wsprintf(wstr, L"(%d, %d)", avatar->x, avatar->y);
+			coordinateText->text = wstr;
+		}
 		SleepEx(10, TRUE);
 	}
 

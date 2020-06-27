@@ -68,6 +68,13 @@ float Input::GetMouseWheelDelta()
 	return mouseWheel;
 }
 
+void Input::ClearBuffer()
+{
+	memset(buffer, 0, 256);
+	memset(cbuffer, 0, 10);
+	bufferLen = 0;
+}
+
 int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	int len;
@@ -132,25 +139,19 @@ int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LP
 	case WM_IME_COMPOSITION:
 		himc = ImmGetContext(hWnd);
 
-		Debug::Log("한글\n");
-
 		if (lParam & GCS_RESULTSTR)
 		{
-			Debug::Log("만들었나\n");
 			if ((len = ImmGetCompositionString(himc, GCS_RESULTSTR, NULL, 0)) > 0)
 			{
-				Debug::Log("만들었다\n");
 				ImmGetCompositionString(himc, GCS_RESULTSTR, cbuffer, len);
 				cbuffer[len] = 0;
 				wcscpy(buffer + bufferLen, cbuffer);
 				bufferLen += wcslen(cbuffer);
 				memset(cbuffer, 0, 10);
 			}
-
 		}
 		else if (lParam & GCS_COMPSTR)
 		{
-			Debug::Log("만드는중\n");
 			len = ImmGetCompositionString(himc, GCS_COMPSTR, NULL, 0);
 			ImmGetCompositionString(himc, GCS_COMPSTR, cbuffer, len);
 			cbuffer[len] = 0;
@@ -163,6 +164,7 @@ int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LP
 		return 0;
 	case WM_CHAR:
 		buffer[wcslen(buffer)] = wParam;
+		++bufferLen;
 		return 0;
 	}
 	return 1;
