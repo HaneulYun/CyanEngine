@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Assets">
       <UniqueIdentifier>{583ba678-0711-4cd5-82dc-e58d96a0fbd7}</UniqueIdentifier>
     </Filter>
@@ -27,6 +23,10 @@
     </Filter>
     <Filter Include="Assets\Shaders">
       <UniqueIdentifier>{f6f5654e-c061-48ad-9356-3a8344f4e713}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Scripts\리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -60,6 +60,9 @@
     <ClInclude Include="Network.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="Colliders.h">
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
@@ -77,15 +80,15 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="YellowProject.rc">
-      <Filter>리소스 파일</Filter>
+      <Filter>Assets\Scripts\리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
-      <Filter>리소스 파일</Filter>
+      <Filter>Assets\Scripts\리소스 파일</Filter>
     </Image>
     <Image Include="YellowProject.ico">
-      <Filter>리소스 파일</Filter>
+      <Filter>Assets\Scripts\리소스 파일</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

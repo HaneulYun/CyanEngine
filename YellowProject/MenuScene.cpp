@@ -11,6 +11,15 @@ void MenuScene::BuildObjects()
 	ASSET AddTexture("otherchesstex", L"otherchess.dds");
 	ASSET AddTexture("kittytex", L"kitty.dds");
 
+	ASSET AddTexture("girltex", L"girl.dds");	
+	ASSET AddTexture("boytex", L"boy.dds");	
+	ASSET AddTexture("Effecttex", L"Effect.dds");
+	ASSET AddTexture("PokemonCentertex", L"pokemonCenter.dds");
+	ASSET AddTexture("collidertex", L"collider.dds");
+	ASSET AddTexture("housetex", L"house.dds");
+	ASSET AddTexture("treetex", L"tree.dds");
+	ASSET AddTexture("roadtex", L"road.dds");
+
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
 	ASSET AddMaterial("black", ASSET TEXTURE("none"), -1, { 0.0, 0.0, 0.0, 1 });
@@ -19,6 +28,15 @@ void MenuScene::BuildObjects()
 	ASSET AddMaterial("otherchessmat", ASSET TEXTURE("otherchesstex"), -1, { 0.8, 0.8, 0.8, 1 });
 	ASSET AddMaterial("kittymat", ASSET TEXTURE("kittytex"), -1, { 0.8, 0.8, 0.8, 1 });
 	ASSET AddMaterial("pink", ASSET TEXTURE("none"), -1, { 1.0, 0.8, 0.8, 1 });
+
+	ASSET AddMaterial("girlmat", ASSET TEXTURE("girltex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("boymat", ASSET TEXTURE("boytex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("Effectmat", ASSET TEXTURE("Effecttex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("PokemonCentermat", ASSET TEXTURE("PokemonCentertex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("collidermat", ASSET TEXTURE("collidertex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("housemat", ASSET TEXTURE("housetex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("treemat", ASSET TEXTURE("treetex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("roadmat", ASSET TEXTURE("roadtex"), -1, { 0.8, 0.8, 0.8, 1 });
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
@@ -33,24 +51,25 @@ void MenuScene::BuildObjects()
 		for (int j = 0; j < 2; ++j)
 		{
 			chessmap[i][j] = CreateEmpty();
-			chessmap[i][j]->GetComponent<Transform>()->position = { -0.0275f + (j * 22.f), -21.9725f - (i * 22.f), 0.0f };
-			chessmap[i][j]->GetComponent<Transform>()->Scale({ 22.0f, 22.0f,1.0f });
+			chessmap[i][j]->GetComponent<Transform>()->position = { 400.f*j, -399.f - (400.f * i), 0.0f };// { -0.0275f + (j * 22.f), -21.9725f - (i * 22.f), 0.0f };
+			chessmap[i][j]->GetComponent<Transform>()->Scale({ 400.0f, 400.0f,1.0f });
 			auto mesh = chessmap[i][j]->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
 			auto renderer = chessmap[i][j]->AddComponent<Renderer>();
 			for (auto& sm : mesh->DrawArgs)
-				renderer->materials.push_back(ASSET MATERIAL("chessmapmat"));
+				renderer->materials.push_back(ASSET MATERIAL("roadmat"));
 			chessmap[i][j]->layer = (int)RenderLayer::Opaque;
 		}
+
+
 
 	auto mychess = CreateEmpty();
 	{
 		mychess->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		mychess->GetComponent<Transform>()->Scale({ 0.005625, 0.005625,1.0f });
-		mychess->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
-		auto mesh = mychess->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		mychess->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
+		auto mesh = mychess->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
 		auto renderer = mychess->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("mychessmat"));
+			renderer->materials.push_back(ASSET MATERIAL("girlmat"));
 		mychess->layer = (int)RenderLayer::Opaque;
 		mychess->AddComponent<CharacterController>()->player = true;
 
@@ -69,38 +88,41 @@ void MenuScene::BuildObjects()
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		}
 
-		auto* chat = CreateUI();
+		GameObject* attackEffect[4];
 		{
-			mychess->AddChildUI(chat);
-			auto rect = chat->GetComponent<RectTransform>();
-			rect->width = 200;
-			rect->height = 50;
-			rect->pivot = { 0.5, 1.0 };
-
-			auto text = chat->AddComponent<Text>();
-			text->text = L"";
-			text->fontSize = 10;
-			text->color = { 1.0f, 0.0f, 1.0f, 1 };
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			for (int i = 0; i < 4; ++i)
+			{
+				attackEffect[i] = mychess->AddChild();
+				attackEffect[i]->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
+				auto mesh = attackEffect[i]->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+				mychess->GetComponent<CharacterController>()->attackEffect[i] = attackEffect[i];
+				auto renderer = attackEffect[i]->AddComponent<Renderer>();
+				for (auto& sm : mesh->DrawArgs)
+					renderer->materials.push_back(ASSET MATERIAL("Effectmat"));
+				attackEffect[i]->layer = (int)RenderLayer::Opaque;
+				mychess->GetComponent<CharacterController>()->attackEffect[i]->SetActive(false);
+			}
+			attackEffect[0]->GetComponent<Transform>()->position = { -1.f, 0.f, -0.0001f };
+			attackEffect[1]->GetComponent<Transform>()->position = { 1.f, 0.f, -0.0001f };
+			attackEffect[2]->GetComponent<Transform>()->position = { 0.f, -1.f, -0.0001f };
+			attackEffect[3]->GetComponent<Transform>()->position = { 0.f, 1.f, -0.0001f };
 		}
 
 		auto cameraOffset = mychess->AddChild();
 		{
 			camera = camera->main = cameraOffset->AddComponent<Camera>();
-			cameraOffset->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, 90);
-			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.9999f, -0.9999f };
+			cameraOffset->GetComponent<Transform>()->position = { 0.f, 0.0f, -17.3f };
 		}
 	}
 
 	auto otherchessprefab = CreateEmptyPrefab();
 	{
 		otherchessprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		otherchessprefab->GetComponent<Transform>()->Scale({ 0.005625, 0.005625,1.0f });
-		otherchessprefab->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
-		auto mesh = otherchessprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		otherchessprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
+		auto mesh = otherchessprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
 		auto renderer = otherchessprefab->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("otherchessmat"));
+			renderer->materials.push_back(ASSET MATERIAL("boymat"));
 		otherchessprefab->layer = (int)RenderLayer::Opaque;
 		otherchessprefab->AddComponent<CharacterController>()->player = false;
 
@@ -118,29 +140,13 @@ void MenuScene::BuildObjects()
 			text->color = { 1.0f, 1.0f, 0.0f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		}
-
-		auto* chat = CreateUIPrefab();
-		{
-			otherchessprefab->AddChildUI(chat);
-			auto rect = chat->GetComponent<RectTransform>();
-			rect->width = 200;
-			rect->height = 50;
-			rect->pivot = { 0.5, 1.0 };
-
-			auto text = chat->AddComponent<Text>();
-			text->text = L"";
-			text->fontSize = 10;
-			text->color = { 1.0f, 0.0f, 1.0f, 1 };
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-		}
 	}
 
 	auto npcchessprefab = CreateEmptyPrefab();
 	{
 		npcchessprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		npcchessprefab->GetComponent<Transform>()->Scale({ 0.005625, 0.005625,1.0f });
-		npcchessprefab->GetComponent<Transform>()->Rotate({ 1.0f, 0.0f, 0.0f }, -90);
-		auto mesh = npcchessprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		npcchessprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
+		auto mesh = npcchessprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
 		auto renderer = npcchessprefab->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
 			renderer->materials.push_back(ASSET MATERIAL("kittymat"));
@@ -159,21 +165,6 @@ void MenuScene::BuildObjects()
 			text->text = L"";
 			text->fontSize = 10;
 			text->color = { 1.0f, 1.0f, 0.0f, 1 };
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-		}
-
-		auto* chat = CreateUIPrefab();
-		{
-			npcchessprefab->AddChildUI(chat);
-			auto rect = chat->GetComponent<RectTransform>();
-			rect->width = 200;
-			rect->height = 50;
-			rect->pivot = { 0.5, 1.0 };
-
-			auto text = chat->AddComponent<Text>();
-			text->text = L"";
-			text->fontSize = 10;
-			text->color = { 1.0f, 0.0f, 1.0f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		}
 	}
@@ -195,7 +186,7 @@ void MenuScene::BuildObjects()
 		rectTransform->pivot = { 0, 1 };
 		rectTransform->posX = 0;
 		rectTransform->posY = 0;
-		rectTransform->width = 50;
+		rectTransform->width = 80;
 		rectTransform->height = 20;
 
 		ServerButton->AddComponent<Button>()->AddEvent(
@@ -203,10 +194,6 @@ void MenuScene::BuildObjects()
 				Network::network->PressButton();
 			});
 		{
-			//auto textobject = ServerButton->AddChildUI();
-			//auto rectTransform = textobject->GetComponent<RectTransform>();
-			//rectTransform->anchorMin = { 0, 0 };
-			//rectTransform->anchorMax = { 1, 1 };
 
 			Text* text = ServerButton->AddComponent<Text>();
 			text->text = L"connect";
@@ -224,7 +211,7 @@ void MenuScene::BuildObjects()
 		rectTransform->pivot = { 0, 1 };
 		rectTransform->posX = 0;
 		rectTransform->posY = -20;
-		rectTransform->width = 50;
+		rectTransform->width = 80;
 		rectTransform->height = 20;
 
 		{
@@ -251,7 +238,7 @@ void MenuScene::BuildObjects()
 
 		{
 			Text* text = levelandhp->AddComponent<Text>();
-			text->text = L"Level: 0, HP: 0";
+			text->text = L"Level: 0, EXP: 0, HP: 0";
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 			textObjects.push_back(levelandhp);

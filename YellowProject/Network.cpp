@@ -12,7 +12,7 @@ void Network::ProcessPacket(char* ptr)
 	{
 		sc_packet_login_ok* my_packet = reinterpret_cast<sc_packet_login_ok*>(ptr);
 		myId = my_packet->id;
-		myCharacter->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
+		myCharacter->transform->position = { my_packet->x * 1.0f, -my_packet->y * 1.0f, -0.0001f };
 		CharacterController* controller = myCharacter->GetComponent<CharacterController>();
 		controller->xPos = my_packet->x;
 		controller->yPos = my_packet->y;
@@ -24,6 +24,9 @@ void Network::ProcessPacket(char* ptr)
 	case S2C_LOGIN_FAIL:
 	{
 		sc_packet_login_fail* my_packet = reinterpret_cast<sc_packet_login_fail*>(ptr);
+		setname = false;
+		isConnect = false;
+		tryConnect = false;
 	}
 	break;
 	case S2C_ENTER:
@@ -32,7 +35,7 @@ void Network::ProcessPacket(char* ptr)
 		int id = my_packet->id;
 
 		if (id == myId) {
-			myCharacter->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
+			myCharacter->transform->position = { my_packet->x * 1.0f, -my_packet->y * 1.0f, -0.0001f };
 			CharacterController* controller = myCharacter->GetComponent<CharacterController>();
 			strcpy_s(controller->name, my_packet->name);
 			controller->setName();
@@ -41,7 +44,7 @@ void Network::ProcessPacket(char* ptr)
 		}
 		else if(id < NPC_ID_START){
 			otherCharacters[id] = gameObject->scene->Duplicate(othersPrefab);
-			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
+			otherCharacters[id]->transform->position = { my_packet->x * 1.0f, -my_packet->y * 1.0f, -0.0001f };
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
 			if (controller)
 			{
@@ -57,7 +60,7 @@ void Network::ProcessPacket(char* ptr)
 		else
 		{
 			otherCharacters[id] = gameObject->scene->Duplicate(npcsPrefab);
-			otherCharacters[id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
+			otherCharacters[id]->transform->position = { my_packet->x * 1.0f, -my_packet->y * 1.0f, -0.0001f };
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
 			if (controller)
 			{
@@ -77,7 +80,7 @@ void Network::ProcessPacket(char* ptr)
 		sc_packet_move* my_packet = reinterpret_cast<sc_packet_move*>(ptr);
 		int other_id = my_packet->id;
 		if (other_id == myId) {
-			myCharacter->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
+			myCharacter->transform->position = { my_packet->x * 1.0f, -my_packet->y * 1.0f, -0.0001f };
 			CharacterController* controller = myCharacter->GetComponent<CharacterController>();
 			controller->xPos = my_packet->x;
 			controller->yPos = my_packet->y;
@@ -95,7 +98,7 @@ void Network::ProcessPacket(char* ptr)
 		else {
 			if (0 != otherCharacters.count(other_id))
 			{
-				otherCharacters[other_id]->transform->position = { my_packet->x * 0.055f, -my_packet->y * 0.055f, -0.0001f };
+				otherCharacters[other_id]->transform->position = { my_packet->x * 1.0f, -my_packet->y * 1.0f, -0.0001f };
 				CharacterController* controller = otherCharacters[other_id]->GetComponent<CharacterController>();
 				if (controller)
 				{
@@ -314,10 +317,12 @@ void Network::Update()
 			{
 				firstText->GetComponent<Text>()->text = L"Input Server IP : ";
 				secondText->GetComponent<Text>()->text = L"";
+				CharacterController* myc = myCharacter->GetComponent<CharacterController>();
 				string myname;
 				myname.assign(wmyname.begin(), wmyname.end());
-				strncpy(myCharacter->GetComponent<CharacterController>()->name, myname.c_str(), myname.length());
-				myCharacter->GetComponent<CharacterController>()->setName();
+				strncpy(myc->name, myname.c_str(), myname.length());
+				myc->setName();
+				myc->renewTextPos(10, 10);
 				setname = true;
 			}
 			else

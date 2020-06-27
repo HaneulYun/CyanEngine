@@ -171,6 +171,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CharacterController.h" />
+    <ClInclude Include="Colliders.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MenuScene.h" />
     <ClInclude Include="Network.h" />
