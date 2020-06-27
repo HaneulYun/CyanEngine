@@ -10,10 +10,11 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 
 public  /*이 영역에 public 변수를 선언하세요.*/:
 	int xPos, yPos;
+	int level, hp, exp;
 	bool player{ false };
 	char name[MAX_ID_LEN];
 	Text* coord{ nullptr };
-
+	Text* levelandhp{ nullptr };
 private:
 	friend class GameObject;
 	friend class MonoBehavior<CharacterController>;
@@ -27,12 +28,22 @@ public:
 	{
 		xPos = 0;
 		yPos = 0;
+		level = 0;
+		hp = 0;
+		exp = 0;
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
 		if (player)
 		{
+			if (levelandhp != nullptr)
+			{
+				char uitext[50];
+				sprintf(uitext, "Level: %d, EXP: %d, HP: %d", level, exp, hp);
+				string uis = uitext;
+				levelandhp->text.assign(uis.begin(), uis.end());
+			}
 			if (coord != nullptr)
 			{
 				char coordtext[20];

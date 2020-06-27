@@ -16,6 +16,9 @@ void Network::ProcessPacket(char* ptr)
 		CharacterController* controller = myCharacter->GetComponent<CharacterController>();
 		controller->xPos = my_packet->x;
 		controller->yPos = my_packet->y;
+		controller->level = my_packet->level;
+		controller->exp = my_packet->exp;
+		controller->hp = my_packet->hp;
 	}
 	break;
 	case S2C_LOGIN_FAIL:
@@ -147,6 +150,11 @@ void Network::ProcessPacket(char* ptr)
 	case S2C_STAT_CHANGE:
 	{
 		sc_packet_stat_change* my_packet = reinterpret_cast<sc_packet_stat_change*>(ptr);
+	
+		//CharacterController* controller = myCharacter->GetComponent<CharacterController>();
+		//controller->level = my_packet->level;
+		//controller->exp = my_packet->exp;
+		//controller->hp = my_packet->hp;
 	}
 	break;
 	default:

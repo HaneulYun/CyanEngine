@@ -194,9 +194,9 @@ void MenuScene::BuildObjects()
 		rectTransform->anchorMax = { 0, 1 };
 		rectTransform->pivot = { 0, 1 };
 		rectTransform->posX = 0;
-		rectTransform->posY = -10;
-		rectTransform->width = 80;
-		rectTransform->height = 30;
+		rectTransform->posY = 0;
+		rectTransform->width = 50;
+		rectTransform->height = 20;
 
 		ServerButton->AddComponent<Button>()->AddEvent(
 			[](void*) {
@@ -222,10 +222,10 @@ void MenuScene::BuildObjects()
 		rectTransform->anchorMin = { 0, 1 };
 		rectTransform->anchorMax = { 0, 1 };
 		rectTransform->pivot = { 0, 1 };
-		rectTransform->posX = 320;
-		rectTransform->posY = -10;
-		rectTransform->width = 80;
-		rectTransform->height = 30;
+		rectTransform->posX = 0;
+		rectTransform->posY = -20;
+		rectTransform->width = 50;
+		rectTransform->height = 20;
 
 		{
 			Text* text = coordinate->AddComponent<Text>();
@@ -235,6 +235,28 @@ void MenuScene::BuildObjects()
 			textObjects.push_back(coordinate);
 
 			mychess->GetComponent<CharacterController>()->coord = text;
+		}
+	}
+
+	auto levelandhp = CreateImage();
+	{
+		auto rectTransform = levelandhp->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 1 };
+		rectTransform->anchorMax = { 0, 1 };
+		rectTransform->pivot = { 0, 1 };
+		rectTransform->posX = 100;
+		rectTransform->posY = 0;
+		rectTransform->width = 200;
+		rectTransform->height = 20;
+
+		{
+			Text* text = levelandhp->AddComponent<Text>();
+			text->text = L"Level: 0, HP: 0";
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			textObjects.push_back(levelandhp);
+
+			mychess->GetComponent<CharacterController>()->levelandhp = text;
 		}
 	}
 

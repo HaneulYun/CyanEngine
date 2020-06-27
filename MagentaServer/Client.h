@@ -8,7 +8,16 @@
 using namespace std;
 using namespace chrono;
 
-struct Client
+struct Inform {
+	short	x, y;
+	short hp;
+	short level;
+	int	exp;
+
+	char	m_name[MAX_ID_LEN + 1];
+};
+
+class Client
 {
 public:
 	RWLock	m_cl;
@@ -19,16 +28,23 @@ public:
 	char	m_packet_buf[MAX_PACKET_SIZE];
 	atomic <C_STATUS> m_status;
 
-	short	x, y;
-	short hp;
-	short level;
-	int	exp;
+	Inform	m_inform;
 
-	char	m_name[MAX_ID_LEN + 1];
 	unsigned m_move_time;
 	high_resolution_clock::time_point m_last_move_time;
 
 	unordered_set<int> view_list;
+
 	lua_State* L;
 	RWLock lua_l;
+
+	void heal_player()
+	{
+		int maxHp = 98 + pow(2, m_inform.level);
+		if (m_inform.hp >= maxHp)
+			return;
+		m_inform.hp += maxHp * 0.1;
+		if (m_inform.hp >= maxHp)
+			m_inform.hp = maxHp;
+	}
 };

@@ -53,8 +53,8 @@ bool IOCPServer::is_player(int id)
 
 bool IOCPServer::is_near(int a, int b)
 {
-	if (abs(g_clients[a].x - g_clients[b].x) > VIEW_RADIUS)	return false;
-	if (abs(g_clients[a].y - g_clients[b].y) > VIEW_RADIUS)	return false;
+	if (abs(g_clients[a].m_inform.x - g_clients[b].m_inform.x) > VIEW_RADIUS)	return false;
+	if (abs(g_clients[a].m_inform.y - g_clients[b].m_inform.y) > VIEW_RADIUS)	return false;
 	return true;
 }
 
@@ -103,8 +103,8 @@ void IOCPServer::activate_npc(int id)
 
 void IOCPServer::random_move_npc(int id)
 {
-	int x = g_clients[id].x;
-	int y = g_clients[id].y;
+	int x = g_clients[id].m_inform.x;
+	int y = g_clients[id].m_inform.y;
 	switch (rand() % 4) {
 	case 0:	if (x < (WORLD_WIDTH - 1))	x++; break;
 	case 1:	if (x > 0)	x--; break;
@@ -112,22 +112,22 @@ void IOCPServer::random_move_npc(int id)
 	case 3:	if (y > 0)	y--; break;
 	}
 
-	if (g_clients[id].x / SECTOR_WIDTH != x / SECTOR_WIDTH || g_clients[id].y / SECTOR_WIDTH != y / SECTOR_WIDTH)
+	if (g_clients[id].m_inform.x / SECTOR_WIDTH != x / SECTOR_WIDTH || g_clients[id].m_inform.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
 	{
-		g_SectorLock[g_clients[id].y / SECTOR_WIDTH][g_clients[id].x / SECTOR_WIDTH].EnterWriteLock();
-		g_ObjectListSector[g_clients[id].y / SECTOR_WIDTH][g_clients[id].x / SECTOR_WIDTH].erase(id);
-		g_SectorLock[g_clients[id].y / SECTOR_WIDTH][g_clients[id].x / SECTOR_WIDTH].LeaveWriteLock();
+		g_SectorLock[g_clients[id].m_inform.y / SECTOR_WIDTH][g_clients[id].m_inform.x / SECTOR_WIDTH].EnterWriteLock();
+		g_ObjectListSector[g_clients[id].m_inform.y / SECTOR_WIDTH][g_clients[id].m_inform.x / SECTOR_WIDTH].erase(id);
+		g_SectorLock[g_clients[id].m_inform.y / SECTOR_WIDTH][g_clients[id].m_inform.x / SECTOR_WIDTH].LeaveWriteLock();
 		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
 		g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(id);
 		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
 	}
 
-	g_clients[id].x = x;
-	g_clients[id].y = y;
+	g_clients[id].m_inform.x = x;
+	g_clients[id].m_inform.y = y;
 
-	for (int i = g_clients[id].y / SECTOR_WIDTH - 1; i <= g_clients[id].y / SECTOR_WIDTH + 1; ++i) {
+	for (int i = g_clients[id].m_inform.y / SECTOR_WIDTH - 1; i <= g_clients[id].m_inform.y / SECTOR_WIDTH + 1; ++i) {
 		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
-		for (int j = g_clients[id].x / SECTOR_WIDTH - 1; j <= g_clients[id].x / SECTOR_WIDTH + 1; ++j) {
+		for (int j = g_clients[id].m_inform.x / SECTOR_WIDTH - 1; j <= g_clients[id].m_inform.x / SECTOR_WIDTH + 1; ++j) {
 			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1) continue;
 			g_SectorLock[i][j].EnterReadLock();
 			for (auto nearObj : g_ObjectListSector[i][j]) {
@@ -173,7 +173,7 @@ void IOCPServer::process_packet(int user_id, char* buf)
 	case C2S_LOGIN:
 	{
 		cs_packet_login* packet = reinterpret_cast<cs_packet_login*>(buf);
-		Point p = database.find_name_in_database(packet->name);
+		Inform p = database.find_name_in_database(packet->name);
 		bool canEnter = true;
 		for (int i = 0; i < NPC_ID_START; ++i)
 		{
@@ -181,7 +181,7 @@ void IOCPServer::process_packet(int user_id, char* buf)
 				continue;
 			if (g_clients[i].m_status == ST_ACTIVE)
 			{
-				string cmp1 = g_clients[i].m_name;
+				string cmp1 = g_clients[i].m_inform.m_name;
 				string cmp2 = packet->name;
 				if (cmp1 == cmp2)
 				{
@@ -192,14 +192,19 @@ void IOCPServer::process_packet(int user_id, char* buf)
 		}
 		if (p.x != -1 && canEnter)
 		{
-			g_clients[user_id].x = p.x;
-			g_clients[user_id].y = p.y;
+			g_clients[user_id].m_inform = p;
 			enter_game(user_id, packet->name);
 		}
 		else if(!canEnter)
 		{
 			send_login_fail_packet(user_id);
 			disconnect(user_id);
+		}
+		else
+		{
+			p = database.add_player_in_database(packet->name);
+			g_clients[user_id].m_inform = p;
+			enter_game(user_id, packet->name);
 		}
 	}
 	break;
@@ -218,7 +223,6 @@ void IOCPServer::process_packet(int user_id, char* buf)
 	case C2S_CHAT:
 	{
 		cs_packet_chat* packet = reinterpret_cast<cs_packet_chat*>(buf);
-		printf("chatchat\n");
 		chatting(user_id, packet->message);
 	}
 	break;
@@ -338,8 +342,11 @@ void IOCPServer::worker_thread()
 				nc.m_recv_over.wsabuf.len = MAX_BUF_SIZE;
 				nc.m_s = c_socket;
 				nc.view_list.clear();
-				nc.x = rand() % WORLD_WIDTH;
-				nc.y = rand() % WORLD_HEIGHT;
+				nc.m_inform.x = rand() % WORLD_WIDTH;
+				nc.m_inform.y = rand() % WORLD_HEIGHT;
+				//nc.m_inform.exp = 0;
+				//nc.m_inform.hp = 100;
+				//nc.m_inform.level = 1;
 				DWORD flags = 0;
 				WSARecv(c_socket, &nc.m_recv_over.wsabuf, 1, NULL, &flags, &nc.m_recv_over.over, NULL);
 			}
@@ -401,6 +408,14 @@ void IOCPServer::worker_thread()
 			delete exover;
 		}
 		break;
+		//case OP_HEAL:
+		//{
+		//	g_clients[user_id].heal_player();
+		//	send_stat_change_packet(user_id);
+		//	if (g_clients[user_id].m_inform.hp < 98 + pow(2, g_clients[user_id].m_inform.level))
+		//		timer.add_timer(user_id, OP_HEAL, 5000, 0);
+		//}
+		//break;
 		default:
 			cout << "Unknown Operation in worker_thread!!\n";
 			while (true);
@@ -411,19 +426,19 @@ void IOCPServer::worker_thread()
 void IOCPServer::enter_game(int user_id, char name[])
 {
 	g_clients[user_id].m_cl.EnterWriteLock();
-	strcpy_s(g_clients[user_id].m_name, name);
-	g_clients[user_id].m_name[MAX_ID_LEN] = NULL;
+	strcpy_s(g_clients[user_id].m_inform.m_name, name);
+	g_clients[user_id].m_inform.m_name[MAX_ID_LEN] = NULL;
 	send_login_ok_packet(user_id);
 	g_clients[user_id].m_status = ST_ACTIVE;
 	g_clients[user_id].m_cl.LeaveWriteLock();
 
-	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].EnterWriteLock();
-	g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].insert(user_id);
-	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].LeaveWriteLock();
+	g_SectorLock[g_clients[user_id].m_inform.y / SECTOR_WIDTH][g_clients[user_id].m_inform.x / SECTOR_WIDTH].EnterWriteLock();
+	g_ObjectListSector[g_clients[user_id].m_inform.y / SECTOR_WIDTH][g_clients[user_id].m_inform.x / SECTOR_WIDTH].insert(user_id);
+	g_SectorLock[g_clients[user_id].m_inform.y / SECTOR_WIDTH][g_clients[user_id].m_inform.x / SECTOR_WIDTH].LeaveWriteLock();
 
-	for (int i = g_clients[user_id].y / SECTOR_WIDTH - 1; i <= g_clients[user_id].y / SECTOR_WIDTH + 1; ++i) {
+	for (int i = g_clients[user_id].m_inform.y / SECTOR_WIDTH - 1; i <= g_clients[user_id].m_inform.y / SECTOR_WIDTH + 1; ++i) {
 		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
-		for (int j = g_clients[user_id].x / SECTOR_WIDTH - 1; j <= g_clients[user_id].x / SECTOR_WIDTH + 1; ++j) {
+		for (int j = g_clients[user_id].m_inform.x / SECTOR_WIDTH - 1; j <= g_clients[user_id].m_inform.x / SECTOR_WIDTH + 1; ++j) {
 			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1) continue;
 			g_SectorLock[i][j].EnterReadLock();
 			for (auto nearObj : g_ObjectListSector[i][j]) {
@@ -442,13 +457,16 @@ void IOCPServer::enter_game(int user_id, char name[])
 			g_SectorLock[i][j].LeaveReadLock();
 		}
 	}
+
+	//if (g_clients[user_id].m_inform.hp < 98 + pow(2, g_clients[user_id].m_inform.level))
+	//	timer.add_timer(user_id, OP_HEAL, 5000, 0);
 }
 
 void IOCPServer::do_move(int user_id, int direction)
 {
 	Client& u = g_clients[user_id];
-	int x = u.x;
-	int y = u.y;
+	int x = u.m_inform.x;
+	int y = u.m_inform.y;
 	switch (direction)
 	{
 	case D_UP:	if (y > 0)	y--;	break;
@@ -461,27 +479,27 @@ void IOCPServer::do_move(int user_id, int direction)
 		exit(-1);
 	}
 
-	if (u.x / SECTOR_WIDTH != x / SECTOR_WIDTH || u.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
+	if (u.m_inform.x / SECTOR_WIDTH != x / SECTOR_WIDTH || u.m_inform.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
 	{
-		g_SectorLock[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].EnterWriteLock();
-		g_ObjectListSector[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].erase(user_id);
-		g_SectorLock[u.y / SECTOR_WIDTH][u.x / SECTOR_WIDTH].LeaveWriteLock();
+		g_SectorLock[u.m_inform.y / SECTOR_WIDTH][u.m_inform.x / SECTOR_WIDTH].EnterWriteLock();
+		g_ObjectListSector[u.m_inform.y / SECTOR_WIDTH][u.m_inform.x / SECTOR_WIDTH].erase(user_id);
+		g_SectorLock[u.m_inform.y / SECTOR_WIDTH][u.m_inform.x / SECTOR_WIDTH].LeaveWriteLock();
 		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
 		g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(user_id);
 		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
 	}
 
-	u.x = x;
-	u.y = y;
+	u.m_inform.x = x;
+	u.m_inform.y = y;
 
 	g_clients[user_id].m_cl.EnterReadLock();
 	unordered_set<int> old_vl = g_clients[user_id].view_list;
 	g_clients[user_id].m_cl.LeaveReadLock();
 	unordered_set<int> new_vl;
 
-	for (int i = u.y / SECTOR_WIDTH - 1; i <= u.y / SECTOR_WIDTH + 1; ++i) {
+	for (int i = u.m_inform.y / SECTOR_WIDTH - 1; i <= u.m_inform.y / SECTOR_WIDTH + 1; ++i) {
 		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
-		for (int j = u.x / SECTOR_WIDTH - 1; j <= u.x / SECTOR_WIDTH + 1; ++j) {
+		for (int j = u.m_inform.x / SECTOR_WIDTH - 1; j <= u.m_inform.x / SECTOR_WIDTH + 1; ++j) {
 			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1) continue;
 			g_SectorLock[i][j].EnterReadLock();
 			for (auto nearObj : g_ObjectListSector[i][j]) {
@@ -560,12 +578,13 @@ void IOCPServer::chatting(int user_id, wchar_t mess[])
 
 void IOCPServer::disconnect(int user_id)
 {
-	database.set_pos_in_database(g_clients[user_id].m_name, g_clients[user_id].x, g_clients[user_id].y);
+	Inform& inform = g_clients[user_id].m_inform;
+	database.set_data_in_database(inform.m_name, inform.x, inform.y, inform.level, inform.exp, inform.hp);
 
-	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].EnterWriteLock();
-	if (g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].count(user_id) != 0)
-		g_ObjectListSector[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].erase(user_id);
-	g_SectorLock[g_clients[user_id].y / SECTOR_WIDTH][g_clients[user_id].x / SECTOR_WIDTH].LeaveWriteLock();
+	g_SectorLock[g_clients[user_id].m_inform.y / SECTOR_WIDTH][g_clients[user_id].m_inform.x / SECTOR_WIDTH].EnterWriteLock();
+	if (g_ObjectListSector[g_clients[user_id].m_inform.y / SECTOR_WIDTH][g_clients[user_id].m_inform.x / SECTOR_WIDTH].count(user_id) != 0)
+		g_ObjectListSector[g_clients[user_id].m_inform.y / SECTOR_WIDTH][g_clients[user_id].m_inform.x / SECTOR_WIDTH].erase(user_id);
+	g_SectorLock[g_clients[user_id].m_inform.y / SECTOR_WIDTH][g_clients[user_id].m_inform.x / SECTOR_WIDTH].LeaveWriteLock();
 
 	send_leave_packet(user_id, user_id);
 
@@ -603,14 +622,14 @@ void IOCPServer::send_packet(int user_id, void* p)
 void IOCPServer::send_login_ok_packet(int user_id)
 {
 	sc_packet_login_ok p;
-	p.exp = 0;
-	p.hp = 0;
-	p.id = user_id;
-	p.level = 0;
 	p.size = sizeof(p);
 	p.type = S2C_LOGIN_OK;
-	p.x = g_clients[user_id].x;
-	p.y = g_clients[user_id].y;
+	p.id = user_id;
+	p.x = g_clients[user_id].m_inform.x;
+	p.y = g_clients[user_id].m_inform.y;
+	//p.hp = g_clients[user_id].m_inform.hp;
+	//p.level = g_clients[user_id].m_inform.level;
+	//p.exp = g_clients[user_id].m_inform.exp;
 
 	send_packet(user_id, &p);
 }
@@ -630,9 +649,9 @@ void IOCPServer::send_enter_packet(int user_id, int o_id)
 	p.id = o_id;
 	p.size = sizeof(p);
 	p.type = S2C_ENTER;
-	p.x = g_clients[o_id].x;
-	p.y = g_clients[o_id].y;
-	strcpy_s(p.name, g_clients[o_id].m_name);
+	p.x = g_clients[o_id].m_inform.x;
+	p.y = g_clients[o_id].m_inform.y;
+	strcpy_s(p.name, g_clients[o_id].m_inform.m_name);
 	p.o_type = O_HUMAN;
 
 	g_clients[user_id].m_cl.EnterWriteLock();
@@ -648,8 +667,8 @@ void IOCPServer::send_move_packet(int user_id, int mover)
 	p.id = mover;
 	p.size = sizeof(p);
 	p.type = S2C_MOVE;
-	p.x = g_clients[mover].x;
-	p.y = g_clients[mover].y;
+	p.x = g_clients[mover].m_inform.x;
+	p.y = g_clients[mover].m_inform.y;
 	p.move_time = g_clients[mover].m_move_time;
 
 	send_packet(user_id, &p);
@@ -685,9 +704,9 @@ void IOCPServer::send_stat_change_packet(int user_id)
 	sc_packet_stat_change p;
 	p.size = sizeof(p);
 	p.type = S2C_STAT_CHANGE;
-	p.hp = g_clients[user_id].hp;
-	p.level = g_clients[user_id].level;
-	p.exp = g_clients[user_id].exp;
+	p.hp = g_clients[user_id].m_inform.hp;
+	p.level = g_clients[user_id].m_inform.level;
+	p.exp = g_clients[user_id].m_inform.exp;
 
 	send_packet(user_id, &p);
 }
@@ -707,7 +726,7 @@ int IOCPServer::API_get_x(lua_State* L)
 {
 	int obj_id = (int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	int x = g_clients[obj_id].x;
+	int x = g_clients[obj_id].m_inform.x;
 	lua_pushnumber(L, x);
 	return 1;
 }
@@ -716,7 +735,7 @@ int IOCPServer::API_get_y(lua_State* L)
 {
 	int obj_id = (int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	int y = g_clients[obj_id].y;
+	int y = g_clients[obj_id].m_inform.y;
 	lua_pushnumber(L, y);
 	return 1;
 }
