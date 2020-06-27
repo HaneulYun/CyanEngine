@@ -66,8 +66,8 @@ public:
 		{
 			m_inform.hp = 98 + pow(2, m_inform.level);
 			m_inform.exp /= 2;
-			m_inform.x = 0;
-			m_inform.y = 0;
+			m_inform.x = 20;
+			m_inform.y = 5;
 		}
 	}
 };

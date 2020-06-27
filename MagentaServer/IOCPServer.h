@@ -16,6 +16,9 @@ extern "C" {
 #include <Windows.h>
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <iterator>
+#include <vector>
 #include <thread>
 
 #include "protocol.h"
@@ -25,7 +28,7 @@ extern "C" {
 #include "RWLock.h"
 #include "etc.h"
 
-#define SECTOR_WIDTH 20
+#define SECTOR_WIDTH 40
 
 using namespace std;
 
@@ -41,13 +44,16 @@ private:
 	unordered_set<int> g_ObjectListSector[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 	RWLock g_SectorLock[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 
+	vector<Point> collidePoints;
+
 	bool is_player(int id);
 	bool is_near(int a, int b);
+	bool is_collide(int x, int y);
 
 	void init_npc();
 	void activate_npc(int id);
 	void random_move_npc(int id);
-
+	
 	void initialize_clients();
 	void process_packet(int user_id, char* buf);
 	void recv_packet_construct(int user_id, int io_byte);

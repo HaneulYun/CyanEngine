@@ -6,37 +6,22 @@ void MenuScene::BuildObjects()
 	///*** Asset ***///
 	//*** Texture ***//
 	ASSET AddTexture("none", L"Textures\\none.dds");
-	ASSET AddTexture("chessmaptex", L"chessmap.dds");
-	ASSET AddTexture("mychesstex", L"mychess.dds");
-	ASSET AddTexture("otherchesstex", L"otherchess.dds");
-	ASSET AddTexture("kittytex", L"kitty.dds");
-
-	ASSET AddTexture("girltex", L"girl.dds");	
+	ASSET AddTexture("girltex", L"girl.dds");
 	ASSET AddTexture("boytex", L"boy.dds");	
 	ASSET AddTexture("Effecttex", L"Effect.dds");
-	ASSET AddTexture("PokemonCentertex", L"pokemonCenter.dds");
-	ASSET AddTexture("collidertex", L"collider.dds");
-	ASSET AddTexture("housetex", L"house.dds");
-	ASSET AddTexture("treetex", L"tree.dds");
-	ASSET AddTexture("roadtex", L"road.dds");
+	ASSET AddTexture("gameworldtex", L"gameworld.dds");
+	ASSET AddTexture("gameworld2tex", L"gameworld2.dds");
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
 	ASSET AddMaterial("black", ASSET TEXTURE("none"), -1, { 0.0, 0.0, 0.0, 1 });
-	ASSET AddMaterial("chessmapmat", ASSET TEXTURE("chessmaptex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("mychessmat", ASSET TEXTURE("mychesstex"), -1, { 0.8, 0.8, 0.8, 1 });	
-	ASSET AddMaterial("otherchessmat", ASSET TEXTURE("otherchesstex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("kittymat", ASSET TEXTURE("kittytex"), -1, { 0.8, 0.8, 0.8, 1 });
 	ASSET AddMaterial("pink", ASSET TEXTURE("none"), -1, { 1.0, 0.8, 0.8, 1 });
 
-	ASSET AddMaterial("girlmat", ASSET TEXTURE("girltex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("boymat", ASSET TEXTURE("boytex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("Effectmat", ASSET TEXTURE("Effecttex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("PokemonCentermat", ASSET TEXTURE("PokemonCentertex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("collidermat", ASSET TEXTURE("collidertex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("housemat", ASSET TEXTURE("housetex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("treemat", ASSET TEXTURE("treetex"), -1, { 0.8, 0.8, 0.8, 1 });
-	ASSET AddMaterial("roadmat", ASSET TEXTURE("roadtex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("girlmat", ASSET TEXTURE("girltex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("boymat", ASSET TEXTURE("boytex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("Effectmat", ASSET TEXTURE("Effecttex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("gameworldmat", ASSET TEXTURE("gameworldtex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("gameworld2mat", ASSET TEXTURE("gameworld2tex"), -1, { 1.0,1.0,1.0, 1 });
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
@@ -46,17 +31,22 @@ void MenuScene::BuildObjects()
 
 	///*** Game Object ***///
 
-	GameObject* chessmap[2][2];
-	for (int i = 0; i < 2; ++i)
-		for (int j = 0; j < 2; ++j)
+	GameObject* chessmap[WORLD_HEIGHT/40][WORLD_WIDTH/40];
+	for (int i = 0; i < WORLD_HEIGHT / 40; ++i)
+		for (int j = 0; j < WORLD_WIDTH / 40; ++j)
 		{
 			chessmap[i][j] = CreateEmpty();
-			chessmap[i][j]->GetComponent<Transform>()->position = { 400.f*j, -399.f - (400.f * i), 0.0f };// { -0.0275f + (j * 22.f), -21.9725f - (i * 22.f), 0.0f };
-			chessmap[i][j]->GetComponent<Transform>()->Scale({ 400.0f, 400.0f,1.0f });
+			chessmap[i][j]->GetComponent<Transform>()->position = { 40.f*j, -39.f - (40.f * i), 0.0f };// { -0.0275f + (j * 22.f), -21.9725f - (i * 22.f), 0.0f };
+			chessmap[i][j]->GetComponent<Transform>()->Scale({ 40.0f, 40.0f,1.0f });
 			auto mesh = chessmap[i][j]->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
 			auto renderer = chessmap[i][j]->AddComponent<Renderer>();
 			for (auto& sm : mesh->DrawArgs)
-				renderer->materials.push_back(ASSET MATERIAL("roadmat"));
+			{
+				if (i == 0 && j == 0)
+					renderer->materials.push_back(ASSET MATERIAL("gameworld2mat"));
+				else
+					renderer->materials.push_back(ASSET MATERIAL("gameworldmat"));
+			}
 			chessmap[i][j]->layer = (int)RenderLayer::Opaque;
 		}
 

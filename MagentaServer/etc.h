@@ -35,5 +35,14 @@ struct EXOVER {
 };
 
 struct Point {
-	short x, y;
+	short x1, y1;
+	short x2, y2;
+
+	friend istream& operator>>(istream& is, Point& p);
 };
+
+static istream& operator>>(istream& is, Point& p)
+{
+	is >> p.x1 >> p.y1 >> p.x2 >> p.y2;
+	return is;
+}
