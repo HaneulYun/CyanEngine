@@ -15,8 +15,8 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	char name[MAX_ID_LEN];
 
 	GameObject* attackEffect[4] = { nullptr };
-	bool attacking{ false };
 	chrono::high_resolution_clock::time_point effectEndTime;
+	chrono::high_resolution_clock::time_point attackCooltime;
 
 	Text* coord{ nullptr };
 	Text* levelandhp{ nullptr };
@@ -36,19 +36,20 @@ public:
 		level = 0;
 		hp = 0;
 		exp = 0;
+
+		effectEndTime = chrono::high_resolution_clock::now();
 	}
 
 	void attack()
 	{
-		attacking = true;
 		for (int i = 0; i < 4; ++i)
 			attackEffect[i]->SetActive(true);
 		effectEndTime = chrono::high_resolution_clock::now() + 300ms;
+		attackCooltime = chrono::high_resolution_clock::now() + 1s;
 	}
 
 	void attackCancel()
 	{
-		attacking = false;
 		for (int i = 0; i < 4; ++i)
 			attackEffect[i]->SetActive(false);
 	}
@@ -106,7 +107,7 @@ public:
 					xPos--;
 				attackCancel();
 			}
-			if (Input::GetKeyDown(KeyCode::Q))
+			if (Input::GetKeyDown(KeyCode::Q) && chrono::high_resolution_clock::now() >= attackCooltime)
 			{
 				if (Network::network->isConnect && Network::network->pressChatButton == false)
 					Network::network->send_attack_packet();
@@ -118,7 +119,7 @@ public:
 		if (!Network::network->isConnect)
 			gameObject->transform->position = { xPos * 1.0f, -yPos * 1.0f, -0.0001f };
 
-		if (attacking && chrono::high_resolution_clock::now() >= effectEndTime)
+		if (chrono::high_resolution_clock::now() >= effectEndTime)
 		{
 			attackCancel();
 		}
