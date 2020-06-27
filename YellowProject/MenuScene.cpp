@@ -11,6 +11,10 @@ void MenuScene::BuildObjects()
 	ASSET AddTexture("Effecttex", L"Effect.dds");
 	ASSET AddTexture("gameworldtex", L"gameworld.dds");
 	ASSET AddTexture("gameworld2tex", L"gameworld2.dds");
+	ASSET AddTexture("eeveetex", L"eevee.dds");
+	ASSET AddTexture("jolteontex", L"jolteon.dds");
+	ASSET AddTexture("flareontex", L"flareon.dds");
+	ASSET AddTexture("vaporeontex", L"vaporeon.dds");
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
@@ -22,6 +26,11 @@ void MenuScene::BuildObjects()
 	ASSET AddMaterial("Effectmat", ASSET TEXTURE("Effecttex"), -1, { 1.0,1.0,1.0, 1 });
 	ASSET AddMaterial("gameworldmat", ASSET TEXTURE("gameworldtex"), -1, { 1.0,1.0,1.0, 1 });
 	ASSET AddMaterial("gameworld2mat", ASSET TEXTURE("gameworld2tex"), -1, { 1.0,1.0,1.0, 1 });
+	
+	ASSET AddMaterial("eeveemat", ASSET TEXTURE("eeveetex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("jolteonmat", ASSET TEXTURE("jolteontex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("flareonmat", ASSET TEXTURE("flareontex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("vaporeonmat", ASSET TEXTURE("vaporeontex"), -1, { 1.0,1.0,1.0, 1 });
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
@@ -132,20 +141,101 @@ void MenuScene::BuildObjects()
 		}
 	}
 
-	auto npcchessprefab = CreateEmptyPrefab();
+	auto eeveeprefab = CreateEmptyPrefab();
 	{
-		npcchessprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		npcchessprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
-		auto mesh = npcchessprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
-		auto renderer = npcchessprefab->AddComponent<Renderer>();
+		eeveeprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
+		eeveeprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
+		auto mesh = eeveeprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+		auto renderer = eeveeprefab->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("kittymat"));
-		npcchessprefab->layer = (int)RenderLayer::Opaque;
-		npcchessprefab->AddComponent<CharacterController>()->player = false;
+			renderer->materials.push_back(ASSET MATERIAL("eeveemat"));
+		eeveeprefab->layer = (int)RenderLayer::Opaque;
+		eeveeprefab->AddComponent<CharacterController>()->player = false;
 
 		auto name = CreateUIPrefab();
 		{
-			npcchessprefab->AddChildUI(name);
+			eeveeprefab->AddChildUI(name);
+			auto rect = name->GetComponent<RectTransform>();
+			rect->width = 200;
+			rect->height = 50;
+			rect->pivot = { 0.5, 0.5 };
+
+			auto text = name->AddComponent<Text>();
+			text->text = L"";
+			text->fontSize = 10;
+			text->color = { 1.0f, 1.0f, 0.0f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
+	}
+
+	auto jolteonprefab = CreateEmptyPrefab();
+	{
+		jolteonprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
+		jolteonprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
+		auto mesh = jolteonprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+		auto renderer = jolteonprefab->AddComponent<Renderer>();
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(ASSET MATERIAL("jolteonmat"));
+		jolteonprefab->layer = (int)RenderLayer::Opaque;
+		jolteonprefab->AddComponent<CharacterController>()->player = false;
+
+		auto name = CreateUIPrefab();
+		{
+			jolteonprefab->AddChildUI(name);
+			auto rect = name->GetComponent<RectTransform>();
+			rect->width = 200;
+			rect->height = 50;
+			rect->pivot = { 0.5, 0.5 };
+
+			auto text = name->AddComponent<Text>();
+			text->text = L"";
+			text->fontSize = 10;
+			text->color = { 1.0f, 1.0f, 0.0f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
+	}
+
+	auto flareonprefab = CreateEmptyPrefab();
+	{
+		flareonprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
+		flareonprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
+		auto mesh = flareonprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+		auto renderer = flareonprefab->AddComponent<Renderer>();
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(ASSET MATERIAL("flareonmat"));
+		flareonprefab->layer = (int)RenderLayer::Opaque;
+		flareonprefab->AddComponent<CharacterController>()->player = false;
+
+		auto name = CreateUIPrefab();
+		{
+			flareonprefab->AddChildUI(name);
+			auto rect = name->GetComponent<RectTransform>();
+			rect->width = 200;
+			rect->height = 50;
+			rect->pivot = { 0.5, 0.5 };
+
+			auto text = name->AddComponent<Text>();
+			text->text = L"";
+			text->fontSize = 10;
+			text->color = { 1.0f, 1.0f, 0.0f, 1 };
+			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		}
+	}
+
+	auto vaporeonprefab = CreateEmptyPrefab();
+	{
+		vaporeonprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
+		vaporeonprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
+		auto mesh = vaporeonprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+		auto renderer = vaporeonprefab->AddComponent<Renderer>();
+		for (auto& sm : mesh->DrawArgs)
+			renderer->materials.push_back(ASSET MATERIAL("vaporeonmat"));
+		vaporeonprefab->layer = (int)RenderLayer::Opaque;
+		vaporeonprefab->AddComponent<CharacterController>()->player = false;
+
+		auto name = CreateUIPrefab();
+		{
+			vaporeonprefab->AddChildUI(name);
 			auto rect = name->GetComponent<RectTransform>();
 			rect->width = 200;
 			rect->height = 50;
@@ -164,7 +254,10 @@ void MenuScene::BuildObjects()
 		Network* network = manager->AddComponent<Network>();
 		network->othersPrefab = otherchessprefab;
 		network->myCharacter = mychess;
-		network->npcsPrefab = npcchessprefab;
+		network->npcsPrefab[0] = eeveeprefab;
+		network->npcsPrefab[1] = jolteonprefab;
+		network->npcsPrefab[2] = flareonprefab;
+		network->npcsPrefab[3] = vaporeonprefab;
 		Network::network = network;
 	}
 

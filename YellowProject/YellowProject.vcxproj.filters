@@ -60,9 +60,6 @@
     <ClInclude Include="Network.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="Colliders.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">

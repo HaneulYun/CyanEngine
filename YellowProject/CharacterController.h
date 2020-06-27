@@ -111,8 +111,7 @@ public:
 			{
 				if (Network::network->isConnect && Network::network->pressChatButton == false)
 					Network::network->send_attack_packet();
-				else
-					attack();
+				attack();
 			}
 
 		}
