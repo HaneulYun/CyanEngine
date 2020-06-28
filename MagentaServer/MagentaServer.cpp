@@ -2,6 +2,6 @@
 
 int main()
 {
-	IOCPServer server;
+	IOCPServer::getIOCPServer();
 	return 0;
 }

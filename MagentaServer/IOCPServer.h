@@ -20,7 +20,6 @@ extern "C" {
 #include <iterator>
 #include <vector>
 #include <thread>
-
 #include "protocol.h"
 #include "Client.h"
 #include "Timer.h"
@@ -33,7 +32,10 @@ extern "C" {
 using namespace std;
 
 class IOCPServer {
-private:
+protected:
+	static IOCPServer* iocpServer;
+
+public:
 	HANDLE g_iocp;
 	SOCKET l_socket;
 	unordered_map<int, Client> g_clients;
@@ -77,13 +79,15 @@ private:
 	void send_chat_packet(int user_id, int chatter, wchar_t mess[]);
 	void send_stat_change_packet(int user_id);
 
-	int API_SendMessage(lua_State* L);
-	int API_get_x(lua_State* L);
-	int API_get_y(lua_State* L);
-	int API_add_timer_run(lua_State* L);
-	int API_run_finished(lua_State* L);
-
-public:
 	IOCPServer();
 	~IOCPServer();
+
+	static IOCPServer* getIOCPServer();
+	void releaseIOCPServer();
 };
+
+int API_SendMessage(lua_State* L);
+int API_get_x(lua_State* L);
+int API_get_y(lua_State* L);
+int API_add_timer_run(lua_State* L);
+int API_run_finished(lua_State* L);

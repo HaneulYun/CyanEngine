@@ -1,4 +1,21 @@
 #include "IOCPServer.h"
+#define GETIOCP	IOCPServer::getIOCPServer()
+
+IOCPServer* IOCPServer::iocpServer = 0;
+
+IOCPServer* IOCPServer::getIOCPServer()
+{
+	if (!iocpServer) iocpServer = new IOCPServer;
+	return iocpServer;
+}
+
+void IOCPServer::releaseIOCPServer()
+{
+	if (iocpServer) {
+		delete iocpServer;
+		iocpServer = 0;
+	}
+}
 
 IOCPServer::IOCPServer()
 {
@@ -106,25 +123,25 @@ void IOCPServer::init_npc()
 		g_ObjectListSector[g_clients[i].m_inform.y / SECTOR_WIDTH][g_clients[i].m_inform.x / SECTOR_WIDTH].insert(g_clients[i].m_id);
 		g_SectorLock[g_clients[i].m_inform.y / SECTOR_WIDTH][g_clients[i].m_inform.x / SECTOR_WIDTH].LeaveWriteLock();
 	
-		////g_clients[i].m_last_move_time = high_resolution_clock::now();
-		////add_timer(i, OP_RANDOM_MOVE, 1000);
-		//lua_State* L = g_clients[i].L = luaL_newstate();
-		//
-		//luaL_openlibs(L);
-		//luaL_loadfile(L, "NPC.LUA");
-		//int error = lua_pcall(L, 0, 0, 0);
-		//if (error) cout << lua_tostring(L, -1);
-		//lua_getglobal(L, "set_uid");
-		//lua_pushnumber(L, i);
-		//error = lua_pcall(L, 1, 0, 0);
-		//if (error) cout << lua_tostring(L, -1);
-		////lua_pop(L, 1);
-		//
-		//lua_register(L, "API_send_message", IOCPServer::API_SendMessage);
-		//lua_register(L, "API_get_x", API_get_x);
-		//lua_register(L, "API_get_y", API_get_y);
-		//lua_register(L, "API_add_timer_run", API_add_timer_run);
-		//lua_register(L, "API_run_finished", API_run_finished);
+		//g_clients[i].m_last_move_time = high_resolution_clock::now();
+		//add_timer(i, OP_RANDOM_MOVE, 1000);
+		lua_State* L = g_clients[i].L = luaL_newstate();
+		
+		luaL_openlibs(L);
+		luaL_loadfile(L, "NPC.LUA");
+		int error = lua_pcall(L, 0, 0, 0);
+		if (error) cout << lua_tostring(L, -1);
+		lua_getglobal(L, "set_uid");
+		lua_pushnumber(L, i);
+		error = lua_pcall(L, 1, 0, 0);
+		if (error) cout << lua_tostring(L, -1);
+		//lua_pop(L, 1);
+		
+		lua_register(L, "API_send_message", API_SendMessage);
+		lua_register(L, "API_get_x", API_get_x);
+		lua_register(L, "API_get_y", API_get_y);
+		lua_register(L, "API_add_timer_run", API_add_timer_run);
+		lua_register(L, "API_run_finished", API_run_finished);
 	}
 }
 
@@ -461,37 +478,37 @@ void IOCPServer::worker_thread()
 		break;
 		case OP_PLAYER_MOVE:
 		{
-			//g_clients[user_id].lua_l.EnterWriteLock();
-			//lua_State* L = g_clients[user_id].L;
-			//lua_getglobal(L, "event_player_move");
-			//lua_pushnumber(L, exover->p_id);
-			//lua_pcall(L, 1, 0, 0);
-			////lua_pop(L, 1);
-			//g_clients[user_id].lua_l.LeaveWriteLock();
-			//delete exover;
+			g_clients[user_id].lua_l.EnterWriteLock();
+			lua_State* L = g_clients[user_id].L;
+			lua_getglobal(L, "event_player_move");
+			lua_pushnumber(L, exover->p_id);
+			lua_pcall(L, 1, 0, 0);
+			//lua_pop(L, 1);
+			g_clients[user_id].lua_l.LeaveWriteLock();
+			delete exover;
 		}
 		break;
 		case OP_RUN:
 		{
-			//g_clients[user_id].lua_l.EnterWriteLock();
-			//lua_State* L = g_clients[user_id].L;
-			//lua_getglobal(L, "event_run");
-			//lua_pushnumber(L, exover->p_id);
-			//lua_pcall(L, 1, 0, 0);
-			////lua_pop(L, 1);
-			//g_clients[user_id].lua_l.LeaveWriteLock();
-			//delete exover;
+			g_clients[user_id].lua_l.EnterWriteLock();
+			lua_State* L = g_clients[user_id].L;
+			lua_getglobal(L, "event_run");
+			lua_pushnumber(L, exover->p_id);
+			lua_pcall(L, 1, 0, 0);
+			//lua_pop(L, 1);
+			g_clients[user_id].lua_l.LeaveWriteLock();
+			delete exover;
 		}
 		break;
 		case OP_RUN_FINISH:
 		{
-			//g_clients[user_id].lua_l.EnterWriteLock();
-			//lua_State* L = g_clients[user_id].L;
-			//lua_getglobal(L, "event_run_finished");
-			//lua_pushnumber(L, exover->p_id);
-			//lua_pcall(L, 1, 0, 0);
-			//g_clients[user_id].lua_l.LeaveWriteLock();
-			//delete exover;
+			g_clients[user_id].lua_l.EnterWriteLock();
+			lua_State* L = g_clients[user_id].L;
+			lua_getglobal(L, "event_run_finished");
+			lua_pushnumber(L, exover->p_id);
+			lua_pcall(L, 1, 0, 0);
+			g_clients[user_id].lua_l.LeaveWriteLock();
+			delete exover;
 		}
 		break;
 		case OP_HEAL:
@@ -1002,45 +1019,45 @@ void IOCPServer::send_stat_change_packet(int user_id)
 	send_packet(user_id, &p);
 }
 
-int IOCPServer::API_SendMessage(lua_State* L)
+int API_SendMessage(lua_State* L)
 {
 	int my_id = (int)lua_tointeger(L, -3);
 	int user_id = (int)lua_tointeger(L, -2);
 	wchar_t* mess = (wchar_t*)lua_tostring(L, -1);
 
-	send_chat_packet(user_id, my_id, mess);
+	GETIOCP->send_chat_packet(user_id, my_id, mess);
 	lua_pop(L, 3);
 	return 0;
 }
 
-int IOCPServer::API_get_x(lua_State* L)
+int API_get_x(lua_State* L)
 {
 	int obj_id = (int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	int x = g_clients[obj_id].m_inform.x;
+	int x = GETIOCP->g_clients[obj_id].m_inform.x;
 	lua_pushnumber(L, x);
 	return 1;
 }
 
-int IOCPServer::API_get_y(lua_State* L)
+int API_get_y(lua_State* L)
 {
 	int obj_id = (int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	int y = g_clients[obj_id].m_inform.y;
+	int y = GETIOCP->g_clients[obj_id].m_inform.y;
 	lua_pushnumber(L, y);
 	return 1;
 }
 
-int IOCPServer::API_add_timer_run(lua_State* L)
+int API_add_timer_run(lua_State* L)
 {
 	int my_id = (int)lua_tointeger(L, -2);
 	int user_id = (int)lua_tointeger(L, -1);
-	timer.add_timer(my_id, OP_RUN, 1000, user_id);
+	GETIOCP->timer.add_timer(my_id, OP_RUN, 1000, user_id);
 	lua_pop(L, 2);
 	return 0;
 }
 
-int IOCPServer::API_run_finished(lua_State* L)
+int API_run_finished(lua_State* L)
 {
 	int my_id = (int)lua_tointeger(L, -2);
 	int user_id = (int)lua_tointeger(L, -1);
@@ -1049,7 +1066,7 @@ int IOCPServer::API_run_finished(lua_State* L)
 	over->op = OP_RUN_FINISH;
 	over->p_id = user_id;
 
-	PostQueuedCompletionStatus(g_iocp, 1, my_id, &over->over);
+	PostQueuedCompletionStatus(GETIOCP->g_iocp, 1, my_id, &over->over);
 	lua_pop(L, 2);
 	return 0;
 }

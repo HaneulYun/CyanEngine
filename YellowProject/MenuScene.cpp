@@ -19,7 +19,7 @@ void MenuScene::BuildObjects()
 	ASSET AddTexture("glaceontex", L"glaceon.dds");
 	ASSET AddTexture("metagrosstex", L"metagross.dds");
 	ASSET AddTexture("mesprittex", L"mesprit.dds");
-	ASSET AddTexture("giratinatex", L"giratinatex.dds");
+	ASSET AddTexture("giratinatex", L"giratina.dds");
 	ASSET AddTexture("arceustex", L"arceus.dds");
 	
 	//*** Material ***//
