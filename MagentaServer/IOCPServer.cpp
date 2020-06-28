@@ -855,7 +855,6 @@ void IOCPServer::monster_damaged(int user_id, int monster_id)
 		m.m_status = ST_DEAD;
 		timer.add_timer(monster_id, OP_RESPAWN, 30000, 0);
 	}
-
 }
 
 void IOCPServer::chatting(int user_id, wchar_t mess[])

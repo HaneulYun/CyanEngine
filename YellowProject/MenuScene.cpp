@@ -15,7 +15,13 @@ void MenuScene::BuildObjects()
 	ASSET AddTexture("jolteontex", L"jolteon.dds");
 	ASSET AddTexture("flareontex", L"flareon.dds");
 	ASSET AddTexture("vaporeontex", L"vaporeon.dds");
-
+	ASSET AddTexture("leafeontex", L"leafeon.dds");
+	ASSET AddTexture("glaceontex", L"glaceon.dds");
+	ASSET AddTexture("metagrosstex", L"metagross.dds");
+	ASSET AddTexture("mesprittex", L"mesprit.dds");
+	ASSET AddTexture("giratinatex", L"giratinatex.dds");
+	ASSET AddTexture("arceustex", L"arceus.dds");
+	
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
 	ASSET AddMaterial("black", ASSET TEXTURE("none"), -1, { 0.0, 0.0, 0.0, 1 });
@@ -31,6 +37,12 @@ void MenuScene::BuildObjects()
 	ASSET AddMaterial("jolteonmat", ASSET TEXTURE("jolteontex"), -1, { 1.0,1.0,1.0, 1 });
 	ASSET AddMaterial("flareonmat", ASSET TEXTURE("flareontex"), -1, { 1.0,1.0,1.0, 1 });
 	ASSET AddMaterial("vaporeonmat", ASSET TEXTURE("vaporeontex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("leafeonmat", ASSET TEXTURE("leafeontex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("glaceonmat", ASSET TEXTURE("glaceontex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("metagrossmat", ASSET TEXTURE("metagrosstex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("mespritmat", ASSET TEXTURE("mesprittex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("giratinamat", ASSET TEXTURE("giratinatex"), -1, { 1.0,1.0,1.0, 1 });
+	ASSET AddMaterial("arceusmat", ASSET TEXTURE("arceustex"), -1, { 1.0,1.0,1.0, 1 });
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
@@ -58,8 +70,6 @@ void MenuScene::BuildObjects()
 			}
 			chessmap[i][j]->layer = (int)RenderLayer::Opaque;
 		}
-
-
 
 	auto mychess = CreateEmpty();
 	{
@@ -141,101 +151,44 @@ void MenuScene::BuildObjects()
 		}
 	}
 
-	auto eeveeprefab = CreateEmptyPrefab();
+	GameObject* monsterprefab[10];
+	for (int i = 0; i < 10; ++i)
 	{
-		eeveeprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		eeveeprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
-		auto mesh = eeveeprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
-		auto renderer = eeveeprefab->AddComponent<Renderer>();
+		monsterprefab[i] = CreateEmptyPrefab();
+		monsterprefab[i]->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
+		monsterprefab[i]->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
+		auto mesh = monsterprefab[i]->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+		auto renderer = monsterprefab[i]->AddComponent<Renderer>();
 		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("eeveemat"));
-		eeveeprefab->layer = (int)RenderLayer::Opaque;
-		eeveeprefab->AddComponent<CharacterController>()->player = false;
-
-		auto name = CreateUIPrefab();
 		{
-			eeveeprefab->AddChildUI(name);
-			auto rect = name->GetComponent<RectTransform>();
-			rect->width = 200;
-			rect->height = 50;
-			rect->pivot = { 0.5, 0.5 };
-
-			auto text = name->AddComponent<Text>();
-			text->text = L"";
-			text->fontSize = 10;
-			text->color = { 1.0f, 1.0f, 0.0f, 1 };
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+			if (i == 0)
+				renderer->materials.push_back(ASSET MATERIAL("eeveemat"));
+			else if (i == 1)
+				renderer->materials.push_back(ASSET MATERIAL("jolteonmat"));
+			else if (i == 2)
+				renderer->materials.push_back(ASSET MATERIAL("flareonmat"));
+			else if (i == 3)
+				renderer->materials.push_back(ASSET MATERIAL("vaporeonmat"));
+			else if (i == 4)
+				renderer->materials.push_back(ASSET MATERIAL("leafeonmat"));
+			else if (i == 5)
+				renderer->materials.push_back(ASSET MATERIAL("glaceonmat"));
+			else if (i == 6)
+				renderer->materials.push_back(ASSET MATERIAL("metagrossmat"));
+			else if (i == 7)
+				renderer->materials.push_back(ASSET MATERIAL("mespritmat"));
+			else if (i == 8)
+				renderer->materials.push_back(ASSET MATERIAL("giratinamat"));
+			else
+				renderer->materials.push_back(ASSET MATERIAL("arceusmat"));
 		}
-	}
 
-	auto jolteonprefab = CreateEmptyPrefab();
-	{
-		jolteonprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		jolteonprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
-		auto mesh = jolteonprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
-		auto renderer = jolteonprefab->AddComponent<Renderer>();
-		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("jolteonmat"));
-		jolteonprefab->layer = (int)RenderLayer::Opaque;
-		jolteonprefab->AddComponent<CharacterController>()->player = false;
+		monsterprefab[i]->layer = (int)RenderLayer::Opaque;
+		monsterprefab[i]->AddComponent<CharacterController>()->player = false;
 
 		auto name = CreateUIPrefab();
 		{
-			jolteonprefab->AddChildUI(name);
-			auto rect = name->GetComponent<RectTransform>();
-			rect->width = 200;
-			rect->height = 50;
-			rect->pivot = { 0.5, 0.5 };
-
-			auto text = name->AddComponent<Text>();
-			text->text = L"";
-			text->fontSize = 10;
-			text->color = { 1.0f, 1.0f, 0.0f, 1 };
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-		}
-	}
-
-	auto flareonprefab = CreateEmptyPrefab();
-	{
-		flareonprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		flareonprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
-		auto mesh = flareonprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
-		auto renderer = flareonprefab->AddComponent<Renderer>();
-		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("flareonmat"));
-		flareonprefab->layer = (int)RenderLayer::Opaque;
-		flareonprefab->AddComponent<CharacterController>()->player = false;
-
-		auto name = CreateUIPrefab();
-		{
-			flareonprefab->AddChildUI(name);
-			auto rect = name->GetComponent<RectTransform>();
-			rect->width = 200;
-			rect->height = 50;
-			rect->pivot = { 0.5, 0.5 };
-
-			auto text = name->AddComponent<Text>();
-			text->text = L"";
-			text->fontSize = 10;
-			text->color = { 1.0f, 1.0f, 0.0f, 1 };
-			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
-		}
-	}
-
-	auto vaporeonprefab = CreateEmptyPrefab();
-	{
-		vaporeonprefab->GetComponent<Transform>()->position = { 0.f, 0.f, -0.0001f };
-		vaporeonprefab->GetComponent<Transform>()->Scale({ 1.0f, 1.0f,1.0f });
-		auto mesh = vaporeonprefab->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
-		auto renderer = vaporeonprefab->AddComponent<Renderer>();
-		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("vaporeonmat"));
-		vaporeonprefab->layer = (int)RenderLayer::Opaque;
-		vaporeonprefab->AddComponent<CharacterController>()->player = false;
-
-		auto name = CreateUIPrefab();
-		{
-			vaporeonprefab->AddChildUI(name);
+			monsterprefab[i]->AddChildUI(name);
 			auto rect = name->GetComponent<RectTransform>();
 			rect->width = 200;
 			rect->height = 50;
@@ -254,10 +207,8 @@ void MenuScene::BuildObjects()
 		Network* network = manager->AddComponent<Network>();
 		network->othersPrefab = otherchessprefab;
 		network->myCharacter = mychess;
-		network->npcsPrefab[0] = eeveeprefab;
-		network->npcsPrefab[1] = jolteonprefab;
-		network->npcsPrefab[2] = flareonprefab;
-		network->npcsPrefab[3] = vaporeonprefab;
+		for (int i = 0; i < 10; ++i)
+			network->npcsPrefab[i] = monsterprefab[i];
 		Network::network = network;
 	}
 
