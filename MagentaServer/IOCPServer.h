@@ -32,10 +32,9 @@ extern "C" {
 using namespace std;
 
 class IOCPServer {
-protected:
-	static IOCPServer* iocpServer;
-
 public:
+	//static IOCPServer* iocpServer;
+
 	HANDLE g_iocp;
 	SOCKET l_socket;
 	unordered_map<int, Client> g_clients;
@@ -81,9 +80,6 @@ public:
 
 	IOCPServer();
 	~IOCPServer();
-
-	static IOCPServer* getIOCPServer();
-	void releaseIOCPServer();
 };
 
 int API_SendMessage(lua_State* L);
@@ -91,3 +87,4 @@ int API_get_x(lua_State* L);
 int API_get_y(lua_State* L);
 int API_add_timer_run(lua_State* L);
 int API_run_finished(lua_State* L);
+int API_player_damaged(lua_State* L);

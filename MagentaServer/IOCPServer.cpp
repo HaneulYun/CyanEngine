@@ -1,21 +1,6 @@
 #include "IOCPServer.h"
-#define GETIOCP	IOCPServer::getIOCPServer()
 
-IOCPServer* IOCPServer::iocpServer = 0;
-
-IOCPServer* IOCPServer::getIOCPServer()
-{
-	if (!iocpServer) iocpServer = new IOCPServer;
-	return iocpServer;
-}
-
-void IOCPServer::releaseIOCPServer()
-{
-	if (iocpServer) {
-		delete iocpServer;
-		iocpServer = 0;
-	}
-}
+IOCPServer iocpServer;
 
 IOCPServer::IOCPServer()
 {
@@ -137,11 +122,12 @@ void IOCPServer::init_npc()
 		if (error) cout << lua_tostring(L, -1);
 		//lua_pop(L, 1);
 		
-		lua_register(L, "API_send_message", API_SendMessage);
+		//lua_register(L, "API_send_message", API_SendMessage);
 		lua_register(L, "API_get_x", API_get_x);
 		lua_register(L, "API_get_y", API_get_y);
-		lua_register(L, "API_add_timer_run", API_add_timer_run);
-		lua_register(L, "API_run_finished", API_run_finished);
+		lua_register(L, "API_player_damaged", API_player_damaged);
+		//lua_register(L, "API_add_timer_run", API_add_timer_run);
+		//lua_register(L, "API_run_finished", API_run_finished);
 	}
 }
 
@@ -832,13 +818,17 @@ void IOCPServer::monster_damaged(int user_id, int monster_id)
 {
 	Client& u = g_clients[user_id];
 	Client& m = g_clients[monster_id];
+	
+	wstring mwname;
+	string mname = m.m_inform.m_name;
+	mwname.assign(mname.begin(), mname.end());
 
 	m.m_inform.hp -= u.m_inform.level * 5 + 10;
 	
 	if (m.m_inform.hp > 0)
 	{
 		wchar_t msg[MAX_STR_LEN];
-		wsprintf(msg, L"가 %s를 때려서 %d의 데미지를 입혔습니다.", m.m_inform.m_name, u.m_inform.level * 5 + 10);
+		wsprintf(msg, L"가 %s를 때려서 %d의 데미지를 입혔습니다.", mwname.c_str(), u.m_inform.level * 5 + 10);
 		send_chat_packet(user_id, user_id, msg);
 		return;
 	}
@@ -847,7 +837,7 @@ void IOCPServer::monster_damaged(int user_id, int monster_id)
 		u.exp_plus(m.m_otype * 5);
 		send_stat_change_packet(user_id);
 		wchar_t msg[MAX_STR_LEN];
-		wsprintf(msg, L"가 %s를 무찔러서 %d의 경험치를 얻었습니다.", m.m_inform.m_name, m.m_otype * 5);
+		wsprintf(msg, L"가 %s를 무찔러서 %d의 경험치를 얻었습니다.", mwname.c_str(), m.m_otype * 5);
 		send_chat_packet(user_id, user_id, msg);
 
 		for (int i = m.m_inform.y / SECTOR_WIDTH - 1; i <= m.m_inform.y / SECTOR_WIDTH + 1; ++i) {
@@ -1025,7 +1015,7 @@ int API_SendMessage(lua_State* L)
 	int user_id = (int)lua_tointeger(L, -2);
 	wchar_t* mess = (wchar_t*)lua_tostring(L, -1);
 
-	GETIOCP->send_chat_packet(user_id, my_id, mess);
+	iocpServer.send_chat_packet(user_id, my_id, mess);
 	lua_pop(L, 3);
 	return 0;
 }
@@ -1034,7 +1024,7 @@ int API_get_x(lua_State* L)
 {
 	int obj_id = (int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	int x = GETIOCP->g_clients[obj_id].m_inform.x;
+	int x = iocpServer.g_clients[obj_id].m_inform.x;
 	lua_pushnumber(L, x);
 	return 1;
 }
@@ -1043,7 +1033,7 @@ int API_get_y(lua_State* L)
 {
 	int obj_id = (int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
-	int y = GETIOCP->g_clients[obj_id].m_inform.y;
+	int y = iocpServer.g_clients[obj_id].m_inform.y;
 	lua_pushnumber(L, y);
 	return 1;
 }
@@ -1052,7 +1042,7 @@ int API_add_timer_run(lua_State* L)
 {
 	int my_id = (int)lua_tointeger(L, -2);
 	int user_id = (int)lua_tointeger(L, -1);
-	GETIOCP->timer.add_timer(my_id, OP_RUN, 1000, user_id);
+	iocpServer.timer.add_timer(my_id, OP_RUN, 1000, user_id);
 	lua_pop(L, 2);
 	return 0;
 }
@@ -1066,7 +1056,17 @@ int API_run_finished(lua_State* L)
 	over->op = OP_RUN_FINISH;
 	over->p_id = user_id;
 
-	PostQueuedCompletionStatus(GETIOCP->g_iocp, 1, my_id, &over->over);
+	PostQueuedCompletionStatus(iocpServer.g_iocp, 1, my_id, &over->over);
 	lua_pop(L, 2);
+	return 0;
+}
+
+int API_player_damaged(lua_State* L)
+{
+	int my_id = (int)lua_tointeger(L, -2);
+	int user_id = (int)lua_tointeger(L, -1);
+	lua_pop(L, 2);
+
+	iocpServer.player_damaged(user_id, my_id);
 	return 0;
 }
