@@ -34,3 +34,7 @@ end
 function event_random_move()
 	API_type_random_move(myid, myfirstX, myfirstY)
 end
+
+function event_attacked(p_id)
+	API_pathFind(myid, p_id, myfirstX, myfirstY)
+end

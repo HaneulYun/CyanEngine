@@ -78,6 +78,13 @@ bool IOCPServer::is_near(int a, int b)
 	return true;
 }
 
+bool IOCPServer::is_near5(int a, int b)
+{
+	if (abs(g_clients[a].m_inform.x - g_clients[b].m_inform.x) > 5)	return false;
+	if (abs(g_clients[a].m_inform.y - g_clients[b].m_inform.y) > 5)	return false;
+	return true;
+}
+
 bool IOCPServer::is_collide(int x, int y)
 {
 	int sectX = x % SECTOR_WIDTH;
@@ -100,7 +107,7 @@ void IOCPServer::init_npc()
 {
 	int xSect = 0;
 	int ySect = 0;
-	for (int i = NPC_ID_START; i < NPC_ID_START + 600; ++i) {
+	for (int i = NPC_ID_START; i < NPC_ID_START + NUM_NPC; ++i) {
 		g_clients[i].m_s = 0;
 		g_clients[i].m_id = i;
 		g_clients[i].m_status = ST_SLEEP;
@@ -160,7 +167,6 @@ void IOCPServer::init_npc()
 			lua_register(L, "API_set_y", API_set_y);
 			lua_register(L, "API_set_hp", API_set_hp);
 			lua_register(L, "API_player_damaged", API_player_damaged);
-			lua_register(L, "API_random_move", API_random_move);
 			lua_register(L, "API_pathFind", API_pathFind);
 
 			g_clients[i].m_inform.level = g_clients[i].m_otype;
@@ -197,7 +203,6 @@ void IOCPServer::init_npc()
 			lua_register(L, "API_set_y", API_set_y);
 			lua_register(L, "API_set_hp", API_set_hp);
 			lua_register(L, "API_player_damaged", API_player_damaged);
-			lua_register(L, "API_random_move", API_random_move);
 			lua_register(L, "API_pathFind", API_pathFind);
 
 			g_clients[i].m_inform.level = g_clients[i].m_otype;
@@ -235,6 +240,7 @@ void IOCPServer::init_npc()
 			lua_register(L, "API_set_hp", API_set_hp);
 			lua_register(L, "API_player_damaged", API_player_damaged);
 			lua_register(L, "API_type_random_move", API_type_random_move);
+			lua_register(L, "API_pathFind", API_pathFind);
 
 			g_clients[i].m_inform.level = g_clients[i].m_otype;
 			g_clients[i].m_inform.exp = 2 * 5 * g_clients[i].m_inform.level;
@@ -243,32 +249,258 @@ void IOCPServer::init_npc()
 		else if (i < NUM_NPC * 4 / 10 + NPC_ID_START) {
 			g_clients[i].m_otype = O_VAPOREON;
 			sprintf_s(g_clients[i].m_inform.m_name, "Vaporeon");
+			lua_State* L = g_clients[i].L = luaL_newstate();
+			luaL_openlibs(L);
+			luaL_loadfile(L, "4_VAPOREON.LUA");
+			int error = lua_pcall(L, 0, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_uid");
+			lua_pushnumber(L, i);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstX");
+			lua_pushnumber(L, g_clients[i].m_inform.x);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstY");
+			lua_pushnumber(L, g_clients[i].m_inform.y);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_register(L, "API_get_x", API_get_x);
+			lua_register(L, "API_get_y", API_get_y);
+			lua_register(L, "API_set_x", API_set_x);
+			lua_register(L, "API_set_y", API_set_y);
+			lua_register(L, "API_set_hp", API_set_hp);
+			lua_register(L, "API_player_damaged", API_player_damaged);
+			lua_register(L, "API_pathFind", API_pathFind);
+
+			g_clients[i].m_inform.level = g_clients[i].m_otype;
+			g_clients[i].m_inform.exp = 2 * 5 * g_clients[i].m_inform.level;
+			g_clients[i].m_inform.hp = 40;
 		}
 		else if (i < NUM_NPC * 5 / 10 + NPC_ID_START) {
 			g_clients[i].m_otype = O_LEAFEON;
 			sprintf_s(g_clients[i].m_inform.m_name, "Leafeon");
+			lua_State* L = g_clients[i].L = luaL_newstate();
+			luaL_openlibs(L);
+			luaL_loadfile(L, "5_LEAFEON.LUA");
+			int error = lua_pcall(L, 0, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_uid");
+			lua_pushnumber(L, i);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstX");
+			lua_pushnumber(L, g_clients[i].m_inform.x);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstY");
+			lua_pushnumber(L, g_clients[i].m_inform.y);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_register(L, "API_get_x", API_get_x);
+			lua_register(L, "API_get_y", API_get_y);
+			lua_register(L, "API_set_x", API_set_x);
+			lua_register(L, "API_set_y", API_set_y);
+			lua_register(L, "API_set_hp", API_set_hp);
+			lua_register(L, "API_player_damaged", API_player_damaged);
+			lua_register(L, "API_type_random_move", API_type_random_move);
+			lua_register(L, "API_pathFind", API_pathFind);
+
+			g_clients[i].m_inform.level = g_clients[i].m_otype;
+			g_clients[i].m_inform.exp = 2 * 2 * 5 * g_clients[i].m_inform.level;
+			g_clients[i].m_inform.hp = 50;
 		}
 		else if (i < NUM_NPC * 6 / 10 + NPC_ID_START) {
 			g_clients[i].m_otype = O_GLACEON;
 			sprintf_s(g_clients[i].m_inform.m_name, "Glaceon");
+			lua_State* L = g_clients[i].L = luaL_newstate();
+			luaL_openlibs(L);
+			luaL_loadfile(L, "6_GLACEON.LUA");
+			int error = lua_pcall(L, 0, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_uid");
+			lua_pushnumber(L, i);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstX");
+			lua_pushnumber(L, g_clients[i].m_inform.x);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstY");
+			lua_pushnumber(L, g_clients[i].m_inform.y);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_register(L, "API_get_x", API_get_x);
+			lua_register(L, "API_get_y", API_get_y);
+			lua_register(L, "API_set_x", API_set_x);
+			lua_register(L, "API_set_y", API_set_y);
+			lua_register(L, "API_set_hp", API_set_hp);
+			lua_register(L, "API_player_damaged", API_player_damaged);
+			lua_register(L, "API_pathFind", API_pathFind);
+
+			g_clients[i].m_inform.level = g_clients[i].m_otype;
+			g_clients[i].m_inform.exp = 5 * g_clients[i].m_inform.level;
+			g_clients[i].m_inform.hp = 60;
 		}
 		else if (i < NUM_NPC * 7 / 10 + NPC_ID_START) {
 			g_clients[i].m_otype = O_METAGROSS;
 			sprintf_s(g_clients[i].m_inform.m_name, "Metagross");
+			lua_State* L = g_clients[i].L = luaL_newstate();
+			luaL_openlibs(L);
+			luaL_loadfile(L, "7_METAGROSS.LUA");
+			int error = lua_pcall(L, 0, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_uid");
+			lua_pushnumber(L, i);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstX");
+			lua_pushnumber(L, g_clients[i].m_inform.x);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstY");
+			lua_pushnumber(L, g_clients[i].m_inform.y);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_register(L, "API_get_x", API_get_x);
+			lua_register(L, "API_get_y", API_get_y);
+			lua_register(L, "API_set_x", API_set_x);
+			lua_register(L, "API_set_y", API_set_y);
+			lua_register(L, "API_set_hp", API_set_hp);
+			lua_register(L, "API_player_damaged", API_player_damaged);
+			lua_register(L, "API_pathFind", API_pathFind);
+
+			g_clients[i].m_inform.level = g_clients[i].m_otype;
+			g_clients[i].m_inform.exp = 5 * g_clients[i].m_inform.level;
+			g_clients[i].m_inform.hp = 70;
 		}
 		else if (i < NUM_NPC * 8 / 10 + NPC_ID_START) {
 			g_clients[i].m_otype = O_MESPRIT;
 			sprintf_s(g_clients[i].m_inform.m_name, "Mesprit");
+			lua_State* L = g_clients[i].L = luaL_newstate();
+			luaL_openlibs(L);
+			luaL_loadfile(L, "8_Mesprit.LUA");
+			int error = lua_pcall(L, 0, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_uid");
+			lua_pushnumber(L, i);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstX");
+			lua_pushnumber(L, g_clients[i].m_inform.x);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstY");
+			lua_pushnumber(L, g_clients[i].m_inform.y);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_register(L, "API_get_x", API_get_x);
+			lua_register(L, "API_get_y", API_get_y);
+			lua_register(L, "API_set_x", API_set_x);
+			lua_register(L, "API_set_y", API_set_y);
+			lua_register(L, "API_set_hp", API_set_hp);
+			lua_register(L, "API_player_damaged", API_player_damaged);
+			lua_register(L, "API_type_random_move", API_type_random_move);
+			lua_register(L, "API_pathFind", API_pathFind);
+
+			g_clients[i].m_inform.level = g_clients[i].m_otype;
+			g_clients[i].m_inform.exp = 2 * 5 * g_clients[i].m_inform.level;
+			g_clients[i].m_inform.hp = 80;
 		}
 		else if (i < NUM_NPC * 9 / 10 + NPC_ID_START) {
 			g_clients[i].m_otype = O_GIRATINA;
 			sprintf_s(g_clients[i].m_inform.m_name, "Giratina");
+			lua_State* L = g_clients[i].L = luaL_newstate();
+			luaL_openlibs(L);
+			luaL_loadfile(L, "9_GIRATINA.LUA");
+			int error = lua_pcall(L, 0, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_uid");
+			lua_pushnumber(L, i);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstX");
+			lua_pushnumber(L, g_clients[i].m_inform.x);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstY");
+			lua_pushnumber(L, g_clients[i].m_inform.y);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_register(L, "API_get_x", API_get_x);
+			lua_register(L, "API_get_y", API_get_y);
+			lua_register(L, "API_set_x", API_set_x);
+			lua_register(L, "API_set_y", API_set_y);
+			lua_register(L, "API_set_hp", API_set_hp);
+			lua_register(L, "API_player_damaged", API_player_damaged);
+			lua_register(L, "API_pathFind", API_pathFind);
+
+			g_clients[i].m_inform.level = g_clients[i].m_otype;
+			g_clients[i].m_inform.exp = 2 * 5 * g_clients[i].m_inform.level;
+			g_clients[i].m_inform.hp = 90;
 		}
 		else {
 			g_clients[i].m_otype = O_ARCEUS;
 			sprintf_s(g_clients[i].m_inform.m_name, "Arceus");
-		}
+			lua_State* L = g_clients[i].L = luaL_newstate();
+			luaL_openlibs(L);
+			luaL_loadfile(L, "10_ARCEUS.LUA");
+			int error = lua_pcall(L, 0, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
 
+			lua_getglobal(L, "set_uid");
+			lua_pushnumber(L, i);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstX");
+			lua_pushnumber(L, g_clients[i].m_inform.x);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstY");
+			lua_pushnumber(L, g_clients[i].m_inform.y);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_register(L, "API_get_x", API_get_x);
+			lua_register(L, "API_get_y", API_get_y);
+			lua_register(L, "API_set_x", API_set_x);
+			lua_register(L, "API_set_y", API_set_y);
+			lua_register(L, "API_set_hp", API_set_hp);
+			lua_register(L, "API_player_damaged", API_player_damaged);
+			lua_register(L, "API_type_random_move", API_type_random_move);
+			lua_register(L, "API_pathFind", API_pathFind);
+
+			g_clients[i].m_inform.level = g_clients[i].m_otype;
+			g_clients[i].m_inform.exp = 2 * 2 * 5 * g_clients[i].m_inform.level;
+			g_clients[i].m_inform.hp = 100;
+		}
 
 		g_SectorLock[g_clients[i].m_inform.y / SECTOR_WIDTH][g_clients[i].m_inform.x / SECTOR_WIDTH].EnterWriteLock();
 		g_ObjectListSector[g_clients[i].m_inform.y / SECTOR_WIDTH][g_clients[i].m_inform.x / SECTOR_WIDTH].insert(g_clients[i].m_id);
@@ -276,13 +508,26 @@ void IOCPServer::init_npc()
 	}
 }
 
-void IOCPServer::activate_npc(int id)
+void IOCPServer::activate_npc(int npc_id, int user_id)
 {
 	C_STATUS old_state = ST_SLEEP;
-	if (true == atomic_compare_exchange_strong(&g_clients[id].m_status, &old_state, ST_ACTIVE))
+	if (true == atomic_compare_exchange_strong(&g_clients[npc_id].m_status, &old_state, ST_ACTIVE))
 	{
-		if (g_clients[id].m_otype == O_FLAREON)
-			timer.add_timer(id, OP_RANDOM_MOVE, 1000, 0, 0, 0);
+		if (g_clients[npc_id].m_otype == O_FLAREON || g_clients[npc_id].m_otype == O_LEAFEON 
+			|| g_clients[npc_id].m_otype == O_MESPRIT || g_clients[npc_id].m_otype == O_ARCEUS)
+		{
+			timer.add_timer(npc_id, OP_RANDOM_MOVE, 1000, 0, 0, 0);
+		}
+		else if (g_clients[npc_id].m_otype == O_VAPOREON || g_clients[npc_id].m_otype == O_GIRATINA)
+		{
+			g_clients[npc_id].lua_l.EnterWriteLock();
+			lua_State* L = g_clients[npc_id].L;
+			lua_getglobal(L, "event_attacked");
+			lua_pushnumber(L, user_id);
+			lua_pcall(L, 1, 0, 0);
+			//lua_pop(L, 1);
+			g_clients[npc_id].lua_l.LeaveWriteLock();
+		}
 	}
 }
 
@@ -303,11 +548,12 @@ void IOCPServer::path_find_npc(int npcid, int playerid, int firstX, int firstY)
 	m.m_cl.EnterReadLock();
 	if (m.astar.path.empty()) {
 		m.m_cl.LeaveReadLock();
+		timer.add_timer(npcid, OP_PATHFIND, 1000, playerid, firstX, firstY);
 		return;
 	}
 	m.m_cl.LeaveReadLock();
 
-	if ((abs(firstX - m.m_inform.x) > 10) || (abs(firstY - m.m_inform.y) > 10))
+	if ((abs(firstX - m.astar.path.front()->getX()) > 5) || (abs(firstY - m.astar.path.front()->getY()) > 5))
 	{
 		m.pathFinding = false;
 		m.m_cl.EnterWriteLock();
@@ -316,7 +562,8 @@ void IOCPServer::path_find_npc(int npcid, int playerid, int firstX, int firstY)
 		m.astar.closeNodeList.clear();
 		m.m_cl.LeaveWriteLock();
 
-		if (m.m_otype == O_EEVEE || m.m_otype == O_JOLTEON){
+		if (m.m_otype == O_EEVEE || m.m_otype == O_JOLTEON || m.m_otype == O_VAPOREON
+			|| m.m_otype == O_GLACEON || m.m_otype == O_METAGROSS || m.m_otype == O_GIRATINA){
 			m.m_status = ST_SLEEP;
 			return;
 		}
@@ -386,33 +633,35 @@ void IOCPServer::random_move_npc(int id, int firstX, int firstY)
 {
 	if (g_clients[id].m_status == ST_DEAD)
 		return;
+	if (g_clients[id].pathFinding == true)
+		return;
 	int x = g_clients[id].m_inform.x;
 	int y = g_clients[id].m_inform.y;
 	switch (rand() % 4) {
 	case 0: {
 		if (x < (WORLD_WIDTH - 1)) {
-			if (!is_collide(x + 1, y) && abs(firstX - x + 1 <= 20)) x++;
+			if (!is_collide(x + 1, y) && abs(firstX - x + 1 <= 10)) x++;
 			else if(!is_collide(x - 1, y)) x--;
 		}
 	}
 		  break;
 	case 1: {
 		if (x > 0) {
-			if (!is_collide(x - 1, y) && abs(firstX - x - 1 <= 20)) x--;
+			if (!is_collide(x - 1, y) && abs(firstX - x - 1 <= 10)) x--;
 			else if (!is_collide(x + 1, y))x++;
 		}
 	}
 		  break;
 	case 2: {
 		if (y < (WORLD_HEIGHT - 1)) {
-			if (!is_collide(x, y + 1) && abs(firstY - y + 1 <= 20)) y++;
+			if (!is_collide(x, y + 1) && abs(firstY - y + 1 <= 10)) y++;
 			else if (!is_collide(x, y - 1)) y--;
 		}
 	}
 		  break;
 	case 3: {
 		if (y > 0) {
-			if (!is_collide(x, y - 1) && abs(firstY - y - 1 <= 20))y--;
+			if (!is_collide(x, y - 1) && abs(firstY - y - 1 <= 10))y--;
 			else  if (!is_collide(x, y + 1)) y++;
 		}
 	}
@@ -434,7 +683,8 @@ void IOCPServer::random_move_npc(int id, int firstX, int firstY)
 	g_clients[id].m_inform.y = y;
 	g_clients[id].m_cl.LeaveWriteLock();
 
-	bool flag = false;
+	int flag = 0;
+	int targetId = 0;
 
 	for (int i = g_clients[id].m_inform.y / SECTOR_WIDTH - 1; i <= g_clients[id].m_inform.y / SECTOR_WIDTH + 1; ++i) {
 		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
@@ -445,8 +695,13 @@ void IOCPServer::random_move_npc(int id, int firstX, int firstY)
 				if (ST_ACTIVE != g_clients[nearObj].m_status)	continue;
 				if (false == is_player(nearObj))	continue;
 				if (true == is_near(nearObj, id)) {
-					flag = true;
+					if (flag == 0)
+						flag = 1;
 					g_clients[nearObj].m_cl.EnterReadLock();
+					if (is_near5(nearObj, id) && (g_clients[id].m_otype == O_LEAFEON|| g_clients[id].m_otype == O_ARCEUS)){
+						flag = 2;
+						targetId = nearObj;
+					}
 					if (0 != g_clients[nearObj].view_list.count(id)) {
 						g_clients[nearObj].m_cl.LeaveReadLock();
 						send_move_packet(nearObj, id);
@@ -475,13 +730,15 @@ void IOCPServer::random_move_npc(int id, int firstX, int firstY)
 		}
 	}
 
-	if (!flag) g_clients[id].m_status = ST_SLEEP;
-	else timer.add_timer(id, OP_RANDOM_MOVE, 1000, 0, firstX, firstY);
+	if (flag == 0) g_clients[id].m_status = ST_SLEEP;
+	else if (flag == 1) timer.add_timer(id, OP_RANDOM_MOVE, 1000, 0, firstX, firstY);
+	else if (flag == 2) timer.add_timer(id, OP_PATHFIND, 1000, targetId, firstX, firstY);
 }
 
 void IOCPServer::respawn_npc(int id)
 {
-	bool flag = false;
+	int flag = 0;
+	int targetId = 0;
 	g_clients[id].m_status = ST_SLEEP;
 
 	for (int i = g_clients[id].m_inform.y / SECTOR_WIDTH - 1; i <= g_clients[id].m_inform.y / SECTOR_WIDTH + 1; ++i) {
@@ -493,7 +750,6 @@ void IOCPServer::respawn_npc(int id)
 				if (ST_ACTIVE != g_clients[nearObj].m_status)	continue;
 				if (false == is_player(nearObj))	continue;
 				if (true == is_near(nearObj, id)) {
-					flag = true;
 					g_clients[nearObj].m_cl.EnterReadLock();
 					if (0 != g_clients[nearObj].view_list.count(id)) {
 						g_clients[nearObj].m_cl.LeaveReadLock();
@@ -503,6 +759,7 @@ void IOCPServer::respawn_npc(int id)
 						g_clients[nearObj].m_cl.LeaveReadLock();
 						send_enter_packet(nearObj, id);
 					}
+					activate_npc(nearObj, id);
 				}
 				else {
 					g_clients[nearObj].m_cl.EnterReadLock();
@@ -517,9 +774,6 @@ void IOCPServer::respawn_npc(int id)
 			g_SectorLock[i][j].LeaveReadLock();
 		}
 	}
-
-	if (flag)
-		activate_npc(id);
 }
 
 void IOCPServer::initialize_clients()
@@ -725,38 +979,19 @@ void IOCPServer::worker_thread()
 		break;
 		case OP_PATHFIND:
 		{
-			if (g_clients[user_id].m_otype == O_EEVEE || g_clients[user_id].m_otype == O_JOLTEON)
-			{
-				path_find_npc(user_id, exover->p_id, exover->firstX, exover->firstY);
-			}
-			else
-			{
-
-			}
+			path_find_npc(user_id, exover->p_id, exover->firstX, exover->firstY);
 			delete exover;
 		}
 		break;
 		case OP_RANDOM_MOVE:
 		{
-			if (g_clients[user_id].m_otype == O_EEVEE || g_clients[user_id].m_otype == O_JOLTEON)
-			{
-				g_clients[user_id].lua_l.EnterWriteLock();
-				lua_State* L = g_clients[user_id].L;
-				lua_getglobal(L, "event_attacked");
-				lua_pushnumber(L, user_id);
-				lua_pcall(L, 1, 0, 0);
-				//lua_pop(L, 1);
-				g_clients[user_id].lua_l.LeaveWriteLock();
-			}
-			else
-			{
-				g_clients[user_id].lua_l.EnterWriteLock();
-				lua_State* L = g_clients[user_id].L;
-				lua_getglobal(L, "event_random_move");
-				lua_pcall(L, 0, 0, 0);
-				//lua_pop(L, 1);
-				g_clients[user_id].lua_l.LeaveWriteLock();
-			}
+			g_clients[user_id].lua_l.EnterWriteLock();
+			lua_State* L = g_clients[user_id].L;
+			lua_getglobal(L, "event_random_move");
+			lua_pcall(L, 0, 0, 0);
+			//lua_pop(L, 1);
+			g_clients[user_id].lua_l.LeaveWriteLock();
+			
 			delete exover;
 		}
 		break;
@@ -852,7 +1087,7 @@ void IOCPServer::enter_game(int user_id, char name[])
 				if (nearObj == user_id) continue;
 				if (true == is_near(user_id, nearObj)) {
 					if (ST_SLEEP == g_clients[nearObj].m_status) {
-						activate_npc(nearObj);
+						activate_npc(nearObj, user_id);
 					}
 					if (ST_ACTIVE == g_clients[nearObj].m_status) {
 						send_enter_packet(user_id, nearObj);
@@ -921,7 +1156,7 @@ void IOCPServer::do_move(int user_id, int direction)
 			g_SectorLock[i][j].EnterReadLock();
 			for (auto nearObj : g_ObjectListSector[i][j]) {
 				if (false == is_near(nearObj, user_id))	continue;
-				if (ST_SLEEP == g_clients[nearObj].m_status) activate_npc(nearObj);
+				if (ST_SLEEP == g_clients[nearObj].m_status) activate_npc(nearObj, user_id);
 				if (ST_ACTIVE != g_clients[nearObj].m_status)continue;
 				if (nearObj == user_id)continue;
 				if (false == is_player(nearObj)) {
@@ -1099,7 +1334,7 @@ void IOCPServer::player_damaged(int user_id, int monster_id)
 				g_SectorLock[i][j].EnterReadLock();
 				for (auto nearObj : g_ObjectListSector[i][j]) {
 					if (false == is_near(nearObj, user_id))	continue;
-					if (ST_SLEEP == g_clients[nearObj].m_status) activate_npc(nearObj);
+					if (ST_SLEEP == g_clients[nearObj].m_status) activate_npc(nearObj, user_id);
 					if (ST_ACTIVE != g_clients[nearObj].m_status)continue;
 					if (nearObj == user_id)continue;
 					if (false == is_player(nearObj)) {
@@ -1480,15 +1715,6 @@ int API_pathFind(lua_State* L)
 	lua_pop(L, 4);
 
 	iocpServer.timer.add_timer(my_id, OP_PATHFIND, 1000, p_id, firstX, firstY);
-	return 0;
-}
-
-int API_random_move(lua_State* L)
-{
-	int my_id = (int)lua_tointeger(L, -1);
-	lua_pop(L, 2);
-
-	iocpServer.random_move_npc(my_id, iocpServer.g_clients[my_id].m_inform.x, iocpServer.g_clients[my_id].m_inform.y);
 	return 0;
 }
 

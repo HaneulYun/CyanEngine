@@ -50,10 +50,11 @@ public:
 
 	bool is_player(int id);
 	bool is_near(int a, int b);
+	bool is_near5(int a, int b);
 	bool is_collide(int x, int y);
 
 	void init_npc();
-	void activate_npc(int id);
+	void activate_npc(int npc_id, int user_id);
 	void path_find_npc(int npcid, int playerid, int firstX, int firstY);
 	void random_move_npc(int id, int firstX, int firstY);
 	void respawn_npc(int id);
@@ -94,5 +95,4 @@ int API_pathFind(lua_State* L);
 int API_add_timer_run(lua_State* L);
 int API_run_finished(lua_State* L);
 int API_player_damaged(lua_State* L);
-int API_random_move(lua_State* L);
 int API_type_random_move(lua_State* L);

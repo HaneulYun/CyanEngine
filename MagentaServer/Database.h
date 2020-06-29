@@ -110,6 +110,11 @@ public:
 									//warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
 									//but variadic argument 2 has type 'SQLWCHAR *'
 									//wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
+									dUser_xpos = rand() % WORLD_WIDTH;
+									if (dUser_xpos >= 17 && dUser_xpos <= 23)
+										dUser_ypos = 5;
+									else
+										dUser_ypos = rand() % 5;
 									wprintf_s(L"add newPlayer %d: %s %d %d %d %d %d\n", i + 1, szUser_name, dUser_xpos, dUser_ypos, dUser_level, dUser_exp, dUser_hp);
 									strcpy_s(p.m_name, name.c_str());
 									p.x = dUser_xpos;

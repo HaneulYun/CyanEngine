@@ -20,12 +20,6 @@ void Astar::PathFinding(int sx, int sy, int ex, int ey)
 
     while (nextNode != endNode)
     {
-        //if (startNode->distance(*endNode) >= 10) {
-        //    path.clear();
-        //    openNodeList.clear();
-        //    closeNodeList.clear();
-        //    return;
-        //}
         closeNodeList.push_back(nextNode);
 
         AddOpenNodeWithNextNode(nextNode);
