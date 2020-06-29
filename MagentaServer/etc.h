@@ -5,7 +5,7 @@ using namespace std;
 using namespace chrono;
 
 enum C_STATUS { ST_FREE, ST_ALLOC, ST_ACTIVE, ST_SLEEP, ST_DEAD };
-enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PLAYER_MOVE, OP_RUN, OP_RUN_FINISH, OP_HEAL, OP_RESPAWN };
+enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PATHFIND, OP_PLAYER_MOVE, OP_RUN, OP_RUN_FINISH, OP_HEAL, OP_RESPAWN };
 
 constexpr auto MAX_PACKET_SIZE = 255;
 constexpr auto MAX_BUF_SIZE = 1024;
@@ -16,6 +16,8 @@ struct event_type {
 	ENUMOP event_id;
 	high_resolution_clock::time_point wakeup_time;
 	int target_id;
+	int firstX;
+	int firstY;
 
 	constexpr bool operator <(const event_type& left) const
 	{
@@ -32,6 +34,8 @@ struct EXOVER {
 		SOCKET			c_socket;
 		int				p_id;
 	};
+	int firstX;
+	int firstY;
 };
 
 struct Point {

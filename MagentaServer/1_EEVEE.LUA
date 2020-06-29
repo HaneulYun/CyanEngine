@@ -32,5 +32,5 @@ function event_player_move(p_id)
 end
 
 function event_attacked(p_id)
-	API_random_move(myid)
+	API_pathFind(myid, p_id, myfirstX, myfirstY)
 end

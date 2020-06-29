@@ -1,62 +1,109 @@
 #pragma once
 #include <list>
-#include <vector>
-#include <fstream>
-#include <iterator>
-#include <windows.h>
 
-struct Pos {
-	short x, y;
-};
-
-struct tileInform
-{
-	Pos p;
-	int index;
-	int parentIndex;
-};
-
-typedef std::vector<std::list<tileInform*>>	worldGraph;
-
-class Gameworld
+class Node
 {
 private:
-	std::vector<tileInform*> tiles;
-	worldGraph				myGraph;
+    int x, y;
 
 public:
-	Gameworld();
-	~Gameworld();
+    Node* parentNode = nullptr;
+    bool obstacle;
 
-	worldGraph& getMyGraph();
-	std::vector<tileInform*>& getTiles();
+    int cost = 0;
+    int fromStartCost = 0;
+    int disttoEnd = 0;
 
-	void LoadTile();
-	void MakeGraph();
+public:
+    Node() {}
+    Node(int xpos, int ypos) { x = xpos; y = ypos; }
+    int getX() { return x; }
+    int getY() { return y; }
+
+    void setCoord(int xpos, int ypos)
+    {
+        x = xpos, y = ypos;
+    }
+
+    int distance(const Node& n)
+    {
+        int newX = x - n.x;
+        int newY = y - n.y;
+        return abs(newX) + abs(newY);
+    }
+
+    Node operator+(const Node& n)
+    {
+        Node newn;
+        newn.x = x + n.x;
+        newn.y = y + n.y;
+        return newn;
+    }
+
+    bool operator==(const Node& n)
+    {
+        return x == n.x && y == n.y;
+    }
+
+    bool operator!=(const Node& n)
+    {
+        return x != n.x || y != n.y;
+    }
+
+    constexpr bool operator <(const Node& left) const
+    {
+        return (cost > left.cost);
+    }
+
+    void ResetCost()
+    {
+        cost = 0;
+        fromStartCost = 0;
+        disttoEnd = 0;
+    }
+
+    void SetCoast(int g, int h)
+    {
+        cost = g + h;
+        fromStartCost = g;
+        disttoEnd = h;
+    }
 };
 
-class Astar
+class GameWorld
 {
-private:
-	std::list<int>			openLst;
-	std::list<int>			closeLst;
-	std::list<tileInform*>	bestLst;	// °æ·Î
-	int	startIndex = 0;
+public:
+   Node* nodeMap[800][800];
 
 public:
-	Gameworld* gameworld{ nullptr };
+
+    bool is_wall(int x, int y)
+    {
+        if (x == 0 || x == 799 || y == 0 || y == 799)
+            return true;
+        return false;
+    }
+}; 
+
+class Astar {
+private:
+    Node* startNode;
+    Node* endNode;
 
 public:
-	Astar();
-	~Astar();
-	void StartAstar(const Pos& startIdx, const Pos& goalIdx);
-	std::list<tileInform*>& getBestLst();
+    GameWorld* gameworld;
+    std::list<Node*> openNodeList;
+    std::list<Node*> closeNodeList;
+    std::list<Node*> path;
 
-private:
+    Node* offsetCoords[4]
+    {
+       new Node(-1, 0), new Node(1, 0), new Node(0, -1), new Node(0, 1)
+    };
 
-	bool PathFinding(int startIdx, int goalIdx);
-	void MakePath(int iStartIndex, int iGoalIndex);
-
-	bool CheckOpenLst(int idx);
-	bool CheckCloseLst(int idx);
+public:
+    void PathFinding(int sx, int sy, int ex, int ey);
+    void AddOpenNodeWithNextNode(Node* nextNode);
+    void CalcCoast(Node* nextNode, Node* endNode);
+    Node* GetNextNode();
 };

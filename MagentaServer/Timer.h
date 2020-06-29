@@ -27,10 +27,10 @@ public:
 		timer_thread = thread(&Timer::do_timer, this);
 	}
 
-	void add_timer(int obj_id, ENUMOP op_type, int duration, int tg_id)
+	void add_timer(int obj_id, ENUMOP op_type, int duration, int tg_id, int firstX, int firstY)
 	{
 		timer_lock.EnterWriteLock();
-		event_type ev{ obj_id, op_type, high_resolution_clock::now() + milliseconds(duration), tg_id };
+		event_type ev{ obj_id, op_type, high_resolution_clock::now() + milliseconds(duration), tg_id, firstX, firstY };
 		timer_queue.push(ev);
 		timer_lock.LeaveWriteLock();
 	}
@@ -55,14 +55,27 @@ public:
 				timer_queue.pop();
 				timer_lock.LeaveWriteLock();
 				switch (ev.event_id) {
-				case OP_RANDOM_MOVE:
 				case OP_RUN:
 				case OP_HEAL:
 				case OP_RESPAWN:
+				{
 					EXOVER* over = new EXOVER;
 					over->op = ev.event_id;
 					over->p_id = ev.target_id;
 					PostQueuedCompletionStatus(g_iocp, 1, ev.obj_id, &over->over);
+				}
+					break;
+				case OP_RANDOM_MOVE:
+				case OP_PATHFIND:
+				{
+					EXOVER* over = new EXOVER;
+					over->op = ev.event_id;
+					over->p_id = ev.target_id;
+					over->firstX = ev.firstX;
+					over->firstY = ev.firstY;
+					PostQueuedCompletionStatus(g_iocp, 1, ev.obj_id, &over->over);
+				}
+					break;
 				}
 			}
 		}

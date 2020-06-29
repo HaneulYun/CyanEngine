@@ -39,7 +39,8 @@ public:
 	lua_State* L;
 	RWLock lua_l;
 	
-	// Astar astar;
+	Astar astar;
+	atomic_bool pathFinding = false;
 
 	void heal_player()
 	{

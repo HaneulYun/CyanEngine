@@ -38,25 +38,26 @@ public:
 	HANDLE g_iocp;
 	SOCKET l_socket;
 	unordered_map<int, Client> g_clients;
-	
+
 	Timer timer;
 	Database database;
-	Gameworld* gameworld{ nullptr };
 
 	unordered_set<int> g_ObjectListSector[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 	RWLock g_SectorLock[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 
 	vector<Point> collidePoints;
-	
+	GameWorld* gameworld{ nullptr };
+
 	bool is_player(int id);
 	bool is_near(int a, int b);
 	bool is_collide(int x, int y);
 
 	void init_npc();
 	void activate_npc(int id);
+	void path_find_npc(int npcid, int playerid, int firstX, int firstY);
 	void random_move_npc(int id, int firstX, int firstY);
 	void respawn_npc(int id);
-	
+
 	void initialize_clients();
 	void process_packet(int user_id, char* buf);
 	void recv_packet_construct(int user_id, int io_byte);
@@ -89,6 +90,7 @@ int API_get_y(lua_State* L);
 int API_set_x(lua_State* L);
 int API_set_y(lua_State* L);
 int API_set_hp(lua_State* L);
+int API_pathFind(lua_State* L);
 int API_add_timer_run(lua_State* L);
 int API_run_finished(lua_State* L);
 int API_player_damaged(lua_State* L);

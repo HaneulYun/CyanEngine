@@ -4,8 +4,6 @@ IOCPServer iocpServer;
 
 IOCPServer::IOCPServer()
 {
-	//gameworld = new Gameworld();
-	//printf("그래프 만들기 완료\n");
 	ifstream in{ "colliders.txt" };
 	istream_iterator<Point> c_i(in);
 	while (c_i != istream_iterator<Point>())
@@ -13,10 +11,16 @@ IOCPServer::IOCPServer()
 		collidePoints.emplace_back(*c_i);
 		*c_i++;
 	}
-	//ofstream out("astar.txt");
-	//for (int i = 0; i < 800; ++i)
-	//	for (int j = 0; j < 800; ++j)
-	//		out << is_collide(j, i) << " ";
+
+	gameworld = new GameWorld;
+
+	for (int i = 0; i < WORLD_HEIGHT; ++i)
+		for (int j = 0; j < WORLD_WIDTH; ++j)
+		{
+			gameworld->nodeMap[i][j] = new Node(j, i);
+			gameworld->nodeMap[i][j]->obstacle = is_collide(j, i);
+		}
+
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);
 
@@ -100,8 +104,7 @@ void IOCPServer::init_npc()
 		g_clients[i].m_s = 0;
 		g_clients[i].m_id = i;
 		g_clients[i].m_status = ST_SLEEP;
-		//g_clients[i].astar.gameworld = gameworld;
-
+		g_clients[i].astar.gameworld = gameworld;
 		// Set Position
 		xSect = ((i- NPC_ID_START) % 200) / 5;
 		ySect = (i - NPC_ID_START) / 200;
@@ -158,6 +161,7 @@ void IOCPServer::init_npc()
 			lua_register(L, "API_set_hp", API_set_hp);
 			lua_register(L, "API_player_damaged", API_player_damaged);
 			lua_register(L, "API_random_move", API_random_move);
+			lua_register(L, "API_pathFind", API_pathFind);
 
 			g_clients[i].m_inform.level = g_clients[i].m_otype;
 			g_clients[i].m_inform.exp = 5 * g_clients[i].m_inform.level;
@@ -194,6 +198,7 @@ void IOCPServer::init_npc()
 			lua_register(L, "API_set_hp", API_set_hp);
 			lua_register(L, "API_player_damaged", API_player_damaged);
 			lua_register(L, "API_random_move", API_random_move);
+			lua_register(L, "API_pathFind", API_pathFind);
 
 			g_clients[i].m_inform.level = g_clients[i].m_otype;
 			g_clients[i].m_inform.exp = 5 * g_clients[i].m_inform.level;
@@ -268,11 +273,6 @@ void IOCPServer::init_npc()
 		g_SectorLock[g_clients[i].m_inform.y / SECTOR_WIDTH][g_clients[i].m_inform.x / SECTOR_WIDTH].EnterWriteLock();
 		g_ObjectListSector[g_clients[i].m_inform.y / SECTOR_WIDTH][g_clients[i].m_inform.x / SECTOR_WIDTH].insert(g_clients[i].m_id);
 		g_SectorLock[g_clients[i].m_inform.y / SECTOR_WIDTH][g_clients[i].m_inform.x / SECTOR_WIDTH].LeaveWriteLock();
-		
-		//lua_register(L, "API_send_message", API_SendMessage);
-		//lua_register(L, "API_player_damaged", API_player_damaged);
-		//lua_register(L, "API_add_timer_run", API_add_timer_run);
-		//lua_register(L, "API_run_finished", API_run_finished);
 	}
 }
 
@@ -282,8 +282,100 @@ void IOCPServer::activate_npc(int id)
 	if (true == atomic_compare_exchange_strong(&g_clients[id].m_status, &old_state, ST_ACTIVE))
 	{
 		if (g_clients[id].m_otype == O_FLAREON)
-			timer.add_timer(id, OP_RANDOM_MOVE, 1000, 0);
+			timer.add_timer(id, OP_RANDOM_MOVE, 1000, 0, 0, 0);
 	}
+}
+
+void IOCPServer::path_find_npc(int npcid, int playerid, int firstX, int firstY)
+{
+	if (g_clients[npcid].m_status == ST_DEAD)
+		return;
+	Client& m = g_clients[npcid];
+	Client& u = g_clients[playerid];
+
+	m.pathFinding = true;
+
+	m.m_cl.EnterWriteLock();
+	if (m.astar.path.empty())
+		m.astar.PathFinding(m.m_inform.x, m.m_inform.y, u.m_inform.x, u.m_inform.y);
+
+	if (m.astar.path.empty())
+		return;
+	m.m_cl.LeaveWriteLock();
+
+	if (abs(firstX - m.astar.path.front()->getX() > 10) || abs(firstY - m.astar.path.front()->getY() > 10))
+	{
+		m.pathFinding = false;
+		m.m_cl.EnterWriteLock();
+		m.astar.path.clear();
+		m.astar.openNodeList.clear();
+		m.astar.closeNodeList.clear();
+		m.m_cl.LeaveWriteLock();
+
+		if (m.m_otype == O_EEVEE || m.m_otype == O_JOLTEON){
+			m.m_status = ST_SLEEP;
+			return;
+		}
+		else
+			random_move_npc(npcid, firstX, firstY);
+		return;
+	}
+	int x = m.astar.path.front()->getX();
+	int y = m.astar.path.front()->getY();
+
+	if (m.m_inform.x / SECTOR_WIDTH != x / SECTOR_WIDTH || m.m_inform.y / SECTOR_WIDTH != y / SECTOR_WIDTH)
+	{
+		g_SectorLock[m.m_inform.y / SECTOR_WIDTH][m.m_inform.x / SECTOR_WIDTH].EnterWriteLock();
+		g_ObjectListSector[m.m_inform.y / SECTOR_WIDTH][m.m_inform.x / SECTOR_WIDTH].erase(npcid);
+		g_SectorLock[m.m_inform.y / SECTOR_WIDTH][m.m_inform.x / SECTOR_WIDTH].LeaveWriteLock();
+		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].EnterWriteLock();
+		g_ObjectListSector[y / SECTOR_WIDTH][x / SECTOR_WIDTH].insert(npcid);
+		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
+	}
+
+	m.m_inform.x = x;
+	m.m_inform.y = y;
+	m.astar.path.pop_front();
+
+	for (int i = m.m_inform.y / SECTOR_WIDTH - 1; i <= m.m_inform.y / SECTOR_WIDTH + 1; ++i) {
+		if (i < 0 || i > WORLD_HEIGHT / SECTOR_WIDTH - 1) continue;
+		for (int j = m.m_inform.x / SECTOR_WIDTH - 1; j <= m.m_inform.x / SECTOR_WIDTH + 1; ++j) {
+			if (j < 0 || j > WORLD_WIDTH / SECTOR_WIDTH - 1) continue;
+			g_SectorLock[i][j].EnterReadLock();
+			for (auto nearObj : g_ObjectListSector[i][j]) {
+				if (ST_ACTIVE != g_clients[nearObj].m_status)	continue;
+				if (false == is_player(nearObj))	continue;
+				if (true == is_near(nearObj, npcid)) {
+					g_clients[nearObj].m_cl.EnterReadLock();
+					if (0 != g_clients[nearObj].view_list.count(npcid)) {
+						g_clients[nearObj].m_cl.LeaveReadLock();
+						send_move_packet(nearObj, npcid);
+					}
+					else {
+						g_clients[nearObj].m_cl.LeaveReadLock();
+						send_enter_packet(nearObj, npcid);
+					}
+
+					EXOVER* over = new EXOVER;
+					over->op = OP_PLAYER_MOVE;
+					over->p_id = nearObj;
+					PostQueuedCompletionStatus(g_iocp, 1, npcid, &over->over);
+				}
+				else {
+					g_clients[nearObj].m_cl.EnterReadLock();
+					if (0 != g_clients[nearObj].view_list.count(npcid)) {
+						g_clients[nearObj].m_cl.LeaveReadLock();
+						send_leave_packet(nearObj, npcid);
+					}
+					else
+						g_clients[nearObj].m_cl.LeaveReadLock();
+				}
+			}
+			g_SectorLock[i][j].LeaveReadLock();
+		}
+	}
+
+	timer.add_timer(npcid, OP_PATHFIND, 1000, playerid, firstX, firstY);
 }
 
 void IOCPServer::random_move_npc(int id, int firstX, int firstY)
@@ -333,8 +425,10 @@ void IOCPServer::random_move_npc(int id, int firstX, int firstY)
 		g_SectorLock[y / SECTOR_WIDTH][x / SECTOR_WIDTH].LeaveWriteLock();
 	}
 
+	g_clients[id].m_cl.EnterWriteLock();
 	g_clients[id].m_inform.x = x;
 	g_clients[id].m_inform.y = y;
+	g_clients[id].m_cl.LeaveWriteLock();
 
 	bool flag = false;
 
@@ -378,7 +472,7 @@ void IOCPServer::random_move_npc(int id, int firstX, int firstY)
 	}
 
 	if (!flag) g_clients[id].m_status = ST_SLEEP;
-	else timer.add_timer(id, OP_RANDOM_MOVE, 1000, 0);
+	else timer.add_timer(id, OP_RANDOM_MOVE, 1000, 0, firstX, firstY);
 }
 
 void IOCPServer::respawn_npc(int id)
@@ -625,6 +719,19 @@ void IOCPServer::worker_thread()
 			AcceptEx(l_socket, c_socket, exover->io_buf, NULL, sizeof(sockaddr_in) + 16, sizeof(sockaddr_in) + 16, NULL, &exover->over);
 		}
 		break;
+		case OP_PATHFIND:
+		{
+			if (g_clients[user_id].m_otype == O_EEVEE || g_clients[user_id].m_otype == O_JOLTEON)
+			{
+				path_find_npc(user_id, exover->p_id, exover->firstX, exover->firstY);
+			}
+			else
+			{
+
+			}
+			delete exover;
+		}
+		break;
 		case OP_RANDOM_MOVE:
 		{
 			if (g_clients[user_id].m_otype == O_EEVEE || g_clients[user_id].m_otype == O_JOLTEON)
@@ -687,12 +794,11 @@ void IOCPServer::worker_thread()
 		case OP_HEAL:
 		{
 			g_clients[user_id].m_cl.EnterWriteLock();
-			//g_clients[user_id].is_healing = true;
 			g_clients[user_id].heal_player();
 			g_clients[user_id].m_cl.LeaveWriteLock();
 			send_stat_change_packet(user_id);
 			if (g_clients[user_id].m_inform.hp < 98 + pow(2, g_clients[user_id].m_inform.level))
-				timer.add_timer(user_id, OP_HEAL, 5000, 0);
+				timer.add_timer(user_id, OP_HEAL, 5000, 0, 0, 0);
 			else
 			{
 				g_clients[user_id].m_cl.EnterWriteLock();
@@ -758,7 +864,7 @@ void IOCPServer::enter_game(int user_id, char name[])
 	if (g_clients[user_id].m_inform.hp < 98 + pow(2, g_clients[user_id].m_inform.level))
 	{
 		g_clients[user_id].is_healing = true;
-		timer.add_timer(user_id, OP_HEAL, 5000, 0);
+		timer.add_timer(user_id, OP_HEAL, 5000, 0, 0, 0);
 	}
 }
 
@@ -815,6 +921,7 @@ void IOCPServer::do_move(int user_id, int direction)
 				if (ST_ACTIVE != g_clients[nearObj].m_status)continue;
 				if (nearObj == user_id)continue;
 				if (false == is_player(nearObj)) {
+
 					EXOVER* over = new EXOVER;
 					over->op = OP_PLAYER_MOVE;
 					over->p_id = user_id;
@@ -831,8 +938,16 @@ void IOCPServer::do_move(int user_id, int direction)
 	for (auto np : new_vl) {
 		if (0 == old_vl.count(np)) {	// Object가 새로 시야에 들어왔을 때
 			send_enter_packet(user_id, np);
-			if (false == is_player(np))
-				continue;
+			if (false == is_player(np)){
+				if (g_clients[np].pathFinding)
+				{			  
+					g_clients[np].m_cl.EnterWriteLock();
+					g_clients[np].astar.path.clear();
+					g_clients[np].astar.closeNodeList.clear();
+					g_clients[np].astar.openNodeList.clear();
+					g_clients[np].m_cl.LeaveWriteLock();
+				}
+			}
 			g_clients[np].m_cl.EnterReadLock();
 			if (0 == g_clients[np].view_list.count(user_id)) {
 				g_clients[np].m_cl.LeaveReadLock();
@@ -902,7 +1017,9 @@ void IOCPServer::do_attack(int user_id)
 void IOCPServer::player_damaged(int user_id, int monster_id)
 {
 	Client& u = g_clients[user_id];
+	u.m_cl.EnterWriteLock();
 	u.m_inform.hp -= g_clients[monster_id].m_inform.level * 2 + 10;
+	u.m_cl.LeaveWriteLock();
 
 	if (u.m_inform.hp > 0)
 	{
@@ -913,7 +1030,7 @@ void IOCPServer::player_damaged(int user_id, int monster_id)
 		g_clients[user_id].m_cl.EnterReadLock();
 		if (!g_clients[user_id].is_healing) {
 			g_clients[user_id].m_cl.LeaveReadLock();
-			timer.add_timer(user_id, OP_HEAL, 5000, 0);
+			timer.add_timer(user_id, OP_HEAL, 5000, 0, 0, 0);
 			g_clients[user_id].m_cl.EnterWriteLock();
 			g_clients[user_id].is_healing = true;
 			g_clients[user_id].m_cl.LeaveWriteLock();
@@ -933,10 +1050,12 @@ void IOCPServer::player_damaged(int user_id, int monster_id)
 		g_ObjectListSector[respawnY / SECTOR_WIDTH][respawnX / SECTOR_WIDTH].insert(user_id);
 		g_SectorLock[respawnY / SECTOR_WIDTH][respawnX / SECTOR_WIDTH].LeaveWriteLock();
 
+		u.m_cl.EnterWriteLock();
 		u.m_inform.hp = 98 + pow(2, u.m_inform.level);
 		u.m_inform.exp /= 2;
 		u.m_inform.x = 20;
 		u.m_inform.y = 5;
+		u.m_cl.LeaveWriteLock();
 
 		wchar_t msg[MAX_STR_LEN] = L"의 공격으로 사망하였습니다.";
 		send_chat_packet(user_id, monster_id, msg);
@@ -1028,17 +1147,22 @@ void IOCPServer::monster_damaged(int user_id, int monster_id)
 	string mname = m.m_inform.m_name;
 	mwname.assign(mname.begin(), mname.end());
 
+	m.m_cl.EnterWriteLock();
 	m.m_inform.hp -= u.m_inform.level * 5 + 5;
-	
+	m.m_cl.LeaveWriteLock();
+
 	if (m.m_inform.hp > 0)
 	{
-		g_clients[monster_id].lua_l.EnterWriteLock();
-		lua_State* L = g_clients[monster_id].L;
-		lua_getglobal(L, "event_attacked");
-		lua_pushnumber(L, user_id);
-		lua_pcall(L, 1, 0, 0);
-		//lua_pop(L, 1);
-		g_clients[monster_id].lua_l.LeaveWriteLock();
+		if (!m.pathFinding)
+		{
+			g_clients[monster_id].lua_l.EnterWriteLock();
+			lua_State* L = g_clients[monster_id].L;
+			lua_getglobal(L, "event_attacked");
+			lua_pushnumber(L, user_id);
+			lua_pcall(L, 1, 0, 0);
+			//lua_pop(L, 1);
+			g_clients[monster_id].lua_l.LeaveWriteLock();
+		}
 
 		wchar_t msg[MAX_STR_LEN];
 		wsprintf(msg, L"가 %s를 때려서 %d의 데미지를 입혔습니다.", mwname.c_str(), u.m_inform.level * 5 + 5);
@@ -1047,7 +1171,16 @@ void IOCPServer::monster_damaged(int user_id, int monster_id)
 	}
 	else
 	{
+		m.pathFinding = false;
+		g_clients[monster_id].m_cl.EnterWriteLock();
+		g_clients[monster_id].astar.path.clear();
+		g_clients[monster_id].astar.openNodeList.clear();
+		g_clients[monster_id].astar.closeNodeList.clear();
+		g_clients[monster_id].m_cl.LeaveWriteLock();
+
+		u.m_cl.EnterWriteLock();
 		u.exp_plus(m.m_inform.exp);
+		u.m_cl.LeaveWriteLock();
 		send_stat_change_packet(user_id);
 		wchar_t msg[MAX_STR_LEN];
 		wsprintf(msg, L"가 %s를 무찔러서 %d의 경험치를 얻었습니다.", mwname.c_str(), m.m_inform.exp);
@@ -1073,7 +1206,7 @@ void IOCPServer::monster_damaged(int user_id, int monster_id)
 		}
 
 		m.m_status = ST_DEAD;
-		timer.add_timer(monster_id, OP_RESPAWN, 30000, 0);
+		timer.add_timer(monster_id, OP_RESPAWN, 30000, 0, 0, 0);
 	}
 }
 
@@ -1255,7 +1388,7 @@ int API_add_timer_run(lua_State* L)
 {
 	int my_id = (int)lua_tointeger(L, -2);
 	int user_id = (int)lua_tointeger(L, -1);
-	iocpServer.timer.add_timer(my_id, OP_RUN, 1000, user_id);
+	iocpServer.timer.add_timer(my_id, OP_RUN, 1000, user_id, 0, 0);
 	lua_pop(L, 2);
 	return 0;
 }
@@ -1311,6 +1444,18 @@ int API_set_hp(lua_State* L)
 	lua_pop(L, 2);
 
 	iocpServer.g_clients[my_id].m_inform.hp = my_maxhp;
+	return 0;
+}
+
+int API_pathFind(lua_State* L)
+{
+	int my_id = (int)lua_tointeger(L, -4);
+	int p_id = (int)lua_tointeger(L, -3);
+	int firstX = (int)lua_tointeger(L, -2);
+	int firstY = (int)lua_tointeger(L, -1);
+	lua_pop(L, 4);
+
+	iocpServer.timer.add_timer(my_id, OP_PATHFIND, 1000, p_id, firstX, firstY);
 	return 0;
 }
 
