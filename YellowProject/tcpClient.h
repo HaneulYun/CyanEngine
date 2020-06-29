@@ -304,6 +304,15 @@ public:
 		send_packet(&m_packet);
 	}
 
+	void send_chat_packet(const std::wstring& message)
+	{
+		cs_packet_chat c_packet{};
+		c_packet.type = C2S_CHAT;
+		c_packet.size = sizeof(c_packet);
+		wsprintf(c_packet.message, L"%ls", message.c_str());
+		send_packet(&c_packet);
+	}
+
 	void UpdateLog()
 	{
 		while (chatlog.size() > 6)
@@ -335,6 +344,7 @@ public:
 			if (Input::GetKeyDown(KeyCode::Return))
 			{
 				chatlog.push(chatter->text);
+				send_chat_packet(chatter->text);
 				UpdateLog();
 				chatter->text = L"";
 				isChatting = false;
