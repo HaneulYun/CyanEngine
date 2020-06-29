@@ -11,6 +11,9 @@ void GameScene::BuildObjects()
 	ASSET AddTexture("playerTex", L"Textures\\p2.dds");
 	ASSET AddTexture("userTex", L"Textures\\p1.dds");
 	ASSET AddTexture("npcTex", L"Textures\\p5.dds");
+	ASSET AddTexture("humanTex", L"Textures\\human.dds");
+	ASSET AddTexture("orcTex", L"Textures\\orc.dds");
+	ASSET AddTexture("elfTex", L"Textures\\elf.dds");
 
 	{
 		std::string texName = "tileTex";
@@ -27,6 +30,9 @@ void GameScene::BuildObjects()
 	ASSET AddMaterial("playerMat", ASSET TEXTURE("playerTex"));
 	ASSET AddMaterial("userMat", ASSET TEXTURE("userTex"));
 	ASSET AddMaterial("npcMat", ASSET TEXTURE("npcTex"));
+	ASSET AddMaterial("humanMat", ASSET TEXTURE("humanTex"));
+	ASSET AddMaterial("orcMat", ASSET TEXTURE("orcTex"));
+	ASSET AddMaterial("elfMat", ASSET TEXTURE("elfTex"));
 	{
 		std::string texName = "tileTex";
 		for (int i = 0; i < 104; ++i)

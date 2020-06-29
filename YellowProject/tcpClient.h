@@ -224,7 +224,20 @@ public:
 				if (id < NPC_ID_START)
 					npcs[id]->gameObject->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("userMat");
 				else
-					npcs[id]->gameObject->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("npcMat");
+				{
+					switch (my_packet->o_type)
+					{
+					case O_HUMAN:
+						npcs[id]->gameObject->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("humanMat");
+						break;
+					case O_ELF:
+						npcs[id]->gameObject->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("elfMat");
+						break;
+					case O_ORC:
+						npcs[id]->gameObject->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("orcMat");
+						break;
+					}
+				}
 				strcpy(npcs[id]->name, my_packet->name);
 				npcs[id]->setName();
 				npcs[id]->move(my_packet->x, my_packet->y);
@@ -268,6 +281,21 @@ public:
 			{
 				npcs[o_id]->addChat(my_packet->mess);
 			}
+
+			if (o_id < NPC_ID_START)
+			{
+				chatlog.push(my_packet->mess);
+				UpdateLog();
+			}
+		}
+		break;
+		case S2C_STAT_CHANGE:
+		{
+			sc_packet_stat_change* my_packet = reinterpret_cast<sc_packet_stat_change*>(ptr);
+			
+			avatar->hp = my_packet->hp;
+			avatar->level = my_packet->level;
+			avatar->exp = my_packet->exp;
 		}
 		break;
 		default:
@@ -329,7 +357,7 @@ public:
 		cs_packet_chat c_packet{};
 		c_packet.type = C2S_CHAT;
 		c_packet.size = sizeof(c_packet);
-		wsprintf(c_packet.message, L"%ls", message.c_str());
+		wcscpy(c_packet.message, message.c_str());
 		send_packet(&c_packet);
 	}
 

@@ -1,7 +1,7 @@
 #pragma once
 
 constexpr int MAX_ID_LEN = 50;
-constexpr int MAX_STR_LEN = 80;
+constexpr int MAX_STR_LEN = 60;
 
 #define WORLD_WIDTH		800
 #define WORLD_HEIGHT	800

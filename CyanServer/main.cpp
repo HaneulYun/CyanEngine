@@ -84,6 +84,14 @@ struct CLIENT
 	char m_papcket_buf[MAX_PACKET_SIZE];
 	atomic<C_STATUS> m_status;
 
+	// user
+	short hp{ 100 };
+	short level{ 1 };
+	int exp{ 0 };
+
+	// npc
+	int o_type;
+
 	short x, y;
 	char m_name[MAX_ID_LEN + 1];
 	unsigned m_move_time;
@@ -158,7 +166,7 @@ void send_enter_packet(int user_id, int o_id)
 	p.x = g_clients[o_id].x;
 	p.y = g_clients[o_id].y;
 	strcpy_s(p.name, g_clients[o_id].m_name);
-	p.o_type = O_HUMAN;
+	p.o_type = g_clients[o_id].o_type;
 
 	g_clients[user_id].m_cl.lock();
 	g_clients[user_id].view_list.insert(o_id);
@@ -201,6 +209,18 @@ void send_chat_packet(int user_id, int chatter, const wchar_t mess[])
 	p.size = sizeof(p);
 	p.type = S2C_CHAT;
 	wcscpy(p.mess, mess);
+
+	send_packet(user_id, &p);
+}
+
+void send_stat_packet(int user_id, short hp, short level, int exp)
+{
+	sc_packet_stat_change p;
+	p.size = sizeof(p);
+	p.type = S2C_STAT_CHANGE;
+	p.hp = hp;
+	p.level = level;
+	p.exp = exp;
 
 	send_packet(user_id, &p);
 }
@@ -446,7 +466,6 @@ void enter_game(int user_id, char name[])
 					retcode = SQLExecDirect(hstmt, (SQLWCHAR*)exec.c_str(), SQL_NTS);
 					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 						printf("Select OK\n");
-						found = true;
 						// Bind columns 1, 2, and 3  
 						retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, &data_id, 20, &cbid);
 						retcode = SQLBindCol(hstmt, 2, SQL_C_LONG, &data_x, 100, &cbx);
@@ -459,6 +478,7 @@ void enter_game(int user_id, char name[])
 								show_error();
 							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 							{
+								found = true;
 								wprintf(L"%d: %ls %d %d\n", i + 1, data_id, data_x, data_y);
 							}
 							else
@@ -484,7 +504,12 @@ void enter_game(int user_id, char name[])
 	}
 
 	if (!found)
-		return;
+	{
+		//return;
+
+		data_x = rand() % 800;
+		data_y = rand() % 800;
+	}
 
 	g_clients[user_id].m_cl.lock();
 	strcpy(g_clients[user_id].m_name, name);
@@ -531,6 +556,38 @@ void process_packet(int user_id, char* buf)
 		cs_packet_move* packet = reinterpret_cast<cs_packet_move*>(buf);
 		g_clients[user_id].m_move_time = packet->move_time;
 		do_move(user_id, packet->direction);
+	}
+	break;
+	case C2S_CHAT:
+	{
+		cs_packet_chat* packet = reinterpret_cast<cs_packet_chat*>(buf);
+
+		for (auto& cl : g_clients)
+		{
+			if (ST_ACTIVE != cl.m_status) continue;
+			if (cl.m_id == user_id) continue;
+			send_chat_packet(cl.m_id, user_id, packet->message);
+		}
+	}
+	break;
+	case C2S_ATTACK:
+	{
+		cs_packet_attack* packet = reinterpret_cast<cs_packet_attack*>(buf);
+
+		auto& u = g_clients[user_id];
+		for (auto& cl : g_clients[user_id].view_list)
+		{
+			if (cl < NPC_ID_START) continue;
+			if (ST_ACTIVE != g_clients[cl].m_status) continue;
+
+			auto& o = g_clients[cl];
+			if (abs(u.x - o.x) + abs(u.y - o.y) > 1)
+				continue;
+
+			u.hp -= 5;
+			u.exp += 10;
+			send_stat_packet(user_id, u.hp, u.level, u.exp);
+		}
 	}
 	break;
 	default:
@@ -867,6 +924,7 @@ void init_npc()
 		g_clients[i].m_id = i;
 		sprintf(g_clients[i].m_name, "NPC%d", i);
 		g_clients[i].m_status = ST_SLEEP;
+		g_clients[i].o_type = rand() % 3;
 		g_clients[i].x = rand() % WORLD_WIDTH;
 		g_clients[i].y = rand() % WORLD_HEIGHT;
 		//g_clients[i].m_last_move_time = high_resolution_clock::now();
