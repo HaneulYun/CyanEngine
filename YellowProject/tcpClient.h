@@ -31,6 +31,8 @@ private /*이 영역에 private 변수를 선언하세요.*/:
 	bool isID{ false };
 	std::wstring id;
 
+	bool isChatting{ false };
+
 	WSADATA WSAData;
 	SOCKET serverSocket;
 
@@ -51,9 +53,13 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	std::unordered_map<int, Pawn*> npcs;
 
 	Text* coordinateText;
+	Text* statusText;
+	Text* chatter;
+	Text* logger;
 	GameObject* ipEditor{ nullptr };
 	GameObject* idEditor{ nullptr };
 
+	std::queue<std::wstring> chatlog;
 	//char myID{ -1 };
 	int g_left_x;
 	int g_top_y;
@@ -79,70 +85,12 @@ public:
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
-		if (!isID)
-		{
-
-			if (Input::GetKeyDown(KeyCode::Return))
-			{
-				isID = true;
-				idEditor->SetActive(false);
-				Input::ClearBuffer();
-			}
-			else
-			{
-				wchar_t wstr[256];
-				wsprintf(wstr, L"%s", Input::buffer);
-				id = wstr;
-				std::wstring idis(L"ID : ");
-				idEditor->GetComponent<Text>()->text = idis + wstr;
-			}
-		}
-		else if (!isIP)
-		{
-			if (Input::GetKeyDown(KeyCode::Return))
-			{
-				isIP = true;
-				ipEditor->SetActive(false);
-				Input::ClearBuffer();
-
-				WSAStartup(MAKEWORD(2, 0), &WSAData);
-				serverSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-
-				std::string addr;
-				addr.assign(ip.begin(), ip.end());
-
-				SOCKADDR_IN serverAddr{};
-				serverAddr.sin_family = AF_INET;
-				serverAddr.sin_port = htons(SERVER_PORT);
-				inet_pton(AF_INET, addr.c_str(), &serverAddr.sin_addr);
-				WSAConnect(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr), 0, 0, 0, 0);
-
-				cs_packet_login l_packet;
-				l_packet.size = sizeof(l_packet);
-				l_packet.type = C2S_LOGIN;
-				sprintf(l_packet.name, "%ls", id.c_str());
-				strcpy(avatar->name, l_packet.name);
-				avatar->setName();// set_name(l_packet.name);
-				send_packet(&l_packet);
-
-				recv = {};
-				recv.hEvent = (HANDLE)this;
-				recvbuf.buf = (char*)&recvdata;
-				recvbuf.len = BUF_SIZE;
-				WSARecv(serverSocket, &recvbuf, 1, NULL, &flags, &recv, recv_callback);
-			}
-			else
-			{
-				wchar_t wstr[256];
-				wsprintf(wstr, L"%s", Input::buffer);
-				ip = wstr;
-				std::wstring ipis(L"IP : ");
-				ipEditor->GetComponent<Text>()->text = ipis + wstr;
-			}
-		}
+		if (!InputID());
+		else if (!InputIP());
 		else
 		{
-			if (Input::GetKeyDown(KeyCode::A))
+			if (Chatting());
+			else if (Input::GetKeyDown(KeyCode::A))
 				send_move_packet(D_LEFT);
 			else if (Input::GetKeyDown(KeyCode::D))
 				send_move_packet(D_RIGHT);
@@ -151,7 +99,6 @@ public:
 			else if (Input::GetKeyDown(KeyCode::S))
 				send_move_packet(D_DOWN);
 
-			//Camera::main->gameObject->transform->position = { avatar->x - 0.5f, (float)avatar->y + 0.5f, -10 };
 			for (int i = 0; i < SCREEN_WIDTH; ++i)
 				for (int j = 0; j < SCREEN_HEIGHT; ++j)
 				{
@@ -173,6 +120,7 @@ public:
 					else
 						tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("blackTileMat");
 				}
+
 			float x = (float)avatar->x - g_left_x;
 			float y = (float)avatar->y - g_top_y;
 			avatar->gameObject->transform->position = { (float)avatar->x - g_left_x, (float)avatar->y - g_top_y, -1 };
@@ -200,6 +148,8 @@ public:
 			wchar_t wstr[20];
 			wsprintf(wstr, L"(%d, %d)", avatar->x, avatar->y);
 			coordinateText->text = wstr;
+
+			avatar->UpdateStatus(statusText->text);
 		}
 		SleepEx(10, TRUE);
 	}
@@ -352,5 +302,117 @@ public:
 		m_packet.size = sizeof(m_packet);
 		m_packet.direction = dir;
 		send_packet(&m_packet);
+	}
+
+	void UpdateLog()
+	{
+		while (chatlog.size() > 6)
+			chatlog.pop();
+		logger->text = L"";
+
+		auto logtmp = chatlog;
+		while (logtmp.size())
+		{
+			logger->text += L"\n" + logtmp.front();
+			logtmp.pop();
+		}
+	}
+
+	bool Chatting()
+	{
+		if (!isChatting)
+		{
+			if (Input::GetKeyDown(KeyCode::Return))
+			{
+				isChatting = true;
+				Input::ClearBuffer();
+			}
+		}
+		else
+		{
+			chatter->text = id + L" : " + Input::buffer;
+
+			if (Input::GetKeyDown(KeyCode::Return))
+			{
+				chatlog.push(chatter->text);
+				UpdateLog();
+				chatter->text = L"";
+				isChatting = false;
+				return true;
+			}
+		}
+		return isChatting;
+	}
+
+	bool InputID()
+	{
+		if (!isID)
+		{
+			if (Input::GetKeyDown(KeyCode::Return))
+			{
+				isID = true;
+				idEditor->SetActive(false);
+				Input::ClearBuffer();
+				return false;
+			}
+			else
+			{
+				wchar_t wstr[256];
+				wsprintf(wstr, L"%s", Input::buffer);
+				id = wstr;
+				std::wstring idis(L"ID : ");
+				idEditor->GetComponent<Text>()->text = idis + wstr;
+			}
+		}
+		return isID;
+	}
+
+	bool InputIP()
+	{
+		if (!isIP)
+		{
+			if (Input::GetKeyDown(KeyCode::Return))
+			{
+				isIP = true;
+				ipEditor->SetActive(false);
+				Input::ClearBuffer();
+
+				WSAStartup(MAKEWORD(2, 0), &WSAData);
+				serverSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+
+				std::string addr;
+				addr.assign(ip.begin(), ip.end());
+
+				SOCKADDR_IN serverAddr{};
+				serverAddr.sin_family = AF_INET;
+				serverAddr.sin_port = htons(SERVER_PORT);
+				inet_pton(AF_INET, addr.c_str(), &serverAddr.sin_addr);
+				WSAConnect(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr), 0, 0, 0, 0);
+
+				cs_packet_login l_packet;
+				l_packet.size = sizeof(l_packet);
+				l_packet.type = C2S_LOGIN;
+				sprintf(l_packet.name, "%ls", id.c_str());
+				strcpy(avatar->name, l_packet.name);
+				avatar->setName();// set_name(l_packet.name);
+				send_packet(&l_packet);
+
+				recv = {};
+				recv.hEvent = (HANDLE)this;
+				recvbuf.buf = (char*)&recvdata;
+				recvbuf.len = BUF_SIZE;
+				WSARecv(serverSocket, &recvbuf, 1, NULL, &flags, &recv, recv_callback);
+				return false;
+			}
+			else
+			{
+				wchar_t wstr[256];
+				wsprintf(wstr, L"%s", Input::buffer);
+				ip = wstr;
+				std::wstring ipis(L"IP : ");
+				ipEditor->GetComponent<Text>()->text = ipis + wstr;
+			}
+		}
+		return isIP;
 	}
 };

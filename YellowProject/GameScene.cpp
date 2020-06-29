@@ -45,7 +45,7 @@ void GameScene::BuildObjects()
 
 		auto text = coordinatePrinter->AddComponent<Text>();
 		text->text = L"(0, 0)";
-		text->font = L"메이플스토리";
+		text->font = L"고딕";
 		text->fontSize = 40;
 		text->color = { 217 / 255.f, 120 / 255.f, 235 / 255.f, 1 };
 		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
@@ -71,7 +71,7 @@ void GameScene::BuildObjects()
 
 			auto text = name->AddComponent<Text>();
 			text->text = L"";
-			text->font = L"메이플스토리";
+			text->font = L"고딕";
 			text->fontSize = 15;
 			text->color = { 235 / 255.f, 207 / 255.f, 73 / 255.f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
@@ -87,7 +87,7 @@ void GameScene::BuildObjects()
 
 			auto text = chat->AddComponent<Text>();
 			text->text = L"";
-			text->font = L"메이플스토리";
+			text->font = L"고딕";
 			text->fontSize = 15;
 			text->color = { 87 / 255.f, 120 / 255.f, 207 / 255.f, 1 };
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
@@ -104,7 +104,7 @@ void GameScene::BuildObjects()
 
 		auto text = TextEditForID->AddComponent<Text>();
 		text->text = L"ID : (input here)";
-		text->font = L"메이플스토리";
+		text->font = L"고딕";
 		text->fontSize = 40;
 		text->color = { 217 / 255.f, 120 / 255.f, 235 / 255.f, 1 };
 		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
@@ -120,7 +120,7 @@ void GameScene::BuildObjects()
 
 		auto text = TextEditForIP->AddComponent<Text>();
 		text->text = L"IP : (input here)";
-		text->font = L"메이플스토리";
+		text->font = L"고딕";
 		text->fontSize = 40;
 		text->color = { 217 / 255.f, 120 / 255.f, 235 / 255.f, 1 };
 		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
@@ -153,4 +153,71 @@ void GameScene::BuildObjects()
 					tile->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("blackTileMat"));
 			}
 		}
+
+	auto status = CreateImage();
+	{
+		status->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("whiteTileMat");
+
+		auto rectTransform = status->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 1 };
+		rectTransform->anchorMax = { 0, 1 };
+		rectTransform->pivot = { 0, 1 };
+		rectTransform->posX = 8;
+		rectTransform->posY = -8;
+		rectTransform->width = 240;
+		rectTransform->height = 50;
+
+		auto text = status->AddComponent<Text>();
+		text->text = L" Level : 1        Exp : 0 / 100 \n HP : 100 / 100";
+		text->font = L"고딕";
+		text->fontSize = 20;
+		text->color = { 1, 1, 1, 1 };
+		textObjects.push_back(status);
+		board->GetComponent<TCPClient>()->statusText = text;
+	}
+
+	auto chatGUI = CreateImage();
+	{
+		chatGUI->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("whiteTileMat");
+
+		auto rectTransform = chatGUI->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 0 };
+		rectTransform->anchorMax = { 0, 0 };
+		rectTransform->pivot = { 0, 0 };
+		rectTransform->posX = 8;
+		rectTransform->posY = 32;
+		rectTransform->width = 400 - 8;
+		rectTransform->height = 200 - 32;
+
+		auto text = chatGUI->AddComponent<Text>();
+		text->text = L"";
+		text->font = L"고딕";
+		text->fontSize = 20;
+		text->color = { 1, 1, 1, 1 };
+		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_FAR;
+		textObjects.push_back(chatGUI);
+		board->GetComponent<TCPClient>()->logger = text;
+	}
+
+	auto chatInputter = CreateImage();
+	{
+		chatInputter->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("whiteTileMat");
+
+		auto rectTransform = chatInputter->GetComponent<RectTransform>();
+		rectTransform->anchorMin = { 0, 0 };
+		rectTransform->anchorMax = { 0, 0 };
+		rectTransform->pivot = { 0, 0 };
+		rectTransform->posX = 8;
+		rectTransform->posY = 8;
+		rectTransform->width = 400 - 8;
+		rectTransform->height = 22;
+
+		auto text = chatInputter->AddComponent<Text>();
+		text->text = L"";
+		text->font = L"고딕";
+		text->fontSize = 20;
+		text->color = { 1, 1, 1, 1 };
+		textObjects.push_back(chatInputter);
+		board->GetComponent<TCPClient>()->chatter = text;
+	}
 }
