@@ -98,6 +98,8 @@ public:
 				send_move_packet(D_UP);
 			else if (Input::GetKeyDown(KeyCode::Down))
 				send_move_packet(D_DOWN);
+			else if (Input::GetKeyDown(KeyCode::A))
+				send_attack_packet();
 
 			for (int i = 0; i < SCREEN_WIDTH; ++i)
 				for (int j = 0; j < SCREEN_HEIGHT; ++j)
@@ -302,6 +304,14 @@ public:
 		m_packet.size = sizeof(m_packet);
 		m_packet.direction = dir;
 		send_packet(&m_packet);
+	}
+
+	void send_attack_packet()
+	{
+		cs_packet_attack a_packet{};
+		a_packet.type = C2S_MOVE;
+		a_packet.size = sizeof(a_packet);
+		send_packet(&a_packet);
 	}
 
 	void send_chat_packet(const std::wstring& message)
