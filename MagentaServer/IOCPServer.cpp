@@ -1110,8 +1110,8 @@ void IOCPServer::enter_game(int user_id, char name[])
 void IOCPServer::do_move(int user_id, int direction)
 {
 	Client& u = g_clients[user_id];
-	//if (high_resolution_clock::now() - u.m_last_move_time < 1s)
-	//	return;
+	if (high_resolution_clock::now() - u.m_last_move_time < 1s)
+		return;
 
 	int x = u.m_inform.x;
 	int y = u.m_inform.y;

@@ -11,6 +11,8 @@ constexpr auto MAX_PACKET_SIZE = 255;
 constexpr auto MAX_BUF_SIZE = 1024;
 constexpr auto VIEW_RADIUS = 8;
 
+#define SECTOR_WIDTH 40
+
 struct event_type {
 	int obj_id;
 	ENUMOP event_id;

@@ -14,6 +14,7 @@ using namespace std;
 class Database
 {
 public:
+	
 	/************************************************************************
 	/* HandleDiagnosticRecord : display error/warning information
 	/*
@@ -83,13 +84,13 @@ public:
 
 					// Allocate statement handle  
 					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						printf("ODBC connect OK!\n");
+						//printf("ODBC connect OK!\n");
 						retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
 
 						wstring tmp = L"EXEC add_newplayer " + wname;
 						retcode = SQLExecDirect(hstmt, (SQLWCHAR*)tmp.c_str(), SQL_NTS);
 						if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-							printf("Select OK\n");
+							//printf("Select OK\n");
 							// Bind columns 1, 2, and 3  
 							retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szUser_name, MAX_ID_LEN, &cbName);
 							retcode = SQLBindCol(hstmt, 2, SQL_C_LONG, &dUser_xpos, 100, &cbXpos);
@@ -110,12 +111,13 @@ public:
 									//warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
 									//but variadic argument 2 has type 'SQLWCHAR *'
 									//wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
+				
 									dUser_xpos = rand() % WORLD_WIDTH;
 									if (dUser_xpos >= 17 && dUser_xpos <= 23)
 										dUser_ypos = 5;
 									else
 										dUser_ypos = rand() % 5;
-									wprintf_s(L"add newPlayer %d: %s %d %d %d %d %d\n", i + 1, szUser_name, dUser_xpos, dUser_ypos, dUser_level, dUser_exp, dUser_hp);
+
 									strcpy_s(p.m_name, name.c_str());
 									p.x = dUser_xpos;
 									p.y = dUser_ypos;
@@ -184,13 +186,13 @@ public:
 
 					// Allocate statement handle  
 					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						printf("ODBC connect OK!\n");
+						//printf("ODBC connect OK!\n");
 						retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
 
 						wstring tmp = L"EXEC select_samename " + wname;
 						retcode = SQLExecDirect(hstmt, (SQLWCHAR*)tmp.c_str(), SQL_NTS);
 						if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-							printf("Select OK\n");
+							//printf("Select OK\n");
 							// Bind columns 1, 2, and 3  
 							retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szUser_name, MAX_ID_LEN, &cbName);
 							retcode = SQLBindCol(hstmt, 2, SQL_C_LONG, &dUser_xpos, 100, &cbXpos);
@@ -211,7 +213,7 @@ public:
 									//warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
 									//but variadic argument 2 has type 'SQLWCHAR *'
 									//wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
-									wprintf_s(L"find name %d: %s %d %d %d %d %d\n", i + 1, szUser_name, dUser_xpos, dUser_ypos, dUser_level, dUser_exp, dUser_hp);
+									//wprintf_s(L"find name %d: %s %d %d %d %d %d\n", i + 1, szUser_name, dUser_xpos, dUser_ypos, dUser_level, dUser_exp, dUser_hp);
 									strcpy_s(p.m_name, name.c_str());
 									p.x = dUser_xpos;
 									p.y = dUser_ypos;
@@ -278,13 +280,13 @@ public:
 
 					// Allocate statement handle  
 					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						printf("ODBC connect OK!\n");
+						//printf("ODBC connect OK!\n");
 						retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
 
 						wstring tmp = L"EXEC set_userdata " + wname + L", " + to_wstring(x) + L", " + to_wstring(y) + L", " + to_wstring(level) + L", " + to_wstring(exp) + L", " + to_wstring(hp);
 						retcode = SQLExecDirect(hstmt, (SQLWCHAR*)tmp.c_str(), SQL_NTS);
 						if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-							printf("Select OK\n");
+							//printf("Select OK\n");
 							// Bind columns 1, 2, and 3  
 							retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szUser_name, MAX_ID_LEN, &cbName);
 							retcode = SQLBindCol(hstmt, 2, SQL_C_LONG, &dUser_xpos, 100, &cbXpos);
@@ -305,7 +307,7 @@ public:
 									//warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
 									//but variadic argument 2 has type 'SQLWCHAR *'
 									//wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
-									wprintf_s(L"set data %d: %s %d %d %d %d %d\n", i + 1, szUser_name, dUser_xpos, dUser_ypos, dUser_level, dUser_exp, dUser_hp);
+									//wprintf_s(L"set data %d: %s %d %d %d %d %d\n", i + 1, szUser_name, dUser_xpos, dUser_ypos, dUser_level, dUser_exp, dUser_hp);
 								}
 								else
 									break;

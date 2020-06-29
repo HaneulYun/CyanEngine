@@ -28,8 +28,6 @@ extern "C" {
 #include "RWLock.h"
 #include "etc.h"
 
-#define SECTOR_WIDTH 40
-
 using namespace std;
 
 class IOCPServer {
