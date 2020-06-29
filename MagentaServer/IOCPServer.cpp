@@ -4,8 +4,8 @@ IOCPServer iocpServer;
 
 IOCPServer::IOCPServer()
 {
-	gameworld = new Gameworld();
-	printf("그래프 만들기 완료\n");
+	//gameworld = new Gameworld();
+	//printf("그래프 만들기 완료\n");
 	ifstream in{ "colliders.txt" };
 	istream_iterator<Point> c_i(in);
 	while (c_i != istream_iterator<Point>())
@@ -17,7 +17,6 @@ IOCPServer::IOCPServer()
 	//for (int i = 0; i < 800; ++i)
 	//	for (int j = 0; j < 800; ++j)
 	//		out << is_collide(j, i) << " ";
-	printf("충돌체 읽기 완료\n");
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);
 
@@ -97,11 +96,11 @@ void IOCPServer::init_npc()
 {
 	int xSect = 0;
 	int ySect = 0;
-	for (int i = NPC_ID_START; i < NPC_ID_START + 400; ++i) {
+	for (int i = NPC_ID_START; i < NPC_ID_START + 600; ++i) {
 		g_clients[i].m_s = 0;
 		g_clients[i].m_id = i;
 		g_clients[i].m_status = ST_SLEEP;
-		g_clients[i].astar.gameworld = gameworld;
+		//g_clients[i].astar.gameworld = gameworld;
 
 		// Set Position
 		xSect = ((i- NPC_ID_START) % 200) / 5;
@@ -203,6 +202,38 @@ void IOCPServer::init_npc()
 		else if (i < NUM_NPC * 3 / 10 + NPC_ID_START) {
 			g_clients[i].m_otype = O_FLAREON;
 			sprintf_s(g_clients[i].m_inform.m_name, "Flareon");
+			lua_State* L = g_clients[i].L = luaL_newstate();
+			luaL_openlibs(L);
+			luaL_loadfile(L, "3_FLAREON.LUA");
+			int error = lua_pcall(L, 0, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_uid");
+			lua_pushnumber(L, i);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstX");
+			lua_pushnumber(L, g_clients[i].m_inform.x);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_getglobal(L, "set_firstY");
+			lua_pushnumber(L, g_clients[i].m_inform.y);
+			error = lua_pcall(L, 1, 0, 0);
+			if (error) cout << lua_tostring(L, -1);
+
+			lua_register(L, "API_get_x", API_get_x);
+			lua_register(L, "API_get_y", API_get_y);
+			lua_register(L, "API_set_x", API_set_x);
+			lua_register(L, "API_set_y", API_set_y);
+			lua_register(L, "API_set_hp", API_set_hp);
+			lua_register(L, "API_player_damaged", API_player_damaged);
+			lua_register(L, "API_type_random_move", API_type_random_move);
+
+			g_clients[i].m_inform.level = g_clients[i].m_otype;
+			g_clients[i].m_inform.exp = 2 * 5 * g_clients[i].m_inform.level;
+			g_clients[i].m_inform.hp = 30;
 		}
 		else if (i < NUM_NPC * 4 / 10 + NPC_ID_START) {
 			g_clients[i].m_otype = O_VAPOREON;
@@ -249,10 +280,13 @@ void IOCPServer::activate_npc(int id)
 {
 	C_STATUS old_state = ST_SLEEP;
 	if (true == atomic_compare_exchange_strong(&g_clients[id].m_status, &old_state, ST_ACTIVE))
-		;//timer.add_timer(id, OP_RANDOM_MOVE, 1000, 0);
+	{
+		if (g_clients[id].m_otype == O_FLAREON)
+			timer.add_timer(id, OP_RANDOM_MOVE, 1000, 0);
+	}
 }
 
-void IOCPServer::random_move_npc(int id)
+void IOCPServer::random_move_npc(int id, int firstX, int firstY)
 {
 	if (g_clients[id].m_status == ST_DEAD)
 		return;
@@ -261,29 +295,29 @@ void IOCPServer::random_move_npc(int id)
 	switch (rand() % 4) {
 	case 0: {
 		if (x < (WORLD_WIDTH - 1)) {
-			if (!is_collide(x + 1, y))x++;
-			else x--;
+			if (!is_collide(x + 1, y) && abs(firstX - x + 1 <= 20)) x++;
+			else if(!is_collide(x - 1, y)) x--;
 		}
 	}
 		  break;
 	case 1: {
 		if (x > 0) {
-			if (!is_collide(x - 1, y))x--;
-			else x++;
+			if (!is_collide(x - 1, y) && abs(firstX - x - 1 <= 20)) x--;
+			else if (!is_collide(x + 1, y))x++;
 		}
 	}
 		  break;
 	case 2: {
 		if (y < (WORLD_HEIGHT - 1)) {
-			if (!is_collide(x, y + 1))y++;
-			else y--;
+			if (!is_collide(x, y + 1) && abs(firstY - y + 1 <= 20)) y++;
+			else if (!is_collide(x, y - 1)) y--;
 		}
 	}
 		  break;
 	case 3: {
 		if (y > 0) {
-			if (!is_collide(x, y - 1))y--;
-			else y++;
+			if (!is_collide(x, y - 1) && abs(firstY - y - 1 <= 20))y--;
+			else  if (!is_collide(x, y + 1)) y++;
 		}
 	}
 		  break;
@@ -593,23 +627,38 @@ void IOCPServer::worker_thread()
 		break;
 		case OP_RANDOM_MOVE:
 		{
-			random_move_npc(user_id); 
+			if (g_clients[user_id].m_otype == O_EEVEE || g_clients[user_id].m_otype == O_JOLTEON)
+			{
+				g_clients[user_id].lua_l.EnterWriteLock();
+				lua_State* L = g_clients[user_id].L;
+				lua_getglobal(L, "event_attacked");
+				lua_pushnumber(L, user_id);
+				lua_pcall(L, 1, 0, 0);
+				//lua_pop(L, 1);
+				g_clients[user_id].lua_l.LeaveWriteLock();
+			}
+			else
+			{
+				g_clients[user_id].lua_l.EnterWriteLock();
+				lua_State* L = g_clients[user_id].L;
+				lua_getglobal(L, "event_random_move");
+				lua_pcall(L, 0, 0, 0);
+				//lua_pop(L, 1);
+				g_clients[user_id].lua_l.LeaveWriteLock();
+			}
 			delete exover;
 		}
 		break;
 		case OP_PLAYER_MOVE:
 		{
-			if (g_clients[user_id].m_otype == O_EEVEE || g_clients[user_id].m_otype == O_JOLTEON)
-			{
-				g_clients[user_id].lua_l.EnterWriteLock();
-				lua_State* L = g_clients[user_id].L;
-				lua_getglobal(L, "event_player_move");
-				lua_pushnumber(L, exover->p_id);
-				lua_pcall(L, 1, 0, 0);
-				//lua_pop(L, 1);
-				g_clients[user_id].lua_l.LeaveWriteLock();
-				delete exover;
-			}
+			g_clients[user_id].lua_l.EnterWriteLock();
+			lua_State* L = g_clients[user_id].L;
+			lua_getglobal(L, "event_player_move");
+			lua_pushnumber(L, exover->p_id);
+			lua_pcall(L, 1, 0, 0);
+			//lua_pop(L, 1);
+			g_clients[user_id].lua_l.LeaveWriteLock();
+			delete exover;
 		}
 		break;
 		case OP_RUN:
@@ -1270,6 +1319,17 @@ int API_random_move(lua_State* L)
 	int my_id = (int)lua_tointeger(L, -1);
 	lua_pop(L, 2);
 
-	iocpServer.random_move_npc(my_id);
+	iocpServer.random_move_npc(my_id, iocpServer.g_clients[my_id].m_inform.x, iocpServer.g_clients[my_id].m_inform.y);
+	return 0;
+}
+
+int API_type_random_move(lua_State* L)
+{
+	int my_id = (int)lua_tointeger(L, -3);
+	int firstX = (int)lua_tointeger(L, -2);
+	int firstY = (int)lua_tointeger(L, -1);
+	lua_pop(L, 3);
+
+	iocpServer.random_move_npc(my_id, firstX, firstY);
 	return 0;
 }
