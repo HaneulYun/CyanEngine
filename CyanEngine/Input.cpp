@@ -165,8 +165,11 @@ int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LP
 	case WM_CHAR:
 		if (wParam == VK_BACK)
 		{
-			buffer[wcslen(buffer) - 1] = 0;
-			--bufferLen;
+			if (wcslen(buffer))
+			{
+				buffer[wcslen(buffer) - 1] = 0;
+				--bufferLen;
+			}
 		}
 		else if (wParam != 13)
 		{

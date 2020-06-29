@@ -90,13 +90,13 @@ public:
 		else
 		{
 			if (Chatting());
-			else if (Input::GetKeyDown(KeyCode::A))
+			else if (Input::GetKeyDown(KeyCode::Left))
 				send_move_packet(D_LEFT);
-			else if (Input::GetKeyDown(KeyCode::D))
+			else if (Input::GetKeyDown(KeyCode::Right))
 				send_move_packet(D_RIGHT);
-			else if (Input::GetKeyDown(KeyCode::W))
+			else if (Input::GetKeyDown(KeyCode::Up))
 				send_move_packet(D_UP);
-			else if (Input::GetKeyDown(KeyCode::S))
+			else if (Input::GetKeyDown(KeyCode::Down))
 				send_move_packet(D_DOWN);
 
 			for (int i = 0; i < SCREEN_WIDTH; ++i)
