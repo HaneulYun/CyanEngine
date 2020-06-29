@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 #pragma comment (lib, "WS2_32.lib")
@@ -34,6 +35,13 @@ constexpr auto MAX_BUF_SIZE = 1024;
 constexpr auto MAX_USER = NPC_ID_START;
 
 constexpr auto VIEW_RADIUS = 8;
+
+unsigned char map[WORLD_HEIGHT][WORLD_WIDTH];
+unsigned char restricted[] = {
+	3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+	16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+	73, 74, 75, 86, 88, 99, 100, 101
+};
 
 enum ENUMOP { OP_RECV, OP_SEND, OP_ACCEPT, OP_RANDOM_MOVE, OP_PLAYER_MOVE, OP_MOVE_SELF, OP_SEND_BYE };
 struct event_type
@@ -224,6 +232,17 @@ void do_move(int user_id, int direction)
 		DebugBreak();
 		exit(-1);
 	}
+	int abled = true;
+	for (auto d : restricted)
+		if (map[800 - y - 1][x] == d)
+		{
+			abled = false;
+			break;
+		}
+
+	if(!abled)
+		return;
+
 	u.x = x;
 	u.y = y;
 
@@ -934,6 +953,11 @@ void do_timer()
 
 int main()
 {
+	ifstream in;
+	in.open("tilemap.data", std::ios::binary);
+	in.read((char*)map, 800 * 800);
+	in.close();
+
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);
 
