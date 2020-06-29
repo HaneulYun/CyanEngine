@@ -20,12 +20,12 @@ void Astar::PathFinding(int sx, int sy, int ex, int ey)
 
     while (nextNode != endNode)
     {
-        if (startNode->distance(*endNode) >= 20) {
-            path.clear();
-            openNodeList.clear();
-            closeNodeList.clear();
-            return;
-        }
+        //if (startNode->distance(*endNode) >= 10) {
+        //    path.clear();
+        //    openNodeList.clear();
+        //    closeNodeList.clear();
+        //    return;
+        //}
         closeNodeList.push_back(nextNode);
 
         AddOpenNodeWithNextNode(nextNode);
@@ -55,12 +55,16 @@ void Astar::AddOpenNodeWithNextNode(Node* nextNode)
             auto iter = std::find(closeNodeList.begin(), closeNodeList.end(), curNode);
             if (iter == closeNodeList.end())
             {
-                openNodeList.push_back(curNode);
-
-                if (curNode != startNode) 
-                 //   && curNode != endNode)
+                auto it = std::find(openNodeList.begin(), openNodeList.end(), curNode);
+                if (it == openNodeList.end())
                 {
-                    curNode->parentNode = nextNode;
+                    openNodeList.push_back(curNode);
+
+                    if (curNode != startNode)
+                        //   && curNode != endNode)
+                    {
+                        curNode->parentNode = nextNode;
+                    }
                 }
             }
         }
@@ -86,16 +90,21 @@ Node* Astar::GetNextNode()
 {
     Node* minNode = openNodeList.front();
     int size = openNodeList.size();
-    for (auto& it : openNodeList)
+    for (auto it = openNodeList.begin(); it != openNodeList.end();)
     {
         if (size != openNodeList.size())
             break;
 
-        auto iter = std::find(closeNodeList.begin(), closeNodeList.end(), it);
+        auto iter = std::find(closeNodeList.begin(), closeNodeList.end(), *it);
         if (iter == closeNodeList.end()) {
-            if (it == nullptr) break;
-            if (minNode->cost > it->cost)
-                minNode = it;
+            if (*it == nullptr) break;
+            if (minNode->cost > (*it)->cost)
+                minNode = *it;
+            it++;
+        }
+        else
+        {
+            it = openNodeList.erase(it);
         }
     }
     return minNode;

@@ -298,12 +298,16 @@ void IOCPServer::path_find_npc(int npcid, int playerid, int firstX, int firstY)
 	m.m_cl.EnterWriteLock();
 	if (m.astar.path.empty())
 		m.astar.PathFinding(m.m_inform.x, m.m_inform.y, u.m_inform.x, u.m_inform.y);
-
-	if (m.astar.path.empty())
-		return;
 	m.m_cl.LeaveWriteLock();
 
-	if (abs(firstX - m.astar.path.front()->getX() > 10) || abs(firstY - m.astar.path.front()->getY() > 10))
+	m.m_cl.EnterReadLock();
+	if (m.astar.path.empty()) {
+		m.m_cl.LeaveReadLock();
+		return;
+	}
+	m.m_cl.LeaveReadLock();
+
+	if ((abs(firstX - m.m_inform.x) > 10) || (abs(firstY - m.m_inform.y) > 10))
 	{
 		m.pathFinding = false;
 		m.m_cl.EnterWriteLock();
@@ -959,7 +963,17 @@ void IOCPServer::do_move(int user_id, int direction)
 			}
 		}
 		else {	// 계속 시야에 존재하고 있을 때
-			if (false == is_player(np))	continue;
+			if (false == is_player(np)) {
+				if (g_clients[np].pathFinding)
+				{
+					g_clients[np].m_cl.EnterWriteLock();
+					g_clients[np].astar.path.clear();
+					g_clients[np].astar.closeNodeList.clear();
+					g_clients[np].astar.openNodeList.clear();
+					g_clients[np].m_cl.LeaveWriteLock();
+				}
+				continue;
+			}
 			g_clients[np].m_cl.EnterReadLock();
 			if (0 != g_clients[np].view_list.count(user_id)) {
 				g_clients[np].m_cl.LeaveReadLock();
@@ -975,7 +989,17 @@ void IOCPServer::do_move(int user_id, int direction)
 	for (auto old_p : old_vl) {		// Object가 시야에서 벗어났을 때
 		if (0 == new_vl.count(old_p)) {
 			send_leave_packet(user_id, old_p);
-			if (false == is_player(old_p))	continue;
+			if (false == is_player(old_p)) {
+				if (g_clients[old_p].pathFinding)
+				{			
+					g_clients[old_p].m_cl.EnterWriteLock();
+					g_clients[old_p].astar.path.clear();
+					g_clients[old_p].astar.closeNodeList.clear();
+					g_clients[old_p].astar.openNodeList.clear();
+					g_clients[old_p].m_cl.LeaveWriteLock();
+				}
+				continue;
+			}
 			g_clients[old_p].m_cl.EnterReadLock();
 			if (0 != g_clients[old_p].view_list.count(user_id)) {
 				g_clients[old_p].m_cl.LeaveReadLock();
