@@ -24,6 +24,8 @@ constexpr auto MAX_USER = NPC_ID_START;
 class TCPClient : public MonoBehavior<TCPClient>
 {
 private /*이 영역에 private 변수를 선언하세요.*/:
+	char map[WORLD_HEIGHT][WORLD_WIDTH];
+
 	//int NPC_ID_START = 10000;
 	bool isIP{ false };
 	std::wstring ip;
@@ -81,6 +83,10 @@ public:
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
 		avatar = Scene::scene->Duplicate(prefab)->GetComponent<Pawn>();
+		std::ifstream in;
+		in.open("tilemap.data", std::ios::binary);
+		in.read((char*)map, 800 * 800);
+		in.close();
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
@@ -115,12 +121,16 @@ public:
 						tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("none");
 						continue;
 					}
-
-					if ((tile_x / 3 + tile_y / 3) % 2)
-					//if ((tile_x + tile_y) % 2)
-						tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("whiteTileMat");
-					else
-						tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("blackTileMat");
+					//
+					//if ((tile_x / 3 + tile_y / 3) % 2)
+					////if ((tile_x + tile_y) % 2)
+					//	tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("whiteTileMat");
+					//else
+					//	tile->GetComponent<Renderer>()->materials[0] = ASSET MATERIAL("blackTileMat");
+					Material* mat = ASSET MATERIAL(std::to_string((unsigned char)map[800-tile_y-1][tile_x]-1));
+					if (!mat)
+						int k = 0;
+					tile->GetComponent<Renderer>()->materials[0] = mat;
 				}
 
 			float x = (float)avatar->x - g_left_x;

@@ -12,6 +12,14 @@ void GameScene::BuildObjects()
 	ASSET AddTexture("userTex", L"Textures\\p1.dds");
 	ASSET AddTexture("npcTex", L"Textures\\p5.dds");
 
+	{
+		std::string texName = "tileTex";
+		std::wstring filePath = L"Textures\\mapimage\\";
+		std::wstring dds = L".dds";
+		for (int i = 0; i < 104; ++i)
+			ASSET AddTexture(texName + std::to_string(i), filePath + std::to_wstring(i) + dds);
+	}
+
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
 	ASSET AddMaterial("blackTileMat", ASSET TEXTURE("blackTileTex"));
@@ -19,6 +27,11 @@ void GameScene::BuildObjects()
 	ASSET AddMaterial("playerMat", ASSET TEXTURE("playerTex"));
 	ASSET AddMaterial("userMat", ASSET TEXTURE("userTex"));
 	ASSET AddMaterial("npcMat", ASSET TEXTURE("npcTex"));
+	{
+		std::string texName = "tileTex";
+		for (int i = 0; i < 104; ++i)
+			ASSET AddMaterial(std::to_string(i), ASSET TEXTURE(texName + std::to_string(i)));
+	}
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());
