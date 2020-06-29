@@ -319,7 +319,7 @@ public:
 	void send_attack_packet()
 	{
 		cs_packet_attack a_packet{};
-		a_packet.type = C2S_MOVE;
+		a_packet.type = C2S_ATTACK;
 		a_packet.size = sizeof(a_packet);
 		send_packet(&a_packet);
 	}
