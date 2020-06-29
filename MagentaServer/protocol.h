@@ -54,6 +54,12 @@ constexpr unsigned char O_EEVEE = 1;
 constexpr unsigned char O_JOLTEON = 2;
 constexpr unsigned char O_FLAREON = 3;
 constexpr unsigned char O_VAPOREON = 4;
+constexpr unsigned char O_LEAFEON = 5;
+constexpr unsigned char O_GLACEON = 6;
+constexpr unsigned char O_METAGROSS = 7;
+constexpr unsigned char O_MESPRIT = 8;
+constexpr unsigned char O_GIRATINA = 9;
+constexpr unsigned char O_ARCEUS = 10;
 
 struct sc_packet_enter {
 	unsigned char size;

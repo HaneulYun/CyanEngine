@@ -54,12 +54,18 @@
     <ClInclude Include="etc.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Astar.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagentaServer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="IOCPServer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Astar.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -70,6 +76,36 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NPC.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="1_EEVEE.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="2_JOLTEON.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="3_FLAREON.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="4_VAPOREON.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="5_LEAFEON.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="6_GLACEON.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="7_METAGROSS.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="8_MESPRIT.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="9_GIRATINA.LUA">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="10_ARCEUS.LUA">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>

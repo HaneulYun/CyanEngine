@@ -61,14 +61,7 @@ void Network::ProcessPacket(char* ptr)
 		}
 		else
 		{
-			if (id < NUM_NPC / 4 + NPC_ID_START)
-				otherCharacters[id] = gameObject->scene->Duplicate(npcsPrefab[0]);
-			else if (id < NUM_NPC / 2 + NPC_ID_START)
-				otherCharacters[id] = gameObject->scene->Duplicate(npcsPrefab[1]);
-			else if (id < NUM_NPC * 3 / 4 + NPC_ID_START)
-				otherCharacters[id] = gameObject->scene->Duplicate(npcsPrefab[2]);
-			else
-				otherCharacters[id] = gameObject->scene->Duplicate(npcsPrefab[3]);
+			otherCharacters[id] = gameObject->scene->Duplicate(npcsPrefab[my_packet->o_type - 1]);
 			otherCharacters[id]->transform->position = { my_packet->x * 1.0f, -my_packet->y * 1.0f, -0.0001f };
 			CharacterController* controller = otherCharacters[id]->GetComponent<CharacterController>();
 			if (controller)

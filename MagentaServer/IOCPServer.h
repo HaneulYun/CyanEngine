@@ -24,6 +24,7 @@ extern "C" {
 #include "Client.h"
 #include "Timer.h"
 #include "Database.h"
+#include "Astar.h"
 #include "RWLock.h"
 #include "etc.h"
 
@@ -33,7 +34,6 @@ using namespace std;
 
 class IOCPServer {
 public:
-	//static IOCPServer* iocpServer;
 
 	HANDLE g_iocp;
 	SOCKET l_socket;
@@ -41,12 +41,13 @@ public:
 	
 	Timer timer;
 	Database database;
+	Gameworld* gameworld{ nullptr };
 
 	unordered_set<int> g_ObjectListSector[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 	RWLock g_SectorLock[WORLD_HEIGHT / SECTOR_WIDTH][WORLD_WIDTH / SECTOR_WIDTH];
 
 	vector<Point> collidePoints;
-
+	
 	bool is_player(int id);
 	bool is_near(int a, int b);
 	bool is_collide(int x, int y);
@@ -85,6 +86,10 @@ public:
 int API_SendMessage(lua_State* L);
 int API_get_x(lua_State* L);
 int API_get_y(lua_State* L);
+int API_set_x(lua_State* L);
+int API_set_y(lua_State* L);
+int API_set_hp(lua_State* L);
 int API_add_timer_run(lua_State* L);
 int API_run_finished(lua_State* L);
 int API_player_damaged(lua_State* L);
+int API_random_move(lua_State* L);

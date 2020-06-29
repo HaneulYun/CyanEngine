@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Astar.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="etc.h" />
@@ -153,6 +154,7 @@
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Astar.cpp" />
     <ClCompile Include="IOCPServer.cpp" />
     <ClCompile Include="MagentaServer.cpp" />
   </ItemGroup>
@@ -160,6 +162,16 @@
     <Library Include="lua53.lib" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="10_ARCEUS.LUA" />
+    <None Include="1_EEVEE.LUA" />
+    <None Include="2_JOLTEON.LUA" />
+    <None Include="3_FLAREON.LUA" />
+    <None Include="4_VAPOREON.LUA" />
+    <None Include="5_LEAFEON.LUA" />
+    <None Include="6_GLACEON.LUA" />
+    <None Include="7_METAGROSS.LUA" />
+    <None Include="8_MESPRIT.LUA" />
+    <None Include="9_GIRATINA.LUA" />
     <None Include="NPC.LUA" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

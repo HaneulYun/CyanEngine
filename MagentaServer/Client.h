@@ -2,6 +2,7 @@
 #include <atomic>
 #include <chrono>
 #include "RWLock.h"
+#include "Astar.h"
 #include "etc.h"
 #include "protocol.h"
 
@@ -32,11 +33,13 @@ public:
 
 	unsigned m_move_time;
 	high_resolution_clock::time_point m_last_move_time;
-
+	bool	is_healing;
 	unordered_set<int> view_list;
 
 	lua_State* L;
 	RWLock lua_l;
+	
+	Astar astar;
 
 	void heal_player()
 	{
@@ -57,6 +60,7 @@ public:
 		{
 			m_inform.exp -= toNextLevelExp;
 			m_inform.level++;
+			m_inform.hp = 98 + pow(2, m_inform.level);
 		}
 	}
 };
