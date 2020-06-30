@@ -538,6 +538,25 @@ void IOCPServer::path_find_npc(int npcid, int playerid, int firstX, int firstY)
 	Client& m = g_clients[npcid];
 	Client& u = g_clients[playerid];
 
+	if(abs(m.m_inform.x - firstX) > 10 || abs(m.m_inform.y - firstY)>10)
+	{
+		m.pathFinding = false;
+		m.m_cl.EnterWriteLock();
+		m.astar.path.clear();
+		m.astar.openNodeList.clear();
+		m.astar.closeNodeList.clear();
+		m.m_cl.LeaveWriteLock();
+
+		if (m.m_otype == O_EEVEE || m.m_otype == O_JOLTEON || m.m_otype == O_VAPOREON
+			|| m.m_otype == O_GLACEON || m.m_otype == O_METAGROSS || m.m_otype == O_GIRATINA) {
+			m.m_status = ST_SLEEP;
+			return;
+		}
+		else
+			random_move_npc(npcid, firstX, firstY);
+		return;
+	}
+
 	m.pathFinding = true;
 
 	m.m_cl.EnterWriteLock();
@@ -1110,8 +1129,8 @@ void IOCPServer::enter_game(int user_id, char name[])
 void IOCPServer::do_move(int user_id, int direction)
 {
 	Client& u = g_clients[user_id];
-	if (high_resolution_clock::now() - u.m_last_move_time < 1s)
-		return;
+	//if (high_resolution_clock::now() - u.m_last_move_time < 1s)
+	//	return;
 
 	int x = u.m_inform.x;
 	int y = u.m_inform.y;
