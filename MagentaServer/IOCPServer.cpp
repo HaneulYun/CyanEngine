@@ -113,8 +113,8 @@ void IOCPServer::init_npc()
 		g_clients[i].m_status = ST_SLEEP;
 		g_clients[i].astar.gameworld = gameworld;
 		// Set Position
-		xSect = ((i- NPC_ID_START) % 200) / 5;
-		ySect = (i - NPC_ID_START) / 200;
+		xSect = ((i- NPC_ID_START) % 100) / 5;
+		ySect = (i - NPC_ID_START) / 100;
 		if ((i - NPC_ID_START) % 5 == 0){
 			g_clients[i].m_inform.x = 20 + (xSect * SECTOR_WIDTH); 
 			g_clients[i].m_inform.y = 8  + (ySect * SECTOR_WIDTH);
@@ -1129,8 +1129,8 @@ void IOCPServer::enter_game(int user_id, char name[])
 void IOCPServer::do_move(int user_id, int direction)
 {
 	Client& u = g_clients[user_id];
-	//if (high_resolution_clock::now() - u.m_last_move_time < 1s)
-	//	return;
+	if (high_resolution_clock::now() - u.m_last_move_time < 1s)
+		return;
 
 	int x = u.m_inform.x;
 	int y = u.m_inform.y;
