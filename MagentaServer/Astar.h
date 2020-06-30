@@ -83,7 +83,7 @@ public:
             return true;
         return false;
     }
-}; 
+};
 
 class Astar {
 private:
@@ -102,8 +102,8 @@ public:
     };
 
 public:
-    void PathFinding(int sx, int sy, int ex, int ey);
-    void AddOpenNodeWithNextNode(Node* nextNode);
+    bool PathFinding(int sx, int sy, int ex, int ey);
+    bool AddOpenNodeWithNextNode(Node* nextNode);
     void CalcCoast(Node* nextNode, Node* endNode);
     Node* GetNextNode();
 };

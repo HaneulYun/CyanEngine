@@ -558,11 +558,16 @@ void IOCPServer::path_find_npc(int npcid, int playerid, int firstX, int firstY)
 	}
 
 	m.pathFinding = true;
-
+	bool pathFind = false;
 	m.m_cl.EnterWriteLock();
-	if (m.astar.path.empty())
-		m.astar.PathFinding(m.m_inform.x, m.m_inform.y, u.m_inform.x, u.m_inform.y);
+	pathFind = m.astar.PathFinding(m.m_inform.x, m.m_inform.y, u.m_inform.x, u.m_inform.y);
 	m.m_cl.LeaveWriteLock();
+
+	if (!pathFind)
+	{
+		timer.add_timer(npcid, OP_PATHFIND, 1000, playerid, firstX, firstY);
+		return;
+	}
 
 	m.m_cl.EnterReadLock();
 	if (m.astar.path.empty()) {
@@ -1129,8 +1134,8 @@ void IOCPServer::enter_game(int user_id, char name[])
 void IOCPServer::do_move(int user_id, int direction)
 {
 	Client& u = g_clients[user_id];
-	if (high_resolution_clock::now() - u.m_last_move_time < 1s)
-		return;
+	//if (high_resolution_clock::now() - u.m_last_move_time < 1s)
+	//	return;
 
 	int x = u.m_inform.x;
 	int y = u.m_inform.y;

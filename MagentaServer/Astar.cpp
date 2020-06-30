@@ -1,6 +1,6 @@
 #include "Astar.h"
 
-void Astar::PathFinding(int sx, int sy, int ex, int ey)
+bool Astar::PathFinding(int sx, int sy, int ex, int ey)
 {
     path.clear();
     openNodeList.clear();
@@ -10,7 +10,7 @@ void Astar::PathFinding(int sx, int sy, int ex, int ey)
     endNode = gameworld->nodeMap[ey][ex];
 
     if (startNode == endNode)
-        return;
+        return false;
     closeNodeList.push_back(startNode);
 
     AddOpenNodeWithNextNode(startNode);
@@ -21,8 +21,10 @@ void Astar::PathFinding(int sx, int sy, int ex, int ey)
     while (nextNode != endNode)
     {
         closeNodeList.push_back(nextNode);
-
-        AddOpenNodeWithNextNode(nextNode);
+        if (closeNodeList.size() > 400)
+            return false;
+        if (AddOpenNodeWithNextNode(nextNode) == false)
+            return false;
 
         CalcCoast(nextNode, endNode);
 
@@ -34,9 +36,13 @@ void Astar::PathFinding(int sx, int sy, int ex, int ey)
         path.push_front(nextNode);
         nextNode = nextNode->parentNode;
     }
+    
+    if (nextNode == startNode)
+        return true;
+    return false;
 }
 
-void Astar::AddOpenNodeWithNextNode(Node* nextNode)
+bool Astar::AddOpenNodeWithNextNode(Node* nextNode)
 {
     for (int i = 0; i < 4; ++i)
     {
@@ -62,7 +68,11 @@ void Astar::AddOpenNodeWithNextNode(Node* nextNode)
                 }
             }
         }
+
+        if (openNodeList.size() > 400)
+            return false;
     }
+    return true;
 }
 
 void Astar::CalcCoast(Node* nextNode, Node* endNode)
