@@ -205,7 +205,7 @@ void GameScene::BuildObjects()
 		rectTransform->pivot = { 0, 0 };
 		rectTransform->posX = 8;
 		rectTransform->posY = 32;
-		rectTransform->width = 400 - 8;
+		rectTransform->width = 600 - 8;
 		rectTransform->height = 200 - 32;
 
 		auto text = chatGUI->AddComponent<Text>();
@@ -228,7 +228,7 @@ void GameScene::BuildObjects()
 		rectTransform->pivot = { 0, 0 };
 		rectTransform->posX = 8;
 		rectTransform->posY = 8;
-		rectTransform->width = 400 - 8;
+		rectTransform->width = 600 - 8;
 		rectTransform->height = 22;
 
 		auto text = chatInputter->AddComponent<Text>();

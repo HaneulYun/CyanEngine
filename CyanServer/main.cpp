@@ -432,8 +432,10 @@ void enter_game(int user_id, char name[])
 
 	SQLWCHAR data_id[20];
 	SQLINTEGER data_x, data_y;
+	SQLINTEGER data_h, data_l, data_e;
 
 	SQLLEN cbid = 0, cbx = 0, cby = 0;
+	SQLLEN cbh = 0, cbl = 0, cbe = 0;
 
 	setlocale(LC_ALL, "korean");
 
@@ -466,10 +468,13 @@ void enter_game(int user_id, char name[])
 					retcode = SQLExecDirect(hstmt, (SQLWCHAR*)exec.c_str(), SQL_NTS);
 					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 						printf("Select OK\n");
-						// Bind columns 1, 2, and 3  
-						retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, &data_id, 20, &cbid);
-						retcode = SQLBindCol(hstmt, 2, SQL_C_LONG, &data_x, 100, &cbx);
-						retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &data_y, 100, &cby);
+
+						retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, &data_id, 40, &cbid);
+						retcode = SQLBindCol(hstmt, 2, SQL_C_LONG, &data_x, 4, &cbx);
+						retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &data_y, 4, &cby);
+						retcode = SQLBindCol(hstmt, 4, SQL_C_LONG, &data_h, 4, &cbh);
+						retcode = SQLBindCol(hstmt, 5, SQL_C_LONG, &data_l, 4, &cbl);
+						retcode = SQLBindCol(hstmt, 6, SQL_C_LONG, &data_e, 4, &cbe);
 
 						// Fetch and print each row of data. On an error, display a message and exit.  
 						for (int i = 0; ; i++) {
@@ -479,7 +484,7 @@ void enter_game(int user_id, char name[])
 							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
 							{
 								found = true;
-								wprintf(L"%d: %ls %d %d\n", i + 1, data_id, data_x, data_y);
+								wprintf(L"%d: %ls %d %d %d %d %d\n", i + 1, data_id, data_x, data_y, data_h, data_l, data_e);
 							}
 							else
 								break;
@@ -517,6 +522,11 @@ void enter_game(int user_id, char name[])
 	g_clients[user_id].x = data_x;
 	g_clients[user_id].y = data_y;
 	send_login_ok_packet(user_id);
+
+	g_clients[user_id].hp = data_h;
+	g_clients[user_id].level = data_l;
+	g_clients[user_id].exp = data_e;
+	send_stat_packet(user_id, data_h, data_l, data_e);
 	g_clients[user_id].m_status = ST_ACTIVE;
 	g_clients[user_id].m_cl.unlock();
 
@@ -587,6 +597,24 @@ void process_packet(int user_id, char* buf)
 			u.hp -= 5;
 			u.exp += 10;
 			send_stat_packet(user_id, u.hp, u.level, u.exp);
+
+			wstring enemy;
+			switch (g_clients[cl].o_type)
+			{
+			case O_HUMAN: enemy = L"휴먼"; break;
+			case O_ELF: enemy = L"엘프"; break;
+			case O_ORC: enemy = L"오크"; break;
+			}
+
+			wchar_t att_mess[64];
+			wstring user_name(u.m_name, &u.m_name[strlen(u.m_name)]);
+			wsprintf(att_mess, L"%s님이 %s을(를) 공격하여 %d의 데미지를 입혔습니다.", user_name.c_str(), enemy.c_str(), 10);
+
+			for (auto& cll : g_clients)
+			{
+				if (ST_ACTIVE != cll.m_status) continue;
+				send_chat_packet(cll.m_id, user_id, att_mess);
+			}
 		}
 	}
 	break;
@@ -667,6 +695,12 @@ void disconnect(int user_id)
 						exec += to_wstring(g_clients[user_id].x);
 						exec += L", ";
 						exec += to_wstring(g_clients[user_id].y);
+						exec += L", ";
+						exec += to_wstring(g_clients[user_id].hp);
+						exec += L", ";
+						exec += to_wstring(g_clients[user_id].level);
+						exec += L", ";
+						exec += to_wstring(g_clients[user_id].exp);
 						retcode = SQLExecDirect(hstmt, (SQLWCHAR*)exec.c_str(), SQL_NTS);
 						if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 							printf("Update OK\n");
