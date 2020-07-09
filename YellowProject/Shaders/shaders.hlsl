@@ -1,4 +1,4 @@
-#include "shaders\\Common.hlsl"
+#include "common.hlsl"
 
 struct VSInput
 {
@@ -60,7 +60,7 @@ float CalcShadowFactor(float4 shadowPosH)
 	return percentLit / 9.0f;
 }
 
-PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
+PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 {
 	PSInput vout;
 
@@ -107,7 +107,7 @@ PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
 	return vout;
 }
 
-float4 PSMain(PSInput input) : SV_TARGET
+float4 PS(PSInput input) : SV_TARGET
 {
 	MaterialData matData = gMaterialData[input.MatIndex];
 	float4 diffuseAlbedo = matData.DiffuseAlbedo;

@@ -107,31 +107,31 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\LightingUtil.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\shaders.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Common.hlsl">
+    <FxCompile Include="Shaders\common.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Shadow.hlsl">
+    <FxCompile Include="Shaders\grass.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\UI.hlsl">
+    <FxCompile Include="Shaders\lightingUtil.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Sky.hlsl">
+    <FxCompile Include="Shaders\particle.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Grass.hlsl">
+    <FxCompile Include="Shaders\preview.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Particle.hlsl">
+    <FxCompile Include="Shaders\shadow.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\Preview.hlsl">
+    <FxCompile Include="Shaders\sky.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ui.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

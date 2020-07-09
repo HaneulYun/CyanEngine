@@ -1,4 +1,4 @@
-#include "shaders\\Common.hlsl"
+#include "common.hlsl"
 
 struct VSInput
 {

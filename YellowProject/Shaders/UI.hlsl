@@ -1,4 +1,4 @@
-#include "shaders\\Common.hlsl"
+#include "common.hlsl"
 
 struct VSInput
 {
@@ -16,7 +16,7 @@ struct PSInput
 	nointerpolation uint MatIndex : MATINDEX;
 };
 
-PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
+PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 {
 	InstanceData instData = gInstanceData[instanceID];
 
@@ -28,7 +28,7 @@ PSInput VSMain(VSInput vin, uint instanceID : SV_InstanceID)
 	return vout;
 }
 
-float4 PSMain(PSInput input) : SV_TARGET
+float4 PS(PSInput input) : SV_TARGET
 {
 	uint diffuseTexIndex = gMaterialData[input.MatIndex].DiffuseMapIndex;
 	float4 albedo = gMaterialData[input.MatIndex].DiffuseAlbedo;

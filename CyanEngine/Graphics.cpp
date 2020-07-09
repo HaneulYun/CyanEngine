@@ -16,6 +16,7 @@ void Graphics::PreRender()
 {
 	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
 	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
+	AssetResource* currAssetResource = AssetManager::Instance()->assetResource[currFrameResourceIndex].get();
 
 	currFrameResource->CmdListAlloc->Reset();
 	commandList->Reset(currFrameResource->CmdListAlloc.Get(), nullptr);
@@ -24,7 +25,7 @@ void Graphics::PreRender()
 	commandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 
-	auto matBuffer = AssetManager::Instance()->assetResource[Scene::scene->frameResourceManager.currFrameResourceIndex]->MaterialBuffer->Resource();
+	auto matBuffer = currAssetResource->MaterialBuffer->Resource();
 	commandList->SetGraphicsRootShaderResourceView(3, matBuffer->GetGPUVirtualAddress());
 	commandList->SetGraphicsRootDescriptorTable(4, srvHeap->GetGPUDescriptorHandleForHeapStart());
 
@@ -34,7 +35,6 @@ void Graphics::PreRender()
 void Graphics::RenderShadowMap()
 {
 	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
-	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
 
 	commandList->RSSetViewports(1, &shadowMap->Viewport());
 	commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
@@ -62,7 +62,7 @@ void Graphics::RenderShadowMap()
 void Graphics::Render()
 {
 	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
-	int currFrameResourceIndex = Scene::scene->frameResourceManager.currFrameResourceIndex;
+
 	if (currFrameResource->Fence != 0 && fence->GetCompletedValue() < currFrameResource->Fence)
 	{
 		HANDLE eventHandle = CreateEventEx(nullptr, nullptr, false, EVENT_ALL_ACCESS);
@@ -561,31 +561,31 @@ void Graphics::LoadAssets()
 		NULL, NULL
 	};
 
-	ComPtr<ID3DBlob> vertexShader_skinnedShadow = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", skinnedDefines, "VS_Shadow", "vs_5_1");
-	ComPtr<ID3DBlob> vertexShader_shadow = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "VS_Shadow", "vs_5_1");
-	ComPtr<ID3DBlob> pixelShader_shadow = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "PS_Shadow", "ps_5_1");
+	ComPtr<ID3DBlob> skinnedShadowVS = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", skinnedDefines, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> shadowVS = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> shadowPS = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "PS", "ps_5_1");
 
-	ComPtr<ID3DBlob> vertexShader_skinned = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", skinnedDefines, "VSMain", "vs_5_1");
-	ComPtr<ID3DBlob> vertexShader = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "VSMain", "vs_5_1");
-	ComPtr<ID3DBlob> pixelShader = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "PSMain", "ps_5_1");
+	ComPtr<ID3DBlob> skinnedVS = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", skinnedDefines, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> opaqueVS = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> opaquePS = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "PS", "ps_5_1");
 
 	ComPtr<ID3DBlob> skyVS = d3dUtil::CompileShader(L"shaders\\sky.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> skyPS = d3dUtil::CompileShader(L"shaders\\sky.hlsl", nullptr, "PS", "ps_5_1");
 
-	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "VSMain", "vs_5_1");
-	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "PSMain", "ps_5_1");
+	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "PS", "ps_5_1");
 
-	ComPtr<ID3DBlob> particleVS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "VSMain", "vs_5_1");
-	ComPtr<ID3DBlob> particleGS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GSMain", "gs_5_1");
-	ComPtr<ID3DBlob> particlePS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "PSMain", "ps_5_1");
-	ComPtr<ID3DBlob> particleGSMaker = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GSParticleMaker", "gs_5_1");
+	ComPtr<ID3DBlob> particleVS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> particleGS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GS", "gs_5_1");
+	ComPtr<ID3DBlob> particlePS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "PS", "ps_5_1");
+	ComPtr<ID3DBlob> particleSO = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "SO", "gs_5_1");
 
 	ComPtr<ID3DBlob> grassVS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> grassGS = d3dUtil::CompileShader(L"Shaders\\Grass.hlsl", nullptr, "GS", "gs_5_1");
 	ComPtr<ID3DBlob> grassPS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", alphaTestDefines, "PS", "ps_5_1");
 
-	ComPtr<ID3DBlob> previewVS = d3dUtil::CompileShader(L"shaders\\Preview.hlsl", nullptr, "VSMain", "vs_5_1");
-	ComPtr<ID3DBlob> previewPS = d3dUtil::CompileShader(L"shaders\\Preview.hlsl", nullptr, "PSMain", "ps_5_1");
+	ComPtr<ID3DBlob> previewVS = d3dUtil::CompileShader(L"shaders\\Preview.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> previewPS = d3dUtil::CompileShader(L"shaders\\Preview.hlsl", nullptr, "PS", "ps_5_1");
 
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
@@ -624,8 +624,8 @@ void Graphics::LoadAssets()
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc{};
 	opaquePsoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
 	opaquePsoDesc.pRootSignature = rootSignature.Get();
-	opaquePsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-	opaquePsoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+	opaquePsoDesc.VS = CD3DX12_SHADER_BYTECODE(opaqueVS.Get());
+	opaquePsoDesc.PS = CD3DX12_SHADER_BYTECODE(opaquePS.Get());
 	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	//opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -640,7 +640,7 @@ void Graphics::LoadAssets()
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC skinnedPsoDesc = opaquePsoDesc;
 	skinnedPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
-	skinnedPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinned.Get());
+	skinnedPsoDesc.VS = CD3DX12_SHADER_BYTECODE(skinnedVS.Get());
 	device->CreateGraphicsPipelineState(&skinnedPsoDesc, IID_PPV_ARGS(&pipelineStates["skinnedOpaque"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = opaquePsoDesc;
@@ -676,15 +676,15 @@ void Graphics::LoadAssets()
 	shadowPsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
 	shadowPsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
 	shadowPsoDesc.pRootSignature = rootSignature.Get();
-	shadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_shadow.Get());
-	shadowPsoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader_shadow.Get());
+	shadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(shadowVS.Get());
+	shadowPsoDesc.PS = CD3DX12_SHADER_BYTECODE(shadowPS.Get());
 	shadowPsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 	shadowPsoDesc.NumRenderTargets = 0;
 	device->CreateGraphicsPipelineState(&shadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_opaque"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC skinnedShadowPsoDesc = shadowPsoDesc;
 	skinnedShadowPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
-	skinnedShadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader_skinnedShadow.Get());
+	skinnedShadowPsoDesc.VS = CD3DX12_SHADER_BYTECODE(skinnedShadowVS.Get());
 	device->CreateGraphicsPipelineState(&skinnedShadowPsoDesc, IID_PPV_ARGS(&pipelineStates["shadow_skinnedOpaque"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC particlePsoDesc = opaquePsoDesc;
@@ -713,7 +713,7 @@ void Graphics::LoadAssets()
 	particleMakerPsoDesc.InputLayout = { inputElementDescs_particle, _countof(inputElementDescs_particle) };
 	particleMakerPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 	particleMakerPsoDesc.VS = CD3DX12_SHADER_BYTECODE(particleVS.Get());
-	particleMakerPsoDesc.GS = CD3DX12_SHADER_BYTECODE(particleGSMaker.Get());
+	particleMakerPsoDesc.GS = CD3DX12_SHADER_BYTECODE(particleSO.Get());
 	particleMakerPsoDesc.PS = {};
 	particleMakerPsoDesc.DepthStencilState.StencilEnable = false;
 	particleMakerPsoDesc.DepthStencilState.DepthEnable = false;

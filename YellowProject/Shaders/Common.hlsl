@@ -10,7 +10,7 @@
 #define NUM_SPOT_LIGHTS 0
 #endif
 
-#include "shaders\\LightingUtil.hlsl"
+#include "lightingUtil.hlsl"
 
 struct InstanceData
 {

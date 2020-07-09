@@ -1,4 +1,4 @@
-#include "shaders\\Common.hlsl"
+#include "common.hlsl"
 
 struct VIn
 {
@@ -33,7 +33,7 @@ struct PIn
 	nointerpolation uint MatIndex : MATINDEX;
 };
 
-GIn VSMain(VIn vin, uint instanceID : SV_InstanceID)
+GIn VS(VIn vin, uint instanceID : SV_InstanceID)
 {
 	GIn gin;
 
@@ -52,7 +52,7 @@ GIn VSMain(VIn vin, uint instanceID : SV_InstanceID)
 }
 
 [maxvertexcount(4)]
-void GSMain(point GIn gin[1], uint primID : SV_PrimitiveID, inout TriangleStream<PIn> triStream)
+void GS(point GIn gin[1], uint primID : SV_PrimitiveID, inout TriangleStream<PIn> triStream)
 {
 	if (gin[0].Type == 0)
 		return;
@@ -94,7 +94,7 @@ void GSMain(point GIn gin[1], uint primID : SV_PrimitiveID, inout TriangleStream
 }
 
 [maxvertexcount(4)]
-void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
+void SO(point VIn vin[1], inout PointStream<VIn> pointStream)
 {
 	vin[0].LifeTime -= gDeltaTime;
 
@@ -136,7 +136,7 @@ void GSParticleMaker(point VIn vin[1], inout PointStream<VIn> pointStream)
 	}
 }
 
-float4 PSMain(PIn input) : SV_TARGET
+float4 PS(PIn input) : SV_TARGET
 {
 	//float x = ((gDeltaTime * 10000000) % 100) / 100;
 	//return float4(x, x, x, 1);
