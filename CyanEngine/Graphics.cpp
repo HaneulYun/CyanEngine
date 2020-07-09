@@ -3,9 +3,9 @@
 
 void Graphics::Initialize()
 {
-	sceneBounds.Center = XMFLOAT3(540.f, 0.0f, 540.f);
-	float width = 20, height = 20;
-	sceneBounds.Radius = sqrtf(width * width + height * height);
+	//sceneBounds.Center = XMFLOAT3(540.f, 0.0f, 540.f);
+	//float width = 20, height = 20;
+	//sceneBounds.Radius = sqrtf(width * width + height * height);
 	InitDirect3D();
 	InitDirect2D();
 	LoadAssets();
@@ -36,27 +36,27 @@ void Graphics::RenderShadowMap()
 {
 	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
 
-	commandList->RSSetViewports(1, &shadowMap->Viewport());
-	commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
+	//commandList->RSSetViewports(1, &shadowMap->Viewport());
+	//commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
+	//
+	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+	//
+	//commandList->ClearDepthStencilView(shadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	//commandList->OMSetRenderTargets(0, nullptr, false, &shadowMap->Dsv());
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+	//UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+	//auto passCB = currFrameResource->PassCB->Resource();
+	//D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
+	//commandList->SetGraphicsRootConstantBufferView(2, passCBAddress);
+	//
+	//commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
+	//
+	//UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
+	//
+	//for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
+	//	RenderObjects(layerIndex, true);
 
-	commandList->ClearDepthStencilView(shadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-	commandList->OMSetRenderTargets(0, nullptr, false, &shadowMap->Dsv());
-
-	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
-	auto passCB = currFrameResource->PassCB->Resource();
-	D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
-	commandList->SetGraphicsRootConstantBufferView(2, passCBAddress);
-
-	commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
-
-	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
-
-	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
-		RenderObjects(layerIndex, true);
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+	//commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 }
 
 void Graphics::Render()
@@ -110,6 +110,8 @@ void Graphics::Render()
 
 void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 {
+	if (layerIndex == (int)RenderLayer::Debug && !isShadowDebug)
+		return;
 	if (isShadowMap)
 	{
 		if (layerIndex == (int)RenderLayer::Particle ||
@@ -453,7 +455,7 @@ void Graphics::InitDirect3D()
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 
-	shadowMap = std::make_unique<ShadowMap>(device.Get(), 2048, 2048);
+	//shadowMap = std::make_unique<ShadowMap>(device.Get(), 2048, 2048);
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
 	for (UINT i = 0; i < FrameCount; ++i)
@@ -768,10 +770,10 @@ void Graphics::LoadAssets()
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
 
-	shadowMap->BuildDescriptors(
-		CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart(), 1, srvDescriptorSize),
-		CD3DX12_GPU_DESCRIPTOR_HANDLE(srvHeap->GetGPUDescriptorHandleForHeapStart(), 1, srvDescriptorSize),
-		CD3DX12_CPU_DESCRIPTOR_HANDLE(dsvHeap->GetCPUDescriptorHandleForHeapStart(), 1, dsvDescriptorSize));
+	//shadowMap->BuildDescriptors(
+	//	CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart(), 1, srvDescriptorSize),
+	//	CD3DX12_GPU_DESCRIPTOR_HANDLE(srvHeap->GetGPUDescriptorHandleForHeapStart(), 1, srvDescriptorSize),
+	//	CD3DX12_CPU_DESCRIPTOR_HANDLE(dsvHeap->GetCPUDescriptorHandleForHeapStart(), 1, dsvDescriptorSize));
 
 	WaitForPreviousFrame();
 }

@@ -143,6 +143,9 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 			Input::keys[(int)KeyCode::Period] = false;
 			Input::keyUp[(int)KeyCode::Period] = true;
 			break;
+		case VK_F1:
+			Graphics::Instance()->isShadowDebug = !Graphics::Instance()->isShadowDebug;
+			break;
 		case VK_F9:
 			Graphics::Instance()->ChangeSwapChainState();
 			break;
