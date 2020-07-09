@@ -30,9 +30,15 @@ void FrameResourceManager::Update()
 	// Transform bounding sphere to light space.
 	Vector3 sphereCenterLS = targetPos.TransformCoord(lightView);
 
-	Matrix4x4 lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(
-		sphereCenterLS.x - Graphics::Instance()->sceneBounds.Radius, sphereCenterLS.x + Graphics::Instance()->sceneBounds.Radius, sphereCenterLS.y - Graphics::Instance()->sceneBounds.Radius,
-		sphereCenterLS.y + Graphics::Instance()->sceneBounds.Radius, sphereCenterLS.z - Graphics::Instance()->sceneBounds.Radius, sphereCenterLS.z + Graphics::Instance()->sceneBounds.Radius);
+	auto& mSceneBounds = Graphics::Instance()->sceneBounds;
+	float l = (sphereCenterLS.x - mSceneBounds.Radius) * 20;
+	float b = (sphereCenterLS.y - mSceneBounds.Radius) * 20;
+	float n = (sphereCenterLS.z - mSceneBounds.Radius) * 20;
+	float r = (sphereCenterLS.x + mSceneBounds.Radius) * 20;
+	float t = sphereCenterLS.y + mSceneBounds.Radius;
+	float f = sphereCenterLS.z + mSceneBounds.Radius;
+
+	Matrix4x4 lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(l, r, b, t, n, f);
 
 	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
 	Matrix4x4 T{
