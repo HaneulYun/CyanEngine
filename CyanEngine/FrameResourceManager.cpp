@@ -31,10 +31,10 @@ void FrameResourceManager::Update()
 	Vector3 sphereCenterLS = targetPos.TransformCoord(lightView);
 
 	auto& mSceneBounds = Graphics::Instance()->sceneBounds;
-	float l = (sphereCenterLS.x - mSceneBounds.Radius) * 20;
-	float b = (sphereCenterLS.y - mSceneBounds.Radius) * 20;
-	float n = (sphereCenterLS.z - mSceneBounds.Radius) * 20;
-	float r = (sphereCenterLS.x + mSceneBounds.Radius) * 20;
+	float l = (sphereCenterLS.x - mSceneBounds.Radius);
+	float b = (sphereCenterLS.y - mSceneBounds.Radius);
+	float n = (sphereCenterLS.z - mSceneBounds.Radius);
+	float r = (sphereCenterLS.x + mSceneBounds.Radius);
 	float t = sphereCenterLS.y + mSceneBounds.Radius;
 	float f = sphereCenterLS.z + mSceneBounds.Radius;
 

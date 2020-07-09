@@ -103,6 +103,8 @@ void Graphics::Render()
 	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
 		RenderObjects(layerIndex);
 
+	//RenderObjects((int)RenderLayer::Debug);
+
 	PostRender();
 }
 
@@ -114,6 +116,7 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			layerIndex == (int)RenderLayer::Sky ||
 			layerIndex == (int)RenderLayer::UI ||
 			layerIndex == (int)RenderLayer::BuildPreview ||
+			layerIndex == (int)RenderLayer::Debug ||
 			layerIndex == (int)RenderLayer::Grass)
 			return;
 		else if (layerIndex == (int)RenderLayer::SkinnedOpaque)
@@ -325,8 +328,6 @@ void Graphics::RenderUI()
 void Graphics::PostRender()
 {
 	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
-
-	RenderObjects((int)RenderLayer::Debug);
 
 	commandList->Close();
 

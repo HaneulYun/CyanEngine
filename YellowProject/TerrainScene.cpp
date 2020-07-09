@@ -32,6 +32,7 @@ void TerrainScene::BuildObjects()
 	//*** Mesh ***//
 	{
 		ASSET AddMesh("Cube", Mesh::CreateCube());
+		ASSET AddMesh("Quad", Mesh::CreateQuad());
 		ASSET AddMesh("Cylinder", Mesh::CreateCylinder());
 		ASSET AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 	}
@@ -43,6 +44,12 @@ void TerrainScene::BuildObjects()
 		mainCamera->transform->position = { 128 + 0, 20 + 1, 128 - 10 };
 		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
+	}
+
+	GameObject* debug = CreateEmpty();
+	{
+		debug->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+		debug->layer = (int)RenderLayer::Debug;
 	}
 
 	{
