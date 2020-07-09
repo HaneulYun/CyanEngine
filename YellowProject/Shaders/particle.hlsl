@@ -138,13 +138,21 @@ void SO(point VIn vin[1], inout PointStream<VIn> pointStream)
 
 float4 PS(PIn input) : SV_TARGET
 {
+	//float x = ((gDeltaTime * 10000000) % 100) / 100;
+	//return float4(x, x, x, 1);
+
 	MaterialData matData = gMaterialData[input.MatIndex];
+	//float4 diffuseAlbedo = matData.DiffuseAlbedo;
+	//float3 fresnelR0 = matData.FresnelR0;
+	//float roughness = matData.Roughness;
 	uint diffuseTexIndex = matData.DiffuseMapIndex;
 
+	//diffuseAlbedo *= 
 	float4 result = gDiffuseMap[diffuseTexIndex].Sample(gsamAnisotropicWrap, input.TexC);
 	result.a *= input.alpha;
 
 	clip(result.a - 0.01f);
 
 	return result;
+	//return diffuseAlbedo;
 }

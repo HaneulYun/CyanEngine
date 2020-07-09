@@ -127,6 +127,8 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
 		else if (layerIndex == (int)RenderLayer::Sky)
 			commandList->SetPipelineState(pipelineStates["sky"].Get());
+		else if (layerIndex == (int)RenderLayer::Debug)
+			commandList->SetPipelineState(pipelineStates["debug"].Get());
 		else if (layerIndex == (int)RenderLayer::Grass)
 			commandList->SetPipelineState(pipelineStates["grass"].Get());
 		else if (layerIndex == (int)RenderLayer::BuildPreview)
@@ -323,6 +325,8 @@ void Graphics::RenderUI()
 void Graphics::PostRender()
 {
 	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
+
+	RenderObjects((int)RenderLayer::Debug);
 
 	commandList->Close();
 
@@ -561,9 +565,9 @@ void Graphics::LoadAssets()
 		NULL, NULL
 	};
 
-	ComPtr<ID3DBlob> skinnedShadowVS = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", skinnedDefines, "VS", "vs_5_1");
-	ComPtr<ID3DBlob> shadowVS = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "VS", "vs_5_1");
-	ComPtr<ID3DBlob> shadowPS = d3dUtil::CompileShader(L"shaders\\Shadow.hlsl", nullptr, "PS", "ps_5_1");
+	ComPtr<ID3DBlob> skinnedShadowVS = d3dUtil::CompileShader(L"shaders\\shadow.hlsl", skinnedDefines, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> shadowVS = d3dUtil::CompileShader(L"shaders\\shadow.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> shadowPS = d3dUtil::CompileShader(L"shaders\\shadow.hlsl", nullptr, "PS", "ps_5_1");
 
 	ComPtr<ID3DBlob> skinnedVS = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", skinnedDefines, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> opaqueVS = d3dUtil::CompileShader(L"shaders\\shaders.hlsl", nullptr, "VS", "vs_5_1");
@@ -575,17 +579,20 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> uiVS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> uiPS = d3dUtil::CompileShader(L"shaders\\ui.hlsl", nullptr, "PS", "ps_5_1");
 
-	ComPtr<ID3DBlob> particleVS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "VS", "vs_5_1");
-	ComPtr<ID3DBlob> particleGS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "GS", "gs_5_1");
-	ComPtr<ID3DBlob> particlePS = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "PS", "ps_5_1");
-	ComPtr<ID3DBlob> particleSO = d3dUtil::CompileShader(L"shaders\\Particle.hlsl", nullptr, "SO", "gs_5_1");
+	ComPtr<ID3DBlob> particleVS = d3dUtil::CompileShader(L"shaders\\particle.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> particleGS = d3dUtil::CompileShader(L"shaders\\particle.hlsl", nullptr, "GS", "gs_5_1");
+	ComPtr<ID3DBlob> particlePS = d3dUtil::CompileShader(L"shaders\\particle.hlsl", nullptr, "PS", "ps_5_1");
+	ComPtr<ID3DBlob> particleSO = d3dUtil::CompileShader(L"shaders\\particle.hlsl", nullptr, "SO", "gs_5_1");
 
-	ComPtr<ID3DBlob> grassVS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", nullptr, "VS", "vs_5_1");
-	ComPtr<ID3DBlob> grassGS = d3dUtil::CompileShader(L"Shaders\\Grass.hlsl", nullptr, "GS", "gs_5_1");
-	ComPtr<ID3DBlob> grassPS = d3dUtil::CompileShader(L"shaders\\Grass.hlsl", alphaTestDefines, "PS", "ps_5_1");
+	ComPtr<ID3DBlob> grassVS = d3dUtil::CompileShader(L"shaders\\grass.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> grassGS = d3dUtil::CompileShader(L"Shaders\\grass.hlsl", nullptr, "GS", "gs_5_1");
+	ComPtr<ID3DBlob> grassPS = d3dUtil::CompileShader(L"shaders\\grass.hlsl", alphaTestDefines, "PS", "ps_5_1");
 
-	ComPtr<ID3DBlob> previewVS = d3dUtil::CompileShader(L"shaders\\Preview.hlsl", nullptr, "VS", "vs_5_1");
-	ComPtr<ID3DBlob> previewPS = d3dUtil::CompileShader(L"shaders\\Preview.hlsl", nullptr, "PS", "ps_5_1");
+	ComPtr<ID3DBlob> previewVS = d3dUtil::CompileShader(L"shaders\\preview.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> previewPS = d3dUtil::CompileShader(L"shaders\\preview.hlsl", nullptr, "PS", "ps_5_1");
+
+	ComPtr<ID3DBlob> debugVS = d3dUtil::CompileShader(L"shaders\\shadowDebug.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> debugPS = d3dUtil::CompileShader(L"shaders\\shadowDebug.hlsl", nullptr, "PS", "ps_5_1");
 
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
@@ -613,7 +620,6 @@ void Graphics::LoadAssets()
 		{ "SPEED", 0, DXGI_FORMAT_R32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TYPE", 0, DXGI_FORMAT_R32_UINT, 0, 40, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
-
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs_grass[]
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -642,6 +648,11 @@ void Graphics::LoadAssets()
 	skinnedPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
 	skinnedPsoDesc.VS = CD3DX12_SHADER_BYTECODE(skinnedVS.Get());
 	device->CreateGraphicsPipelineState(&skinnedPsoDesc, IID_PPV_ARGS(&pipelineStates["skinnedOpaque"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC debugPsoDesc = opaquePsoDesc;
+	debugPsoDesc.VS = CD3DX12_SHADER_BYTECODE(debugVS.Get());
+	debugPsoDesc.PS = CD3DX12_SHADER_BYTECODE(debugPS.Get());
+	device->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&pipelineStates["debug"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = opaquePsoDesc;
 	skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
