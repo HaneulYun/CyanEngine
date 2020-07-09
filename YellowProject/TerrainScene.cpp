@@ -87,13 +87,8 @@ void TerrainScene::BuildObjects()
 	auto menuSceneButton = CreateImage();
 	{
 		auto rectTransform = menuSceneButton->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 0, 1 };
-		rectTransform->anchorMax = { 0, 1 };
-		rectTransform->pivot = { 0, 1 };
-		rectTransform->posX = 10;
-		rectTransform->posY = -10;
-		rectTransform->width = 150;
-		rectTransform->height = 30;
+		rectTransform->setAnchorAndPivot(0, 1);
+		rectTransform->setPosAndSize(10, -10, 150, 30);
 
 		menuSceneButton->AddComponent<Button>()->AddEvent(
 			[](void*) {
@@ -130,13 +125,8 @@ void TerrainScene::BuildObjects()
 	ButtonManager::buttonManager->buttons.push_back(std::make_pair(BSButton00, false));
 	{
 		auto rectTransform = BSButton00->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 0.5, 0 };
-		rectTransform->anchorMax = { 0.5, 0 };
-		rectTransform->pivot = { 0.5, 0 };
-		rectTransform->posX = -70;
-		rectTransform->posY = 70;
-		rectTransform->width = 50;
-		rectTransform->height = 50;
+		rectTransform->setAnchorAndPivot(0.5, 0);
+		rectTransform->setPosAndSize(-70, 70, 50, 50);
 
 		BSButton00->AddComponent<Button>()->AddEvent(
 			[](void*) {
@@ -161,13 +151,8 @@ void TerrainScene::BuildObjects()
 	auto BuildingSelectButton01 = CreateImage();
 	{
 		auto rectTransform = BuildingSelectButton01->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 0.5, 0 };
-		rectTransform->anchorMax = { 0.5, 0 };
-		rectTransform->pivot = { 0.5, 0 };
-		rectTransform->posX = -70;
-		rectTransform->posY = 10;
-		rectTransform->width = 50;
-		rectTransform->height = 50;
+		rectTransform->setAnchorAndPivot(0.5, 0);
+		rectTransform->setPosAndSize(-70, 10, 50, 50);
 
 		BuildingSelectButton01->AddComponent<Button>()->AddEvent(
 			[](void*) {
@@ -191,13 +176,8 @@ void TerrainScene::BuildObjects()
 	auto BuildingSelectButton02 = CreateImage();
 	{
 		auto rectTransform = BuildingSelectButton02->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 0.5, 0 };
-		rectTransform->anchorMax = { 0.5, 0 };
-		rectTransform->pivot = { 0.5, 0 };
-		rectTransform->posX = -10;
-		rectTransform->posY = 10;
-		rectTransform->width = 50;
-		rectTransform->height = 50;
+		rectTransform->setAnchorAndPivot(0.5, 0);
+		rectTransform->setPosAndSize(-10, 10, 50, 50);
 
 		BuildingSelectButton02->AddComponent<Button>()->AddEvent(
 			[](void*) {
@@ -221,13 +201,8 @@ void TerrainScene::BuildObjects()
 	auto BuildingSelectButton03 = CreateImage();
 	{
 		auto rectTransform = BuildingSelectButton03->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 0.5, 0 };
-		rectTransform->anchorMax = { 0.5, 0 };
-		rectTransform->pivot = { 0.5, 0 };
-		rectTransform->posX = -70;
-		rectTransform->posY = 10;
-		rectTransform->width = 50;
-		rectTransform->height = 50;
+		rectTransform->setAnchorAndPivot(0.5, 0);
+		rectTransform->setPosAndSize(-70, 10, 50, 50);
 
 		BuildingSelectButton03->AddComponent<Button>()->AddEvent(
 			[](void*) {
@@ -251,13 +226,8 @@ void TerrainScene::BuildObjects()
 	auto BuildingSelectButton04 = CreateImage();
 	{
 		auto rectTransform = BuildingSelectButton04->GetComponent<RectTransform>();
-		rectTransform->anchorMin = { 0.5, 0 };
-		rectTransform->anchorMax = { 0.5, 0 };
-		rectTransform->pivot = { 0.5, 0 };
-		rectTransform->posX = -10;
-		rectTransform->posY = 10;
-		rectTransform->width = 50;
-		rectTransform->height = 50;
+		rectTransform->setAnchorAndPivot(0.5, 0);
+		rectTransform->setPosAndSize(-10, 10, 50, 50);
 
 		BuildingSelectButton04->AddComponent<Button>()->AddEvent(
 			[](void*) {
