@@ -64,6 +64,7 @@ void CyanFW::OnFrameAdvance()
 	}
 
 	sceneManager->scene->Update();
+
 	// UpdateMaterialBuffer
 	auto currMaterialBuffer = assetManager->assetResource[Scene::scene->frameResourceManager.currFrameResourceIndex]->MaterialBuffer.get();
 	for (auto& e : AssetManager::Instance()->materials)

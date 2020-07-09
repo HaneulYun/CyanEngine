@@ -60,9 +60,6 @@
     <ClInclude Include="CharacterController.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialScene.h">
-      <Filter>Assets\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="MenuScene.h">
       <Filter>Assets\Scenes</Filter>
     </ClInclude>
@@ -78,9 +75,6 @@
     <ClInclude Include="ParticleManager.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsScene.h">
-      <Filter>Assets\Scenes</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
@@ -89,9 +83,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialScene.cpp">
-      <Filter>Assets\Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="TerrainScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
@@ -99,9 +90,6 @@
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="ParticleScene.cpp">
-      <Filter>Assets\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
   </ItemGroup>

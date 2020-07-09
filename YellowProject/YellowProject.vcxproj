@@ -173,8 +173,6 @@
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="GraphicsScene.h" />
-    <ClInclude Include="MaterialScene.h" />
     <ClInclude Include="MenuScene.h" />
     <ClInclude Include="ParticleManager.h" />
     <ClInclude Include="ParticleScene.h" />
@@ -189,8 +187,6 @@
     <ClInclude Include="ScriptForm.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GraphicsScene.cpp" />
-    <ClCompile Include="MaterialScene.cpp" />
     <ClCompile Include="MenuScene.cpp" />
     <ClCompile Include="ParticleScene.cpp" />
     <ClCompile Include="pch.cpp">
