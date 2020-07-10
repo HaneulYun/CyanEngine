@@ -105,13 +105,13 @@ void FrameResourceManager::Update()
 		passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 		//passConstants.Lights[0].Direction = Graphics::Instance()->rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
 		passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
-		passConstants.Lights[0].Strength = { 0, 0, 0 };// { 0.9f, 0.8f, 0.7f };
+		passConstants.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
 		//passConstants.Lights[1].Direction = Graphics::Instance()->rotatedLightDirections[1];// { -0.57735f, -0.57735f, 0.57735f };
 		passConstants.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
-		passConstants.Lights[1].Strength = { 0, 0, 0 };//{ 0.4f, 0.4f, 0.4f };
+		passConstants.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
 		//passConstants.Lights[2].Direction = Graphics::Instance()->rotatedLightDirections[2];// { 0.0f, -0.707f, -0.707f };
 		passConstants.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
-		passConstants.Lights[2].Strength = { 0, 0, 0 };//{ 0.2f, 0.2f, 0.2f };
+		passConstants.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
 
 		passConstants.RenderTargetSize.x = CyanFW::Instance()->GetWidth();
 		passConstants.RenderTargetSize.y = CyanFW::Instance()->GetHeight();
