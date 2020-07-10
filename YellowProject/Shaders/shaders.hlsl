@@ -24,6 +24,12 @@ struct PSInput
 	nointerpolation uint MatIndex : MATINDEX;
 };
 
+struct MRT_VSOutput
+{
+	float4 Color : SV_TARGET0;
+	float4 Normal : SV_TARGET1;
+};
+
 PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 {
 	PSInput vout;
@@ -71,7 +77,7 @@ PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 	return vout;
 }
 
-float4 PS(PSInput input) : SV_TARGET
+MRT_VSOutput PS(PSInput input)
 {
 	MaterialData matData = gMaterialData[input.MatIndex];
 	float4 diffuseAlbedo = matData.DiffuseAlbedo;
@@ -106,5 +112,9 @@ float4 PS(PSInput input) : SV_TARGET
 	
 	litColor.a = diffuseAlbedo.a;
 
-	return litColor;
+	MRT_VSOutput result;
+	result.Color = litColor;
+	result.Normal = float4(input.NormalW, 1);
+
+	return result;
 }

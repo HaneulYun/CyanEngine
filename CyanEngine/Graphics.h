@@ -93,4 +93,11 @@ public:
 
 	void WaitForPreviousFrame();
 	void FlushCommandQueue();
+
+	//--------------//
+	ComPtr<ID3D12Resource> normalMap{ nullptr };
+	void BuildResources();
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index) const;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index) const;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetRtv(int index) const;
 };
