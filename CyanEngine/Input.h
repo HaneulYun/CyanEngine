@@ -2,6 +2,7 @@
 
 enum class KeyCode
 {
+	Left = 0x25, Up, Right, Down,
 	Alpha0='0', Alpha1, Alpha2, Alpha3, Alpha4, Alpha5, Alpha6, Alpha7, Alpha8, Alpha9,
 	A='A', B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
 	Shift=0x10, Return = 13, Period = '.'
@@ -19,6 +20,9 @@ public:
 	static bool mouseDown[3];
 	static float mouseWheel;
 
+	static wchar_t buffer[256];
+	static wchar_t cbuffer[10];
+	static int bufferLen;
 public:
 	Input();
 	~Input();
@@ -31,4 +35,8 @@ public:
 	static bool GetMouseButtonUp(int button);
 	static bool GetMouseButtonDown(int button);
 	static float GetMouseWheelDelta();
+
+	static void ClearBuffer();
+
+	static int ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 };
