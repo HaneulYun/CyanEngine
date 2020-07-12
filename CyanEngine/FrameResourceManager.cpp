@@ -95,6 +95,7 @@ void FrameResourceManager::Update()
 		Matrix4x4 proj = Scene::scene->camera->projection;
 		Matrix4x4 ViewProj = view * proj;
 
+		passConstants.Proj = proj.Transpose();
 		passConstants.ViewProj = ViewProj.Transpose();
 		//passConstants.ShadowTransform = f4x4shadowTransform.Transpose();
 

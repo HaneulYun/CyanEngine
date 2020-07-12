@@ -78,13 +78,14 @@ void Graphics::Render()
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle{ GetRtv(frameIndex) };
 
-	D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ rtvHandle, GetRtv(2) };
+	D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ rtvHandle, GetRtv(2), GetRtv(3) };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{ dsvHeap->GetCPUDescriptorHandleForHeapStart() };
 	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
 
 	const float clearColor[]{ 0.1921569, 0.3019608, 0.4745098, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 	commandList->ClearRenderTargetView(GetRtv(2), clearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(GetRtv(3), clearColor, 0, nullptr);
 
 	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
@@ -108,16 +109,20 @@ void Graphics::Render()
 		if(layerIndex != (int)RenderLayer::Debug)
 			RenderObjects(layerIndex);
 
-	commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(8));
-	RenderObjects((int)RenderLayer::Debug);
+
+	if (isShadowDebug)
+	{
+		commandList->SetPipelineState(pipelineStates["debug"].Get());
+		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(8));
+		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		commandList->DrawInstanced(4, 3, 1, 0);
+	}
 
 	PostRender();
 }
 
 void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 {
-	if (layerIndex == (int)RenderLayer::Debug && !isShadowDebug)
-		return;
 	if (isShadowMap)
 	{
 		if (layerIndex == (int)RenderLayer::Particle ||
@@ -138,8 +143,6 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
 		else if (layerIndex == (int)RenderLayer::Sky)
 			commandList->SetPipelineState(pipelineStates["sky"].Get());
-		else if (layerIndex == (int)RenderLayer::Debug)
-			commandList->SetPipelineState(pipelineStates["debug"].Get());
 		else if (layerIndex == (int)RenderLayer::Grass)
 			commandList->SetPipelineState(pipelineStates["grass"].Get());
 		else if (layerIndex == (int)RenderLayer::BuildPreview)
@@ -451,7 +454,7 @@ void Graphics::InitDirect3D()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = FrameCount + 2;
+	descriptorHeapDesc.NumDescriptors = FrameCount + 3;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&rtvHeap));
@@ -890,6 +893,13 @@ void Graphics::BuildResources()
 		&texDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		&optClear,
+		IID_PPV_ARGS(&diffuseMap));
+	device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&texDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		&optClear,
 		IID_PPV_ARGS(&normalMap));
 
 
@@ -898,15 +908,23 @@ void Graphics::BuildResources()
 	rtvDesc.Format = NormalMapFormat;
 	rtvDesc.Texture2D.MipSlice = 0;
 	rtvDesc.Texture2D.PlaneSlice = 0;
-	device->CreateRenderTargetView(normalMap.Get(), &rtvDesc, GetRtv(2));
+	device->CreateRenderTargetView(diffuseMap.Get(), &rtvDesc, GetRtv(2));
+
+	device->CreateRenderTargetView(normalMap.Get(), &rtvDesc, GetRtv(3));
+
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Format = NormalMapFormat;
+	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = 1;
-	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetCpuSrv(10));
+	device->CreateShaderResourceView(m_pd3dDepthStencilBuffer, &srvDesc, GetCpuSrv(10));
+
+	srvDesc.Format = NormalMapFormat;
+	device->CreateShaderResourceView(diffuseMap.Get(), &srvDesc, GetCpuSrv(11));
+
+	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetCpuSrv(12));
 }
 
 CD3DX12_CPU_DESCRIPTOR_HANDLE Graphics::GetCpuSrv(int index)const

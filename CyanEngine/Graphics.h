@@ -95,6 +95,7 @@ public:
 	void FlushCommandQueue();
 
 	//--------------//
+	ComPtr<ID3D12Resource> diffuseMap{ nullptr };
 	ComPtr<ID3D12Resource> normalMap{ nullptr };
 	void BuildResources();
 	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index) const;
