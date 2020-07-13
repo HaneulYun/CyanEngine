@@ -146,6 +146,9 @@ void CyanFW::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 		case VK_F1:
 			Graphics::Instance()->isShadowDebug = !Graphics::Instance()->isShadowDebug;
 			break;
+		case VK_F2:
+			Graphics::Instance()->isDeferredShader = !Graphics::Instance()->isDeferredShader;
+			break;
 		case VK_F9:
 			Graphics::Instance()->ChangeSwapChainState();
 			break;

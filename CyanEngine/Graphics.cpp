@@ -111,6 +111,14 @@ void Graphics::Render()
 		if(layerIndex != (int)RenderLayer::Debug)
 			RenderObjects(layerIndex);
 
+	if (isDeferredShader)
+	{
+		commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
+		commandList->SetPipelineState(pipelineStates["deferred"].Get());
+		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(8));
+		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		commandList->DrawInstanced(4, 1, 1, 0);
+	}
 
 	if (isShadowDebug)
 	{
@@ -120,6 +128,11 @@ void Graphics::Render()
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		commandList->DrawInstanced(4, 3, 1, 0);
 	}
+
+	commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(0));
+	for (auto layer : { RenderLayer::UI })
+		RenderObjects((int)layer);
+
 
 	PostRender();
 }
@@ -609,6 +622,9 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> debugVS = d3dUtil::CompileShader(L"shaders\\shadowDebug.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> debugPS = d3dUtil::CompileShader(L"shaders\\shadowDebug.hlsl", nullptr, "PS", "ps_5_1");
 
+	ComPtr<ID3DBlob> deferredVS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> deferredPS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "PS", "ps_5_1");
+
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
@@ -668,6 +684,11 @@ void Graphics::LoadAssets()
 	debugPsoDesc.VS = CD3DX12_SHADER_BYTECODE(debugVS.Get());
 	debugPsoDesc.PS = CD3DX12_SHADER_BYTECODE(debugPS.Get());
 	device->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&pipelineStates["debug"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC deferredPsoDesc = opaquePsoDesc;
+	deferredPsoDesc.VS = CD3DX12_SHADER_BYTECODE(deferredVS.Get());
+	deferredPsoDesc.PS = CD3DX12_SHADER_BYTECODE(deferredPS.Get());
+	device->CreateGraphicsPipelineState(&deferredPsoDesc, IID_PPV_ARGS(&pipelineStates["deferred"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = opaquePsoDesc;
 	skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;

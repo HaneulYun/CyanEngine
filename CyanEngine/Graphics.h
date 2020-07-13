@@ -56,6 +56,7 @@ private:
 
 public:
 	bool isShadowDebug{ false };
+	bool isDeferredShader{ false };
 	/*shadow*/
 	//std::unique_ptr<ShadowMap> shadowMap;
 	//DirectX::BoundingSphere sceneBounds;

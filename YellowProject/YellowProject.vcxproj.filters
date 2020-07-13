@@ -137,5 +137,8 @@
     <FxCompile Include="Shaders\shadowDebug.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\deferred.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
