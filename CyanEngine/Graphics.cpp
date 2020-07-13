@@ -107,9 +107,15 @@ void Graphics::Render()
 
 	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
-		if(layerIndex != (int)RenderLayer::Debug)
-			RenderObjects(layerIndex);
+	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
+	for (auto layer : { RenderLayer::Sky })
+		RenderObjects((int)layer);
+
+	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
+	for (auto layer : {
+		RenderLayer::Opaque, RenderLayer::SkinnedOpaque, RenderLayer::Grass,
+		RenderLayer::BuildPreview, RenderLayer::UI, RenderLayer::Particle, })
+		RenderObjects((int)layer);
 
 	if (isDeferredShader)
 	{

@@ -48,5 +48,5 @@ SURFACE_DATA UnpackGBuffer(int2 location)
 float4 PS(PSInput input) : SV_TARGET
 {
 	SURFACE_DATA gbd = UnpackGBuffer(input.PosH);
-	return float4(gbd.LinearDepth.rrr, 1);
+	return float4(gbd.Color, 1);
 }
