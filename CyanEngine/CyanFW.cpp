@@ -30,7 +30,7 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 		for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		{
 			auto resource = std::make_unique<AssetResource>();
-			resource->MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(Graphics::Instance()->device.Get(), 20, false);
+			resource->MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(Graphics::Instance()->device.Get(), 21, false);
 			assetManager->assetResource.push_back(std::move(resource));
 		}
 	}
@@ -64,6 +64,7 @@ void CyanFW::OnFrameAdvance()
 	}
 
 	sceneManager->scene->Update();
+
 	// UpdateMaterialBuffer
 	auto currMaterialBuffer = assetManager->assetResource[Scene::scene->frameResourceManager.currFrameResourceIndex]->MaterialBuffer.get();
 	for (auto& e : AssetManager::Instance()->materials)
@@ -115,6 +116,16 @@ LRESULT CyanFW::OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wPa
 		{
 		case VK_ESCAPE:
 			PostQuitMessage(0);
+			break;
+		case VK_OEM_PERIOD:
+			Input::keys[(int)KeyCode::Period] = false;
+			Input::keyUp[(int)KeyCode::Period] = true;
+			break;
+		case VK_F1:
+			Graphics::Instance()->isShadowDebug = !Graphics::Instance()->isShadowDebug;
+			break;
+		case VK_F2:
+			Graphics::Instance()->isDeferredShader = !Graphics::Instance()->isDeferredShader;
 			break;
 		case VK_F9:
 			Graphics::Instance()->ChangeSwapChainState();

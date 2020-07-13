@@ -1,4 +1,4 @@
-#include "shaders\\Common.hlsl"
+#include "common.hlsl"
 
 struct VSInput
 {
@@ -28,38 +28,6 @@ struct PSInput
 	nointerpolation uint MatIndex : MATINDEX;
 };
 
-float CalcShadowFactor(float4 shadowPosH)
-{
-	// Complete projection by doing division by w.
-	shadowPosH.xyz /= shadowPosH.w;
-
-	// Depth in NDC space.
-	float depth = shadowPosH.z;
-
-	uint width, height, numMips;
-	gShadowMap.GetDimensions(0, width, height, numMips);
-
-	// Texel size.
-	float dx = 1.0f / (float)width;
-
-	float percentLit = 0.0f;
-	const float2 offsets[9] =
-	{
-		float2(-dx,  -dx), float2(0.0f,  -dx), float2(dx,  -dx),
-		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
-		float2(-dx,  +dx), float2(0.0f,  +dx), float2(dx,  +dx)
-	};
-
-	[unroll]
-	for (int i = 0; i < 9; ++i)
-	{
-		percentLit += gShadowMap.SampleCmpLevelZero(gsamShadow,
-			shadowPosH.xy + offsets[i], depth).r;
-	}
-
-	return percentLit / 9.0f;
-}
-
 GSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 {
 	InstanceData instData = gInstanceData[instanceID];
@@ -68,7 +36,7 @@ GSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 	vout.MatIndex = gMaterialIndexData[instanceID * instData.MaterialIndexStride].MaterialIndex;
 	vout.CenterW = mul(float4(vin.PosL, 1.0f), gInstanceData[instanceID].World).xyz;
 	vout.SizeW = vin.SizeW;
-	vout.Look = mul(vin.Look, (float3x3)gInstanceData[instanceID].World);
+	vout.Look = normalize(vin.Look);
 	return vout;
 }
 
@@ -113,7 +81,7 @@ void GS(point GSInput gin[1],
 	for (int i = 0; i < 8; ++i)
 	{
 		if (i % 2 == 1)
-			v[i].x += sin(gTotalTime + v[i].x / 20);
+			v[i].x += sin(gTotalTime * 0.5f + v[i].x / 20) * 0.5f;
 		gout.PosH = mul(v[i], gViewProj);
 		gout.PosW = v[i].xyz;
 		gout.NormalW = gin[0].Look;
@@ -121,12 +89,16 @@ void GS(point GSInput gin[1],
 		gout.PrimID = primID;
 		gout.MatIndex = gin[0].MatIndex;
 		gout.ShadowPosH = mul(v[i], gShadowTransform);
+		if (i % 4 == 0)
+			triStream.RestartStrip();
 		triStream.Append(gout);
 	}
 }
 
 float4 PS(PSInput pin) : SV_Target
 {
+	clip(pin.TexC.y - 0.1);
+
 	MaterialData matData = gMaterialData[pin.MatIndex];
 	float4 diffuseAlbedo = matData.DiffuseAlbedo;
 	float3 fresnelR0 = matData.FresnelR0;

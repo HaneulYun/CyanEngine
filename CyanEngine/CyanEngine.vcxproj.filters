@@ -16,9 +16,6 @@
     <Filter Include="0_00_CyanEngine\80_Util">
       <UniqueIdentifier>{36e54583-50fb-4e94-93e7-190ce2171208}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\00_CyanFW\02_AssetResource">
-      <UniqueIdentifier>{a30ca707-70ce-45a9-ac36-b6b57c405b55}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine\10_Graphics">
       <UniqueIdentifier>{53165671-5924-414f-906b-b69e0320206a}</UniqueIdentifier>
     </Filter>
@@ -63,6 +60,12 @@
     </Filter>
     <Filter Include="0_00_CyanEngine\30_Core\36_TerrainComponent">
       <UniqueIdentifier>{3d48872c-11f4-4c5d-86b2-a217f3d29dfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\10_Graphics\12_AssetResource">
+      <UniqueIdentifier>{a30ca707-70ce-45a9-ac36-b6b57c405b55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\10_Graphics\11_GraphicsCore">
+      <UniqueIdentifier>{cff97280-2d64-44c6-a6de-6d769a069744}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -129,9 +132,6 @@
     <ClInclude Include="Graphics.h">
       <Filter>0_00_CyanEngine\10_Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="FbxLoader.h">
-      <Filter>0_00_CyanEngine\10_Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClInclude>
@@ -184,10 +184,10 @@
       <Filter>0_00_CyanEngine\50_Math</Filter>
     </ClInclude>
     <ClInclude Include="AssetManager.h">
-      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClInclude>
     <ClInclude Include="AssetResource.h">
-      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClInclude>
     <ClInclude Include="FrameResource.h">
       <Filter>0_00_CyanEngine\20_Scene\21_FrameResource</Filter>
@@ -196,13 +196,13 @@
       <Filter>0_00_CyanEngine\20_Scene\21_FrameResource</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClInclude>
     <ClInclude Include="Constant.h">
       <Filter>Undetermined</Filter>
@@ -242,6 +242,9 @@
     </ClInclude>
     <ClInclude Include="DetailPrototype.h">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxLoader.h">
+      <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -296,9 +299,6 @@
     <ClCompile Include="Graphics.cpp">
       <Filter>0_00_CyanEngine\10_Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="FbxLoader.cpp">
-      <Filter>0_00_CyanEngine\10_Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
@@ -330,7 +330,7 @@
       <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
     </ClCompile>
     <ClCompile Include="AssetManager.cpp">
-      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClCompile>
     <ClCompile Include="FrameResource.cpp">
       <Filter>0_00_CyanEngine\20_Scene\21_FrameResource</Filter>
@@ -339,7 +339,7 @@
       <Filter>0_00_CyanEngine\20_Scene\21_FrameResource</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>0_00_CyanEngine\00_CyanFW\02_AssetResource</Filter>
+      <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClCompile>
     <ClCompile Include="ShadowMap.cpp">
       <Filter>Undetermined</Filter>
@@ -373,6 +373,9 @@
     </ClCompile>
     <ClCompile Include="DetailPrototype.cpp">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="FbxLoader.cpp">
+      <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

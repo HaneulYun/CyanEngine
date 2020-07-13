@@ -75,6 +75,21 @@ public:
 
 		localToWorldMatrix._43 = posZ;
 	}
+
+	void setAnchorAndPivot(float x, float y)
+	{
+		anchorMin = { x, y };
+		anchorMax = { x, y };
+		pivot = { x, y };
+	}
+	void setPosAndSize(float x, float y, float w, float h)
+	{
+		posX = x;
+		posY = y;
+		width = w;
+		height = h;
+	}
+
 	static Matrix4x4 Transform(Matrix4x4 mtx)
 	{
 		mtx._11 = mtx._11 * 2;
