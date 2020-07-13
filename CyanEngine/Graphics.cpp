@@ -84,8 +84,10 @@ void Graphics::Render()
 
 	const float clearColor[]{ 0.1921569, 0.3019608, 0.4745098, 1.0f };
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-	commandList->ClearRenderTargetView(GetRtv(2), clearColor, 0, nullptr);
-	commandList->ClearRenderTargetView(GetRtv(3), clearColor, 0, nullptr);
+
+	const float rtClearColor[]{ 0, 0, 0, 1 };
+	commandList->ClearRenderTargetView(GetRtv(2), rtClearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(GetRtv(3), rtClearColor, 0, nullptr);
 
 	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
@@ -112,6 +114,7 @@ void Graphics::Render()
 
 	if (isShadowDebug)
 	{
+		commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
 		commandList->SetPipelineState(pipelineStates["debug"].Get());
 		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(8));
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
