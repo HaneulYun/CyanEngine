@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Input.h"
 
-wchar_t Input::buffer[256];
+wchar_t Input::buffer[2048];
 wchar_t Input::cbuffer[10];
 int Input::bufferLen;
 

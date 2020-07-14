@@ -115,10 +115,10 @@ MRT_VSOutput PS(PSInput input)
 	litColor.a = diffuseAlbedo.a;
 
 	//litColor = float4(input.PosH.zzz, 1);
-	litColor = float4(input.PosW, 1);
-	litColor.x = litColor.x / 1080;
-	litColor.y = litColor.y / 256;
-	litColor.z = litColor.z / 1080;
+	//litColor = float4(input.PosW, 1);
+	//litColor.x = litColor.x / 1080;
+	//litColor.y = litColor.y / 256;
+	//litColor.z = litColor.z / 1080;
 
 	MRT_VSOutput result;
 	result.Color = litColor;

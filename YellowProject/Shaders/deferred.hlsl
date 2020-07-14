@@ -41,6 +41,7 @@ SURFACE_DATA UnpackGBuffer(int2 location)
 	Out.LinearDepth = gProj[3][2] / (depth - gProj[2][2]);
 
 	Out.Color = gDiffuseMap[1].Load(location3).xyz;
+	Out.Normal = gDiffuseMap[2].Load(location3).xyz;
 
 	return Out;
 }
@@ -56,16 +57,18 @@ float3 CalcWorldPos(float2 csPos, float linearDepth)
 float4 PS(PSInput input) : SV_TARGET
 {
 	SURFACE_DATA gbd = UnpackGBuffer(input.PosH);
+	if (length(gbd.Normal) == 0)
+		return float4(gbd.Color, 1);
 
 	float3 position = CalcWorldPos(input.TexC, gbd.LinearDepth);
 
-	position.x = position.x / 1080;
-	position.y = position.y / 256;
-	position.z = position.z / 1080;
-	return float4(position, 1);
+	float ndotl = saturate(dot(-gLights[0].Direction, gbd.Normal));
+	float4 finalColor = float4(gLights[0].Strength, 1) * ndotl;
 
-	float4 finalColor;
-	finalColor = float4(gbd.Color, 1);
+	float3 toEyeW = normalize(gEyePosW - position);
+	float3 halfWay = normalize(toEyeW + -gLights[0].Direction);
+	float ndoth = saturate(dot(halfWay, gbd.Normal));
+	finalColor += float4(gLights[0].Strength, 1) * pow(ndoth, 0) * 0;
 
-	return finalColor;
+	return finalColor * float4(gbd.Color, 1);
 }
