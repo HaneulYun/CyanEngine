@@ -121,7 +121,7 @@ void Graphics::Render()
 	{
 		commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
 		commandList->SetPipelineState(pipelineStates["deferred"].Get());
-		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(8));
+		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(18));
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		commandList->DrawInstanced(4, 1, 1, 0);
 	}
@@ -130,7 +130,7 @@ void Graphics::Render()
 	{
 		commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
 		commandList->SetPipelineState(pipelineStates["debug"].Get());
-		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(8));
+		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(18));
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		commandList->DrawInstanced(4, 3, 1, 0);
 	}
@@ -804,7 +804,7 @@ void Graphics::LoadAssets()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 20;
+	descriptorHeapDesc.NumDescriptors = 30;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
@@ -949,12 +949,12 @@ void Graphics::BuildResources()
 	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = 1;
-	device->CreateShaderResourceView(m_pd3dDepthStencilBuffer, &srvDesc, GetCpuSrv(10));
+	device->CreateShaderResourceView(m_pd3dDepthStencilBuffer, &srvDesc, GetCpuSrv(20));
 
 	srvDesc.Format = NormalMapFormat;
-	device->CreateShaderResourceView(diffuseMap.Get(), &srvDesc, GetCpuSrv(11));
+	device->CreateShaderResourceView(diffuseMap.Get(), &srvDesc, GetCpuSrv(21));
 
-	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetCpuSrv(12));
+	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetCpuSrv(22));
 }
 
 CD3DX12_CPU_DESCRIPTOR_HANDLE Graphics::GetCpuSrv(int index)const
