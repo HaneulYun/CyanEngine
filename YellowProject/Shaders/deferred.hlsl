@@ -60,6 +60,8 @@ float4 PS(PSInput input) : SV_TARGET
 	if (length(gbd.Normal) == 0)
 		return float4(gbd.Color, 1);
 
+	float3 ambient = gAmbientLight * gbd.Color;
+
 	float3 position = CalcWorldPos(input.TexC, gbd.LinearDepth);
 
 	float ndotl = saturate(dot(-gLights[0].Direction, gbd.Normal));
@@ -70,5 +72,5 @@ float4 PS(PSInput input) : SV_TARGET
 	float ndoth = saturate(dot(halfWay, gbd.Normal));
 	finalColor += float4(gLights[0].Strength, 1) * pow(ndoth, 0) * 0;
 
-	return finalColor * float4(gbd.Color, 1);
+	return float4(ambient ,1)+ finalColor * float4(gbd.Color, 1);
 }
