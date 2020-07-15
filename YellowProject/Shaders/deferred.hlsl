@@ -60,17 +60,11 @@ float4 PS(PSInput input) : SV_TARGET
 	if (length(gbd.Normal) == 0)
 		return float4(gbd.Color, 1);
 
+	int3 location = int3(input.PosH.xy, 0);
+	float3 LDiffuse = gDiffuseMap[3].Load(location).rgb;
+	float3 Specular = gDiffuseMap[4].Load(location).rgb;
+
 	float3 ambient = gAmbientLight * gbd.Color;
 
-	float3 position = CalcWorldPos(input.TexC, gbd.LinearDepth);
-
-	float ndotl = saturate(dot(-gLights[0].Direction, gbd.Normal));
-	float4 finalColor = float4(gLights[0].Strength, 1) * ndotl;
-
-	float3 toEyeW = normalize(gEyePosW - position);
-	float3 halfWay = normalize(toEyeW + -gLights[0].Direction);
-	float ndoth = saturate(dot(halfWay, gbd.Normal));
-	finalColor += float4(gLights[0].Strength, 1) * pow(ndoth, 0) * 0;
-
-	return float4(ambient ,1)+ finalColor * float4(gbd.Color, 1);
+	return float4(gbd.Color * (gAmbientLight + LDiffuse + Specular), 1);
 }

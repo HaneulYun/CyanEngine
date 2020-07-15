@@ -3,6 +3,9 @@
 cbuffer LightDirection : register(b0)
 {
 	float3		Direction;
+	float pad0;
+	float3		Strength;
+	float pad1;
 };
 
 struct PSInput
@@ -71,7 +74,7 @@ float3 CalcWorldPos(float2 csPos, float linearDepth)
 MRT_VSOutput PS(PSInput input)
 {
 	float3 L = Direction;
-	float3 S = float3(1, 1, 1);
+	float3 S = Strength;
 
 	SURFACE_DATA gbd = UnpackGBuffer(input.PosH);
 

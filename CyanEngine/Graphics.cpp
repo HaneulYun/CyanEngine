@@ -130,9 +130,21 @@ void Graphics::Render()
 		auto& objects = renderSets.second.gameObjects;
 		if (!objects.size())
 			continue;
-		auto v = objects[0]->GetComponent<Light>()->Direction.xmf3;
-		commandList->SetGraphicsRoot32BitConstants(0, 3, &v, 0);
-		commandList->DrawInstanced(4, objects.size(), 0, 0);
+		for (int i = 0; i < objects.size(); ++i)
+		{
+			struct L
+			{
+				XMFLOAT3 d;
+				float pad0;
+				XMFLOAT3 s;
+				float pad1;
+			};
+			L l{ objects[i]->GetComponent<Light>()->Direction.xmf3, 0,
+				objects[i]->GetComponent<Light>()->Strength.xmf3, 0 };
+
+			commandList->SetGraphicsRoot32BitConstants(0, 8, &l, 0);
+			commandList->DrawInstanced(4, 1, 0, 0);
+		}
 	}
 
 	if (isDeferredShader)
@@ -568,7 +580,7 @@ void Graphics::LoadAssets()
 
 	CD3DX12_ROOT_PARAMETER rootParameters[8];
 	//rootParameters[0].InitAsConstantBufferView(0);
-	rootParameters[0].InitAsConstants(4, 0);
+	rootParameters[0].InitAsConstants(8, 0);
 	rootParameters[1].InitAsConstantBufferView(1);
 	rootParameters[2].InitAsConstantBufferView(2);
 	rootParameters[3].InitAsShaderResourceView(1, 1);

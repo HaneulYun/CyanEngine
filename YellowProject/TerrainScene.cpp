@@ -101,10 +101,20 @@ void TerrainScene::BuildObjects()
 
 	GameObject* directionalLight = CreateEmpty();
 	{
-		directionalLight->AddComponent<Light>();
+		directionalLight->AddComponent<Light>()->Strength = { 0.9f, 0.8f, 0.7f };
 		directionalLight->AddComponent<Updater>()->Set(
 			&directionalLight->GetComponent<Light>()->Direction,
 			&Graphics::Instance()->rotatedLightDirections[0], sizeof(Vector3));
+	}
+	GameObject* directionalLight2 = CreateEmpty();
+	{
+		directionalLight2->AddComponent<Light>()->Direction = { -0.57735f, -0.57735f, 0.57735f };
+		directionalLight2->GetComponent<Light>()->Strength = { 0.4f, 0.4f, 0.4f };
+	}
+	GameObject* directionalLight3 = CreateEmpty();
+	{
+		directionalLight3->AddComponent<Light>()->Direction = { 0.0f, -0.707f, -0.707f };
+		directionalLight3->GetComponent<Light>()->Strength = { 0.2f, 0.2f, 0.2f };
 	}
 
 	//GameObject* debug = CreateEmpty();
