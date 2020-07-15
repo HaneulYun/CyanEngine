@@ -132,7 +132,7 @@ void Graphics::Render()
 		commandList->SetPipelineState(pipelineStates["debug"].Get());
 		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(18));
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		commandList->DrawInstanced(4, 3, 1, 0);
+		commandList->DrawInstanced(4, 4, 1, 0);
 	}
 
 	commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(0));

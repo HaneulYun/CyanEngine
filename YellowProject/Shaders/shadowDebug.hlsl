@@ -40,7 +40,7 @@ float4 PS(VertexOut pin) : SV_Target
         return float4(gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     if(pin.InstID == 2)
         return float4(gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
+    if(pin.InstID == 3)
+        return float4(gDiffuseMap[pin.InstID-2].Sample(gsamLinearWrap, pin.TexC).aaa, 1.0f);
     return float4(0, 0, 0, 1);
 }
-
-

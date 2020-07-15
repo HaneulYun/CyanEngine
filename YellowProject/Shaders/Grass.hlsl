@@ -80,12 +80,21 @@ void GS(point GSInput gin[1],
 	[unroll]
 	for (int i = 0; i < 8; ++i)
 	{
-		if (i == 4)
-			gin[0].Look = mul(float4(gin[0].Look, 1.0f), r);
 		if (i % 2 == 1)
 			v[i].x += sin(gTotalTime * 0.5f + v[i].x / 20) * 0.5f;
 		gout.PosH = mul(v[i], gViewProj);
 		gout.PosW = v[i].xyz;
+		if (i % 4 == 0)
+		{
+			int n = (i / 4) * 4;
+			float3 look = cross(v[n + 1] - v[n + 0], v[n + 2] - v[n + 1]);
+
+			float3 toEye = normalize(gEyePosW - gout.PosW);
+			if (dot(look, toEye) < 0)
+				look = -look;
+
+			gin[0].Look = look;
+		}
 		gout.NormalW = gin[0].Look;
 		gout.TexC = texC[i % 4];
 		gout.PrimID = primID;
@@ -147,10 +156,6 @@ MRT_VSOutput PS(PSInput pin)
 	litColor.a = diffuseAlbedo.a;
 
 	//return litColor;
-
-	float3 toEye = normalize(gEyePosW - pin.PosW);
-	if (dot(pin.NormalW, toEye) < 0)
-		pin.NormalW = -pin.NormalW;
 
 	MRT_VSOutput result;
 	result.Color = litColor;
