@@ -98,6 +98,9 @@ public:
 	//--------------//
 	ComPtr<ID3D12Resource> diffuseMap{ nullptr };
 	ComPtr<ID3D12Resource> normalMap{ nullptr };
+
+	ComPtr<ID3D12Resource> lightDiffuse{ nullptr };
+	ComPtr<ID3D12Resource> lightSpecular{ nullptr };
 	void BuildResources();
 	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index) const;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index) const;

@@ -11,10 +11,10 @@ VertexOut VS(uint nVertexID : SV_VertexID, uint nInstanceID : SV_InstanceID)
 {
 	VertexOut vout = (VertexOut)0.0f;
 
-    if (nVertexID == 0) vout.PosH = float4(-1.0, 0.5 - (nInstanceID) * 0.5, 0.0, 1.0);
-    if (nVertexID == 1) vout.PosH = float4(-1.0, 1.0 - (nInstanceID) * 0.5, 0.0, 1.0);
-    if (nVertexID == 2) vout.PosH = float4(-0.5, 0.5 - (nInstanceID) * 0.5, 0.0, 1.0);
-    if (nVertexID == 3) vout.PosH = float4(-0.5, 1.0 - (nInstanceID) * 0.5, 0.0, 1.0);
+    if (nVertexID == 0) vout.PosH = float4(-1.0 + (nInstanceID / 4) * 0.5, 0.5 - (nInstanceID % 4) * 0.5, 0.0, 1.0);
+    if (nVertexID == 1) vout.PosH = float4(-1.0 + (nInstanceID / 4) * 0.5, 1.0 - (nInstanceID % 4) * 0.5, 0.0, 1.0);
+    if (nVertexID == 2) vout.PosH = float4(-0.5 + (nInstanceID / 4) * 0.5, 0.5 - (nInstanceID % 4) * 0.5, 0.0, 1.0);
+    if (nVertexID == 3) vout.PosH = float4(-0.5 + (nInstanceID / 4) * 0.5, 1.0 - (nInstanceID % 4) * 0.5, 0.0, 1.0);
 
     if (nVertexID == 0) vout.TexC = float2(0, 1);
     if (nVertexID == 1) vout.TexC = float2(0, 0);
@@ -41,6 +41,8 @@ float4 PS(VertexOut pin) : SV_Target
     if(pin.InstID == 2)
         return float4(gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     if(pin.InstID == 3)
-        return float4(gDiffuseMap[pin.InstID-2].Sample(gsamLinearWrap, pin.TexC).aaa, 1.0f);
+        return float4(gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
+    if(pin.InstID == 4)
+        return float4(gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     return float4(0, 0, 0, 1);
 }

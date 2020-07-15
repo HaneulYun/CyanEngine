@@ -99,11 +99,19 @@ void TerrainScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
-	GameObject* debug = CreateEmpty();
+	GameObject* directionalLight = CreateEmpty();
 	{
-		debug->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
-		debug->layer = (int)RenderLayer::Debug;
+		directionalLight->AddComponent<Light>();
+		directionalLight->AddComponent<Updater>()->Set(
+			&directionalLight->GetComponent<Light>()->Direction,
+			&Graphics::Instance()->rotatedLightDirections[0], sizeof(Vector3));
 	}
+
+	//GameObject* debug = CreateEmpty();
+	//{
+	//	debug->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
+	//	debug->layer = (int)RenderLayer::Debug;
+	//}
 
 	{
 		auto ritem = CreateEmpty();

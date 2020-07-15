@@ -87,9 +87,10 @@ void ObjectRenderManager::AddGameObject(GameObject* gameObject, int layer)
 		mesh = component->terrainData.heightmapTexture;
 	if (auto component = gameObject->GetComponent<ParticleSystem>(); component && !mesh)
 		mesh = component->particle;
-	if (!mesh)
-		return;
+	//if (!mesh)
+	//	return;
 
 	gameObject->layer = layer;
 	renderObjectsLayer[layer][mesh].AddGameObject(gameObject);
+	int k = 0;
 }
