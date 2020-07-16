@@ -84,6 +84,17 @@ void GS(point GSInput gin[1],
 			v[i].x += sin(gTotalTime * 0.5f + v[i].x / 20) * 0.5f;
 		gout.PosH = mul(v[i], gViewProj);
 		gout.PosW = v[i].xyz;
+		if (i % 4 == 0)
+		{
+			int n = (i / 4) * 4;
+			float3 look = cross(v[n + 1] - v[n + 0], v[n + 2] - v[n + 1]);
+
+			float3 toEye = normalize(gEyePosW - gout.PosW);
+			if (dot(look, toEye) < 0)
+				look = -look;
+
+			gin[0].Look = look;
+		}
 		gout.NormalW = gin[0].Look;
 		gout.TexC = texC[i % 4];
 		gout.PrimID = primID;
@@ -95,7 +106,15 @@ void GS(point GSInput gin[1],
 	}
 }
 
-float4 PS(PSInput pin) : SV_Target
+struct MRT_VSOutput
+{
+	float4 Color : SV_TARGET0;
+	float4 Diffuse : SV_TARGET1;
+	float4 Normal : SV_TARGET2;
+	float4 SpecPow : SV_TARGET3;
+};
+
+MRT_VSOutput PS(PSInput pin)
 {
 	clip(pin.TexC.y - 0.1);
 
@@ -136,5 +155,13 @@ float4 PS(PSInput pin) : SV_Target
 
 	litColor.a = diffuseAlbedo.a;
 
-	return litColor;
+	//return litColor;
+
+	MRT_VSOutput result;
+	result.Color = litColor;
+	result.Diffuse = diffuseAlbedo;
+	result.Normal = float4(pin.NormalW, 1);
+	result.SpecPow = float4(pin.NormalW, 1);
+
+	return result;
 }

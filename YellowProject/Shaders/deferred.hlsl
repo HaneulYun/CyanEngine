@@ -38,15 +38,33 @@ SURFACE_DATA UnpackGBuffer(int2 location)
 	int3 location3 = int3(location, 0);
 
 	float depth = gDiffuseMap[0].Load(location3).r;
-	Out.LinearDepth = (gProj[3][2] / (depth - gProj[2][2])) / 1000;
+	Out.LinearDepth = gProj[3][2] / (depth - gProj[2][2]);
 
 	Out.Color = gDiffuseMap[1].Load(location3).xyz;
+	Out.Normal = gDiffuseMap[2].Load(location3).xyz;
 
 	return Out;
+}
+
+float3 CalcWorldPos(float2 csPos, float linearDepth)
+{
+	float2 values = float2(1/gProj[0][0], 1/gProj[1][1]);
+	float4 position = float4(csPos.xy * values.xy * linearDepth, linearDepth, 1);
+
+	return mul(position, gInvView).xyz;
 }
 
 float4 PS(PSInput input) : SV_TARGET
 {
 	SURFACE_DATA gbd = UnpackGBuffer(input.PosH);
-	return float4(gbd.LinearDepth.rrr, 1);
+	if (length(gbd.Normal) == 0)
+		return float4(gbd.Color, 1);
+
+	int3 location = int3(input.PosH.xy, 0);
+	float3 LDiffuse = gDiffuseMap[3].Load(location).rgb;
+	float3 Specular = gDiffuseMap[4].Load(location).rgb;
+
+	float3 ambient = gAmbientLight * gbd.Color;
+
+	return float4(gbd.Color * (gAmbientLight + LDiffuse + Specular), 1);
 }

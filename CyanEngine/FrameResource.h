@@ -21,7 +21,7 @@ struct PassConstants
 	float		DeltaTime{ 0.0f };
 
 	XMFLOAT4	AmbientLight{ 0.0f, 0.0f, 0.0f, 1.0f };
-	Light		Lights[MaxLights]{};
+	PassLight	Lights[MaxLights]{};
 };
 
 struct FrameResource

@@ -78,7 +78,7 @@ void Graphics::Render()
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle{ GetRtv(frameIndex) };
 
-	D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ rtvHandle, GetRtv(2), GetRtv(3) };
+	D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ rtvHandle, GetRtv(2), GetRtv(3), GetRtv(4), GetRtv(5) };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{ dsvHeap->GetCPUDescriptorHandleForHeapStart() };
 	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
 
@@ -107,26 +107,59 @@ void Graphics::Render()
 
 	commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-	for (int layerIndex = 0; layerIndex < (int)RenderLayer::Count; ++layerIndex)
-		if(layerIndex != (int)RenderLayer::Debug)
-			RenderObjects(layerIndex);
+	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
+	for (auto layer : { RenderLayer::Sky })
+		RenderObjects((int)layer);
+
+	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
+	for (auto layer : {
+		RenderLayer::Opaque, RenderLayer::SkinnedOpaque, RenderLayer::Grass,
+		RenderLayer::BuildPreview, RenderLayer::UI, RenderLayer::Particle, })
+		RenderObjects((int)layer);
+
+	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
+	commandList->ClearRenderTargetView(GetRtv(4), rtClearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(GetRtv(5), rtClearColor, 0, nullptr);
+	commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(18));
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	commandList->SetPipelineState(pipelineStates["light"].Get());
+
+
+	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Light])
+	{
+		auto& objects = renderSets.second.gameObjects;
+		if (!objects.size())
+			continue;
+		for (int i = 0; i < objects.size(); ++i)
+		{
+			struct L
+			{
+				XMFLOAT3 d;
+				float pad0;
+				XMFLOAT3 s;
+				float pad1;
+			};
+			L l{ objects[i]->GetComponent<Light>()->Direction.xmf3, 0,
+				objects[i]->GetComponent<Light>()->Strength.xmf3, 0 };
+
+			commandList->SetGraphicsRoot32BitConstants(0, 8, &l, 0);
+			commandList->DrawInstanced(4, 1, 0, 0);
+		}
+	}
 
 	if (isDeferredShader)
 	{
-		commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
 		commandList->SetPipelineState(pipelineStates["deferred"].Get());
-		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(8));
-		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		commandList->DrawInstanced(4, 1, 1, 0);
+		commandList->DrawInstanced(4, 1, 0, 0);
 	}
 
 	if (isShadowDebug)
 	{
 		commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
 		commandList->SetPipelineState(pipelineStates["debug"].Get());
-		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(8));
+		commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(18));
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		commandList->DrawInstanced(4, 3, 1, 0);
+		commandList->DrawInstanced(4, 5, 0, 0);
 	}
 
 	commandList->SetGraphicsRootDescriptorTable(4, GetGpuSrv(0));
@@ -470,7 +503,7 @@ void Graphics::InitDirect3D()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = FrameCount + 3;
+	descriptorHeapDesc.NumDescriptors = FrameCount + 4;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&rtvHeap));
@@ -547,7 +580,7 @@ void Graphics::LoadAssets()
 
 	CD3DX12_ROOT_PARAMETER rootParameters[8];
 	//rootParameters[0].InitAsConstantBufferView(0);
-	rootParameters[0].InitAsConstants(4, 0);
+	rootParameters[0].InitAsConstants(8, 0);
 	rootParameters[1].InitAsConstantBufferView(1);
 	rootParameters[2].InitAsConstantBufferView(2);
 	rootParameters[3].InitAsShaderResourceView(1, 1);
@@ -622,6 +655,9 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> debugVS = d3dUtil::CompileShader(L"shaders\\shadowDebug.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> debugPS = d3dUtil::CompileShader(L"shaders\\shadowDebug.hlsl", nullptr, "PS", "ps_5_1");
 
+	ComPtr<ID3DBlob> lightVS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> lightPS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "PS", "ps_5_1");
+
 	ComPtr<ID3DBlob> deferredVS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> deferredPS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "PS", "ps_5_1");
 
@@ -684,6 +720,11 @@ void Graphics::LoadAssets()
 	debugPsoDesc.VS = CD3DX12_SHADER_BYTECODE(debugVS.Get());
 	debugPsoDesc.PS = CD3DX12_SHADER_BYTECODE(debugPS.Get());
 	device->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&pipelineStates["debug"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC lightPsoDesc = opaquePsoDesc;
+	lightPsoDesc.VS = CD3DX12_SHADER_BYTECODE(lightVS.Get());
+	lightPsoDesc.PS = CD3DX12_SHADER_BYTECODE(lightPS.Get());
+	device->CreateGraphicsPipelineState(&lightPsoDesc, IID_PPV_ARGS(&pipelineStates["light"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC deferredPsoDesc = opaquePsoDesc;
 	deferredPsoDesc.VS = CD3DX12_SHADER_BYTECODE(deferredVS.Get());
@@ -798,7 +839,7 @@ void Graphics::LoadAssets()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 20;
+	descriptorHeapDesc.NumDescriptors = 30;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
@@ -925,6 +966,20 @@ void Graphics::BuildResources()
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		&optClear,
 		IID_PPV_ARGS(&normalMap));
+	device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&texDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		&optClear,
+		IID_PPV_ARGS(&lightDiffuse));
+	device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&texDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		&optClear,
+		IID_PPV_ARGS(&lightSpecular));
 
 
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
@@ -933,8 +988,9 @@ void Graphics::BuildResources()
 	rtvDesc.Texture2D.MipSlice = 0;
 	rtvDesc.Texture2D.PlaneSlice = 0;
 	device->CreateRenderTargetView(diffuseMap.Get(), &rtvDesc, GetRtv(2));
-
 	device->CreateRenderTargetView(normalMap.Get(), &rtvDesc, GetRtv(3));
+	device->CreateRenderTargetView(lightDiffuse.Get(), &rtvDesc, GetRtv(4));
+	device->CreateRenderTargetView(lightSpecular.Get(), &rtvDesc, GetRtv(5));
 
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -943,12 +999,13 @@ void Graphics::BuildResources()
 	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = 1;
-	device->CreateShaderResourceView(m_pd3dDepthStencilBuffer, &srvDesc, GetCpuSrv(10));
+	device->CreateShaderResourceView(m_pd3dDepthStencilBuffer, &srvDesc, GetCpuSrv(20));
 
 	srvDesc.Format = NormalMapFormat;
-	device->CreateShaderResourceView(diffuseMap.Get(), &srvDesc, GetCpuSrv(11));
-
-	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetCpuSrv(12));
+	device->CreateShaderResourceView(diffuseMap.Get(), &srvDesc, GetCpuSrv(21));
+	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetCpuSrv(22));
+	device->CreateShaderResourceView(lightDiffuse.Get(), &srvDesc, GetCpuSrv(23));
+	device->CreateShaderResourceView(lightSpecular.Get(), &srvDesc, GetCpuSrv(24));
 }
 
 CD3DX12_CPU_DESCRIPTOR_HANDLE Graphics::GetCpuSrv(int index)const

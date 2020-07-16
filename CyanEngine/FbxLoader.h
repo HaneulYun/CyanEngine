@@ -10,6 +10,7 @@ enum class RenderLayer : int
 	UI,
 	Sky,
 	Particle,
+	Light,
 	Count
 };
 

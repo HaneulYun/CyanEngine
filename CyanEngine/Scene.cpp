@@ -35,52 +35,52 @@ void Scene::Update()
 	objectRenderManager.Update();
 
 	// fixed update
-	Collider *lhs_collider, *rhs_collider;
-	for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)
-		if (lhs_collider = (*lhs_iter)->GetComponent<Collider>())
-			for (auto rhs_iter = gameObjects.begin(); rhs_iter != gameObjects.end(); ++rhs_iter)
-				if(lhs_iter != rhs_iter)
-					if (rhs_collider = (*rhs_iter)->GetComponent<Collider>())
-					{
-						auto iter = (*lhs_iter)->collisionType.find(*rhs_iter);
-	
-						if (lhs_collider->Compare(rhs_collider))
-						{
-							if (iter == (*lhs_iter)->collisionType.end())
-								((*lhs_iter)->collisionType)[*rhs_iter] = CollisionType::eTriggerEnter;
-							else if (iter->second == CollisionType::eTriggerEnter)
-								iter->second = CollisionType::eTriggerStay;
-						}
-						else if (iter != (*lhs_iter)->collisionType.end())
-							iter->second = CollisionType::eTriggerExit;
-					}
-
-	for (GameObject* gameObject : gameObjects)
-	{
-		for (auto iter = gameObject->collisionType.begin(); iter != gameObject->collisionType.end();)
-		{
-			switch (iter->second)
-			{
-			case CollisionType::eCollisionEnter:
-				gameObject->OnCollisionEnter(iter->first); break;
-			case CollisionType::eCollisionStay:
-				gameObject->OnCollisionStay(iter->first); break;
-			case CollisionType::eCollisionExit:
-				gameObject->OnCollisionExit(iter->first); break;
-			case CollisionType::eTriggerEnter:
-				gameObject->OnTriggerEnter(iter->first); break;
-			case CollisionType::eTriggerStay:
-				gameObject->OnTriggerStay(iter->first); break;
-			}
-			if (iter->second == CollisionType::eTriggerExit)
-			{
-				gameObject->OnTriggerExit(iter->first);
-				iter = gameObject->collisionType.erase(iter);
-			}
-			else
-				++iter;
-		}
-	}
+	//Collider *lhs_collider, *rhs_collider;
+	//for (auto lhs_iter = gameObjects.begin(); lhs_iter != gameObjects.end(); ++lhs_iter)
+	//	if (lhs_collider = (*lhs_iter)->GetComponent<Collider>())
+	//		for (auto rhs_iter = gameObjects.begin(); rhs_iter != gameObjects.end(); ++rhs_iter)
+	//			if(lhs_iter != rhs_iter)
+	//				if (rhs_collider = (*rhs_iter)->GetComponent<Collider>())
+	//				{
+	//					auto iter = (*lhs_iter)->collisionType.find(*rhs_iter);
+	//
+	//					if (lhs_collider->Compare(rhs_collider))
+	//					{
+	//						if (iter == (*lhs_iter)->collisionType.end())
+	//							((*lhs_iter)->collisionType)[*rhs_iter] = CollisionType::eTriggerEnter;
+	//						else if (iter->second == CollisionType::eTriggerEnter)
+	//							iter->second = CollisionType::eTriggerStay;
+	//					}
+	//					else if (iter != (*lhs_iter)->collisionType.end())
+	//						iter->second = CollisionType::eTriggerExit;
+	//				}
+	//
+	//for (GameObject* gameObject : gameObjects)
+	//{
+	//	for (auto iter = gameObject->collisionType.begin(); iter != gameObject->collisionType.end();)
+	//	{
+	//		switch (iter->second)
+	//		{
+	//		case CollisionType::eCollisionEnter:
+	//			gameObject->OnCollisionEnter(iter->first); break;
+	//		case CollisionType::eCollisionStay:
+	//			gameObject->OnCollisionStay(iter->first); break;
+	//		case CollisionType::eCollisionExit:
+	//			gameObject->OnCollisionExit(iter->first); break;
+	//		case CollisionType::eTriggerEnter:
+	//			gameObject->OnTriggerEnter(iter->first); break;
+	//		case CollisionType::eTriggerStay:
+	//			gameObject->OnTriggerStay(iter->first); break;
+	//		}
+	//		if (iter->second == CollisionType::eTriggerExit)
+	//		{
+	//			gameObject->OnTriggerExit(iter->first);
+	//			iter = gameObject->collisionType.erase(iter);
+	//		}
+	//		else
+	//			++iter;
+	//	}
+	//}
 
 	// input process
 	for (GameObject* gameObject : gameObjects)

@@ -61,13 +61,13 @@ public:
 	//std::unique_ptr<ShadowMap> shadowMap;
 	//DirectX::BoundingSphere sceneBounds;
 	//
-	//float lightRotationAngle = 0.0f;
-	//Vector3 baseLightDirections[3] = {
-	//	Vector3(0.57735f, -0.57735f, 0.57735f),
-	//	Vector3(-0.57735f, -0.57735f, 0.57735f),
-	//	Vector3(0.0f, -0.707f, -0.707f)
-	//};
-	//Vector3 rotatedLightDirections[3];
+	float lightRotationAngle = 0.0f;
+	Vector3 baseLightDirections[3] = {
+		Vector3(0, -1, 0),
+		Vector3(-0.57735f, -0.57735f, 0.57735f),
+		Vector3(0.0f, -0.707f, -0.707f)
+	};
+	Vector3 rotatedLightDirections[3];
 
 public:
 	Graphics() {}
@@ -98,6 +98,9 @@ public:
 	//--------------//
 	ComPtr<ID3D12Resource> diffuseMap{ nullptr };
 	ComPtr<ID3D12Resource> normalMap{ nullptr };
+
+	ComPtr<ID3D12Resource> lightDiffuse{ nullptr };
+	ComPtr<ID3D12Resource> lightSpecular{ nullptr };
 	void BuildResources();
 	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index) const;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index) const;

@@ -96,6 +96,7 @@ using Microsoft::WRL::ComPtr;
 #include "Transform.h"
 #include "Renderer.h"
 #include "Camera.h"
+#include "Light.h"
 
 #include "Mesh.h"
 #include "SkinnedMeshRenderer.h"

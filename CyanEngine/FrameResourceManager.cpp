@@ -6,15 +6,16 @@ void FrameResourceManager::Update()
 	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
 	currFrameResource = frameResources[currFrameResourceIndex].get();
 
-	//// Animate the lights
-	//Graphics::Instance()->lightRotationAngle += 0.1f * Time::deltaTime;
-	//
-	//Matrix4x4 R = Matrix4x4::RotationY(Graphics::Instance()->lightRotationAngle);
-	//for (int i = 0; i < 3; ++i)
-	//{
-	//	Graphics::Instance()->rotatedLightDirections[i] = Graphics::Instance()->baseLightDirections[i].TransformNormal(R);
-	//}
-	//
+	// Animate the lights
+	Graphics::Instance()->lightRotationAngle += 0.1f * Time::deltaTime;
+	//Graphics::Instance()->baseLightDirections[0] = { 0,-1,0 };
+
+	Matrix4x4 R = Matrix4x4::RotationZ(Graphics::Instance()->lightRotationAngle);
+	for (int i = 0; i < 3; ++i)
+	{
+		Graphics::Instance()->rotatedLightDirections[i] = Graphics::Instance()->baseLightDirections[i].TransformNormal(R);
+	}
+	
 	//// Update ShadowTransform
 	//
 	//// Only the first "main" light casts a shadow.
@@ -95,7 +96,10 @@ void FrameResourceManager::Update()
 		Matrix4x4 proj = Scene::scene->camera->projection;
 		Matrix4x4 ViewProj = view * proj;
 
+		passConstants.View = view.Transpose();
+		passConstants.InvView = view.Inverse().Transpose();
 		passConstants.Proj = proj.Transpose();
+		passConstants.InvProj = proj.Inverse().Transpose();
 		passConstants.ViewProj = ViewProj.Transpose();
 		//passConstants.ShadowTransform = f4x4shadowTransform.Transpose();
 
@@ -104,8 +108,8 @@ void FrameResourceManager::Update()
 
 		passConstants.EyePosW = pos;
 		passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
-		//passConstants.Lights[0].Direction = Graphics::Instance()->rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
-		passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
+		passConstants.Lights[0].Direction = Graphics::Instance()->rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
+		//passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
 		passConstants.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
 		//passConstants.Lights[1].Direction = Graphics::Instance()->rotatedLightDirections[1];// { -0.57735f, -0.57735f, 0.57735f };
 		passConstants.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };

@@ -246,6 +246,9 @@
     <ClInclude Include="FbxLoader.h">
       <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>0_00_CyanEngine\30_Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -376,6 +379,9 @@
     </ClCompile>
     <ClCompile Include="FbxLoader.cpp">
       <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>0_00_CyanEngine\30_Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

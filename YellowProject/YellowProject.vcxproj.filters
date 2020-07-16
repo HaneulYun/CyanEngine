@@ -75,6 +75,9 @@
     <ClInclude Include="ParticleManager.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
+    <ClInclude Include="Updater.h">
+      <Filter>Assets\Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
@@ -138,6 +141,9 @@
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\deferred.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\light.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
   </ItemGroup>

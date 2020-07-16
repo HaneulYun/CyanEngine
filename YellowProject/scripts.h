@@ -5,3 +5,5 @@
 #include "CharacterController.h"
 #include "BuildManager.h"
 #include "ParticleManager.h"
+
+#include "Updater.h"

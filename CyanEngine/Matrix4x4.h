@@ -117,10 +117,22 @@ struct Matrix4x4
 		return result;
 	}
 
+	static Matrix4x4 RotationX(float angle)
+	{
+		Matrix4x4 result;
+		XMStoreFloat4x4(&result.xmf4x4, XMMatrixRotationX(angle));
+		return result;
+	}
 	static Matrix4x4 RotationY(float angle)
 	{
 		Matrix4x4 result;
 		XMStoreFloat4x4(&result.xmf4x4, XMMatrixRotationY(angle));
+		return result;
+	}
+	static Matrix4x4 RotationZ(float angle)
+	{
+		Matrix4x4 result;
+		XMStoreFloat4x4(&result.xmf4x4, XMMatrixRotationZ(angle));
 		return result;
 	}
 	static Matrix4x4 RotationAxis(Vector3 axis, float angle/*radian*/)

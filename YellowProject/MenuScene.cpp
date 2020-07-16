@@ -10,8 +10,8 @@ void MenuScene::BuildObjects()
 
 	//*** Material ***//
 	ASSET AddMaterial("none", ASSET TEXTURE("none"));
-	ASSET AddMaterial("gray", ASSET TEXTURE("none"), -1, { 0.5, 0.5, 0.5, 0.5 });
-	ASSET AddMaterial("menuBackgroundMat", ASSET TEXTURE("menuBackgroundTex"), -1, { 0.8, 0.8, 0.8, 1 });
+	ASSET AddMaterial("gray", ASSET TEXTURE("none"), 0, { 0.5, 0.5, 0.5, 0.5 });
+	ASSET AddMaterial("menuBackgroundMat", ASSET TEXTURE("menuBackgroundTex"), 0, { 0.8, 0.8, 0.8, 1 });
 
 	//*** Mesh ***//
 	ASSET AddMesh("Image", Mesh::CreateQuad());

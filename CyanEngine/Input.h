@@ -20,7 +20,7 @@ public:
 	static bool mouseDown[3];
 	static float mouseWheel;
 
-	static wchar_t buffer[256];
+	static wchar_t buffer[2048];
 	static wchar_t cbuffer[10];
 	static int bufferLen;
 public:
