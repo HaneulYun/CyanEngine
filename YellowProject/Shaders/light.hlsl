@@ -1,6 +1,6 @@
 #include "common.hlsl"
 
-cbuffer LightDirection : register(b0)
+cbuffer LightDirection : register(b1)
 {
 	float3		Direction;
 	float pad0;
@@ -54,11 +54,11 @@ SURFACE_DATA UnpackGBuffer(int2 location)
 
 	int3 location3 = int3(location, 0);
 
-	float depth = gDiffuseMap[0].Load(location3).r;
+	float depth = gBufferMap[0].Load(location3).r;
 	Out.LinearDepth = gProj[3][2] / (depth - gProj[2][2]);
 
-	Out.Color = gDiffuseMap[1].Load(location3).xyz;
-	Out.Normal = gDiffuseMap[2].Load(location3).xyz;
+	Out.Color = gBufferMap[1].Load(location3).xyz;
+	Out.Normal = gBufferMap[2].Load(location3).xyz;
 
 	return Out;
 }
@@ -93,8 +93,8 @@ MRT_VSOutput PS(PSInput input)
 	int3 location = int3(input.PosH.xy, 0);
 
 	MRT_VSOutput result;
-	result.LDiffuse = float4(gDiffuseMap[3].Load(location).rgb, 1.0f) + diffuse;
-	result.Specular = float4(gDiffuseMap[4].Load(location).rgb, 1.0f) + specular;
+	result.LDiffuse = float4(gBufferMap[3].Load(location).rgb, 1.0f) + diffuse;
+	result.Specular = float4(gBufferMap[4].Load(location).rgb, 1.0f) + specular;
 
 	return result;
 }

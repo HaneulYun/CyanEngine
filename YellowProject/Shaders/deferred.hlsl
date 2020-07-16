@@ -37,11 +37,11 @@ SURFACE_DATA UnpackGBuffer(int2 location)
 
 	int3 location3 = int3(location, 0);
 
-	float depth = gDiffuseMap[0].Load(location3).r;
+	float depth = gBufferMap[0].Load(location3).r;
 	Out.LinearDepth = gProj[3][2] / (depth - gProj[2][2]);
 
-	Out.Color = gDiffuseMap[1].Load(location3).xyz;
-	Out.Normal = gDiffuseMap[2].Load(location3).xyz;
+	Out.Color = gBufferMap[1].Load(location3).xyz;
+	Out.Normal = gBufferMap[2].Load(location3).xyz;
 
 	return Out;
 }
@@ -61,8 +61,8 @@ float4 PS(PSInput input) : SV_TARGET
 		return float4(gbd.Color, 1);
 
 	int3 location = int3(input.PosH.xy, 0);
-	float3 LDiffuse = gDiffuseMap[3].Load(location).rgb;
-	float3 Specular = gDiffuseMap[4].Load(location).rgb;
+	float3 LDiffuse = gBufferMap[3].Load(location).rgb;
+	float3 Specular = gBufferMap[4].Load(location).rgb;
 
 	float3 ambient = gAmbientLight * gbd.Color;
 

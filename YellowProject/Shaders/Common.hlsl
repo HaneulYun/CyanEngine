@@ -44,14 +44,17 @@ struct BoneTransform
 	float4x4 BoneTransforms;
 };
 
-StructuredBuffer<InstanceData> gInstanceData : register(t0, space1);
-StructuredBuffer<MaterialData> gMaterialData : register(t1, space1);
-StructuredBuffer<BoneTransform> gSkinnedData : register(t2, space1);
-StructuredBuffer<MatIndexData> gMaterialIndexData : register(t3, space1);
+StructuredBuffer<InstanceData> gInstanceData : register(t0);
+StructuredBuffer<MatIndexData> gMaterialIndexData : register(t1);
+StructuredBuffer<BoneTransform> gSkinnedData : register(t2);
 
-TextureCube gCubeMap : register(t0);
-Texture2D gShadowMap : register(t1);
-Texture2D gDiffuseMap[18] : register(t2);
+StructuredBuffer<MaterialData> gMaterialData : register(t0, space2);
+
+TextureCube gCubeMap : register(t0, space1);
+Texture2D gBufferMap[7] : register(t1, space1);
+Texture2D gShadowMap : register(t8, space1);
+
+Texture2D gDiffuseMap[16] : register(t1, space2);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
@@ -61,7 +64,7 @@ SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
 SamplerComparisonState gsamShadow : register(s6);
 
-cbuffer cbPass : register(b2)
+cbuffer cbPass : register(b0)
 {
 	float4x4 gView;
 	float4x4 gInvView;
