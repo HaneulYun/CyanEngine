@@ -73,6 +73,7 @@ PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj);
 	
 	vout.NormalW = mul(vin.NormalL, (float3x3)world);
+	vout.TangentW = mul(vin.TangentL, (float3x3)world);
 	vout.TexC = mul(mul(float4(vin.TexC, 0.0f, 1.0f), texTransform), matData.MatTransform).xy;
 	
 	// Generate projective tex-coords to project shadow map onto scene.
@@ -87,11 +88,13 @@ MRT_VSOutput PS(PSInput input)
 	float3 fresnelR0 = matData.FresnelR0;
 	float roughness = matData.Roughness;
 	uint diffuseTexIndex = matData.DiffuseMapIndex;
+	uint normalTexIndex = matData.NormalMapIndex;
 
 
 	diffuseAlbedo *= gDiffuseMap[diffuseTexIndex].Sample(gsamAnisotropicWrap, input.TexC);
 
 	input.NormalW = normalize(input.NormalW);
+	input.TangentW = normalize(input.TangentW);
 
 	float3 toEyeW = normalize(gEyePosW - input.PosW);
 
@@ -114,17 +117,25 @@ MRT_VSOutput PS(PSInput input)
 	
 	litColor.a = diffuseAlbedo.a;
 
-	//litColor = float4(input.PosH.zzz, 1);
-	//litColor = float4(input.PosW, 1);
-	//litColor.x = litColor.x / 1080;
-	//litColor.y = litColor.y / 256;
-	//litColor.z = litColor.z / 1080;
-
 	MRT_VSOutput result;
 	result.Color = litColor;
 	result.Diffuse = diffuseAlbedo;
 	result.Normal = float4(input.NormalW, 1);
 	result.SpecPow = float4(input.NormalW, 1);
+
+	if (normalTexIndex != -1)
+	{
+		float3 texNormal = gDiffuseMap[normalTexIndex].Sample(gsamAnisotropicWrap, input.TexC);
+		float3 normalT = texNormal * 2.0f - 1.0f;
+
+		float3 N = input.NormalW;
+		float3 T = normalize(input.TangentW - dot(input.TangentW, N) * N);
+		float3 B = cross(N, T);
+
+		float3x3 TBN = float3x3(T, B, N);
+
+		result.Normal = float4(mul(normalT, TBN), 1);
+	}
 
 	return result;
 }

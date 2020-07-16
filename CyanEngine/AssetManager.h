@@ -18,7 +18,7 @@ public:
 
 	void AddMesh(std::string name, std::unique_ptr<Mesh> mesh);
 	void AddTexture(std::string name, std::wstring fileName);
-	void AddMaterial(std::string name, Texture* diffuse = nullptr, int noromal = -1,
+	void AddMaterial(std::string name, Texture* diffuse = nullptr, Texture* noromal = nullptr,
 		Vector4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f }, Vector3 fresnel = { 0.01f, 0.01f, 0.01f },
 		float roughness = 1.0f, Matrix4x4 matTransform = Matrix4x4::MatrixIdentity());
 	void AddFbxForMesh(std::string name, std::string fileNmae);
