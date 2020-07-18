@@ -14,6 +14,8 @@ struct Light
     float FalloffEnd;   // point/spot light only
     float3 Position;    // point light only
     float SpotPower;    // spot light only
+    uint	Type;
+    uint3	Pad;
 };
 
 struct Material

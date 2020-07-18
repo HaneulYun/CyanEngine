@@ -123,35 +123,53 @@ void Graphics::Render()
 	commandList->ClearRenderTargetView(GetRtv(4), rtClearColor, 0, nullptr);
 	commandList->ClearRenderTargetView(GetRtv(5), rtClearColor, 0, nullptr);
 	commandList->SetGraphicsRootDescriptorTable(3, GetGpuSrv(20));
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	commandList->SetPipelineState(pipelineStates["light"].Get());
-
 
 	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Light])
 	{
+		auto& mesh = renderSets.first;
 		auto& objects = renderSets.second.gameObjects;
 		if (!objects.size())
 			continue;
+
+		auto objectsResource = renderSets.second.GetResources();
+		auto instanceBuffer = objectsResource->InstanceBuffer.get();
+
+		commandList->SetGraphicsRootShaderResourceView(0, instanceBuffer->Resource()->GetGPUVirtualAddress());
+
+
 		for (int i = 0; i < objects.size(); ++i)
 		{
-			struct L
-			{
-				XMFLOAT3 d;
-				float pad0;
-				XMFLOAT3 s;
-				float pad1;
-			};
-			L l{ objects[i]->GetComponent<Light>()->Direction.xmf3, 0,
-				objects[i]->GetComponent<Light>()->Strength.xmf3, 0 };
+			PassLight l;
+			l = PassLight{ objects[i]->GetComponent<Light>()->get(
+				objects[i]->GetComponent<Transform>()->localToWorldMatrix.forward,
+				objects[i]->GetComponent<Transform>()->localToWorldMatrix.position
+			) };
+			commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
 
-			commandList->SetGraphicsRoot32BitConstants(8, 8, &l, 0);
-			commandList->DrawInstanced(4, 1, 0, 0);
+			switch (objects[i]->GetComponent<Light>()->type)
+			{
+			case Light::Type::Directional:
+				commandList->SetPipelineState(pipelineStates["directional"].Get());
+				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+				commandList->DrawInstanced(4, 1, 0, 0);
+				break;
+			case Light::Type::Point:
+				commandList->SetPipelineState(pipelineStates["point"].Get());
+				//commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
+				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
+				commandList->DrawInstanced(1, 1, 0, 0);
+				//commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
+				break;
+			case Light::Type::Spot:
+				break;
+			}
 		}
 	}
 
 	if (isDeferredShader)
 	{
 		commandList->SetPipelineState(pipelineStates["deferred"].Get());
+		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		commandList->DrawInstanced(4, 1, 0, 0);
 	}
 
@@ -603,7 +621,7 @@ void Graphics::LoadAssets()
 	rootParameters[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootParameters[6].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootParameters[7].InitAsShaderResourceView(0, 2);
-	rootParameters[8].InitAsConstants(8, 1);
+	rootParameters[8].InitAsConstants(16, 1);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
 	{
@@ -619,8 +637,8 @@ void Graphics::LoadAssets()
 
 	D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags{
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+		//D3D12_ROOT_SIGNATURE_FLAG_ALLOW_HULL_SHADER_ROOT_ACCESS |
+		//D3D12_ROOT_SIGNATURE_FLAG_ALLOW_DOMAIN_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_STREAM_OUTPUT
 	};
 
@@ -671,8 +689,12 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> debugVS = d3dUtil::CompileShader(L"shaders\\shadowDebug.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> debugPS = d3dUtil::CompileShader(L"shaders\\shadowDebug.hlsl", nullptr, "PS", "ps_5_1");
 
-	ComPtr<ID3DBlob> lightVS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "VS", "vs_5_1");
-	ComPtr<ID3DBlob> lightPS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "PS", "ps_5_1");
+	ComPtr<ID3DBlob> directionalVS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> directionalPS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "PS", "ps_5_1");
+
+	ComPtr<ID3DBlob> pointVS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "pointVS", "vs_5_1");
+	ComPtr<ID3DBlob> pointHS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "HS", "hs_5_1");
+	ComPtr<ID3DBlob> pointDS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "DS", "ds_5_1");
 
 	ComPtr<ID3DBlob> deferredVS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> deferredPS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "PS", "ps_5_1");
@@ -737,10 +759,29 @@ void Graphics::LoadAssets()
 	debugPsoDesc.PS = CD3DX12_SHADER_BYTECODE(debugPS.Get());
 	device->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&pipelineStates["debug"]));
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC lightPsoDesc = opaquePsoDesc;
-	lightPsoDesc.VS = CD3DX12_SHADER_BYTECODE(lightVS.Get());
-	lightPsoDesc.PS = CD3DX12_SHADER_BYTECODE(lightPS.Get());
-	device->CreateGraphicsPipelineState(&lightPsoDesc, IID_PPV_ARGS(&pipelineStates["light"]));
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC directionalPsoDesc = opaquePsoDesc;
+	directionalPsoDesc.VS = CD3DX12_SHADER_BYTECODE(directionalVS.Get());
+	directionalPsoDesc.PS = CD3DX12_SHADER_BYTECODE(directionalPS.Get());
+	directionalPsoDesc.NumRenderTargets = 5;
+	directionalPsoDesc.RTVFormats[1] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	directionalPsoDesc.RTVFormats[2] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	directionalPsoDesc.RTVFormats[3] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	directionalPsoDesc.RTVFormats[4] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	device->CreateGraphicsPipelineState(&directionalPsoDesc, IID_PPV_ARGS(&pipelineStates["directional"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC pointPsoDesc = directionalPsoDesc;
+	pointPsoDesc.VS = CD3DX12_SHADER_BYTECODE(pointVS.Get());
+	pointPsoDesc.HS = CD3DX12_SHADER_BYTECODE(pointHS.Get());
+	pointPsoDesc.DS = CD3DX12_SHADER_BYTECODE(pointDS.Get());
+	pointPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+	pointPsoDesc.DepthStencilState = D3D12_DEPTH_STENCIL_DESC{};
+	pointPsoDesc.DepthStencilState.DepthEnable = true;
+	pointPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	pointPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+	pointPsoDesc.RasterizerState = D3D12_RASTERIZER_DESC{};
+	pointPsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+	pointPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+	device->CreateGraphicsPipelineState(&pointPsoDesc, IID_PPV_ARGS(&pipelineStates["point"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC deferredPsoDesc = opaquePsoDesc;
 	deferredPsoDesc.VS = CD3DX12_SHADER_BYTECODE(deferredVS.Get());

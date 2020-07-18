@@ -96,6 +96,13 @@ void FrameResourceManager::Update()
 		Matrix4x4 proj = Scene::scene->camera->projection;
 		Matrix4x4 ViewProj = view * proj;
 
+		Matrix4x4 v = view.Transpose();
+		v.m[0][3] = 0;
+		v.m[1][3] = 0;
+		v.m[2][3] = 0;
+		
+		Vector3 k = view.position.TransformCoord(v);
+
 		passConstants.View = view.Transpose();
 		passConstants.InvView = view.Inverse().Transpose();
 		passConstants.Proj = proj.Transpose();
