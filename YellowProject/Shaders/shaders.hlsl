@@ -29,7 +29,6 @@ struct MRT_VSOutput
 	float4 Color : SV_TARGET0;
 	float4 Diffuse : SV_TARGET1;
 	float4 Normal : SV_TARGET2;
-	float4 SpecPow : SV_TARGET3;
 };
 
 PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
@@ -121,7 +120,6 @@ MRT_VSOutput PS(PSInput input)
 	result.Color = litColor;
 	result.Diffuse = diffuseAlbedo;
 	result.Normal = float4(input.NormalW, 1);
-	result.SpecPow = float4(input.NormalW, 1);
 
 	if (normalTexIndex != -1)
 	{

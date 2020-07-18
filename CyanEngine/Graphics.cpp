@@ -90,6 +90,8 @@ void Graphics::Render()
 	const float rtClearColor[]{ 0, 0, 0, 1 };
 	commandList->ClearRenderTargetView(GetRtv(2), rtClearColor, 0, nullptr);
 	commandList->ClearRenderTargetView(GetRtv(3), rtClearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(GetRtv(4), rtClearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(GetRtv(5), rtClearColor, 0, nullptr);
 
 	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
@@ -120,8 +122,6 @@ void Graphics::Render()
 		RenderObjects((int)layer);
 
 	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
-	commandList->ClearRenderTargetView(GetRtv(4), rtClearColor, 0, nullptr);
-	commandList->ClearRenderTargetView(GetRtv(5), rtClearColor, 0, nullptr);
 	commandList->SetGraphicsRootDescriptorTable(3, GetGpuSrv(20));
 
 	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Light])
@@ -1016,6 +1016,7 @@ void Graphics::BuildResources()
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		&optClear,
 		IID_PPV_ARGS(&diffuseMap));
+	optClear.Color[2] = { 0.0f };
 	device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
