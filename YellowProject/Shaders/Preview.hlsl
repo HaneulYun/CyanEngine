@@ -1,6 +1,6 @@
 #include "common.hlsl"
 
-cbuffer DiffuseColor : register(b0)
+cbuffer DiffuseColor : register(b1)
 {
 	float4		Diffuse;
 };

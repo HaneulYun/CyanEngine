@@ -32,17 +32,19 @@ float4 PS(VertexOut pin) : SV_Target
     {
         int3 location3 = int3(pin.TexC.x * 1280, pin.TexC.y * 720, 0);
         //float depth = gDiffuseMap[pin.InstID].Load(location3).x;
-        float depth = gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).r;
+        float depth = gBufferMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).r;
         float lDepth = (gProj[3][2] / (depth - gProj[2][2])) / 1000;
         return float4(lDepth.rrr, 1);
     }
     if(pin.InstID == 1)
-        return float4(gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
+        return float4(gBufferMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     if(pin.InstID == 2)
-        return float4(gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
+        return float4(gBufferMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     if(pin.InstID == 3)
-        return float4(gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
+        return float4(gBufferMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     if(pin.InstID == 4)
-        return float4(gDiffuseMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
+        return float4(gBufferMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
+    if(pin.InstID == 5)
+        return float4(gShadowMap.Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     return float4(0, 0, 0, 1);
 }

@@ -99,22 +99,46 @@ void TerrainScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
-	GameObject* directionalLight = CreateEmpty();
+	//GameObject* directionalLight = CreateEmpty();
+	//{
+	//	directionalLight->AddComponent<Light>()->Strength = { 0.9f, 0.8f, 0.7f };
+	//	directionalLight->AddComponent<Updater>()->Set(
+	//		&directionalLight->GetComponent<Transform>()->forward,
+	//		&Graphics::Instance()->rotatedLightDirections[0], sizeof(Vector3));
+	//}
+	//GameObject* directionalLight2 = CreateEmpty();
+	//{
+	//	directionalLight2->GetComponent<Transform>()->forward = { -0.57735f, -0.57735f, 0.57735f };
+	//	directionalLight2->AddComponent<Light>()->Strength = { 0.4f, 0.4f, 0.4f };
+	//}
+	//GameObject* directionalLight3 = CreateEmpty();
+	//{
+	//	directionalLight3->GetComponent<Transform>()->forward = { 0.0f, -0.707f, -0.707f };
+	//	directionalLight3->AddComponent<Light>()->Strength = { 0.2f, 0.2f, 0.2f };
+	//}
+
+	GameObject* pointLight0 = CreateEmpty();
 	{
-		directionalLight->AddComponent<Light>()->Strength = { 0.9f, 0.8f, 0.7f };
-		directionalLight->AddComponent<Updater>()->Set(
-			&directionalLight->GetComponent<Light>()->Direction,
-			&Graphics::Instance()->rotatedLightDirections[0], sizeof(Vector3));
+		pointLight0->GetComponent<Transform>()->position = { 540, 27, 540 };
+		pointLight0->AddComponent<Light>()->Strength = { 1, 1, 1 };
+		pointLight0->GetComponent<Light>()->type = Light::Type::Point;
+		pointLight0->GetComponent<Light>()->FalloffEnd = 10;
 	}
-	GameObject* directionalLight2 = CreateEmpty();
+	GameObject* spotLight = CreateEmpty();
 	{
-		directionalLight2->AddComponent<Light>()->Direction = { -0.57735f, -0.57735f, 0.57735f };
-		directionalLight2->GetComponent<Light>()->Strength = { 0.4f, 0.4f, 0.4f };
+		spotLight->GetComponent<Transform>()->position = { 570, 25, 540 };
+		spotLight->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
+		spotLight->AddComponent<Light>()->Strength = { 1, 1, 1 };
+		spotLight->GetComponent<Light>()->type = Light::Type::Spot;
+		spotLight->GetComponent<Light>()->FalloffEnd = 30;
 	}
-	GameObject* directionalLight3 = CreateEmpty();
+	GameObject* spotLight1 = CreateEmpty();
 	{
-		directionalLight3->AddComponent<Light>()->Direction = { 0.0f, -0.707f, -0.707f };
-		directionalLight3->GetComponent<Light>()->Strength = { 0.2f, 0.2f, 0.2f };
+		spotLight1->GetComponent<Transform>()->position = { 540, 23, 510 };
+		spotLight1->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
+		spotLight1->AddComponent<Light>()->Strength = { 1, 1, 1 };
+		spotLight1->GetComponent<Light>()->type = Light::Type::Spot;
+		spotLight1->GetComponent<Light>()->FalloffEnd = 50;
 	}
 
 	//GameObject* debug = CreateEmpty();

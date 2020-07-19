@@ -30,10 +30,10 @@ void AssetManager::Update()
 			skyTex->Name = "skyTex";
 			skyTex->Filename = L"Textures\\grasscube1024.dds";
 			CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), skyTex->Filename.c_str(), skyTex->Resource, skyTex->UploadHeap);
-			skyTex->Index = 0;
+			skyTex->Index = 19;
 		}
 
-		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 0, Graphics::Instance()->srvDescriptorSize);
+		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 19, Graphics::Instance()->srvDescriptorSize);
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 		srvDesc.TextureCube.MostDetailedMip = 0;
 		srvDesc.TextureCube.MipLevels = skyTex->Resource->GetDesc().MipLevels;
@@ -55,7 +55,7 @@ void AssetManager::AddMesh(std::string name, std::unique_ptr<Mesh> mesh)
 
 void AssetManager::AddTexture(std::string name, std::wstring fileName)
 {
-	static int nTex{ 2 };
+	static int nTex{ 0 };
 	if (AssetManager::Instance()->textures.find(name) != AssetManager::Instance()->textures.end())
 		return;
 
@@ -76,8 +76,8 @@ void AssetManager::AddMaterial(std::string name, Texture* diffuse, Texture* norm
 	auto material = std::make_unique<Material>();
 	material->Name = name;
 	material->MatCBIndex = index++;
-	material->DiffuseSrvHeapIndex = diffuse ? diffuse->Index - 2 : -1;
-	material->NormalSrvHeapIndex = normal ? normal->Index - 2 : -1;
+	material->DiffuseSrvHeapIndex = diffuse ? diffuse->Index : -1;
+	material->NormalSrvHeapIndex = normal ? normal->Index : -1;
 	material->DiffuseAlbedo = albedo;
 	material->FresnelR0 = fresnel;
 	material->Roughness = roughness;

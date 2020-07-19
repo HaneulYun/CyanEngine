@@ -130,7 +130,9 @@ public:
 
 				point = p;
 				float x, y, z;
-				if (std::ceil(point.x) > 256 || std::ceil(point.z) > 256)
+				if (std::ceil(point.x) > 1080 || std::ceil(point.z) > 1080)
+					continue;
+				if (std::ceil(point.x) < 0 || std::ceil(point.z) < 0)
 					continue;
 
 				x = std::floor(point.x);
