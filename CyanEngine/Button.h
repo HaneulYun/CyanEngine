@@ -20,6 +20,7 @@ public:
 
 	void Update()
 	{
+		OnClick();
 	}
 
 	void OnClick()
