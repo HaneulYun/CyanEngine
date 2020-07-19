@@ -161,6 +161,11 @@ void Graphics::Render()
 				//commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
 				break;
 			case Light::Type::Spot:
+				commandList->SetPipelineState(pipelineStates["spot"].Get());
+				//commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
+				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
+				commandList->DrawInstanced(1, 1, 0, 0);
+				//commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
 				break;
 			}
 		}
@@ -696,6 +701,8 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> pointHS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "HS", "hs_5_1");
 	ComPtr<ID3DBlob> pointDS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "DS", "ds_5_1");
 
+	ComPtr<ID3DBlob> spotDS = d3dUtil::CompileShader(L"shaders\\light.hlsl", nullptr, "spotDS", "ds_5_1");
+
 	ComPtr<ID3DBlob> deferredVS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> deferredPS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "PS", "ps_5_1");
 
@@ -767,6 +774,7 @@ void Graphics::LoadAssets()
 	directionalPsoDesc.RTVFormats[2] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	directionalPsoDesc.RTVFormats[3] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	directionalPsoDesc.RTVFormats[4] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	directionalPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 	device->CreateGraphicsPipelineState(&directionalPsoDesc, IID_PPV_ARGS(&pipelineStates["directional"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC pointPsoDesc = directionalPsoDesc;
@@ -782,6 +790,15 @@ void Graphics::LoadAssets()
 	pointPsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 	pointPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
 	device->CreateGraphicsPipelineState(&pointPsoDesc, IID_PPV_ARGS(&pipelineStates["point"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC spotPsoDesc = pointPsoDesc;
+	spotPsoDesc.DS = CD3DX12_SHADER_BYTECODE(spotDS.Get());
+	spotPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_FRONT;
+	//spotPsoDesc.DepthStencilState.DepthEnable = false;
+	//spotPsoDesc.RasterizerState = D3D12_RASTERIZER_DESC{};
+	//spotPsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+	//spotPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_FRONT;
+	device->CreateGraphicsPipelineState(&spotPsoDesc, IID_PPV_ARGS(&pipelineStates["spot"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC deferredPsoDesc = opaquePsoDesc;
 	deferredPsoDesc.VS = CD3DX12_SHADER_BYTECODE(deferredVS.Get());

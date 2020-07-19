@@ -16,6 +16,7 @@ struct PSInput
 {
 	float4 PosH		: SV_POSITION;
 	float2 TexC		: TEXCOORD;
+	float3 PosW		: POSITION;
 };
 
 struct MRT_VSOutput
@@ -72,7 +73,7 @@ PSInput VS(uint nVertexID : SV_VertexID)
 
 	if(Type == 0)
 		vout.PosH = float4(arrPos[nVertexID], 0, 1);
-		vout.TexC = vout.PosH.xy;
+	vout.TexC = vout.PosH.xy;
 
 	return vout;
 }
@@ -142,11 +143,54 @@ PSInput DS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DomainLocation, const O
 
 	PSInput output;
 
+	output.PosW = 0;
 	output.PosH = mul(mul(mul(posLS, M), gView), gProj);
 	output.TexC = output.PosH.xy / output.PosH.w;
 
 	return output;
 }
+
+#define CylinderPortion 0.2
+#define ExpendAmount (1.0 + CylinderPortion)
+
+[domain("quad")]
+PSInput spotDS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DomainLocation, const OutputPatch<HS_OUTPUT, 4> quad)
+{
+	float2 posClipSpace = UV.xy * float2(2.0, -2.0) + float2(-1.0, 1.0);
+
+	float2 posClipSpaceAbs = abs(posClipSpace.xy);
+	float maxLen = max(posClipSpaceAbs.x, posClipSpaceAbs.y);
+
+	float2 posClipSpaceNoCylAbs = saturate(posClipSpaceAbs * ExpendAmount);
+	float maxLenNoCapsule = max(posClipSpaceNoCylAbs.x, posClipSpaceNoCylAbs.y);
+	float2 posClipSpaceNoCyl = sign(posClipSpace.xy) * posClipSpaceNoCylAbs;
+
+	float SinAngle = 3.141592 / 4;
+	float CosAngle = 3.141592 / 4;
+	float3 halfSpherePos = normalize(float3(posClipSpaceNoCyl.xy, 1.0 - maxLenNoCapsule));
+	halfSpherePos = normalize(float3(halfSpherePos.xy * SinAngle, CosAngle));
+	float cylinderOffsetZ = saturate((maxLen * ExpendAmount - 1.0) / CylinderPortion);
+
+	//float3 normDir = normalize(float3(posClipSpace.xy, maxLen - 1.0) * quad[0].HemilDir);
+	//float4 posLS = float4(normDir.xyz, 1.0);
+	float4 posLS = float4(halfSpherePos.xy * (1.0 - cylinderOffsetZ), halfSpherePos.z - cylinderOffsetZ * CosAngle, 1.0);
+
+	float range = FalloffEnd;
+	float4x4 M;
+	M[0] = float4(range, 0, 0, 0);
+	M[1] = float4(0, 0, range, 0);
+	M[2] = float4(0, -range, 0, 0);
+	M[3] = float4(Position, 1);
+
+	PSInput output;
+
+	output.PosW = 0;
+	output.PosH = mul(mul(mul(posLS, M), gView), gProj);
+	output.TexC = output.PosH.xy;// / output.PosH.w;
+
+	return output;
+}
+
 
 MRT_VSOutput PS(PSInput input)
 {
@@ -156,9 +200,15 @@ MRT_VSOutput PS(PSInput input)
 	SURFACE_DATA gbd = UnpackGBuffer(input.PosH);
 
 	float3 position = CalcWorldPos(input.TexC, gbd.LinearDepth);
+	if (Type == 1 || Type == 2)
+	{
+		float2 uv = input.PosH.xy / float2(1080, 720) * float2(2, -2) - float2(1, -1);
+		input.TexC = uv;
+		position = CalcWorldPos(input.TexC, gbd.LinearDepth);
+	}
 
 	float d;
-	if (Type == 1)
+	if (Type == 1 || Type == 2)
 	{
 		L = position - Position;
 		d = length(L);
@@ -178,10 +228,27 @@ MRT_VSOutput PS(PSInput input)
 	int3 location = int3(input.PosH.xy, 0);
 
 	// °¨¼â
-	if (Type == 1)
+	if (Type == 1 || Type == 2)
 	{
-		float att = saturate((FalloffEnd - d) / FalloffEnd);//1.0 - saturate(dot(d, FalloffEnd));
-		//float attn = att * att;
+		float conAtt = 1;
+		if (Type == 2)
+		{
+			float cosAng = dot(-Direction, -L);
+			float outer = cos(3.141592 * 0.25);
+			float inner = cos(3.141592 * 0.20);
+			conAtt = saturate((cosAng - outer) / inner);
+
+			//conAtt *= conAtt;
+			//conAtt = cosAng;
+		}
+
+		float att = 1 - saturate(d / FalloffEnd);
+		float attn = att * att;
+
+		att *= conAtt;
+
+		//position /= float3(1080, 256, 1080);
+
 		diffuse *= att;
 		specular *= att;
 	}

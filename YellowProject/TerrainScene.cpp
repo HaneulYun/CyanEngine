@@ -124,22 +124,22 @@ void TerrainScene::BuildObjects()
 		pointLight0->GetComponent<Light>()->type = Light::Type::Point;
 		pointLight0->GetComponent<Light>()->FalloffEnd = 10;
 	}
-	//GameObject* spotLight = CreateEmpty();
-	//{
-	//	spotLight->GetComponent<Transform>()->position = { 570, 25, 540 };
-	//	spotLight->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
-	//	spotLight->AddComponent<Light>()->Strength = { 1, 1, 1 };
-	//	spotLight->GetComponent<Light>()->type = Light::Type::Point;
-	//	spotLight->GetComponent<Light>()->FalloffEnd = 10;
-	//}
-	//GameObject* spotLight1 = CreateEmpty();
-	//{
-	//	spotLight1->GetComponent<Transform>()->position = { 540, 23, 510 };
-	//	spotLight1->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
-	//	spotLight1->AddComponent<Light>()->Strength = { 1, 1, 1 };
-	//	spotLight1->GetComponent<Light>()->type = Light::Type::Point;
-	//	spotLight1->GetComponent<Light>()->FalloffEnd = 10;
-	//}
+	GameObject* spotLight = CreateEmpty();
+	{
+		spotLight->GetComponent<Transform>()->position = { 570, 25, 540 };
+		spotLight->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
+		spotLight->AddComponent<Light>()->Strength = { 1, 1, 1 };
+		spotLight->GetComponent<Light>()->type = Light::Type::Spot;
+		spotLight->GetComponent<Light>()->FalloffEnd = 10;
+	}
+	GameObject* spotLight1 = CreateEmpty();
+	{
+		spotLight1->GetComponent<Transform>()->position = { 540, 23, 510 };
+		spotLight1->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
+		spotLight1->AddComponent<Light>()->Strength = { 1, 1, 1 };
+		spotLight1->GetComponent<Light>()->type = Light::Type::Spot;
+		spotLight1->GetComponent<Light>()->FalloffEnd = 10;
+	}
 
 	//GameObject* debug = CreateEmpty();
 	//{
