@@ -16,7 +16,6 @@ struct PSInput
 {
 	float4 PosH		: SV_POSITION;
 	float2 TexC		: TEXCOORD;
-	float3 PosW		: POSITION;
 };
 
 struct MRT_VSOutput
@@ -143,7 +142,6 @@ PSInput DS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DomainLocation, const O
 
 	PSInput output;
 
-	output.PosW = 0;
 	output.PosH = mul(mul(mul(posLS, M), gView), gProj);
 	output.TexC = output.PosH.xy / output.PosH.w;
 
@@ -165,8 +163,8 @@ PSInput spotDS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DomainLocation, con
 	float maxLenNoCapsule = max(posClipSpaceNoCylAbs.x, posClipSpaceNoCylAbs.y);
 	float2 posClipSpaceNoCyl = sign(posClipSpace.xy) * posClipSpaceNoCylAbs;
 
-	float SinAngle = 3.141592 / 4;
-	float CosAngle = 3.141592 / 4;
+	float SinAngle = 3.141592 * 0.25;
+	float CosAngle = 3.141592 * 0.25;
 	float3 halfSpherePos = normalize(float3(posClipSpaceNoCyl.xy, 1.0 - maxLenNoCapsule));
 	halfSpherePos = normalize(float3(halfSpherePos.xy * SinAngle, CosAngle));
 	float cylinderOffsetZ = saturate((maxLen * ExpendAmount - 1.0) / CylinderPortion);
@@ -184,9 +182,8 @@ PSInput spotDS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DomainLocation, con
 
 	PSInput output;
 
-	output.PosW = 0;
 	output.PosH = mul(mul(mul(posLS, M), gView), gProj);
-	output.TexC = output.PosH.xy;// / output.PosH.w;
+	output.TexC = output.PosH.xy / output.PosH.w;
 
 	return output;
 }
@@ -200,9 +197,9 @@ MRT_VSOutput PS(PSInput input)
 	SURFACE_DATA gbd = UnpackGBuffer(input.PosH);
 
 	float3 position = CalcWorldPos(input.TexC, gbd.LinearDepth);
-	if (Type == 1 || Type == 2)
+	if (Type == 2)
 	{
-		float2 uv = input.PosH.xy / float2(1080, 720) * float2(2, -2) - float2(1, -1);
+		float2 uv = input.PosH.xy / float2(1280, 720) * float2(2, -2) - float2(1, -1);
 		input.TexC = uv;
 		position = CalcWorldPos(input.TexC, gbd.LinearDepth);
 	}
@@ -235,8 +232,8 @@ MRT_VSOutput PS(PSInput input)
 		{
 			float cosAng = dot(-Direction, -L);
 			float outer = cos(3.141592 * 0.25);
-			float inner = cos(3.141592 * 0.20);
-			conAtt = saturate((cosAng - outer) / inner);
+			float inner = cos(3.141592 * 0.0);
+			conAtt = saturate((cosAng - outer) / (inner - outer));
 
 			//conAtt *= conAtt;
 			//conAtt = cosAng;
