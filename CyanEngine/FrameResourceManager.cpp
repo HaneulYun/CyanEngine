@@ -89,7 +89,7 @@ void FrameResourceManager::Update()
 		PassConstants passConstants;
 
 		auto matrix = Scene::scene->camera->gameObject->GetMatrix();
-		auto vLookAt = matrix.position + matrix.forward.Normalized();
+		auto vLookAt = matrix.position + Vector3::Normalize(matrix.forward);
 
 		Vector3 pos = matrix.position;
 		Vector3 lookAt = vLookAt;;

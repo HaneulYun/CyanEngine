@@ -20,7 +20,7 @@ Vector3 Camera::ScreenToWorldPoint(Vector3 position)
 	position.y = (position.y / CyanFW::Instance()->GetHeight() * -2 + 1) / projection.xmf4x4(1, 1);
 
 	auto transform = gameObject->GetComponent<Transform>();
-	auto vLookAt = transform->position + transform->forward.Normalized();
+	auto vLookAt = transform->position + Vector3::Normalize(transform->forward);
 	XMVECTOR pos = XMLoadFloat3(&transform->position.xmf3);
 	XMVECTOR lookAt = XMLoadFloat3(&vLookAt.xmf3);
 	XMVECTOR up{ 0, 1, 0 };

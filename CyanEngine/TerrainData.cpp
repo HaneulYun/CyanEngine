@@ -44,8 +44,7 @@ Vector3 TerrainData::GetHeightMapNormal(int x, int z)
 
 	Vector3 xmf3Edge1 = Vector3(0.0f, y3 - y1, 1.0f);
 	Vector3 xmf3Edge2 = Vector3(1.0f, y2 - y1, 0.0f);
-	Vector3 xmf3Normal;
-	xmf3Normal.xmf3 = NS_Vector3::CrossProduct(xmf3Edge1.xmf3, xmf3Edge2.xmf3, true);
+	Vector3 xmf3Normal = Vector3::CrossProduct(xmf3Edge1, xmf3Edge2).Normalize();
 
 	return xmf3Normal;
 }

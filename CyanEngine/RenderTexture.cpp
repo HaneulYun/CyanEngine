@@ -126,8 +126,9 @@ float RenderTexture::OnGetHeight(int x, int z, void* pContext)
 XMFLOAT4 RenderTexture::OnGetColor(int x, int z, void* pContext)
 {
 	//조명의 방향 벡터(정점에서 조명까지의 벡터)이다.
-	XMFLOAT3 xmf3LightDirection = XMFLOAT3(-1.0f, 1.0f, 1.0f);
-	xmf3LightDirection = NS_Vector3::Normalize(xmf3LightDirection);
+	Vector3 xmf3LightDirection = Vector3(-1.0f, 1.0f, 1.0f);
+	xmf3LightDirection.Normalize();
+
 	TerrainData* pHeightMapImage = (TerrainData*)pContext;
 
 	//조명의 색상(세기, 밝기)이다.
@@ -136,10 +137,10 @@ XMFLOAT4 RenderTexture::OnGetColor(int x, int z, void* pContext)
 	/*정점 (x, z)에서 조명이 반사되는 양(비율)은 정점 (x, z)의 법선 벡터와 조명의 방향 벡터의 내적(cos)과 인접한 3개
 	의 정점 (x+1, z), (x, z+1), (x+1, z+1)의 법선 벡터와 조명의 방향 벡터의 내적을 평균하여 구한다. 정점 (x, z)의 색
 	상은 조명 색상(세기)과 반사되는 양(비율)을 곱한 값이다.*/
-	float fScale = NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x, z).xmf3, xmf3LightDirection);
-	fScale += NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x + 1, z).xmf3, xmf3LightDirection);
-	fScale += NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x + 1, z + 1).xmf3, xmf3LightDirection);
-	fScale += NS_Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x, z + 1).xmf3, xmf3LightDirection);
+	float fScale = Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x, z), xmf3LightDirection);
+	fScale += Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x + 1, z), xmf3LightDirection);
+	fScale += Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x + 1, z + 1), xmf3LightDirection);
+	fScale += Vector3::DotProduct(pHeightMapImage->GetHeightMapNormal(x, z + 1), xmf3LightDirection);
 	fScale = (fScale / 4.0f) + 0.05f;
 
 	if (fScale > 1.0f)

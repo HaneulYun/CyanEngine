@@ -1,11 +1,6 @@
 #include "pch.h"
 #include "Vector3.h"
 
-Vector3& Vector3::operator/=(const Vector3& rhs)
-{
-	XMStoreFloat3(&xmf3, XMLoadFloat3(&xmf3) / XMLoadFloat3(&rhs.xmf3));
-	return *this;
-}
 Vector3 Vector3::TransformCoord(const Matrix4x4& mtx)
 {
 	Vector3 result;
