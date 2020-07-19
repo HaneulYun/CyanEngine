@@ -101,7 +101,7 @@ MRT_VSOutput PS(PSInput input)
 
 
 	float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
-	//shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+	shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
 	const float shininess = 1.0f - roughness;
 	Material mat = { diffuseAlbedo, fresnelR0, shininess };
 

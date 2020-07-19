@@ -44,5 +44,7 @@ float4 PS(VertexOut pin) : SV_Target
         return float4(gBufferMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     if(pin.InstID == 4)
         return float4(gBufferMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
+    if(pin.InstID == 5)
+        return float4(gShadowMap.Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     return float4(0, 0, 0, 1);
 }

@@ -52,7 +52,7 @@ StructuredBuffer<MaterialData> gMaterialData : register(t0, space2);
 
 TextureCube gCubeMap : register(t0, space1);
 Texture2D gBufferMap[7] : register(t1, space1);
-Texture2D gShadowMap : register(t8, space1);
+Texture2D gShadowMap : register(t0, space3);
 
 Texture2D gDiffuseMap[16] : register(t1, space2);
 
