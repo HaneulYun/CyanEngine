@@ -10,13 +10,13 @@ TerrainData::~TerrainData()
 
 void TerrainData::Load()
 {
-	BYTE* pHeightMapPixels = new BYTE[heightmapWidth * heightmapHeight];
+	float* pHeightMapPixels = new float[heightmapWidth * heightmapHeight];
 	HANDLE hFile = ::CreateFile(AlphamapTextureName.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY, NULL);
 	DWORD dwBytesRead;
-	::ReadFile(hFile, pHeightMapPixels, (heightmapWidth * heightmapHeight), &dwBytesRead, NULL);
+	::ReadFile(hFile, pHeightMapPixels, (heightmapWidth * heightmapHeight) * 4, &dwBytesRead, NULL);
 	::CloseHandle(hFile);
 
-	bytes = new BYTE[heightmapWidth * heightmapHeight];
+	bytes = new float[heightmapWidth * heightmapHeight];
 	for (int y = 0; y < heightmapHeight; y++)
 		for (int x = 0; x < heightmapWidth; x++)
 			bytes[x + ((heightmapHeight - 1 - y) * heightmapWidth)] = pHeightMapPixels[x + (y * heightmapWidth)];

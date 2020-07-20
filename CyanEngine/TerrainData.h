@@ -13,8 +13,8 @@ public:
 
 	DetailPrototype detailPrototype;
 
-private:
-	BYTE *bytes;
+public:
+	float *bytes;
 
 public:
 	TerrainData() = default;
@@ -25,7 +25,7 @@ public:
 	float GetHeight(float x, float z);
 	Vector3 GetHeightMapNormal(int x, int z);
 
-	BYTE* GetHeightMapPixels() { return(bytes); }
+	float* GetHeightMapPixels() { return(bytes); }
 	int GetHeightMapWidth() { return(heightmapWidth); }
 	int GetHeightMapLength() { return(heightmapHeight); }
 };

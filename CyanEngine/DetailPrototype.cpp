@@ -21,11 +21,11 @@ void DetailPrototype::Set(TerrainData* terrainData)
 		{
 			TreeSpriteVertex v;
 			float h = terrainData->GetHeight(i, j) * (terrainData->size.y / 255.0f);
-			if (h > 33.0f)
-				continue;
-			if (h > 30.0f)
-				v.Size = XMFLOAT2(sizex / (h - 30.0f), sizey / (h - 30.0f));
-			else
+			//if (h > 33.0f)
+			//	continue;
+			//if (h > 30.0f)
+			//	v.Size = XMFLOAT2(sizex / (h - 30.0f), sizey / (h - 30.0f));
+			//else
 				v.Size = XMFLOAT2(sizex, sizey);
 			v.Pos = XMFLOAT3(i, (terrainData->GetHeight(i, j) + sizey / 2) * (terrainData->size.y / 255.0f), j);;
 			v.look = XMFLOAT3(MathHelper::RandF(-1.0f, 1.0f), 0.0f, MathHelper::RandF(-1.0f, 1.0f));

@@ -130,7 +130,7 @@ public:
 
 				point = p;
 				float x, y, z;
-				if (std::ceil(point.x) > 1080 || std::ceil(point.z) > 1080)
+				if (std::ceil(point.x) > 1024 || std::ceil(point.z) > 1024)
 					continue;
 				if (std::ceil(point.x) < 0 || std::ceil(point.z) < 0)
 					continue;

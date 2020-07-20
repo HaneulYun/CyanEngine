@@ -117,7 +117,7 @@ RenderTexture::~RenderTexture()
 float RenderTexture::OnGetHeight(int x, int z, void* pContext)
 {
 	TerrainData* pHeightMapImage = (TerrainData*)pContext;
-	BYTE* pHeightMapPixels = pHeightMapImage->GetHeightMapPixels();
+	float* pHeightMapPixels = pHeightMapImage->GetHeightMapPixels();
 	int nWidth = pHeightMapImage->GetHeightMapWidth();
 	float fHeight = pHeightMapPixels[x + (z * nWidth)] / 255.0 * pHeightMapImage->size.y;
 	return(fHeight);

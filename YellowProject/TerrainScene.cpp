@@ -157,13 +157,13 @@ void TerrainScene::BuildObjects()
 		ritem->layer = (int)RenderLayer::Sky;
 	}
 
-	float TerrainSize = 1081;
+	float TerrainSize = 1024;
 
 	GameObject* terrain = CreateEmpty();
 	auto terrainData = terrain->AddComponent<Terrain>();
 	{
 		{
-			terrainData->terrainData.AlphamapTextureName = L"Texture\\heightMap_HN.raw";
+			terrainData->terrainData.AlphamapTextureName = L"Texture\\f5o3_1024.raw";
 			terrainData->terrainData.heightmapHeight = TerrainSize;
 			terrainData->terrainData.heightmapWidth = TerrainSize;
 
