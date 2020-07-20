@@ -215,6 +215,14 @@ struct Vector3
 		XMStoreFloat3(&result.xmf3, XMVector3AngleBetweenVectors(XMLoadFloat3(&v0.xmf3), XMLoadFloat3(&v1.xmf3)));
 		return result.x;
 	}
+	static Vector3 Min(const Vector3& v0, const Vector3& v1)
+	{
+		return { min(v0.x, v1.x), min(v0.y, v1.y), min(v0.z, v1.z) };
+	}
+	static Vector3 Max(const Vector3& v0, const Vector3& v1)
+	{
+		return { max(v0.x, v1.x), max(v0.y, v1.y), max(v0.z, v1.z) };
+	}
 	static Vector3 Lerp(const Vector3& v0, const Vector3& v1, float t)
 	{
 		Vector3 result;
