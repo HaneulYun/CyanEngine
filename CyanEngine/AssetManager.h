@@ -36,3 +36,4 @@ public:
 #define MESH(name) GetMesh(name)
 #define TEXTURE(name) GetTexture(name)
 #define MATERIAL(name) GetMaterial(name)
+#define PREFAB(name) GetPrefab(name)
