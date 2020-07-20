@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "FbxLoader.h"
 
+Vector3 FbxModelData::scale = { 0.01, 0.01, 0.01 };
+
 void FbxModelData::LoadFbx(const char* path)
 {
 	FbxManager* manager = FbxManager::Create();
@@ -142,6 +144,9 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 	std::vector<FrameResource::SkinnedVertex> vertices;
 	std::vector<USHORT> indices;
 
+	Vector3 boundMin{ FLT_MAX };
+	Vector3 boundMax{ FLT_MIN };
+
 	FbxMesh* mesh = node->GetMesh();
 
 	int verticesCount = mesh->GetControlPointsCount();
@@ -151,6 +156,15 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		vertex.Pos.x = static_cast<float>(mesh->GetControlPointAt(i).mData[0]);
 		vertex.Pos.y = static_cast<float>(mesh->GetControlPointAt(i).mData[1]);
 		vertex.Pos.z = static_cast<float>(mesh->GetControlPointAt(i).mData[2]);
+
+		vertex.Pos *= scale;
+
+		if (vertex.Pos.x < boundMin.x) boundMin.x = vertex.Pos.x;
+		if (vertex.Pos.y < boundMin.y) boundMin.y = vertex.Pos.y;
+		if (vertex.Pos.z < boundMin.z) boundMin.z = vertex.Pos.z;
+		if (vertex.Pos.x > boundMax.x) boundMax.x = vertex.Pos.x;
+		if (vertex.Pos.y > boundMax.y) boundMax.y = vertex.Pos.y;
+		if (vertex.Pos.z > boundMax.z) boundMax.z = vertex.Pos.z;
 
 		vertices.push_back(vertex);
 	}
@@ -513,6 +527,10 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 			mesh->DrawArgs[name] = submesh;
 		}
+
+		mesh->Bounds.Center = ((boundMax + boundMin) / 2).xmf3;
+		mesh->Bounds.Extents = ((boundMax - boundMin) / 2).xmf3;
+
 		ASSET AddMesh(name, std::move(mesh));
 	}
 }

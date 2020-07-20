@@ -8,7 +8,7 @@ struct SubmeshGeometry
 
 	UINT MatIndex = 0;
 
-	//DirectX::BoundingBox Bounds;
+	BoundingBox Bounds;
 };
 
 class Mesh
@@ -35,6 +35,8 @@ public:
 	std::unordered_map<std::string, SubmeshGeometry> DrawArgs;
 	std::vector<Matrix4x4> BoneOffsets;
 	std::vector<int> ParentIndexer;
+
+	BoundingBox Bounds;
 
 public:
 	Mesh() = default;

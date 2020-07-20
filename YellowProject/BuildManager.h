@@ -263,7 +263,7 @@ public:
 		{
 			Mesh* mesh = NULL;
 			Material* mat = NULL;
-			float scaleSize = 0.01f;
+			float scaleSize = 1.0f;
 			float colliderSize = NULL;
 
 			BuildingInform frontInform = buildCommand.front();

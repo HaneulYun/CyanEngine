@@ -21,6 +21,8 @@ struct BoneWeightData
 };
 struct FbxModelData
 {
+	static Vector3 scale;
+
 	std::string name{};
 
 	Scene* scene;
