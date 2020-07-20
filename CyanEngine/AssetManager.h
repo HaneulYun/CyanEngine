@@ -8,6 +8,7 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<Mesh>> meshes;
 	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
 	std::unordered_map<std::string, std::unique_ptr<Material>> materials;
+	std::unordered_map<std::string, std::unique_ptr<GameObject>> prefabs;
 
 public:
 	std::unordered_map<std::string, std::unique_ptr<AnimationClip>> animationClips;
@@ -21,12 +22,14 @@ public:
 	void AddMaterial(std::string name, Texture* diffuse = nullptr, Texture* noromal = nullptr,
 		Vector4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f }, Vector3 fresnel = { 0.01f, 0.01f, 0.01f },
 		float roughness = 1.0f, Matrix4x4 matTransform = Matrix4x4::MatrixIdentity());
+	void AddPrefab(std::string name, std::unique_ptr<GameObject> prefab);
 	void AddFbxForMesh(std::string name, std::string fileNmae);
 	void AddFbxForAnimation(std::string name, std::string fileNmae);
 
 	Mesh* GetMesh(std::string name);
 	Texture* GetTexture(std::string name);
 	Material* GetMaterial(std::string name);
+	GameObject* GetPrefab(std::string name);
 };
 
 #define ASSET AssetManager::Instance()->

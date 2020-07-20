@@ -85,6 +85,14 @@ void AssetManager::AddMaterial(std::string name, Texture* diffuse, Texture* norm
 	AssetManager::Instance()->materials[material->Name] = std::move(material);
 }
 
+void AssetManager::AddPrefab(std::string name, std::unique_ptr<GameObject> prefab)
+{
+	if (AssetManager::Instance()->prefabs.find(name) != AssetManager::Instance()->prefabs.end())
+		return;
+
+	AssetManager::Instance()->prefabs[name] = std::move(prefab);
+}
+
 void AssetManager::AddFbxForMesh(std::string name, std::string fileNmae)
 {
 	FbxModelData data;
@@ -118,4 +126,11 @@ Material* AssetManager::GetMaterial(std::string name)
 	if (auto iter = materials.find(name); iter == materials.end())
 		return nullptr;
 	return materials[name].get();
+}
+
+GameObject* AssetManager::GetPrefab(std::string name)
+{
+	if (auto iter = prefabs.find(name); iter == prefabs.end())
+		return nullptr;
+	return prefabs[name].get();
 }
