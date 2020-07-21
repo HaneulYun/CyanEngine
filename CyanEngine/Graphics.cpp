@@ -34,7 +34,6 @@ void Graphics::PreRender()
 
 	RenderShadowMap();
 	commandList->SetGraphicsRootDescriptorTable(9, GetGpuSrv(18));
-
 }
 
 void Graphics::RenderShadowMap()
@@ -190,7 +189,6 @@ void Graphics::Render()
 
 	for (auto layer : { RenderLayer::UI })
 		RenderObjects((int)layer);
-
 
 	PostRender();
 }
@@ -465,7 +463,8 @@ void Graphics::InitDirect3D()
 #if defined(_DEBUG)
 	ComPtr<ID3D12Debug> debug{ nullptr };
 	D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
-	debug->EnableDebugLayer();
+	if (debug)
+		debug->EnableDebugLayer();
 
 	dxgiFactoryFlags != DXGI_CREATE_FACTORY_DEBUG;
 #endif
