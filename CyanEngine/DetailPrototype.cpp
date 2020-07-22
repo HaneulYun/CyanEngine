@@ -11,7 +11,7 @@ void DetailPrototype::Set(TerrainData* terrainData)
 		XMFLOAT3 look;
 	};
 	std::vector<TreeSpriteVertex> vertices;
-	float sizex = 1, sizey = 1;
+	float sizex = 0.25, sizey = 0.25;
 	const int width = terrainData->heightmapWidth - 1, length = terrainData->heightmapHeight - 1;
 	float stride = 0.5f;
 	vertices.reserve(width* length);

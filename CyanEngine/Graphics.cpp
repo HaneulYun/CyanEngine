@@ -141,10 +141,9 @@ void Graphics::Render()
 		for (int i = 0; i < objects.size(); ++i)
 		{
 			PassLight l;
-			l = PassLight{ objects[i]->GetComponent<Light>()->get(
-				objects[i]->GetComponent<Transform>()->localToWorldMatrix.forward,
-				objects[i]->GetComponent<Transform>()->localToWorldMatrix.position
-			) };
+
+			Matrix4x4 worldMatrix = objects[i]->GetMatrix();
+			l = PassLight{ objects[i]->GetComponent<Light>()->get(worldMatrix.forward, worldMatrix.position) };
 			commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
 
 			switch (objects[i]->GetComponent<Light>()->type)

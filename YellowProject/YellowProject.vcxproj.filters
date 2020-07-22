@@ -28,6 +28,9 @@
     <Filter Include="Assets\Shaders">
       <UniqueIdentifier>{f6f5654e-c061-48ad-9356-3a8344f4e713}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Scripts\Build">
+      <UniqueIdentifier>{60f2465b-3118-4b23-8694-2a9c187516b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -69,14 +72,26 @@
     <ClInclude Include="ParticleScene.h">
       <Filter>Assets\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="BuildManager.h">
-      <Filter>Assets\Scripts</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleManager.h">
       <Filter>Assets\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Updater.h">
       <Filter>Assets\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="Builder.h">
+      <Filter>Assets\Scripts\Build</Filter>
+    </ClInclude>
+    <ClInclude Include="BuilderData.h">
+      <Filter>Assets\Scripts\Build</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildingSelector.h">
+      <Filter>Assets\Scripts\Build</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildingType.h">
+      <Filter>Assets\Scripts\Build</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildingTypeSelector.h">
+      <Filter>Assets\Scripts\Build</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

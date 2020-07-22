@@ -170,6 +170,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Builder.h" />
+    <ClInclude Include="BuilderData.h" />
+    <ClInclude Include="BuildingSelector.h" />
+    <ClInclude Include="BuildingType.h" />
+    <ClInclude Include="BuildingTypeSelector.h" />
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="CharacterController.h" />
     <ClInclude Include="framework.h" />
@@ -182,7 +187,6 @@
     <ClInclude Include="TerrainScene.h" />
     <ClInclude Include="scripts.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="BuildManager.h" />
     <ClInclude Include="Updater.h" />
     <ClInclude Include="YellowProject.h" />
     <ClInclude Include="ScriptForm.h" />
