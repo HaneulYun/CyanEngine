@@ -22,6 +22,7 @@ public:
 	ComPtr<IDXGISwapChain3> swapChain;
 	ComPtr<ID3D12Device> device;
 	ComPtr<ID3D12Resource> renderTargets[FrameCount];
+	ComPtr<ID3D12Resource> depthStencilBuffer;
 	ComPtr<ID3D12CommandAllocator> commandAllocator;
 	ComPtr<ID3D12CommandQueue> commandQueue;
 	
@@ -31,6 +32,7 @@ public:
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12DescriptorHeap> srvHeap;
 	ComPtr<ID3D12GraphicsCommandList> commandList;
+
 	UINT rtvDescriptorSize{ 0 };
 	UINT dsvDescriptorSize{ 0 };
 	union
@@ -50,10 +52,6 @@ public:
 private:
 	bool m_bMsaa4xEnable{ false };
 	UINT m_nMsaa4xQualityLevels{ 0 };
-
-	ID3D12Resource* m_pd3dDepthStencilBuffer{ nullptr };
-
-	Camera* m_pCamera{ nullptr };
 
 public:
 	bool isShadowDebug{ false };
@@ -89,8 +87,6 @@ public:
 	void InitDirect2D();
 	void LoadAssets();
 
-	void CreateDepthStencilView();
-
 	void ChangeSwapChainState();
 
 	void WaitForPreviousFrame();
@@ -103,7 +99,9 @@ public:
 	ComPtr<ID3D12Resource> lightDiffuse{ nullptr };
 	ComPtr<ID3D12Resource> lightSpecular{ nullptr };
 	void BuildResources();
-	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index) const;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index) const;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetSrv(int index) const;
 	//CD3DX12_CPU_DESCRIPTOR_HANDLE GetRtv(int index) const;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetDsv(int index) const;
+
+	CD3DX12_GPU_DESCRIPTOR_HANDLE GetSrvGpu(int index) const;
 };

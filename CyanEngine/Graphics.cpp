@@ -9,7 +9,6 @@ void Graphics::Initialize()
 	InitDirect3D();
 	InitDirect2D();
 	LoadAssets();
-	CreateDepthStencilView();
 	BuildResources();
 }
 
@@ -28,12 +27,12 @@ void Graphics::PreRender()
 
 	auto matBuffer = currAssetResource->MaterialBuffer->Resource();
 	commandList->SetGraphicsRootShaderResourceView(7, matBuffer->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(5, GetGpuSrv(19));
-	commandList->SetGraphicsRootDescriptorTable(3, GetGpuSrv(20));
-	commandList->SetGraphicsRootDescriptorTable(6, GetGpuSrv(0));
+	commandList->SetGraphicsRootDescriptorTable(5, GetSrvGpu(19));
+	commandList->SetGraphicsRootDescriptorTable(3, GetSrvGpu(20));
+	commandList->SetGraphicsRootDescriptorTable(6, GetSrvGpu(0));
 
 	RenderShadowMap();
-	commandList->SetGraphicsRootDescriptorTable(9, GetGpuSrv(18));
+	commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(18));
 }
 
 void Graphics::RenderShadowMap()
@@ -123,7 +122,7 @@ void Graphics::Render()
 		RenderObjects((int)layer);
 
 	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
-	commandList->SetGraphicsRootDescriptorTable(3, GetGpuSrv(20));
+	commandList->SetGraphicsRootDescriptorTable(3, GetSrvGpu(20));
 
 	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Light])
 	{
@@ -450,8 +449,6 @@ void Graphics::Destroy()
 {
 	WaitForPreviousFrame();
 
-	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
-
 	swapChain->SetFullscreenState(FALSE, NULL);
 }
 
@@ -550,6 +547,27 @@ void Graphics::InitDirect3D()
 		rtvHandle.Offset(1, rtvDescriptorSize);
 	}
 
+	D3D12_RESOURCE_DESC resourceDesc{};
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resourceDesc.Alignment = 0;
+	resourceDesc.Width = CyanFW::Instance()->GetWidth();
+	resourceDesc.Height = CyanFW::Instance()->GetHeight();;
+	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.MipLevels = 1;
+	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	resourceDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
+	resourceDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
+	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	D3D12_CLEAR_VALUE d3dClearValue;
+	d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	d3dClearValue.DepthStencil.Depth = 1.0f;
+	d3dClearValue.DepthStencil.Stencil = 0;
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &resourceDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, IID_PPV_ARGS(&depthStencilBuffer));
+
+	device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, GetDsv(0));
 }
 
 void Graphics::InitDirect2D()
@@ -935,39 +953,6 @@ void Graphics::LoadAssets()
 
 //--------------//
 
-inline void Graphics::CreateDepthStencilView()
-{
-	D3D12_RESOURCE_DESC d3dResourceDesc;
-	d3dResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	d3dResourceDesc.Alignment = 0;
-	d3dResourceDesc.Width = CyanFW::Instance()->GetWidth();
-	d3dResourceDesc.Height = CyanFW::Instance()->GetHeight();;
-	d3dResourceDesc.DepthOrArraySize = 1;
-	d3dResourceDesc.MipLevels = 1;
-	d3dResourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	d3dResourceDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
-	d3dResourceDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
-	d3dResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	d3dResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-	D3D12_HEAP_PROPERTIES d3dHeapProperties;
-	::ZeroMemory(&d3dHeapProperties, sizeof(D3D12_HEAP_PROPERTIES));
-	d3dHeapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-	d3dHeapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	d3dHeapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	d3dHeapProperties.CreationNodeMask = 1;
-	d3dHeapProperties.VisibleNodeMask = 1;
-
-	D3D12_CLEAR_VALUE d3dClearValue;
-	d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	d3dClearValue.DepthStencil.Depth = 1.0f;
-	d3dClearValue.DepthStencil.Stencil = 0;
-	device->CreateCommittedResource(&d3dHeapProperties, D3D12_HEAP_FLAG_NONE, &d3dResourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, __uuidof(ID3D12Resource), (void**)& m_pd3dDepthStencilBuffer);
-
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = dsvHeap->GetCPUDescriptorHandleForHeapStart();
-	device->CreateDepthStencilView(m_pd3dDepthStencilBuffer, NULL, d3dDsvCPUDescriptorHandle);
-}
-
 void Graphics::ChangeSwapChainState()
 {
 	WaitForPreviousFrame();
@@ -1033,35 +1018,16 @@ void Graphics::BuildResources()
 
 	float normalClearColor[] = { 0.0f, 0.0f, 1.0f, 0.0f };
 	CD3DX12_CLEAR_VALUE optClear(NormalMapFormat, normalClearColor);
-	device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&texDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		&optClear,
-		IID_PPV_ARGS(&diffuseMap));
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+		&texDesc, D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, IID_PPV_ARGS(&diffuseMap));
+
 	optClear.Color[2] = { 0.0f };
-	device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&texDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		&optClear,
-		IID_PPV_ARGS(&normalMap));
-	device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&texDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		&optClear,
-		IID_PPV_ARGS(&lightDiffuse));
-	device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&texDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		&optClear,
-		IID_PPV_ARGS(&lightSpecular));
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+		&texDesc, D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, IID_PPV_ARGS(&normalMap));
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+		&texDesc, D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, IID_PPV_ARGS(&lightDiffuse));
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+		&texDesc, D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, IID_PPV_ARGS(&lightSpecular));
 
 
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
@@ -1081,25 +1047,18 @@ void Graphics::BuildResources()
 	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = 1;
-	device->CreateShaderResourceView(m_pd3dDepthStencilBuffer, &srvDesc, GetCpuSrv(20));
+	device->CreateShaderResourceView(depthStencilBuffer.Get(), &srvDesc, GetSrv(20));
 
 	srvDesc.Format = NormalMapFormat;
-	device->CreateShaderResourceView(diffuseMap.Get(), &srvDesc, GetCpuSrv(21));
-	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetCpuSrv(22));
-	device->CreateShaderResourceView(lightDiffuse.Get(), &srvDesc, GetCpuSrv(23));
-	device->CreateShaderResourceView(lightSpecular.Get(), &srvDesc, GetCpuSrv(24));
+	device->CreateShaderResourceView(diffuseMap.Get(), &srvDesc, GetSrv(21));
+	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetSrv(22));
+	device->CreateShaderResourceView(lightDiffuse.Get(), &srvDesc, GetSrv(23));
+	device->CreateShaderResourceView(lightSpecular.Get(), &srvDesc, GetSrv(24));
 }
 
-CD3DX12_CPU_DESCRIPTOR_HANDLE Graphics::GetCpuSrv(int index)const
+CD3DX12_CPU_DESCRIPTOR_HANDLE Graphics::GetSrv(int index) const
 {
 	auto srv = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart());
-	srv.Offset(index, srvDescriptorSize);
-	return srv;
-}
-
-CD3DX12_GPU_DESCRIPTOR_HANDLE Graphics::GetGpuSrv(int index)const
-{
-	auto srv = CD3DX12_GPU_DESCRIPTOR_HANDLE(srvHeap->GetGPUDescriptorHandleForHeapStart());
 	srv.Offset(index, srvDescriptorSize);
 	return srv;
 }
@@ -1110,3 +1069,17 @@ CD3DX12_GPU_DESCRIPTOR_HANDLE Graphics::GetGpuSrv(int index)const
 //	rtv.Offset(index, rtvDescriptorSize);
 //	return rtv;
 //}
+
+CD3DX12_CPU_DESCRIPTOR_HANDLE Graphics::GetDsv(int index) const
+{
+	auto dsv = CD3DX12_CPU_DESCRIPTOR_HANDLE(dsvHeap->GetCPUDescriptorHandleForHeapStart());
+	dsv.Offset(index, dsvDescriptorSize);
+	return dsv;
+}
+
+CD3DX12_GPU_DESCRIPTOR_HANDLE Graphics::GetSrvGpu(int index)const
+{
+	auto srv = CD3DX12_GPU_DESCRIPTOR_HANDLE(srvHeap->GetGPUDescriptorHandleForHeapStart());
+	srv.Offset(index, srvDescriptorSize);
+	return srv;
+}
