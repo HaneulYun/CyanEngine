@@ -131,6 +131,8 @@ using Microsoft::WRL::ComPtr;
 
 #include "AssetResource.h"
 #include "ObjectResource.h"
+
+#include "HeapManager.h"
 #include "Graphics.h"
 
 #include "QuadNode.h"

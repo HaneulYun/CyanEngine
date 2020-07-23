@@ -79,9 +79,9 @@ void Graphics::Render()
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle{ GetRtv(frameIndex) };
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle{ heapManager.GetRtv(frameIndex) };
 
-	D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ rtvHandle, GetRtv(2), GetRtv(3), GetRtv(4), GetRtv(5) };
+	D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ rtvHandle, heapManager.GetRtv(2), heapManager.GetRtv(3), heapManager.GetRtv(4), heapManager.GetRtv(5) };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{ dsvHeap->GetCPUDescriptorHandleForHeapStart() };
 	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
 
@@ -89,10 +89,10 @@ void Graphics::Render()
 	commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 	const float rtClearColor[]{ 0, 0, 0, 1 };
-	commandList->ClearRenderTargetView(GetRtv(2), rtClearColor, 0, nullptr);
-	commandList->ClearRenderTargetView(GetRtv(3), rtClearColor, 0, nullptr);
-	commandList->ClearRenderTargetView(GetRtv(4), rtClearColor, 0, nullptr);
-	commandList->ClearRenderTargetView(GetRtv(5), rtClearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(heapManager.GetRtv(2), rtClearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(heapManager.GetRtv(3), rtClearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(heapManager.GetRtv(4), rtClearColor, 0, nullptr);
+	commandList->ClearRenderTargetView(heapManager.GetRtv(5), rtClearColor, 0, nullptr);
 
 	D3D12_CLEAR_FLAGS clearFlags{ D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL };
 	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
@@ -531,7 +531,8 @@ void Graphics::InitDirect3D()
 	descriptorHeapDesc.NumDescriptors = FrameCount + 4;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&rtvHeap));
+	//device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&rtvHeap));
+	heapManager.BuildRtvHeap(device.Get(), FrameCount + 4);
 
 
 	descriptorHeapDesc.NumDescriptors = 2;
@@ -540,7 +541,7 @@ void Graphics::InitDirect3D()
 
 	shadowMap = std::make_unique<ShadowMap>(device.Get(), 2048, 2048);
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ heapManager.GetRtv(0) };
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
 		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
@@ -583,7 +584,6 @@ void Graphics::InitDirect2D()
 	d2dFactory->GetDesktopDpi(&dpiX, &dpiY);
 	D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW, D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED), dpiX, dpiY);
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ rtvHeap->GetCPUDescriptorHandleForHeapStart() };
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
@@ -1069,10 +1069,10 @@ void Graphics::BuildResources()
 	rtvDesc.Format = NormalMapFormat;
 	rtvDesc.Texture2D.MipSlice = 0;
 	rtvDesc.Texture2D.PlaneSlice = 0;
-	device->CreateRenderTargetView(diffuseMap.Get(), &rtvDesc, GetRtv(2));
-	device->CreateRenderTargetView(normalMap.Get(), &rtvDesc, GetRtv(3));
-	device->CreateRenderTargetView(lightDiffuse.Get(), &rtvDesc, GetRtv(4));
-	device->CreateRenderTargetView(lightSpecular.Get(), &rtvDesc, GetRtv(5));
+	device->CreateRenderTargetView(diffuseMap.Get(), &rtvDesc, heapManager.GetRtv(2));
+	device->CreateRenderTargetView(normalMap.Get(), &rtvDesc, heapManager.GetRtv(3));
+	device->CreateRenderTargetView(lightDiffuse.Get(), &rtvDesc, heapManager.GetRtv(4));
+	device->CreateRenderTargetView(lightSpecular.Get(), &rtvDesc, heapManager.GetRtv(5));
 
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -1104,9 +1104,9 @@ CD3DX12_GPU_DESCRIPTOR_HANDLE Graphics::GetGpuSrv(int index)const
 	return srv;
 }
 
-CD3DX12_CPU_DESCRIPTOR_HANDLE Graphics::GetRtv(int index) const
-{
-	auto rtv = CD3DX12_CPU_DESCRIPTOR_HANDLE(rtvHeap->GetCPUDescriptorHandleForHeapStart());
-	rtv.Offset(index, rtvDescriptorSize);
-	return rtv;
-}
+//CD3DX12_CPU_DESCRIPTOR_HANDLE Graphics::GetRtv(int index) const
+//{
+//	auto rtv = CD3DX12_CPU_DESCRIPTOR_HANDLE(rtvHeap->GetCPUDescriptorHandleForHeapStart());
+//	rtv.Offset(index, rtvDescriptorSize);
+//	return rtv;
+//}

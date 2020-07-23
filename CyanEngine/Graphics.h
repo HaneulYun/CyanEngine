@@ -26,7 +26,8 @@ public:
 	ComPtr<ID3D12CommandQueue> commandQueue;
 	
 	ComPtr<ID3D12RootSignature> rootSignature;
-	ComPtr<ID3D12DescriptorHeap> rtvHeap;
+	HeapManager heapManager;
+	//ComPtr<ID3D12DescriptorHeap> rtvHeap;
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12DescriptorHeap> srvHeap;
 	ComPtr<ID3D12GraphicsCommandList> commandList;
@@ -104,5 +105,5 @@ public:
 	void BuildResources();
 	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index) const;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index) const;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE GetRtv(int index) const;
+	//CD3DX12_CPU_DESCRIPTOR_HANDLE GetRtv(int index) const;
 };

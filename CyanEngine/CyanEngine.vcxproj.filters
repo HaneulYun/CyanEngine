@@ -258,6 +258,9 @@
     <ClInclude Include="LightResource.h">
       <Filter>0_00_CyanEngine\20_Scene\24_LightResourceManager</Filter>
     </ClInclude>
+    <ClInclude Include="HeapManager.h">
+      <Filter>0_00_CyanEngine\10_Graphics\11_GraphicsCore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -391,6 +394,9 @@
     </ClCompile>
     <ClCompile Include="LightResourceManager.cpp">
       <Filter>0_00_CyanEngine\20_Scene\24_LightResourceManager</Filter>
+    </ClCompile>
+    <ClCompile Include="HeapManager.cpp">
+      <Filter>0_00_CyanEngine\10_Graphics\11_GraphicsCore</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

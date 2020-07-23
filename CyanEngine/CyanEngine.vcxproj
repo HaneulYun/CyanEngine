@@ -194,6 +194,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="HeapManager.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Light.h" />
@@ -252,6 +253,7 @@
     <ClCompile Include="FrameResourceManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="HeapManager.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightResourceManager.cpp" />
