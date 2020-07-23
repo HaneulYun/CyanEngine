@@ -138,13 +138,15 @@ void TerrainScene::BuildObjects()
 		mainCamera->AddComponent<CameraController>();
 	}
 
-	//GameObject* directionalLight = CreateEmpty();
-	//{
-	//	directionalLight->AddComponent<Light>()->Strength = { 0.9f, 0.8f, 0.7f };
-	//	directionalLight->AddComponent<Updater>()->Set(
-	//		&directionalLight->GetComponent<Transform>()->forward,
-	//		&Graphics::Instance()->rotatedLightDirections[0], sizeof(Vector3));
-	//}
+	GameObject* directionalLight = CreateEmpty();
+	{
+		auto light = directionalLight->AddComponent<Light>();
+		light->Strength = { 0.9f, 0.8f, 0.7f };
+		light->shadowType = Light::Shadows;
+		directionalLight->AddComponent<Updater>()->Set(
+			&directionalLight->GetComponent<Transform>()->forward,
+			&Graphics::Instance()->rotatedLightDirections[0], sizeof(Vector3));
+	}
 	//GameObject* directionalLight2 = CreateEmpty();
 	//{
 	//	directionalLight2->GetComponent<Transform>()->forward = { -0.57735f, -0.57735f, 0.57735f };
@@ -160,7 +162,7 @@ void TerrainScene::BuildObjects()
 	{
 		pointLight0->GetComponent<Transform>()->position = { 540, 27, 540 };
 		pointLight0->AddComponent<Light>()->Strength = { 1, 1, 1 };
-		pointLight0->GetComponent<Light>()->type = Light::Type::Point;
+		pointLight0->GetComponent<Light>()->type = Light::Point;
 		pointLight0->GetComponent<Light>()->FalloffEnd = 10;
 	}
 	GameObject* spotLight = CreateEmpty();
@@ -168,7 +170,7 @@ void TerrainScene::BuildObjects()
 		spotLight->GetComponent<Transform>()->position = { 570, 25, 540 };
 		spotLight->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
 		spotLight->AddComponent<Light>()->Strength = { 1, 1, 1 };
-		spotLight->GetComponent<Light>()->type = Light::Type::Spot;
+		spotLight->GetComponent<Light>()->type = Light::Spot;
 		spotLight->GetComponent<Light>()->FalloffEnd = 30;
 	}
 	GameObject* spotLight1 = CreateEmpty();
@@ -176,7 +178,7 @@ void TerrainScene::BuildObjects()
 		spotLight1->GetComponent<Transform>()->position = { 540, 23, 510 };
 		spotLight1->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
 		spotLight1->AddComponent<Light>()->Strength = { 1, 1, 1 };
-		spotLight1->GetComponent<Light>()->type = Light::Type::Spot;
+		spotLight1->GetComponent<Light>()->type = Light::Spot;
 		spotLight1->GetComponent<Light>()->FalloffEnd = 50;
 	}
 

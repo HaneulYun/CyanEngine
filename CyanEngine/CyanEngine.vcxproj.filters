@@ -67,6 +67,9 @@
     <Filter Include="0_00_CyanEngine\10_Graphics\11_GraphicsCore">
       <UniqueIdentifier>{cff97280-2d64-44c6-a6de-6d769a069744}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\20_Scene\24_LightingManager">
+      <UniqueIdentifier>{c6298bf9-5b02-4b22-bc03-b32efc41c003}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -249,6 +252,9 @@
     <ClInclude Include="Light.h">
       <Filter>0_00_CyanEngine\30_Core</Filter>
     </ClInclude>
+    <ClInclude Include="LightingManager.h">
+      <Filter>0_00_CyanEngine\20_Scene\24_LightingManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -382,6 +388,9 @@
     </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>0_00_CyanEngine\30_Core</Filter>
+    </ClCompile>
+    <ClCompile Include="LightingManager.cpp">
+      <Filter>0_00_CyanEngine\20_Scene\24_LightingManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
