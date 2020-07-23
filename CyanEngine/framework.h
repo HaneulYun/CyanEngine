@@ -140,6 +140,7 @@ using Microsoft::WRL::ComPtr;
 #include "AssetManager.h"
 #include "ObjectRenderManager.h"
 #include "FrameResourceManager.h"
+#include "LightResourceManager.h"
 #include "Scene.h"
 
 #include "SceneManager.h"
