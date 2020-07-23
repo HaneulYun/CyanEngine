@@ -38,7 +38,7 @@ void TerrainScene::BuildObjects()
 		ASSET AddMaterial("stoneMat",	ASSET TEXTURE("none"), 0, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
 		ASSET AddMaterial("tile0",		ASSET TEXTURE("tileTex"), 0, { 0.9f, 0.9f, 0.9f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f, Matrix4x4::MatrixScaling(8, 8, 1));
 		ASSET AddMaterial("tree0",		ASSET TEXTURE("tree"), 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
-		ASSET AddMaterial("grass",		ASSET TEXTURE("grass"), 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.1f);
+		ASSET AddMaterial("grass",		ASSET TEXTURE("grass"), 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
 		ASSET AddMaterial("ground", ASSET TEXTURE("ground"), nullptr, { 0.48f, 0.64f, 0.2f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f, Matrix4x4::MatrixScaling(200, 200, 200));
 
 		ASSET AddMaterial("material_01", ASSET TEXTURE("material_01"), 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
@@ -133,54 +133,45 @@ void TerrainScene::BuildObjects()
 
 	GameObject* mainCamera = CreateEmpty();
 	{
-		mainCamera->transform->position = { 1080 * 0.5, 256 * 0.2, 1080 * 0.4 };
+		mainCamera->transform->position = { 1024 * 0.5, 50, 1024 * 0.4 };
 		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
 	}
 
 	GameObject* directionalLight = CreateEmpty();
 	{
+		directionalLight->transform->Rotate({ 1, 0, 0 }, 90);
+		directionalLight->transform->position = { 0, 1000, 0 };
 		auto light = directionalLight->AddComponent<Light>();
 		light->Strength = { 0.9f, 0.8f, 0.7f };
 		light->shadowType = Light::Shadows;
-		directionalLight->AddComponent<Updater>()->Set(
-			&directionalLight->GetComponent<Transform>()->forward,
-			&Graphics::Instance()->rotatedLightDirections[0], sizeof(Vector3));
-	}
-	//GameObject* directionalLight2 = CreateEmpty();
-	//{
-	//	directionalLight2->GetComponent<Transform>()->forward = { -0.57735f, -0.57735f, 0.57735f };
-	//	directionalLight2->AddComponent<Light>()->Strength = { 0.4f, 0.4f, 0.4f };
-	//}
-	//GameObject* directionalLight3 = CreateEmpty();
-	//{
-	//	directionalLight3->GetComponent<Transform>()->forward = { 0.0f, -0.707f, -0.707f };
-	//	directionalLight3->AddComponent<Light>()->Strength = { 0.2f, 0.2f, 0.2f };
-	//}
 
-	GameObject* pointLight0 = CreateEmpty();
-	{
-		pointLight0->GetComponent<Transform>()->position = { 540, 27, 540 };
-		pointLight0->AddComponent<Light>()->Strength = { 1, 1, 1 };
-		pointLight0->GetComponent<Light>()->type = Light::Point;
-		pointLight0->GetComponent<Light>()->FalloffEnd = 10;
+		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.1);
 	}
-	GameObject* spotLight = CreateEmpty();
-	{
-		spotLight->GetComponent<Transform>()->position = { 570, 25, 540 };
-		spotLight->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
-		spotLight->AddComponent<Light>()->Strength = { 1, 1, 1 };
-		spotLight->GetComponent<Light>()->type = Light::Spot;
-		spotLight->GetComponent<Light>()->FalloffEnd = 30;
-	}
-	GameObject* spotLight1 = CreateEmpty();
-	{
-		spotLight1->GetComponent<Transform>()->position = { 540, 23, 510 };
-		spotLight1->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
-		spotLight1->AddComponent<Light>()->Strength = { 1, 1, 1 };
-		spotLight1->GetComponent<Light>()->type = Light::Spot;
-		spotLight1->GetComponent<Light>()->FalloffEnd = 50;
-	}
+
+	//GameObject* pointLight0 = CreateEmpty();
+	//{
+	//	pointLight0->GetComponent<Transform>()->position = { 540, 27, 540 };
+	//	pointLight0->AddComponent<Light>()->Strength = { 1, 1, 1 };
+	//	pointLight0->GetComponent<Light>()->type = Light::Point;
+	//	pointLight0->GetComponent<Light>()->FalloffEnd = 10;
+	//}
+	//GameObject* spotLight = CreateEmpty();
+	//{
+	//	spotLight->GetComponent<Transform>()->position = { 570, 25, 540 };
+	//	spotLight->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
+	//	spotLight->AddComponent<Light>()->Strength = { 1, 1, 1 };
+	//	spotLight->GetComponent<Light>()->type = Light::Spot;
+	//	spotLight->GetComponent<Light>()->FalloffEnd = 30;
+	//}
+	//GameObject* spotLight1 = CreateEmpty();
+	//{
+	//	spotLight1->GetComponent<Transform>()->position = { 540, 23, 510 };
+	//	spotLight1->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
+	//	spotLight1->AddComponent<Light>()->Strength = { 1, 1, 1 };
+	//	spotLight1->GetComponent<Light>()->type = Light::Spot;
+	//	spotLight1->GetComponent<Light>()->FalloffEnd = 50;
+	//}
 
 	//GameObject* debug = CreateEmpty();
 	//{

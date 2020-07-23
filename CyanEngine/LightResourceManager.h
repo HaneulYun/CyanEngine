@@ -30,6 +30,9 @@ struct LightData
 {
 	std::unique_ptr<ShadowMap> shadowMap;
 	DirectX::BoundingSphere sceneBounds;
+
+	std::vector<std::unique_ptr<FrameResource>> frameResources;
+	int isDirty{ NUM_FRAME_RESOURCES };
 };
 
 class LightResourceManager

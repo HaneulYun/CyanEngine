@@ -41,7 +41,7 @@ void FrameResourceManager::Update()
 		float mSunPhi = XM_PIDIV4;
 
 		passConstants.EyePosW = pos;
-		passConstants.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+		passConstants.AmbientLight = { 0.15f, 0.15f, 0.15f, 1.0f };
 		passConstants.Lights[0].Direction = Graphics::Instance()->rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
 		//passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
 		passConstants.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };

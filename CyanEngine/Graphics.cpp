@@ -124,23 +124,14 @@ void Graphics::Render()
 
 	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Light])
 	{
-		auto& mesh = renderSets.first;
 		auto& objects = renderSets.second.gameObjects;
 		if (!objects.size())
 			continue;
 
-		auto objectsResource = renderSets.second.GetResources();
-		auto instanceBuffer = objectsResource->InstanceBuffer.get();
-
-		commandList->SetGraphicsRootShaderResourceView(0, instanceBuffer->Resource()->GetGPUVirtualAddress());
-
-
 		for (int i = 0; i < objects.size(); ++i)
 		{
-			PassLight l;
-
 			Matrix4x4 worldMatrix = objects[i]->GetMatrix();
-			l = PassLight{ objects[i]->GetComponent<Light>()->get(worldMatrix.forward, worldMatrix.position) };
+			PassLight l = PassLight{ objects[i]->GetComponent<Light>()->get(worldMatrix.forward, worldMatrix.position) };
 			commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
 
 			switch (objects[i]->GetComponent<Light>()->type)
@@ -736,7 +727,8 @@ void Graphics::LoadAssets()
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "LOOK", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "LOOK", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc{};

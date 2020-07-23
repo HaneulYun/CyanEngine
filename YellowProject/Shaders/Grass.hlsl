@@ -5,6 +5,7 @@ struct VSInput
 	float3 PosL : POSITION;
 	float2 SizeW : SIZE;
 	float3 Look : LOOK;
+	float3 NormalW : NORMAL;
 };
 
 struct GSInput
@@ -12,6 +13,7 @@ struct GSInput
 	float3 CenterW : POSITION;
 	float2 SizeW : SIZE;
 	float3 Look : LOOK;
+	float3 NormalW : NORMAL;
 
 	nointerpolation uint MatIndex : MATINDEX;
 };
@@ -37,6 +39,7 @@ GSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 	vout.CenterW = mul(float4(vin.PosL, 1.0f), gInstanceData[instanceID].World).xyz;
 	vout.SizeW = vin.SizeW;
 	vout.Look = normalize(vin.Look);
+	vout.NormalW = normalize(vin.NormalW);
 	return vout;
 }
 
@@ -81,7 +84,7 @@ void GS(point GSInput gin[1],
 	for (int i = 0; i < 8; ++i)
 	{
 		if (i % 2 == 1)
-			v[i].x += sin(gTotalTime * 0.5f + v[i].x / 20) * 0.5f;
+			v[i].x += sin(gTotalTime * 0.5f + v[i].x / 20) * 0.1f;
 		gout.PosH = mul(v[i], gViewProj);
 		gout.PosW = v[i].xyz;
 		if (i % 4 == 0)
@@ -95,7 +98,7 @@ void GS(point GSInput gin[1],
 
 			gin[0].Look = look;
 		}
-		gout.NormalW = gin[0].Look;
+		gout.NormalW = gin[0].NormalW;
 		gout.TexC = texC[i % 4];
 		gout.PrimID = primID;
 		gout.MatIndex = gin[0].MatIndex;
