@@ -3,9 +3,6 @@
 
 void Graphics::Initialize()
 {
-	sceneBounds.Center = XMFLOAT3(540.f, 0.0f, 540.f);
-	float width = 200, height = 200;
-	sceneBounds.Radius = sqrtf(width * width + height * height);
 	InitDirect3D();
 	InitDirect2D();
 	LoadAssets();
@@ -38,6 +35,7 @@ void Graphics::PreRender()
 void Graphics::RenderShadowMap()
 {
 	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
+	ShadowMap* shadowMap = Scene::scene->lightResourceManager.shadowMap.get();
 
 	commandList->RSSetViewports(1, &shadowMap->Viewport());
 	commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
@@ -154,17 +152,13 @@ void Graphics::Render()
 				break;
 			case Light::Type::Point:
 				commandList->SetPipelineState(pipelineStates["point"].Get());
-				//commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
 				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
 				commandList->DrawInstanced(1, 1, 0, 0);
-				//commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
 				break;
 			case Light::Type::Spot:
 				commandList->SetPipelineState(pipelineStates["spot"].Get());
-				//commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
 				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
 				commandList->DrawInstanced(1, 1, 0, 0);
-				//commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
 				break;
 			}
 		}
@@ -195,14 +189,7 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 {
 	if (isShadowMap)
 	{
-		if (layerIndex == (int)RenderLayer::Particle ||
-			layerIndex == (int)RenderLayer::Sky ||
-			layerIndex == (int)RenderLayer::UI ||
-			layerIndex == (int)RenderLayer::BuildPreview ||
-			layerIndex == (int)RenderLayer::Debug ||
-			layerIndex == (int)RenderLayer::Grass)
-			return;
-		else if (layerIndex == (int)RenderLayer::SkinnedOpaque)
+		if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 			commandList->SetPipelineState(pipelineStates["shadow_skinnedOpaque"].Get());
 		else
 			commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
@@ -536,8 +523,6 @@ void Graphics::InitDirect3D()
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 
-	shadowMap = std::make_unique<ShadowMap>(device.Get(), 2048, 2048);
-
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ heapManager.GetRtv(0) };
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
@@ -622,23 +607,14 @@ void Graphics::LoadAssets()
 	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 8, 1, 1, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable1;
-	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 16, 1, 2, 0);
+	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable2;
-	texTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, 0);
+	texTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 16, 1, 2, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable3;
 	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 3, 0);
 
-	//CD3DX12_ROOT_PARAMETER rootParameters[8];
-	//rootParameters[0].InitAsConstants(8, 0);
-	//rootParameters[1].InitAsConstantBufferView(1);
-	//rootParameters[2].InitAsConstantBufferView(2);
-	//rootParameters[3].InitAsShaderResourceView(1, 1);
-	//rootParameters[4].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
-	//rootParameters[5].InitAsShaderResourceView(0, 1);
-	//rootParameters[6].InitAsShaderResourceView(2, 1);
-	//rootParameters[7].InitAsShaderResourceView(3, 1);
 
 	CD3DX12_ROOT_PARAMETER rootParameters[10];
 	rootParameters[0].InitAsShaderResourceView(0);
@@ -646,8 +622,8 @@ void Graphics::LoadAssets()
 	rootParameters[2].InitAsShaderResourceView(2);
 	rootParameters[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootParameters[4].InitAsConstantBufferView(0);
-	rootParameters[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootParameters[6].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[5].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[6].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);
 	rootParameters[7].InitAsShaderResourceView(0, 2);
 	rootParameters[8].InitAsConstants(16, 1);
 	rootParameters[9].InitAsDescriptorTable(1, &texTable3, D3D12_SHADER_VISIBILITY_PIXEL);
@@ -942,11 +918,6 @@ void Graphics::LoadAssets()
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
-
-	shadowMap->BuildDescriptors(
-		CD3DX12_CPU_DESCRIPTOR_HANDLE(srvHeap->GetCPUDescriptorHandleForHeapStart(), 18, srvDescriptorSize),
-		CD3DX12_GPU_DESCRIPTOR_HANDLE(srvHeap->GetGPUDescriptorHandleForHeapStart(), 18, srvDescriptorSize),
-		CD3DX12_CPU_DESCRIPTOR_HANDLE(dsvHeap->GetCPUDescriptorHandleForHeapStart(), 1, dsvDescriptorSize));
 
 	WaitForPreviousFrame();
 }

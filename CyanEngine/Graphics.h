@@ -56,9 +56,6 @@ private:
 public:
 	bool isShadowDebug{ false };
 	bool isDeferredShader{ false };
-	/*shadow*/
-	std::unique_ptr<ShadowMap> shadowMap;
-	DirectX::BoundingSphere sceneBounds;
 	
 	float lightRotationAngle = 0.0f;
 	Vector3 baseLightDirections[3] = {

@@ -22,12 +22,25 @@
 //	ObjectsResource* GetResources();
 //
 //};
+struct LightResource
+{
+};
+
+struct LightData
+{
+	std::unique_ptr<ShadowMap> shadowMap;
+	DirectX::BoundingSphere sceneBounds;
+};
 
 class LightResourceManager
 {
 private:
-	std::vector<std::unique_ptr<ObjectsResource>> light[Light::Type::Count];
+	std::vector<std::unique_ptr<LightData>> light[Light::Type::Count];
 
 public:
+	std::unique_ptr<ShadowMap> shadowMap;
+	DirectX::BoundingSphere sceneBounds;
+
+	void Init();
 	void Update();
 };
