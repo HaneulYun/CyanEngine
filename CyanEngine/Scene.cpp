@@ -19,8 +19,6 @@ void Scene::Start()
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		frameResourceManager.frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 2));
-
-	lightResourceManager.Init();
 }
 
 void Scene::Update()

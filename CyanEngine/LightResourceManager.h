@@ -26,10 +26,12 @@ struct LightResource
 {
 };
 
-struct LightData
+class LightData
 {
+public:
+	GameObject* gameObject;
 	std::unique_ptr<ShadowMap> shadowMap;
-	DirectX::BoundingSphere sceneBounds;
+	BoundingSphere sceneBounds;
 
 	std::vector<std::unique_ptr<FrameResource>> frameResources;
 	int isDirty{ NUM_FRAME_RESOURCES };
@@ -37,13 +39,11 @@ struct LightData
 
 class LightResourceManager
 {
-private:
-	std::vector<std::unique_ptr<LightData>> light[Light::Type::Count];
+public:
+	std::vector<LightData*> lightObjects[Light::Type::Count];
 
 public:
-	std::unique_ptr<ShadowMap> shadowMap;
-	DirectX::BoundingSphere sceneBounds;
+	void AddGameObject(GameObject* gameObject, int layer = 0);
 
-	void Init();
 	void Update();
 };

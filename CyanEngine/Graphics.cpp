@@ -35,7 +35,11 @@ void Graphics::PreRender()
 void Graphics::RenderShadowMap()
 {
 	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
-	ShadowMap* shadowMap = Scene::scene->lightResourceManager.shadowMap.get();
+	auto lights = Scene::scene->lightResourceManager.lightObjects[0];
+	if (!lights.size())
+		return;
+
+	ShadowMap* shadowMap = lights[0]->shadowMap.get();
 
 	commandList->RSSetViewports(1, &shadowMap->Viewport());
 	commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
