@@ -20,11 +20,8 @@ struct PSInput
 
 struct MRT_VSOutput
 {
-	float4 Color : SV_TARGET0;
-	float4 Diffuse : SV_TARGET1;
-	float4 Normal : SV_TARGET2;
-	float4 LDiffuse : SV_TARGET3;
-	float4 Specular : SV_TARGET4;
+	float4 Diffuse : SV_TARGET0;
+	float4 Specular : SV_TARGET1;
 };
 
 struct SURFACE_DATA
@@ -251,8 +248,8 @@ MRT_VSOutput PS(PSInput input)
 	}
 
 	MRT_VSOutput result;
-	result.LDiffuse = float4(gBufferMap[3].Load(location).rgb, 1.0f) + diffuse;
-	result.Specular = float4(gBufferMap[4].Load(location).rgb, 1.0f) + specular;
+	result.Diffuse = diffuse;
+	result.Specular = specular;
 
 	return result;
 }

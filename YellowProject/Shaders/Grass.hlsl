@@ -111,9 +111,8 @@ void GS(point GSInput gin[1],
 
 struct MRT_VSOutput
 {
-	float4 Color : SV_TARGET0;
-	float4 Diffuse : SV_TARGET1;
-	float4 Normal : SV_TARGET2;
+	float4 Diffuse : SV_TARGET0;
+	float4 Normal : SV_TARGET1;
 };
 
 MRT_VSOutput PS(PSInput pin)
@@ -160,7 +159,6 @@ MRT_VSOutput PS(PSInput pin)
 	//return litColor;
 
 	MRT_VSOutput result;
-	result.Color = litColor;
 	result.Diffuse = diffuseAlbedo;
 	result.Normal = float4(pin.NormalW, 1);
 

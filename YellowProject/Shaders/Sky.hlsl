@@ -16,8 +16,7 @@ struct VertexOut
 
 struct MRT_VSOutput
 {
-	float4 Color : SV_TARGET0;
-	float4 Diffuse : SV_TARGET1;
+	float4 Diffuse : SV_TARGET0;
 };
 
 VertexOut VS(VertexIn vin, uint instanceID : SV_InstanceID)
@@ -36,7 +35,6 @@ VertexOut VS(VertexIn vin, uint instanceID : SV_InstanceID)
 MRT_VSOutput PS(VertexOut pin)
 {
 	MRT_VSOutput result;
-	result.Color = gCubeMap.Sample(gsamLinearWrap, pin.PosL);
 	result.Diffuse = gCubeMap.Sample(gsamLinearWrap, pin.PosL);
 	
 	return result;;

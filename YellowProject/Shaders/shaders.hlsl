@@ -26,9 +26,8 @@ struct PSInput
 
 struct MRT_VSOutput
 {
-	float4 Color : SV_TARGET0;
-	float4 Diffuse : SV_TARGET1;
-	float4 Normal : SV_TARGET2;
+	float4 Diffuse : SV_TARGET0;
+	float4 Normal : SV_TARGET1;
 };
 
 PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
@@ -117,7 +116,6 @@ MRT_VSOutput PS(PSInput input)
 	litColor.a = diffuseAlbedo.a;
 
 	MRT_VSOutput result;
-	result.Color = litColor;
 	result.Diffuse = diffuseAlbedo;
 	result.Normal = float4(input.NormalW, 1);
 

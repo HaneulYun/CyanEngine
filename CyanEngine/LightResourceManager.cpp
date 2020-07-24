@@ -10,7 +10,6 @@ void LightResourceManager::Update()
 		for (auto light : lightObjects[i])
 		{
 			auto gameObject = light->gameObject;
-			auto& sceneBounds = light->sceneBounds;
 			auto& shadowMap = light->shadowMap;
 
 			auto camera = Camera::main;
@@ -28,11 +27,10 @@ void LightResourceManager::Update()
 			// Transform bounding sphere to light space.
 			Vector3 targetPosC = targetPos.TransformCoord(lightView);
 
-			auto& mSceneBounds = sceneBounds;
-			float l = (targetPosC.x - mSceneBounds.Radius) * 1;
-			float r = (targetPosC.x + mSceneBounds.Radius) * 1;
-			float b = (targetPosC.y - mSceneBounds.Radius) * 1;
-			float t = (targetPosC.y + mSceneBounds.Radius) * 1;
+			float l = (targetPosC.x - 1000) * 1;
+			float r = (targetPosC.x + 1000) * 1;
+			float b = (targetPosC.y - 1000) * 1;
+			float t = (targetPosC.y + 1000) * 1;
 			float n = -1;
 			float f = 1000;
 
@@ -70,8 +68,8 @@ void LightResourceManager::Update()
 				mShadowPassCB.EyePosW = lightPosW;
 				mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
 				mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
-				mShadowPassCB.NearZ = targetPosC.z - sceneBounds.Radius;
-				mShadowPassCB.FarZ = targetPosC.z + sceneBounds.Radius;
+				mShadowPassCB.NearZ = targetPosC.z - 1000;
+				mShadowPassCB.FarZ = targetPosC.z + 1000;
 				mShadowPassCB.ShadowTransform = S.Transpose();
 
 				currFrameResource->PassCB->CopyData(1, mShadowPassCB);
@@ -88,8 +86,6 @@ void LightResourceManager::AddGameObject(GameObject* gameObject, int layer)
 	LightData* lightData = new LightData();
 	lightData->gameObject = gameObject;
 	lightData->shadowMap = std::make_unique<ShadowMap>(graphics->device.Get(), 2048, 2048);
-	lightData->sceneBounds.Center = XMFLOAT3(512, 0, 512);
-	lightData->sceneBounds.Radius = 1000;
 
 	lightData->shadowMap->BuildDescriptors(graphics->GetSrv(18), graphics->GetSrvGpu(18), graphics->GetDsv(1));
 

@@ -31,6 +31,21 @@
     <Filter Include="Assets\Scripts\Build">
       <UniqueIdentifier>{60f2465b-3118-4b23-8694-2a9c187516b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Shaders\1_GeometryPass">
+      <UniqueIdentifier>{7663b650-19c7-4d7a-b8a5-0b06fc2a80e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shaders\0_Common">
+      <UniqueIdentifier>{5138449b-ed44-44f3-85ce-4ef4361cebca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shaders\2_Shadow">
+      <UniqueIdentifier>{7f5afcb5-83cd-4e30-b93d-c8af38a54fc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shaders\3_Light">
+      <UniqueIdentifier>{4c751f21-4b97-449a-96f4-393d414e8809}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shaders\4_Deferred">
+      <UniqueIdentifier>{d761b82d-4100-409e-aef1-662b3300f42b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -125,28 +140,10 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\shaders.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\common.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\grass.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\lightingUtil.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\particle.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\preview.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\shadow.hlsl">
-      <Filter>Assets\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\sky.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\ui.hlsl">
@@ -155,11 +152,29 @@
     <FxCompile Include="Shaders\shadowDebug.hlsl">
       <Filter>Assets\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\common.hlsl">
+      <Filter>Assets\Shaders\0_Common</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\shaders.hlsl">
+      <Filter>Assets\Shaders\1_GeometryPass</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\sky.hlsl">
+      <Filter>Assets\Shaders\1_GeometryPass</Filter>
+    </FxCompile>
     <FxCompile Include="Shaders\deferred.hlsl">
-      <Filter>Assets\Shaders</Filter>
+      <Filter>Assets\Shaders\4_Deferred</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\grass.hlsl">
+      <Filter>Assets\Shaders\1_GeometryPass</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\shadow.hlsl">
+      <Filter>Assets\Shaders\2_Shadow</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\light.hlsl">
-      <Filter>Assets\Shaders</Filter>
+      <Filter>Assets\Shaders\3_Light</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\lightingUtil.hlsl">
+      <Filter>Assets\Shaders\0_Common</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

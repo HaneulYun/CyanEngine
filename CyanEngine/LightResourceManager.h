@@ -31,7 +31,6 @@ class LightData
 public:
 	GameObject* gameObject;
 	std::unique_ptr<ShadowMap> shadowMap;
-	BoundingSphere sceneBounds;
 
 	std::vector<std::unique_ptr<FrameResource>> frameResources;
 	int isDirty{ NUM_FRAME_RESOURCES };
