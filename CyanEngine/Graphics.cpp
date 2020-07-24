@@ -69,9 +69,9 @@ void Graphics::Render()
 	auto matBuffer = currAssetResource->MaterialBuffer->Resource();
 
 	commandList->SetGraphicsRootShaderResourceView(7, matBuffer->GetGPUVirtualAddress());
-	commandList->SetGraphicsRootDescriptorTable(6, GetSrvGpu(0));
-	commandList->SetGraphicsRootDescriptorTable(5, GetSrvGpu(19));
-	commandList->SetGraphicsRootDescriptorTable(3, GetSrvGpu(20));
+	commandList->SetGraphicsRootDescriptorTable(6, GetSrvGpu(20));
+	commandList->SetGraphicsRootDescriptorTable(5, GetSrvGpu(10));
+	commandList->SetGraphicsRootDescriptorTable(3, GetSrvGpu(0));
 
 	D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ heapManager.GetRtv(2), heapManager.GetRtv(3) };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{ GetDsv(0) };
@@ -124,7 +124,7 @@ void Graphics::Render()
 			{
 				RenderShadowMap();
 				Matrix4x4 shadowMatrix{ light->shadowTransform };
-				commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(18));
+				commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(15));
 				commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
 			}
 			else
@@ -1024,13 +1024,13 @@ void Graphics::BuildResources()
 	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	srvDesc.Texture2D.MostDetailedMip = 0;
 	srvDesc.Texture2D.MipLevels = 1;
-	device->CreateShaderResourceView(depthStencilBuffer.Get(), &srvDesc, GetSrv(20));
+	device->CreateShaderResourceView(depthStencilBuffer.Get(), &srvDesc, GetSrv(0));
 
 	srvDesc.Format = NormalMapFormat;
-	device->CreateShaderResourceView(diffuseMap.Get(), &srvDesc, GetSrv(21));
-	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetSrv(22));
-	device->CreateShaderResourceView(lightDiffuse.Get(), &srvDesc, GetSrv(23));
-	device->CreateShaderResourceView(lightSpecular.Get(), &srvDesc, GetSrv(24));
+	device->CreateShaderResourceView(diffuseMap.Get(), &srvDesc, GetSrv(1));
+	device->CreateShaderResourceView(normalMap.Get(), &srvDesc, GetSrv(2));
+	device->CreateShaderResourceView(lightDiffuse.Get(), &srvDesc, GetSrv(3));
+	device->CreateShaderResourceView(lightSpecular.Get(), &srvDesc, GetSrv(4));
 }
 
 CD3DX12_CPU_DESCRIPTOR_HANDLE Graphics::GetSrv(int index) const

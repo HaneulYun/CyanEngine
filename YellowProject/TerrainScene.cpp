@@ -53,6 +53,7 @@ void TerrainScene::BuildObjects()
 		ASSET AddMesh("Cube", Mesh::CreateCube());
 		ASSET AddMesh("Quad", Mesh::CreateQuad());
 		ASSET AddMesh("Cylinder", Mesh::CreateCylinder());
+		ASSET AddMesh("Plane", Mesh::CreatePlane());
 		ASSET AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 
 		//ASSET AddFbxForMesh("SM_Well", "Assets\\AdvancedVillagePack\\Meshes\\SM_Well.FBX");
@@ -145,7 +146,7 @@ void TerrainScene::BuildObjects()
 		light->Strength = { 0.9f, 0.8f, 0.7f };
 		light->shadowType = Light::Shadows;
 
-		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.1);
+		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.033);
 	}
 
 	//GameObject* pointLight0 = CreateEmpty();
@@ -203,6 +204,15 @@ void TerrainScene::BuildObjects()
 			terrainData->Set();
 		}
 		terrain->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("ground"));
+	}
+
+	auto terrainBottom = CreateEmpty();
+	{
+		terrainBottom->transform->Scale({ 1024, 1, 1024 });
+		terrainBottom->transform->Rotate({ 0, 0, 1 }, 180);
+		terrainBottom->transform->position = { 512, 0, 512 };
+		terrainBottom->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		terrainBottom->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}
 
 	auto object = CreateUI();

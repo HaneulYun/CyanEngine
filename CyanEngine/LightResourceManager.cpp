@@ -87,7 +87,7 @@ void LightResourceManager::AddGameObject(GameObject* gameObject, int layer)
 	lightData->gameObject = gameObject;
 	lightData->shadowMap = std::make_unique<ShadowMap>(graphics->device.Get(), 2048, 2048);
 
-	lightData->shadowMap->BuildDescriptors(graphics->GetSrv(18), graphics->GetSrvGpu(18), graphics->GetDsv(1));
+	lightData->shadowMap->BuildDescriptors(graphics->GetSrv(15), graphics->GetSrvGpu(15), graphics->GetDsv(1));
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		lightData->frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1));
