@@ -79,7 +79,6 @@ void Graphics::Render()
 
 	D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ heapManager.GetRtv(2), heapManager.GetRtv(3) };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{ GetDsv(0) };
-	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
 
 	const float rtClearColor[]{ 0, 0, 0, 1 };
 	commandList->ClearRenderTargetView(heapManager.GetRtv(2), rtClearColor, 0, nullptr);
@@ -128,14 +127,20 @@ void Graphics::Render()
 			commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
 
 
+			RenderShadowMap();
+			Matrix4x4 shadowMatrix;
+			commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(18));
+			commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
+
 			D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ heapManager.GetRtv(4), heapManager.GetRtv(5) };
 			commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
+			commandList->SetGraphicsRootConstantBufferView(4, passCB->GetGPUVirtualAddress());
+			commandList->RSSetViewports(1, &viewport);
+			commandList->RSSetScissorRects(1, &scissorRect);
 
 
 			switch (objects[i]->GetComponent<Light>()->type)
 			{
-				//RenderShadowMap();
-				//commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(18));
 
 			case Light::Type::Directional:
 				commandList->SetPipelineState(pipelineStates["directional"].Get());
@@ -610,7 +615,7 @@ void Graphics::LoadAssets()
 	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 3, 0);
 
 
-	CD3DX12_ROOT_PARAMETER rootParameters[10];
+	CD3DX12_ROOT_PARAMETER rootParameters[11];
 	rootParameters[0].InitAsShaderResourceView(0);
 	rootParameters[1].InitAsShaderResourceView(1);
 	rootParameters[2].InitAsShaderResourceView(2);
@@ -621,6 +626,7 @@ void Graphics::LoadAssets()
 	rootParameters[7].InitAsShaderResourceView(0, 2);
 	rootParameters[8].InitAsConstants(16, 1);
 	rootParameters[9].InitAsDescriptorTable(1, &texTable3, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[10].InitAsConstants(16, 2);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
 	{

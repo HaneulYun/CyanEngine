@@ -55,15 +55,6 @@ private:
 
 public:
 	bool isShadowDebug{ false };
-	bool isDeferredShader{ false };
-	
-	float lightRotationAngle = 0.0f;
-	Vector3 baseLightDirections[3] = {
-		Vector3(0, -1, 0),
-		Vector3(-0.57735f, -0.57735f, 0.57735f),
-		Vector3(0.0f, -0.707f, -0.707f)
-	};
-	Vector3 rotatedLightDirections[3];
 
 public:
 	Graphics() {}

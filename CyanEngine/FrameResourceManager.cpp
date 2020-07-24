@@ -6,16 +6,6 @@ void FrameResourceManager::Update()
 	currFrameResourceIndex = (currFrameResourceIndex + 1) % NumFrameResources;
 	currFrameResource = frameResources[currFrameResourceIndex].get();
 
-	// Animate the lights
-	Graphics::Instance()->lightRotationAngle += 0.1f * Time::deltaTime;
-	Graphics::Instance()->baseLightDirections[0] = { 0,-1,0 };
-
-	Matrix4x4 R = Matrix4x4::RotationZ(Graphics::Instance()->lightRotationAngle);
-	for (int i = 0; i < 1; ++i)
-	{
-		Graphics::Instance()->rotatedLightDirections[i] = Graphics::Instance()->baseLightDirections[i].TransformNormal(R);
-	}
-
 	{
 		PassConstants passConstants;
 
@@ -42,15 +32,6 @@ void FrameResourceManager::Update()
 
 		passConstants.EyePosW = pos;
 		passConstants.AmbientLight = { 0.15f, 0.15f, 0.15f, 1.0f };
-		passConstants.Lights[0].Direction = Graphics::Instance()->rotatedLightDirections[0];// { 0.57735f, -0.57735f, 0.57735f };
-		//passConstants.Lights[0].Direction = { 0.57735f, -0.57735f, 0.57735f };
-		passConstants.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
-		//passConstants.Lights[1].Direction = Graphics::Instance()->rotatedLightDirections[1];// { -0.57735f, -0.57735f, 0.57735f };
-		passConstants.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
-		passConstants.Lights[1].Strength = { 0, 0, 0 };
-		//passConstants.Lights[2].Direction = Graphics::Instance()->rotatedLightDirections[2];// { 0.0f, -0.707f, -0.707f };
-		passConstants.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
-		passConstants.Lights[2].Strength = { 0, 0, 0 };
 
 		passConstants.RenderTargetSize.x = CyanFW::Instance()->GetWidth();
 		passConstants.RenderTargetSize.y = CyanFW::Instance()->GetHeight();
