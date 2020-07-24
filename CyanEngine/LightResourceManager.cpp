@@ -9,15 +9,16 @@ void LightResourceManager::Update()
 	{
 		for (auto light : lightObjects[i])
 		{
+			auto gameObject = light->gameObject;
 			auto& sceneBounds = light->sceneBounds;
 			auto& shadowMap = light->shadowMap;
 
+			auto camera = Camera::main;
+
 			// Only the first "main" light casts a shadow.
-			Vector3 lightDir = Graphics::Instance()->rotatedLightDirections[0];
-			Vector3 center; center.xmf3 = sceneBounds.Center;
-			Vector3 lightPos = (lightDir * (-2.0f * sceneBounds.Radius)) + center;
-			Vector3 targetPos;
-			targetPos.xmf3 = sceneBounds.Center;
+			Vector3 lightDir = gameObject->transform->forward;
+			Vector3 lightPos = gameObject->transform->position + camera->gameObject->transform->position;
+			Vector3 targetPos = lightPos + lightDir * 1;
 
 			Vector3 lightUp{ 0.0f, 1.0f, 0.0f };
 			Matrix4x4 lightView = Matrix4x4::MatrixLookAtLH(lightPos, targetPos, lightUp);
@@ -25,15 +26,15 @@ void LightResourceManager::Update()
 			Vector3 lightPosW = lightPos;
 
 			// Transform bounding sphere to light space.
-			Vector3 sphereCenterLS = targetPos.TransformCoord(lightView);
+			Vector3 targetPosC = targetPos.TransformCoord(lightView);
 
 			auto& mSceneBounds = sceneBounds;
-			float l = (sphereCenterLS.x - mSceneBounds.Radius);
-			float b = (sphereCenterLS.y - mSceneBounds.Radius);
-			float n = (sphereCenterLS.z - mSceneBounds.Radius);
-			float r = (sphereCenterLS.x + mSceneBounds.Radius);
-			float t = sphereCenterLS.y + mSceneBounds.Radius;
-			float f = sphereCenterLS.z + mSceneBounds.Radius;
+			float l = (targetPosC.x - mSceneBounds.Radius) * 1;
+			float r = (targetPosC.x + mSceneBounds.Radius) * 1;
+			float b = (targetPosC.y - mSceneBounds.Radius) * 1;
+			float t = (targetPosC.y + mSceneBounds.Radius) * 1;
+			float n = -1;
+			float f = 1000;
 
 			Matrix4x4 lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(l, r, b, t, n, f);
 
@@ -46,15 +47,11 @@ void LightResourceManager::Update()
 
 			Matrix4x4 S = lightView * lightProj * T;
 
-			Matrix4x4 f4x4lightView = lightView;;
-			Matrix4x4 f4x4lightProj = lightProj;
-			Matrix4x4 f4x4shadowTransform = S;
-
 			// UpdateShadowPassCB
 			PassConstants mShadowPassCB;
 			{
-				Matrix4x4 view = f4x4lightView;
-				Matrix4x4 proj = f4x4lightProj;
+				Matrix4x4 view = lightView;
+				Matrix4x4 proj = lightProj;
 				Matrix4x4 viewProj = view * proj;
 
 				Matrix4x4 invView = view.Inverse();
@@ -73,8 +70,9 @@ void LightResourceManager::Update()
 				mShadowPassCB.EyePosW = lightPosW;
 				mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
 				mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
-				mShadowPassCB.NearZ = sphereCenterLS.z - sceneBounds.Radius;
-				mShadowPassCB.FarZ = sphereCenterLS.z + sceneBounds.Radius;
+				mShadowPassCB.NearZ = targetPosC.z - sceneBounds.Radius;
+				mShadowPassCB.FarZ = targetPosC.z + sceneBounds.Radius;
+				mShadowPassCB.ShadowTransform = S.Transpose();
 
 				currFrameResource->PassCB->CopyData(1, mShadowPassCB);
 			}
