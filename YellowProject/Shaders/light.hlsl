@@ -252,8 +252,12 @@ MRT_VSOutput PS(PSInput input)
 		specular *= att;
 	}
 
-	float4 shadowPosH = mul(float4(position, 1), gLightShadowTransform);
-	float shadowFactor = CalcShadowFactor(shadowPosH);
+	float shadowFactor = 1;
+	if (gLightShadowTransform[3][3])
+	{
+		float4 shadowPosH = mul(float4(position, 1), gLightShadowTransform);
+		shadowFactor = CalcShadowFactor(shadowPosH);
+	}
 
 	MRT_VSOutput result;
 	result.Diffuse = diffuse * shadowFactor;

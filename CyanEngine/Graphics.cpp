@@ -120,11 +120,19 @@ void Graphics::Render()
 			PassLight l = PassLight{ gameObject->GetComponent<Light>()->get(worldMatrix.forward, worldMatrix.position) };
 			commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
 
-
-			RenderShadowMap();
-			Matrix4x4 shadowMatrix{ light->shadowTransform };
-			commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(18));
-			commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
+			if (light->gameObject->GetComponent<Light>()->shadowType)
+			{
+				RenderShadowMap();
+				Matrix4x4 shadowMatrix{ light->shadowTransform };
+				commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(18));
+				commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
+			}
+			else
+			{
+				Matrix4x4 shadowMatrix;
+				shadowMatrix.m[3][3] = 0;
+				commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
+			}
 
 			D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ heapManager.GetRtv(4), heapManager.GetRtv(5) };
 			commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
@@ -153,53 +161,6 @@ void Graphics::Render()
 			}
 		}
 	}
-
-	//for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Light])
-	//{
-	//	auto& objects = renderSets.second.gameObjects;
-	//	if (!objects.size())
-	//		continue;
-	//
-	//	for (int i = 0; i < objects.size(); ++i)
-	//	{
-	//		Matrix4x4 worldMatrix = objects[i]->GetMatrix();
-	//		PassLight l = PassLight{ objects[i]->GetComponent<Light>()->get(worldMatrix.forward, worldMatrix.position) };
-	//		commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
-	//
-	//
-	//		RenderShadowMap();
-	//		Matrix4x4 shadowMatrix{  };
-	//		commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(18));
-	//		commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
-	//
-	//		D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ heapManager.GetRtv(4), heapManager.GetRtv(5) };
-	//		commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
-	//		commandList->SetGraphicsRootConstantBufferView(4, passCB->GetGPUVirtualAddress());
-	//		commandList->RSSetViewports(1, &viewport);
-	//		commandList->RSSetScissorRects(1, &scissorRect);
-	//
-	//
-	//		switch (objects[i]->GetComponent<Light>()->type)
-	//		{
-	//
-	//		case Light::Type::Directional:
-	//			commandList->SetPipelineState(pipelineStates["directional"].Get());
-	//			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	//			commandList->DrawInstanced(4, 1, 0, 0);
-	//			break;
-	//		case Light::Type::Point:
-	//			commandList->SetPipelineState(pipelineStates["point"].Get());
-	//			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
-	//			commandList->DrawInstanced(1, 1, 0, 0);
-	//			break;
-	//		case Light::Type::Spot:
-	//			commandList->SetPipelineState(pipelineStates["spot"].Get());
-	//			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
-	//			commandList->DrawInstanced(1, 1, 0, 0);
-	//			break;
-	//		}
-	//	}
-	//}
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 	
