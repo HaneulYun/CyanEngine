@@ -54,8 +54,8 @@ void LightResourceManager::Update()
 				Matrix4x4 invProj = proj.Inverse();
 				Matrix4x4 invViewProj = viewProj.Inverse();
 
-				UINT w = shadowMap->Width();
-				UINT h = shadowMap->Height();
+				UINT w = shadowMap[0]->Width();
+				UINT h = shadowMap[0]->Height();
 
 				mShadowPassCB.View = view.Transpose();
 				mShadowPassCB.InvView = invView.Transpose();
@@ -68,7 +68,6 @@ void LightResourceManager::Update()
 				mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
 				mShadowPassCB.NearZ = targetPosC.z - 1000;
 				mShadowPassCB.FarZ = targetPosC.z + 1000;
-				mShadowPassCB.ShadowTransform = S.Transpose();
 
 				light->shadowTransform = S.Transpose();
 
@@ -76,7 +75,6 @@ void LightResourceManager::Update()
 			}
 		}
 	}
-
 }
 
 void LightResourceManager::AddGameObject(GameObject* gameObject, int layer)
@@ -85,9 +83,15 @@ void LightResourceManager::AddGameObject(GameObject* gameObject, int layer)
 
 	LightData* lightData = new LightData();
 	lightData->gameObject = gameObject;
-	lightData->shadowMap = std::make_unique<ShadowMap>(graphics->device.Get(), 2048, 2048);
+	if (!lightData->shadowMap.size())
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			lightData->shadowMap.push_back(std::make_unique<ShadowMap>(graphics->device.Get(), 2048, 2048));
+			lightData->shadowMap[i]->BuildDescriptors(graphics->GetSrv(15+i), graphics->GetSrvGpu(15+i), graphics->GetDsv(1+i));
+		}
+	}
 
-	lightData->shadowMap->BuildDescriptors(graphics->GetSrv(15), graphics->GetSrvGpu(15), graphics->GetDsv(1));
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
 		lightData->frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1));

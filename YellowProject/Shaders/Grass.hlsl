@@ -21,7 +21,6 @@ struct GSInput
 struct PSInput
 {
 	float4 PosH : SV_POSITION;
-	float4 ShadowPosH : POSITION0;
 	float3 PosW : POSITION1;
 	float3 NormalW : NORMAL;
 	float2 TexC : TEXCOORD;
@@ -102,7 +101,6 @@ void GS(point GSInput gin[1],
 		gout.TexC = texC[i % 4];
 		gout.PrimID = primID;
 		gout.MatIndex = gin[0].MatIndex;
-		gout.ShadowPosH = mul(v[i], gShadowTransform);
 		if (i % 4 == 0)
 			triStream.RestartStrip();
 		triStream.Append(gout);
@@ -136,27 +134,15 @@ MRT_VSOutput PS(PSInput pin)
 
 	float3 toEyeW = normalize(gEyePosW - pin.PosW);
 
-	float4 ambient = gAmbientLight * diffuseAlbedo;
-
-
-	float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
-	shadowFactor[0] = CalcShadowFactor(pin.ShadowPosH);
 	const float shininess = 1.0f - roughness;
 	Material mat = { diffuseAlbedo, fresnelR0, shininess };
 
-	float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
-		pin.NormalW, toEyeW, shadowFactor);
-
-	float4 litColor = ambient + directLight;
 
 #ifdef FOG
 	float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
 	litColor = lerp(litColor, gFogColor, fogAmount);
 #endif
 
-	litColor.a = diffuseAlbedo.a;
-
-	//return litColor;
 
 	MRT_VSOutput result;
 	result.Diffuse = diffuseAlbedo;

@@ -15,7 +15,6 @@ struct VSInput
 struct PSInput
 {
 	float4 PosH		: SV_POSITION;
-	float4 ShadowPosH : POSITION0;
 	float3 PosW		: POSITION1;
 	float3 NormalW	: NORMAL;
 	float3 TangentW : TANGENT;
@@ -75,7 +74,7 @@ PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 	vout.TexC = mul(mul(float4(vin.TexC, 0.0f, 1.0f), texTransform), matData.MatTransform).xy;
 	
 	// Generate projective tex-coords to project shadow map onto scene.
-	vout.ShadowPosH = mul(posW, gShadowTransform);
+	//vout.ShadowPosH = mul(posW, gShadowTransform);
 	return vout;
 }
 
@@ -96,24 +95,8 @@ MRT_VSOutput PS(PSInput input)
 
 	float3 toEyeW = normalize(gEyePosW - input.PosW);
 
-	float4 ambient = gAmbientLight * diffuseAlbedo;
-
-
-	float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
-	shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
 	const float shininess = 1.0f - roughness;
 	Material mat = { diffuseAlbedo, fresnelR0, shininess };
-
-	float4 directLight = ComputeLighting(gLights, mat, input.PosW, input.NormalW, toEyeW, shadowFactor);
-
-	float4 litColor = ambient + directLight;
-
-	float3 r = reflect(-toEyeW, input.NormalW);
-	float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
-	float3 fresnelFactor = SchlickFresnel(fresnelR0, input.NormalW, r);
-	litColor.rgb += shininess * fresnelFactor * reflectionColor.rgb;
-	
-	litColor.a = diffuseAlbedo.a;
 
 	MRT_VSOutput result;
 	result.Diffuse = diffuseAlbedo;

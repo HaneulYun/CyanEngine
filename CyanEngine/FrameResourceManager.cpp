@@ -25,7 +25,6 @@ void FrameResourceManager::Update()
 		passConstants.Proj = proj.Transpose();
 		passConstants.InvProj = proj.Inverse().Transpose();
 		passConstants.ViewProj = ViewProj.Transpose();
-		passConstants.ShadowTransform = f4x4shadowTransform.Transpose();
 
 		float mSunTheta = 1.25f * XM_PI;
 		float mSunPhi = XM_PIDIV4;

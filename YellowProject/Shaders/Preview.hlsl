@@ -43,8 +43,6 @@ PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj);
 	vout.NormalW = mul(vin.NormalL, (float3x3)world);
 	vout.TexC = mul(mul(float4(vin.TexC, 0.0f, 1.0f), texTransform), matData.MatTransform).xy;
-
-	vout.ShadowPosH = mul(posW, gShadowTransform);
 	return vout;
 }
 
@@ -71,17 +69,17 @@ float4 PS(PSInput input) : SV_TARGET
 	const float shininess = 1.0f - roughness;
 	Material mat = { diffuseAlbedo, fresnelR0, shininess };
 
-	float4 directLight = ComputeLighting(gLights, mat, input.PosW,
-		input.NormalW, toEyeW, shadowFactor);
+	//float4 directLight = ComputeLighting(gLights, mat, input.PosW,
+	//	input.NormalW, toEyeW, shadowFactor);
 
-	float4 litColor = ambient + directLight;
+	//float4 litColor = ambient + directLight;
 
 	float3 r = reflect(-toEyeW, input.NormalW);
 	float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
 	float3 fresnelFactor = SchlickFresnel(fresnelR0, input.NormalW, r);
-	litColor.rgb += shininess * fresnelFactor * reflectionColor.rgb;
+	//litColor.rgb += shininess * fresnelFactor * reflectionColor.rgb;
 
-	litColor.a = diffuseAlbedo.a;
+	//litColor.a = diffuseAlbedo.a;
 
-	return litColor;
+	return 1;// litColor;
 }

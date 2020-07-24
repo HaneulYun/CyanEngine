@@ -29,7 +29,7 @@ void Graphics::RenderShadowMap()
 	if (!lights.size())
 		return;
 
-	ShadowMap* shadowMap = lights[0]->shadowMap.get();
+	ShadowMap* shadowMap = lights[0]->shadowMap[0].get();
 	auto pass = lights[0]->frameResources[Scene::scene->frameResourceManager.currFrameResourceIndex].get()->PassCB->Resource()->GetGPUVirtualAddress();
 
 	commandList->RSSetViewports(1, &shadowMap->Viewport());
@@ -519,7 +519,7 @@ void Graphics::InitDirect3D()
 	heapManager.BuildRtvHeap(device.Get(), FrameCount + 4);
 
 
-	descriptorHeapDesc.NumDescriptors = 2;
+	descriptorHeapDesc.NumDescriptors = 1+4;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 
