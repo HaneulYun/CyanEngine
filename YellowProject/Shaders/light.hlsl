@@ -12,6 +12,11 @@ cbuffer LightDirection : register(b1)
 	uint3	Pad;
 };
 
+cbuffer ShadowTransform : register(b2)
+{
+	float4x4 gLightShadowTransform;
+};
+
 struct PSInput
 {
 	float4 PosH		: SV_POSITION;
@@ -247,9 +252,12 @@ MRT_VSOutput PS(PSInput input)
 		specular *= att;
 	}
 
+	float4 shadowPosH = mul(float4(position, 1), gLightShadowTransform);
+	float shadowFactor = CalcShadowFactor(shadowPosH);
+
 	MRT_VSOutput result;
-	result.Diffuse = diffuse;
-	result.Specular = specular;
+	result.Diffuse = diffuse * shadowFactor;
+	result.Specular = specular * shadowFactor;
 
 	return result;
 }

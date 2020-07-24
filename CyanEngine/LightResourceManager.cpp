@@ -3,8 +3,6 @@
 
 void LightResourceManager::Update()
 {
-	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
-
 	for (int i = 0; i < Light::Type::Count; ++i)
 	{
 		for (auto light : lightObjects[i])
@@ -27,10 +25,10 @@ void LightResourceManager::Update()
 			// Transform bounding sphere to light space.
 			Vector3 targetPosC = targetPos.TransformCoord(lightView);
 
-			float l = (targetPosC.x - 1000) * 1;
-			float r = (targetPosC.x + 1000) * 1;
-			float b = (targetPosC.y - 1000) * 1;
-			float t = (targetPosC.y + 1000) * 1;
+			float l = (targetPosC.x - 500) * 1;
+			float r = (targetPosC.x + 500) * 1;
+			float b = (targetPosC.y - 500) * 1;
+			float t = (targetPosC.y + 500) * 1;
 			float n = -1;
 			float f = 1000;
 
@@ -72,7 +70,9 @@ void LightResourceManager::Update()
 				mShadowPassCB.FarZ = targetPosC.z + 1000;
 				mShadowPassCB.ShadowTransform = S.Transpose();
 
-				currFrameResource->PassCB->CopyData(1, mShadowPassCB);
+				light->shadowTransform = S.Transpose();
+
+				light->frameResources[Scene::scene->frameResourceManager.currFrameResourceIndex]->PassCB->CopyData(0, mShadowPassCB);
 			}
 		}
 	}
@@ -88,6 +88,10 @@ void LightResourceManager::AddGameObject(GameObject* gameObject, int layer)
 	lightData->shadowMap = std::make_unique<ShadowMap>(graphics->device.Get(), 2048, 2048);
 
 	lightData->shadowMap->BuildDescriptors(graphics->GetSrv(18), graphics->GetSrvGpu(18), graphics->GetDsv(1));
+
+	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
+		lightData->frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1));
+
 
 	lightObjects[layer].push_back(lightData);
 }

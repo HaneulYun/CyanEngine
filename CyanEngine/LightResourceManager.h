@@ -30,6 +30,7 @@ class LightData
 {
 public:
 	GameObject* gameObject;
+	Matrix4x4 shadowTransform;
 	std::unique_ptr<ShadowMap> shadowMap;
 
 	std::vector<std::unique_ptr<FrameResource>> frameResources;

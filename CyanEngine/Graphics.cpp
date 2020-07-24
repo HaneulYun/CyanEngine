@@ -30,6 +30,7 @@ void Graphics::RenderShadowMap()
 		return;
 
 	ShadowMap* shadowMap = lights[0]->shadowMap.get();
+	auto pass = lights[0]->frameResources[Scene::scene->frameResourceManager.currFrameResourceIndex].get()->PassCB->Resource()->GetGPUVirtualAddress();
 
 	commandList->RSSetViewports(1, &shadowMap->Viewport());
 	commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
@@ -39,14 +40,9 @@ void Graphics::RenderShadowMap()
 	commandList->ClearDepthStencilView(shadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	commandList->OMSetRenderTargets(0, nullptr, false, &shadowMap->Dsv());
 
-	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
-	auto passCB = currFrameResource->PassCB->Resource();
-	D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
-	commandList->SetGraphicsRootConstantBufferView(4, passCBAddress);
+	commandList->SetGraphicsRootConstantBufferView(4, pass);
 	
 	commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
-	
-	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(InstanceData));
 	
 	for (auto layer : { RenderLayer::Opaque, RenderLayer::SkinnedOpaque, })
 		RenderObjects((int)layer, true);
@@ -114,21 +110,19 @@ void Graphics::Render()
 
 	commandList->ClearRenderTargetView(heapManager.GetRtv(4), rtClearColor, 0, nullptr);
 	commandList->ClearRenderTargetView(heapManager.GetRtv(5), rtClearColor, 0, nullptr);
-	for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Light])
-	{
-		auto& objects = renderSets.second.gameObjects;
-		if (!objects.size())
-			continue;
 
-		for (int i = 0; i < objects.size(); ++i)
+	for (int lightType = 0; lightType < Light::Type::Count; ++lightType)
+	{
+		for (auto light : Scene::scene->lightResourceManager.lightObjects[lightType])
 		{
-			Matrix4x4 worldMatrix = objects[i]->GetMatrix();
-			PassLight l = PassLight{ objects[i]->GetComponent<Light>()->get(worldMatrix.forward, worldMatrix.position) };
+			auto gameObject = light->gameObject;
+			Matrix4x4 worldMatrix = gameObject->GetMatrix();
+			PassLight l = PassLight{ gameObject->GetComponent<Light>()->get(worldMatrix.forward, worldMatrix.position) };
 			commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
 
 
 			RenderShadowMap();
-			Matrix4x4 shadowMatrix;
+			Matrix4x4 shadowMatrix{ light->shadowTransform };
 			commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(18));
 			commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
 
@@ -139,9 +133,8 @@ void Graphics::Render()
 			commandList->RSSetScissorRects(1, &scissorRect);
 
 
-			switch (objects[i]->GetComponent<Light>()->type)
+			switch (lightType)
 			{
-
 			case Light::Type::Directional:
 				commandList->SetPipelineState(pipelineStates["directional"].Get());
 				commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -160,6 +153,53 @@ void Graphics::Render()
 			}
 		}
 	}
+
+	//for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::Light])
+	//{
+	//	auto& objects = renderSets.second.gameObjects;
+	//	if (!objects.size())
+	//		continue;
+	//
+	//	for (int i = 0; i < objects.size(); ++i)
+	//	{
+	//		Matrix4x4 worldMatrix = objects[i]->GetMatrix();
+	//		PassLight l = PassLight{ objects[i]->GetComponent<Light>()->get(worldMatrix.forward, worldMatrix.position) };
+	//		commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
+	//
+	//
+	//		RenderShadowMap();
+	//		Matrix4x4 shadowMatrix{  };
+	//		commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(18));
+	//		commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
+	//
+	//		D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ heapManager.GetRtv(4), heapManager.GetRtv(5) };
+	//		commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
+	//		commandList->SetGraphicsRootConstantBufferView(4, passCB->GetGPUVirtualAddress());
+	//		commandList->RSSetViewports(1, &viewport);
+	//		commandList->RSSetScissorRects(1, &scissorRect);
+	//
+	//
+	//		switch (objects[i]->GetComponent<Light>()->type)
+	//		{
+	//
+	//		case Light::Type::Directional:
+	//			commandList->SetPipelineState(pipelineStates["directional"].Get());
+	//			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	//			commandList->DrawInstanced(4, 1, 0, 0);
+	//			break;
+	//		case Light::Type::Point:
+	//			commandList->SetPipelineState(pipelineStates["point"].Get());
+	//			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
+	//			commandList->DrawInstanced(1, 1, 0, 0);
+	//			break;
+	//		case Light::Type::Spot:
+	//			commandList->SetPipelineState(pipelineStates["spot"].Get());
+	//			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST);
+	//			commandList->DrawInstanced(1, 1, 0, 0);
+	//			break;
+	//		}
+	//	}
+	//}
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 	
@@ -839,7 +879,7 @@ void Graphics::LoadAssets()
 	device->CreateGraphicsPipelineState(&uiPsoDesc, IID_PPV_ARGS(&pipelineStates["ui"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC shadowPsoDesc = opaquePsoDesc;
-	shadowPsoDesc.RasterizerState.DepthBias = 100000;
+	shadowPsoDesc.RasterizerState.DepthBias = 10000;
 	shadowPsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
 	shadowPsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
 	shadowPsoDesc.pRootSignature = rootSignature.Get();
