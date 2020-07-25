@@ -14,7 +14,7 @@ void LightResourceManager::Update()
 
 			auto camera = Camera::main;
 
-			Vector3 lightDir = gameObject->transform->forward;
+			Vector3 lightDir = gameObject->GetMatrix().forward;
 			Vector3 targetPosC;
 			Vector3 lightPosW;
 
@@ -33,7 +33,7 @@ void LightResourceManager::Update()
 					case 3: range = 200; break;
 					}
 
-					Vector3 targetPos = camera->gameObject->transform->position;
+					Vector3 targetPos = camera->gameObject->GetMatrix().position;
 					Vector3 lightPos = targetPos - lightDir * range;
 					Vector3 lightUp{ 0.0f, 1.0f, 0.0f };
 
@@ -111,7 +111,7 @@ void LightResourceManager::AddGameObject(GameObject* gameObject, int layer)
 		for (int i = 0; i < 4; ++i)
 		{
 			lightData->shadowMap.push_back(std::make_unique<ShadowMap>(graphics->device.Get(), 2048, 2048));
-			lightData->shadowMap[i]->BuildDescriptors(graphics->GetSrv(15+i), graphics->GetSrvGpu(15+i), graphics->GetDsv(1+i));
+			lightData->shadowMap[i]->BuildDescriptors(graphics->GetSrv(15 + i), graphics->GetSrvGpu(15 + i), graphics->GetDsv(1 + i));
 		}
 	}
 
