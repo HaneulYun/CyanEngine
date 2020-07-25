@@ -248,26 +248,30 @@ MRT_VSOutput PS(PSInput input)
 		specular *= att;
 	}
 
-	uint index;
-	input.TexC.xy = input.TexC.xy * float2(0.5, -0.5) + float2(0.5, 0.5);
-	float distance = gBufferMap[1].Sample(gsamLinearWrap, input.TexC).w;
-	if (distance < 10) index = 0;
-	else if (distance < 50) index = 1;
-	else if (distance < 100) index = 2;
-	else if (distance < 200) index = 3;
-	else index = 4;
-		
 	float lightFactor = 1;
-	float4 shadowPosH;
-	if (gCountShadowMap && index < 4)
+	uint index;
+	if (Type == 0)
 	{
-		shadowPosH = mul(float4(position, 1), gViewProjS[index]);
-		float shadowFactor = 1 - CalcShadowFactor(shadowPosH, index);
-		if (index == 3)
+		input.TexC.xy = input.TexC.xy * float2(0.5, -0.5) + float2(0.5, 0.5);
+		float distance = gBufferMap[1].Sample(gsamLinearWrap, input.TexC).w;
+		if (distance < 10) index = 0;
+		else if (distance < 50) index = 1;
+		else if (distance < 100) index = 2;
+		else if (distance < 200) index = 3;
+		else index = 4;
+
+		float4 shadowPosH;
+		if (index < gCountShadowMap)
 		{
-			shadowFactor *= 1 - (distance - 150) * 0.02;
+			shadowPosH = mul(float4(position, 1), gViewProjS[index]);
+			float shadowFactor = 1 - CalcShadowFactor(shadowPosH, index);
+			if (index == 3)
+			{
+				shadowFactor *= 1 - (distance - 150) * 0.02;
+			}
+			lightFactor -= shadowFactor;
 		}
-		lightFactor -= shadowFactor;
+		lightFactor = saturate(lightFactor);
 	}
 
 	MRT_VSOutput result;
