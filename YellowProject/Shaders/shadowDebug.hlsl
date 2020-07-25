@@ -14,12 +14,15 @@ VertexOut VS(uint nVertexID : SV_VertexID, uint nInstanceID : SV_InstanceID)
 
     uint index = nInstanceID;
     if (index > 5)
-        index += 6;
+        index += 24;
 
-    if (nVertexID == 0) vout.PosH = float4(-1.0 + (index / 4) * 0.5, 0.5 - (index % 4) * 0.5, 0.0, 1.0);
-    if (nVertexID == 1) vout.PosH = float4(-1.0 + (index / 4) * 0.5, 1.0 - (index % 4) * 0.5, 0.0, 1.0);
-    if (nVertexID == 2) vout.PosH = float4(-0.5 + (index / 4) * 0.5, 0.5 - (index % 4) * 0.5, 0.0, 1.0);
-    if (nVertexID == 3) vout.PosH = float4(-0.5 + (index / 4) * 0.5, 1.0 - (index % 4) * 0.5, 0.0, 1.0);
+    int cnt = 6;
+    float size = 2.0 / cnt;
+
+    if (nVertexID == 0) vout.PosH = float4(-1.0 +        (index / cnt) * size, 1.0 - size - (index % cnt) * size, 0.0, 1.0);
+    if (nVertexID == 1) vout.PosH = float4(-1.0 +        (index / cnt) * size, 1.0 -        (index % cnt) * size, 0.0, 1.0);
+    if (nVertexID == 2) vout.PosH = float4(-1.0 + size + (index / cnt) * size, 1.0 - size - (index % cnt) * size, 0.0, 1.0);
+    if (nVertexID == 3) vout.PosH = float4(-1.0 + size + (index / cnt) * size, 1.0 -        (index % cnt) * size, 0.0, 1.0);
 
     if (nVertexID == 0) vout.TexC = float2(0, 1);
     if (nVertexID == 1) vout.TexC = float2(0, 0);
@@ -52,10 +55,10 @@ float4 PS(VertexOut pin) : SV_Target
     if (pin.InstID == 5)
     {
         float distance = gBufferMap[1].Sample(gsamLinearWrap, pin.TexC).w;
-        if (distance < 10) return float4(1, 0, 0, 1);
-        if (distance < 50) return float4(0, 1, 0, 1);
-        if (distance < 100) return float4(0, 0, 1, 1);
-        if (distance < 200) return float4(0, 0, 0, 1);
+        if (distance < 10) return float4(0.02, 0.62, 0.75, 1);
+        if (distance < 50) return float4(0.70, 0.75, 0.31, 1);
+        if (distance < 100) return float4(0.95, 0.78, 0.29, 1);
+        if (distance < 200) return float4(0.95, 0.81, 0.82, 1);
         return float4(1, 1, 1, 1);
     }
     if(pin.InstID > 5)

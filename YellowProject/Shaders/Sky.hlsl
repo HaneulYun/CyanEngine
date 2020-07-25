@@ -37,6 +37,7 @@ MRT_VSOutput PS(VertexOut pin)
 {
 	MRT_VSOutput result;
 	result.Diffuse = gCubeMap.Sample(gsamLinearWrap, pin.PosL);
+	result.Diffuse.w = 1000;
 	
 	return result;;
 }
