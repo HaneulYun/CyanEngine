@@ -176,5 +176,11 @@
     <FxCompile Include="Shaders\lightingUtil.hlsl">
       <Filter>Assets\Shaders\0_Common</Filter>
     </FxCompile>
+    <FxCompile Include="cbPass.hlsl">
+      <Filter>Assets\Shaders\0_Common</Filter>
+    </FxCompile>
+    <FxCompile Include="cbLight.hlsl">
+      <Filter>Assets\Shaders\0_Common</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -1,15 +1,3 @@
-#ifndef NUM_DIR_LIGHTS
-#define NUM_DIR_LIGHTS 3
-#endif
-
-#ifndef NUM_POINT_LIGHTS
-#define NUM_POINT_LIGHTS 0
-#endif
-
-#ifndef NUM_SPOT_LIGHTS
-#define NUM_SPOT_LIGHTS 0
-#endif
-
 #include "lightingUtil.hlsl"
 
 struct InstanceData
@@ -63,28 +51,6 @@ SamplerState gsamLinearClamp      : register(s3);
 SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
 SamplerComparisonState gsamShadow : register(s6);
-
-cbuffer cbPass : register(b0)
-{
-	float4x4 gView;
-	float4x4 gInvView;
-	float4x4 gProj;
-	float4x4 gInvProj;
-	float4x4 gViewProj;
-	float4x4 gInvViewProj;
-
-	float3 gEyePosW;
-	float  cbPerObjectPad1;
-	float2 gRenderTargetSize;
-	float2 gInvRenderTargetSize;
-
-	float gNearZ;
-	float gFarZ;
-	float gTotalTime;
-	float gDeltaTime;
-
-	float4 gAmbientLight;
-};
 
 float CalcShadowFactor(float4 shadowPosH)
 {

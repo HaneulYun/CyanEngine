@@ -25,7 +25,7 @@ void LightResourceManager::Update()
 			// Transform bounding sphere to light space.
 			Vector3 targetPosC = targetPos.TransformCoord(lightView);
 
-			Matrix4x4 lightProj;
+			LightConstants mShadowPassCB;
 			for (int i = 0; i < 4; ++i)
 			{
 				int range;
@@ -43,7 +43,7 @@ void LightResourceManager::Update()
 				float n = -1;
 				float f = range * 2 - 1;
 
-				lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+				Matrix4x4 lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(l, r, b, t, n, f);
 
 				// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
 				Matrix4x4 T{
@@ -53,30 +53,16 @@ void LightResourceManager::Update()
 					0.5f, 0.5f, 0.0f, 1.0f };
 
 				Matrix4x4 S = lightView * lightProj * T;
-
 				light->shadowTransform[i] = S.Transpose();
+
+				Matrix4x4 viewProj = lightView * lightProj;
+				mShadowPassCB.ViewProj[i] = viewProj.Transpose();
 			}
 
-			// UpdateShadowPassCB
-			LightConstants mShadowPassCB;
 			{
-				Matrix4x4 view = lightView;
-				Matrix4x4 proj = lightProj;
-				Matrix4x4 viewProj = view * proj;
-
-				Matrix4x4 invView = view.Inverse();
-				Matrix4x4 invProj = proj.Inverse();
-				Matrix4x4 invViewProj = viewProj.Inverse();
-
 				UINT w = shadowMap[0]->Width();
 				UINT h = shadowMap[0]->Height();
 
-				mShadowPassCB.View = view.Transpose();
-				mShadowPassCB.InvView = invView.Transpose();
-				mShadowPassCB.Proj = proj.Transpose();
-				mShadowPassCB.InvProj = invProj.Transpose();
-				mShadowPassCB.ViewProj = viewProj.Transpose();
-				mShadowPassCB.InvViewProj = invViewProj.Transpose();
 				mShadowPassCB.EyePosW = lightPosW;
 				mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
 				mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);

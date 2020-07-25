@@ -2,14 +2,7 @@
 
 struct LightConstants
 {
-	Matrix4x4	View;
-	Matrix4x4	InvView;
-
-	Matrix4x4	Proj;
-	Matrix4x4	InvProj;
-
-	Matrix4x4	ViewProj;
-	Matrix4x4	InvViewProj;
+	Matrix4x4	ViewProj[4];
 
 	Vector3		EyePosW{ 0.0f, 0.0f, 0.0f };
 	float		cbPerObjectPad1{ 0.0f };

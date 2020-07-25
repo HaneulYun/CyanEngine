@@ -1,3 +1,4 @@
+#include "cbPass.hlsl"
 #include "common.hlsl"
 
 cbuffer LightDirection : register(b1)

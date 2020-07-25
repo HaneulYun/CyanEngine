@@ -1,3 +1,4 @@
+#include "cbLight.hlsl"
 #include "common.hlsl"
 
 struct VSInput
