@@ -30,7 +30,7 @@ void Graphics::RenderShadowMap()
 		return;
 
 	ShadowMap* shadowMap = lights[0]->shadowMap[0].get();
-	auto pass = lights[0]->frameResources[Scene::scene->frameResourceManager.currFrameResourceIndex].get()->PassCB->Resource()->GetGPUVirtualAddress();
+	auto pass = lights[0]->lightResource[Scene::scene->frameResourceManager.currFrameResourceIndex].get()->LightCB->Resource()->GetGPUVirtualAddress();
 
 	commandList->RSSetViewports(1, &shadowMap->Viewport());
 	commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
@@ -123,7 +123,7 @@ void Graphics::Render()
 			if (light->gameObject->GetComponent<Light>()->shadowType)
 			{
 				RenderShadowMap();
-				Matrix4x4 shadowMatrix{ light->shadowTransform };
+				Matrix4x4 shadowMatrix{ light->shadowTransform[0] };
 				commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(15));
 				commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
 			}

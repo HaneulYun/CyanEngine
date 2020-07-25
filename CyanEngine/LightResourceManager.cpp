@@ -25,26 +25,40 @@ void LightResourceManager::Update()
 			// Transform bounding sphere to light space.
 			Vector3 targetPosC = targetPos.TransformCoord(lightView);
 
-			float l = (targetPosC.x - 500) * 1;
-			float r = (targetPosC.x + 500) * 1;
-			float b = (targetPosC.y - 500) * 1;
-			float t = (targetPosC.y + 500) * 1;
-			float n = -1;
-			float f = 1000;
+			Matrix4x4 lightProj;
+			for (int i = 0; i < 4; ++i)
+			{
+				int range;
+				switch (i)
+				{
+				case 0: range = 200; break;
+				case 1: range = 50; break;
+				case 2: range = 100; break;
+				case 3: range = 200; break;
+				}
+				float l = targetPosC.x - range;
+				float r = targetPosC.x + range;
+				float b = targetPosC.y - range;
+				float t = targetPosC.y + range;
+				float n = -1;
+				float f = range * 2 - 1;
 
-			Matrix4x4 lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+				lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(l, r, b, t, n, f);
 
-			// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
-			Matrix4x4 T{
-				0.5f, 0.0f, 0.0f, 0.0f,
-				0.0f, -0.5f, 0.0f, 0.0f,
-				0.0f, 0.0f, 1.0f, 0.0f,
-				0.5f, 0.5f, 0.0f, 1.0f };
+				// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
+				Matrix4x4 T{
+					0.5f, 0.0f, 0.0f, 0.0f,
+					0.0f, -0.5f, 0.0f, 0.0f,
+					0.0f, 0.0f, 1.0f, 0.0f,
+					0.5f, 0.5f, 0.0f, 1.0f };
 
-			Matrix4x4 S = lightView * lightProj * T;
+				Matrix4x4 S = lightView * lightProj * T;
+
+				light->shadowTransform[i] = S.Transpose();
+			}
 
 			// UpdateShadowPassCB
-			PassConstants mShadowPassCB;
+			LightConstants mShadowPassCB;
 			{
 				Matrix4x4 view = lightView;
 				Matrix4x4 proj = lightProj;
@@ -69,9 +83,7 @@ void LightResourceManager::Update()
 				mShadowPassCB.NearZ = targetPosC.z - 1000;
 				mShadowPassCB.FarZ = targetPosC.z + 1000;
 
-				light->shadowTransform = S.Transpose();
-
-				light->frameResources[Scene::scene->frameResourceManager.currFrameResourceIndex]->PassCB->CopyData(0, mShadowPassCB);
+				light->lightResource[Scene::scene->frameResourceManager.currFrameResourceIndex]->LightCB->CopyData(0, mShadowPassCB);
 			}
 		}
 	}
@@ -94,8 +106,13 @@ void LightResourceManager::AddGameObject(GameObject* gameObject, int layer)
 
 
 	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
-		lightData->frameResources.push_back(std::make_unique<FrameResource>(Graphics::Instance()->device.Get(), 1));
-
+	{
+		auto resource = std::make_unique<LightResource>();
+		
+		resource->LightCB = std::make_unique<UploadBuffer<LightConstants>>(Graphics::Instance()->device.Get(), 1, true);
+		
+		lightData->lightResource.push_back(std::move(resource));
+	}
 
 	lightObjects[layer].push_back(lightData);
 }
