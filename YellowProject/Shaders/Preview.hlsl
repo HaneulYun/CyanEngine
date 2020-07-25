@@ -65,10 +65,10 @@ float4 PS(PSInput input) : SV_TARGET
 	float4 ambient = gAmbientLight * diffuseAlbedo;
 
 
-	float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
-	shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
-	const float shininess = 1.0f - roughness;
-	Material mat = { diffuseAlbedo, fresnelR0, shininess };
+	//float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
+	//shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+	//const float shininess = 1.0f - roughness;
+	//Material mat = { diffuseAlbedo, fresnelR0, shininess };
 
 	//float4 directLight = ComputeLighting(gLights, mat, input.PosW,
 	//	input.NormalW, toEyeW, shadowFactor);

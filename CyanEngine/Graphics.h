@@ -2,6 +2,8 @@
 
 #include "ShadowMap.h"
 
+class LightData;
+
 class Graphics : public Singleton<Graphics>
 {
 public:
@@ -63,7 +65,7 @@ public:
 	void Initialize();
 
 	void PreRender();
-	void RenderShadowMap();
+	void RenderShadowMap(LightData* lightData);
 	void Render();
 	void RenderObjects(int layerIndex, bool isShadowMap = false);
 	void RenderUI();

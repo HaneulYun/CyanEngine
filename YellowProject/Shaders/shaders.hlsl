@@ -101,6 +101,7 @@ MRT_VSOutput PS(PSInput input)
 
 	MRT_VSOutput result;
 	result.Diffuse = diffuseAlbedo;
+	result.Diffuse.w = length(gEyePosW - input.PosW);
 	result.Normal = float4(input.NormalW, 1);
 
 	if (normalTexIndex != -1)

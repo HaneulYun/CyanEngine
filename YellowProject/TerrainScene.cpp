@@ -146,7 +146,7 @@ void TerrainScene::BuildObjects()
 		light->Strength = { 0.9f, 0.8f, 0.7f };
 		light->shadowType = Light::Shadows;
 
-		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.1);
+		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.05);
 	}
 
 	//GameObject* pointLight0 = CreateEmpty();

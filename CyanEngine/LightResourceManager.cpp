@@ -7,23 +7,16 @@ void LightResourceManager::Update()
 	{
 		for (auto light : lightObjects[i])
 		{
+			if (light->gameObject->GetComponent<Light>()->shadowType == Light::ShadowType::NoShadows)
+				continue;
 			auto gameObject = light->gameObject;
 			auto& shadowMap = light->shadowMap;
 
 			auto camera = Camera::main;
 
-			// Only the first "main" light casts a shadow.
 			Vector3 lightDir = gameObject->transform->forward;
-			Vector3 lightPos = gameObject->transform->position + camera->gameObject->transform->position;
-			Vector3 targetPos = lightPos + lightDir * 1;
-
-			Vector3 lightUp{ 0.0f, 1.0f, 0.0f };
-			Matrix4x4 lightView = Matrix4x4::MatrixLookAtLH(lightPos, targetPos, lightUp);
-
-			Vector3 lightPosW = lightPos;
-
-			// Transform bounding sphere to light space.
-			Vector3 targetPosC = targetPos.TransformCoord(lightView);
+			Vector3 targetPosC;
+			Vector3 lightPosW;
 
 			LightConstants mShadowPassCB;
 			for (int i = 0; i < 4; ++i)
@@ -31,18 +24,27 @@ void LightResourceManager::Update()
 				int range;
 				switch (i)
 				{
-				case 0: range = 200; break;
+				case 0: range = 10; break;
 				case 1: range = 50; break;
 				case 2: range = 100; break;
 				case 3: range = 200; break;
 				}
+
+				Vector3 targetPos = camera->gameObject->transform->position;
+				Vector3 lightPos = targetPos - lightDir * range;
+				Vector3 lightUp{ 0.0f, 1.0f, 0.0f };
+
+				lightPosW = lightPos;
+
+				Matrix4x4 lightView = Matrix4x4::MatrixLookAtLH(lightPos, targetPos, lightUp);
+				targetPosC = targetPos.TransformCoord(lightView);
+
 				float l = targetPosC.x - range;
 				float r = targetPosC.x + range;
 				float b = targetPosC.y - range;
 				float t = targetPosC.y + range;
 				float n = -1;
 				float f = range * 2 - 1;
-
 				Matrix4x4 lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(l, r, b, t, n, f);
 
 				// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
@@ -54,6 +56,7 @@ void LightResourceManager::Update()
 
 				Matrix4x4 S = lightView * lightProj * T;
 				light->shadowTransform[i] = S.Transpose();
+				mShadowPassCB.ViewProjS[i] = S.Transpose();
 
 				Matrix4x4 viewProj = lightView * lightProj;
 				mShadowPassCB.ViewProj[i] = viewProj.Transpose();
@@ -62,6 +65,22 @@ void LightResourceManager::Update()
 			{
 				UINT w = shadowMap[0]->Width();
 				UINT h = shadowMap[0]->Height();
+
+				mShadowPassCB.CameraProj = Scene::scene->camera->projection.Transpose();
+				{
+					auto matrix = Scene::scene->camera->gameObject->GetMatrix();
+					auto vLookAt = matrix.position + Vector3::Normalize(matrix.forward);
+
+					Vector3 pos = matrix.position;
+					Vector3 lookAt = vLookAt;;
+					Vector3 up{ 0, 1, 0 };
+					Matrix4x4 view = Matrix4x4::MatrixLookAtLH(pos, lookAt, up);
+
+					mShadowPassCB.CameraView = view.Transpose();
+					mShadowPassCB.CameraInvView = view.Inverse().Transpose();
+					mShadowPassCB.CameraEyePosW = matrix.position;
+				}
+				mShadowPassCB.CountShadowMap = 4;
 
 				mShadowPassCB.EyePosW = lightPosW;
 				mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);

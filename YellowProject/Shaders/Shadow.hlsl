@@ -1,6 +1,11 @@
 #include "cbLight.hlsl"
 #include "common.hlsl"
 
+cbuffer ShadowMapIndex : register(b1)
+{
+	uint gShadowMapIndex;
+};
+
 struct VSInput
 {
 	float3 PosL		: POSITION;
@@ -44,7 +49,7 @@ PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 	vin.PosL = posL;
 #endif
 	vout.PosW = mul(float4(vin.PosL, 1.0f), world).xyz;
-	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj);
+	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj[gShadowMapIndex]);
 
 	return vout;
 }

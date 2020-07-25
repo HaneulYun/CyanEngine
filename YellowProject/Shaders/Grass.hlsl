@@ -147,6 +147,8 @@ MRT_VSOutput PS(PSInput pin)
 
 	MRT_VSOutput result;
 	result.Diffuse = diffuseAlbedo;
+	result.Diffuse.w = length(gEyePosW - pin.PosW);
+
 	result.Normal = float4(pin.NormalW, 1);
 
 	return result;

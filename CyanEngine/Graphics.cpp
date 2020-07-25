@@ -22,32 +22,32 @@ void Graphics::PreRender()
 	commandList->SetGraphicsRootSignature(rootSignature.Get());
 }
 
-void Graphics::RenderShadowMap()
+void Graphics::RenderShadowMap(LightData* lightData)
 {
-	FrameResource* currFrameResource = Scene::scene->frameResourceManager.currFrameResource;
-	auto lights = Scene::scene->lightResourceManager.lightObjects[0];
-	if (!lights.size())
-		return;
-
-	ShadowMap* shadowMap = lights[0]->shadowMap[0].get();
-	auto pass = lights[0]->lightResource[Scene::scene->frameResourceManager.currFrameResourceIndex].get()->LightCB->Resource()->GetGPUVirtualAddress();
-
-	commandList->RSSetViewports(1, &shadowMap->Viewport());
-	commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
-	
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-	
-	commandList->ClearDepthStencilView(shadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-	commandList->OMSetRenderTargets(0, nullptr, false, &shadowMap->Dsv());
-
+	auto pass = lightData->lightResource[Scene::scene->frameResourceManager.currFrameResourceIndex].get()->LightCB->Resource()->GetGPUVirtualAddress();
 	commandList->SetGraphicsRootConstantBufferView(4, pass);
-	
-	commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
-	
-	for (auto layer : { RenderLayer::Opaque, RenderLayer::SkinnedOpaque, })
-		RenderObjects((int)layer, true);
 
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+	commandList->SetPipelineState(pipelineStates["shadow_opaque"].Get());
+	for (int i = 0; i < 4; ++i)
+	{
+		ShadowMap* shadowMap = lightData->shadowMap[i].get();
+
+		commandList->RSSetViewports(1, &shadowMap->Viewport());
+		commandList->RSSetScissorRects(1, &shadowMap->ScissorRect());
+
+		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
+		commandList->ClearDepthStencilView(shadowMap->Dsv(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		commandList->OMSetRenderTargets(0, nullptr, false, &shadowMap->Dsv());
+
+		unsigned int shadowMapIndex = i;
+		commandList->SetGraphicsRoot32BitConstants(8, 1, &shadowMapIndex, 0);
+
+		for (auto layer : { RenderLayer::Opaque, RenderLayer::SkinnedOpaque, })
+			RenderObjects((int)layer, true);
+
+		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(shadowMap->Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+	}
 }
 
 void Graphics::Render()
@@ -115,31 +115,20 @@ void Graphics::Render()
 	{
 		for (auto light : Scene::scene->lightResourceManager.lightObjects[lightType])
 		{
+
+			if (light->gameObject->GetComponent<Light>()->shadowType)
+				RenderShadowMap(light);
+
+			D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ heapManager.GetRtv(4), heapManager.GetRtv(5) };
+			commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
+			commandList->RSSetViewports(1, &viewport);
+			commandList->RSSetScissorRects(1, &scissorRect);
+
 			auto gameObject = light->gameObject;
 			Matrix4x4 worldMatrix = gameObject->GetMatrix();
 			PassLight l = PassLight{ gameObject->GetComponent<Light>()->get(worldMatrix.forward, worldMatrix.position) };
 			commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
-
-			if (light->gameObject->GetComponent<Light>()->shadowType)
-			{
-				RenderShadowMap();
-				Matrix4x4 shadowMatrix{ light->shadowTransform[0] };
-				commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(15));
-				commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
-			}
-			else
-			{
-				Matrix4x4 shadowMatrix;
-				shadowMatrix.m[3][3] = 0;
-				commandList->SetGraphicsRoot32BitConstants(10, 16, &shadowMatrix, 0);
-			}
-
-			D3D12_CPU_DESCRIPTOR_HANDLE mrt[]{ heapManager.GetRtv(4), heapManager.GetRtv(5) };
-			commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, nullptr);
-			commandList->SetGraphicsRootConstantBufferView(4, passCB->GetGPUVirtualAddress());
-			commandList->RSSetViewports(1, &viewport);
-			commandList->RSSetScissorRects(1, &scissorRect);
-
+			commandList->SetGraphicsRootDescriptorTable(9, GetSrvGpu(15));
 
 			switch (lightType)
 			{
@@ -162,6 +151,8 @@ void Graphics::Render()
 		}
 	}
 
+	commandList->SetGraphicsRootConstantBufferView(4, passCB->GetGPUVirtualAddress());
+
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 	
 	const float clearColor[]{ 0.1921569, 0.3019608, 0.4745098, 1.0f };
@@ -176,7 +167,7 @@ void Graphics::Render()
 	{
 		commandList->SetPipelineState(pipelineStates["debug"].Get());
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-		commandList->DrawInstanced(4, 6, 0, 0);
+		commandList->DrawInstanced(4, 10, 0, 0);
 	}
 
 	for (auto layer : { RenderLayer::UI })
@@ -613,10 +604,10 @@ void Graphics::LoadAssets()
 	texTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 16, 1, 2, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable3;
-	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 3, 0);
+	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0, 3, 0);
 
 
-	CD3DX12_ROOT_PARAMETER rootParameters[11];
+	CD3DX12_ROOT_PARAMETER rootParameters[10];
 	rootParameters[0].InitAsShaderResourceView(0);
 	rootParameters[1].InitAsShaderResourceView(1);
 	rootParameters[2].InitAsShaderResourceView(2);
@@ -627,7 +618,6 @@ void Graphics::LoadAssets()
 	rootParameters[7].InitAsShaderResourceView(0, 2);
 	rootParameters[8].InitAsConstants(16, 1);
 	rootParameters[9].InitAsDescriptorTable(1, &texTable3, D3D12_SHADER_VISIBILITY_PIXEL);
-	rootParameters[10].InitAsConstants(16, 2);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplers[]
 	{

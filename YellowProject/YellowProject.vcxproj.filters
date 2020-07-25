@@ -170,9 +170,6 @@
     <FxCompile Include="Shaders\shadow.hlsl">
       <Filter>Assets\Shaders\2_Shadow</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\light.hlsl">
-      <Filter>Assets\Shaders\3_Light</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\lightingUtil.hlsl">
       <Filter>Assets\Shaders\0_Common</Filter>
     </FxCompile>
@@ -181,6 +178,9 @@
     </FxCompile>
     <FxCompile Include="cbLight.hlsl">
       <Filter>Assets\Shaders\0_Common</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\light.hlsl">
+      <Filter>Assets\Shaders\3_Light</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

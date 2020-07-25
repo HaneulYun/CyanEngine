@@ -12,10 +12,14 @@ VertexOut VS(uint nVertexID : SV_VertexID, uint nInstanceID : SV_InstanceID)
 {
 	VertexOut vout = (VertexOut)0.0f;
 
-    if (nVertexID == 0) vout.PosH = float4(-1.0 + (nInstanceID / 4) * 0.5, 0.5 - (nInstanceID % 4) * 0.5, 0.0, 1.0);
-    if (nVertexID == 1) vout.PosH = float4(-1.0 + (nInstanceID / 4) * 0.5, 1.0 - (nInstanceID % 4) * 0.5, 0.0, 1.0);
-    if (nVertexID == 2) vout.PosH = float4(-0.5 + (nInstanceID / 4) * 0.5, 0.5 - (nInstanceID % 4) * 0.5, 0.0, 1.0);
-    if (nVertexID == 3) vout.PosH = float4(-0.5 + (nInstanceID / 4) * 0.5, 1.0 - (nInstanceID % 4) * 0.5, 0.0, 1.0);
+    uint index = nInstanceID;
+    if (index > 5)
+        index += 6;
+
+    if (nVertexID == 0) vout.PosH = float4(-1.0 + (index / 4) * 0.5, 0.5 - (index % 4) * 0.5, 0.0, 1.0);
+    if (nVertexID == 1) vout.PosH = float4(-1.0 + (index / 4) * 0.5, 1.0 - (index % 4) * 0.5, 0.0, 1.0);
+    if (nVertexID == 2) vout.PosH = float4(-0.5 + (index / 4) * 0.5, 0.5 - (index % 4) * 0.5, 0.0, 1.0);
+    if (nVertexID == 3) vout.PosH = float4(-0.5 + (index / 4) * 0.5, 1.0 - (index % 4) * 0.5, 0.0, 1.0);
 
     if (nVertexID == 0) vout.TexC = float2(0, 1);
     if (nVertexID == 1) vout.TexC = float2(0, 0);
@@ -45,7 +49,16 @@ float4 PS(VertexOut pin) : SV_Target
         return float4(gBufferMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
     if(pin.InstID == 4)
         return float4(gBufferMap[pin.InstID].Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
-    if(pin.InstID == 5)
-        return float4(gShadowMap.Sample(gsamLinearWrap, pin.TexC).rgb, 1.0f);
+    if (pin.InstID == 5)
+    {
+        float distance = gBufferMap[1].Sample(gsamLinearWrap, pin.TexC).w;
+        if (distance < 10) return float4(1, 0, 0, 1);
+        if (distance < 50) return float4(0, 1, 0, 1);
+        if (distance < 100) return float4(0, 0, 1, 1);
+        if (distance < 200) return float4(0, 0, 0, 1);
+        return float4(1, 1, 1, 1);
+    }
+    if(pin.InstID > 5)
+        return float4(gShadowMap[pin.InstID-6].Sample(gsamLinearWrap, pin.TexC).rrr, 1.0f);
     return float4(0, 0, 0, 1);
 }
