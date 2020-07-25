@@ -249,6 +249,7 @@ MRT_VSOutput PS(PSInput input)
 	}
 
 	uint index;
+	input.TexC.xy = input.TexC.xy * float2(0.5, -0.5) + float2(0.5, 0.5);
 	float distance = gBufferMap[1].Sample(gsamLinearWrap, input.TexC).w;
 	if (distance < 10) index = 0;
 	else if (distance < 50) index = 1;
@@ -261,7 +262,7 @@ MRT_VSOutput PS(PSInput input)
 	float4 shadowPosH;
 	if (gCountShadowMap && index < 4)
 	{
-		shadowPosH = mul(float4(position, 1), gViewProjS[3]);
+		shadowPosH = mul(float4(position, 1), gViewProjS[index]);
 		shadowFactor = CalcShadowFactor(shadowPosH, index);
 	}
 
