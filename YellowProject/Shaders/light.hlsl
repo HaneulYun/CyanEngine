@@ -257,18 +257,22 @@ MRT_VSOutput PS(PSInput input)
 	else if (distance < 200) index = 3;
 	else index = 4;
 		
-
-	float shadowFactor = 1;
+	float lightFactor = 1;
 	float4 shadowPosH;
 	if (gCountShadowMap && index < 4)
 	{
 		shadowPosH = mul(float4(position, 1), gViewProjS[index]);
-		shadowFactor = CalcShadowFactor(shadowPosH, index);
+		float shadowFactor = 1 - CalcShadowFactor(shadowPosH, index);
+		if (index == 3)
+		{
+			shadowFactor *= 1 - (distance - 150) * 0.02;
+		}
+		lightFactor -= shadowFactor;
 	}
 
 	MRT_VSOutput result;
-	result.Diffuse = diffuse * shadowFactor;
-	result.Specular = specular * shadowFactor;
+	result.Diffuse = diffuse * lightFactor;
+	result.Specular = specular * lightFactor;
 
 	return result;
 }

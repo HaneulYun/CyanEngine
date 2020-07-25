@@ -149,6 +149,14 @@ void TerrainScene::BuildObjects()
 		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.05);
 	}
 
+	auto cubeObject = CreateEmpty();
+	{
+		cubeObject->transform->position = { 512, 50, 512 };
+		cubeObject->transform->Scale({400, 10, 400});
+		cubeObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
+		cubeObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
+	}
+
 	//GameObject* pointLight0 = CreateEmpty();
 	//{
 	//	pointLight0->GetComponent<Transform>()->position = { 540, 27, 540 };
