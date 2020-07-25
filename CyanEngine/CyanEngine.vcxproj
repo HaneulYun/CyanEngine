@@ -194,9 +194,12 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="HeapManager.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="LightResource.h" />
+    <ClInclude Include="LightResourceManager.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="Matrix4x4.h" />
@@ -247,12 +250,13 @@
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DetailPrototype.cpp" />
     <ClCompile Include="FbxLoader.cpp" />
-    <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="FrameResourceManager.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="HeapManager.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LightResourceManager.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshFilter.cpp" />

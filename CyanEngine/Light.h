@@ -15,8 +15,11 @@ struct PassLight
 class Light : public MonoBehavior<Light>
 {
 public:
-	enum class Type { Directional, Point, Spot };
-	Type type{ Type::Directional };
+	enum Type { Directional, Point, Spot, Count };
+	Type type{ Directional };
+
+	enum ShadowType { NoShadows, Shadows };// HardShadows, SoftShadows};
+	ShadowType shadowType{ NoShadows };
 
 	Vector3 Strength{ 0.5f, 0.5f, 0.5f };
 	float FalloffStart{ 1.0f };

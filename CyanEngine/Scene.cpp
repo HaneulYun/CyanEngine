@@ -5,7 +5,6 @@ Scene* Scene::scene{ nullptr };
 
 Scene::Scene()
 {
-	frameResourceManager.scene = this;
 }
 
 Scene::~Scene()
@@ -33,6 +32,7 @@ void Scene::Update()
 	}
 
 	objectRenderManager.Update();
+	lightResourceManager.Update();
 
 	// fixed update
 	//Collider *lhs_collider, *rhs_collider;

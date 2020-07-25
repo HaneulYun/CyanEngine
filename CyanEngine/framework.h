@@ -131,6 +131,9 @@ using Microsoft::WRL::ComPtr;
 
 #include "AssetResource.h"
 #include "ObjectResource.h"
+#include "LightResource.h"
+
+#include "HeapManager.h"
 #include "Graphics.h"
 
 #include "QuadNode.h"
@@ -140,6 +143,7 @@ using Microsoft::WRL::ComPtr;
 #include "AssetManager.h"
 #include "ObjectRenderManager.h"
 #include "FrameResourceManager.h"
+#include "LightResourceManager.h"
 #include "Scene.h"
 
 #include "SceneManager.h"

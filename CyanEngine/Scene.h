@@ -16,6 +16,8 @@ public:
 
 public:
 	FrameResourceManager frameResourceManager;
+	LightResourceManager lightResourceManager;
+	
 
 public:
 	static Scene* scene;

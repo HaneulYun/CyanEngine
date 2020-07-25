@@ -1,3 +1,4 @@
+#include "cbLight.hlsl"
 #include "common.hlsl"
 
 cbuffer LightDirection : register(b1)
@@ -20,11 +21,8 @@ struct PSInput
 
 struct MRT_VSOutput
 {
-	float4 Color : SV_TARGET0;
-	float4 Diffuse : SV_TARGET1;
-	float4 Normal : SV_TARGET2;
-	float4 LDiffuse : SV_TARGET3;
-	float4 Specular : SV_TARGET4;
+	float4 Diffuse : SV_TARGET0;
+	float4 Specular : SV_TARGET1;
 };
 
 struct SURFACE_DATA
@@ -43,7 +41,7 @@ SURFACE_DATA UnpackGBuffer(int2 location)
 	int3 location3 = int3(location, 0);
 
 	float depth = gBufferMap[0].Load(location3).r;
-	Out.LinearDepth = gProj[3][2] / (depth - gProj[2][2]);
+	Out.LinearDepth = gCameraProj[3][2] / (depth - gCameraProj[2][2]);
 
 	Out.Color = gBufferMap[1].Load(location3).xyz;
 	Out.Normal = gBufferMap[2].Load(location3).xyz;
@@ -53,10 +51,10 @@ SURFACE_DATA UnpackGBuffer(int2 location)
 
 float3 CalcWorldPos(float2 csPos, float linearDepth)
 {
-	float2 values = float2(1 / gProj[0][0], 1 / gProj[1][1]);
+	float2 values = float2(1 / gCameraProj[0][0], 1 / gCameraProj[1][1]);
 	float4 position = float4(csPos.xy * values.xy * linearDepth, linearDepth, 1);
 
-	return mul(position, gInvView).xyz;
+	return mul(position, gCameraInvView).xyz;
 }
 
 static const float2 arrPos[4] = {
@@ -134,7 +132,7 @@ PSInput DS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DomainLocation, const O
 	float4 posLS = float4(normDir.xyz, 1.0);
 
 	float range = FalloffEnd;
-	float4x4 M = transpose(gView);
+	float4x4 M = transpose(gCameraView);
 	M[0] = M[0] * float4((float3)range, 0);
 	M[1] = M[1] * float4((float3)range, 0);
 	M[2] = -M[2] * float4((float3)range, 0);
@@ -142,7 +140,7 @@ PSInput DS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DomainLocation, const O
 
 	PSInput output;
 
-	output.PosH = mul(mul(mul(posLS, M), gView), gProj);
+	output.PosH = mul(mul(mul(posLS, M), gCameraView), gCameraProj);
 	output.TexC = output.PosH.xy / output.PosH.w;
 
 	return output;
@@ -182,7 +180,7 @@ PSInput spotDS(HS_CONSTANT_DATA_OUTPUT input, float2 UV : SV_DomainLocation, con
 
 	PSInput output;
 
-	output.PosH = mul(mul(mul(posLS, M), gView), gProj);
+	output.PosH = mul(mul(mul(posLS, M), gCameraView), gCameraProj);
 	output.TexC = output.PosH.xy / output.PosH.w;
 
 	return output;
@@ -217,7 +215,7 @@ MRT_VSOutput PS(PSInput input)
 	float4 diffuse = float4(S, 1) * ndotl;
 
 	// specular light
-	float3 toEyeW = normalize(gEyePosW - position);
+	float3 toEyeW = normalize(gCameraEyePosW - position);
 	float3 halfWay = normalize(toEyeW + -L);
 	float ndoth = saturate(dot(halfWay, gbd.Normal));
 	float4 specular = float4(S, 1) * pow(ndoth, 5) * 0.2;
@@ -250,9 +248,35 @@ MRT_VSOutput PS(PSInput input)
 		specular *= att;
 	}
 
+	float lightFactor = 1;
+	uint index;
+	if (Type == 0)
+	{
+		input.TexC.xy = input.TexC.xy * float2(0.5, -0.5) + float2(0.5, 0.5);
+		float distance = gBufferMap[1].Sample(gsamLinearWrap, input.TexC).w;
+		if (distance < 10) index = 0;
+		else if (distance < 50) index = 1;
+		else if (distance < 100) index = 2;
+		else if (distance < 200) index = 3;
+		else index = 4;
+
+		float4 shadowPosH;
+		if (index < gCountShadowMap)
+		{
+			shadowPosH = mul(float4(position, 1), gViewProjS[index]);
+			float shadowFactor = 1 - CalcShadowFactor(shadowPosH, index);
+			if (index == 3)
+			{
+				shadowFactor *= 1 - (distance - 150) * 0.02;
+			}
+			lightFactor -= shadowFactor;
+		}
+		lightFactor = saturate(lightFactor);
+	}
+
 	MRT_VSOutput result;
-	result.LDiffuse = float4(gBufferMap[3].Load(location).rgb, 1.0f) + diffuse;
-	result.Specular = float4(gBufferMap[4].Load(location).rgb, 1.0f) + specular;
+	result.Diffuse = diffuse * lightFactor;
+	result.Specular = specular * lightFactor;
 
 	return result;
 }

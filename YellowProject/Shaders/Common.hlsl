@@ -1,15 +1,3 @@
-#ifndef NUM_DIR_LIGHTS
-#define NUM_DIR_LIGHTS 3
-#endif
-
-#ifndef NUM_POINT_LIGHTS
-#define NUM_POINT_LIGHTS 0
-#endif
-
-#ifndef NUM_SPOT_LIGHTS
-#define NUM_SPOT_LIGHTS 0
-#endif
-
 #include "lightingUtil.hlsl"
 
 struct InstanceData
@@ -52,7 +40,7 @@ StructuredBuffer<MaterialData> gMaterialData : register(t0, space2);
 
 TextureCube gCubeMap : register(t0, space1);
 Texture2D gBufferMap[7] : register(t1, space1);
-Texture2D gShadowMap : register(t0, space3);
+Texture2D gShadowMap[4] : register(t0, space3);
 
 Texture2D gDiffuseMap[16] : register(t1, space2);
 
@@ -64,31 +52,7 @@ SamplerState gsamAnisotropicWrap  : register(s4);
 SamplerState gsamAnisotropicClamp : register(s5);
 SamplerComparisonState gsamShadow : register(s6);
 
-cbuffer cbPass : register(b0)
-{
-	float4x4 gView;
-	float4x4 gInvView;
-	float4x4 gProj;
-	float4x4 gInvProj;
-	float4x4 gViewProj;
-	float4x4 gInvViewProj;
-	float4x4 gShadowTransform;
-
-	float3 gEyePosW;
-	float  cbPerObjectPad1;
-	float2 gRenderTargetSize;
-	float2 gInvRenderTargetSize;
-
-	float gNearZ;
-	float gFarZ;
-	float gTotalTime;
-	float gDeltaTime;
-
-	float4 gAmbientLight;
-	Light gLights[MaxLights];
-};
-
-float CalcShadowFactor(float4 shadowPosH)
+float CalcShadowFactor(float4 shadowPosH, int index)
 {
 	// Complete projection by doing division by w.
 	shadowPosH.xyz /= shadowPosH.w;
@@ -97,7 +61,7 @@ float CalcShadowFactor(float4 shadowPosH)
 	float depth = shadowPosH.z;
 
 	uint width, height, numMips;
-	gShadowMap.GetDimensions(0, width, height, numMips);
+	gShadowMap[index].GetDimensions(0, width, height, numMips);
 
 	// Texel size.
 	float dx = 1.0f / (float)width;
@@ -113,7 +77,7 @@ float CalcShadowFactor(float4 shadowPosH)
 	[unroll]
 	for (int i = 0; i < 9; ++i)
 	{
-		percentLit += gShadowMap.SampleCmpLevelZero(gsamShadow,
+		percentLit += gShadowMap[index].SampleCmpLevelZero(gsamShadow,
 			shadowPosH.xy + offsets[i], depth).r;
 	}
 

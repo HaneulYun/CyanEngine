@@ -10,7 +10,7 @@ struct PassConstants
 	Matrix4x4	InvProj;
 	Matrix4x4	ViewProj;
 	Matrix4x4	InvViewProj;
-	Matrix4x4	ShadowTransform;
+
     Vector3		EyePosW { 0.0f, 0.0f, 0.0f };
 	float		cbPerObjectPad1{ 0.0f };
 	Vector2		RenderTargetSize{ 0.0f, 0.0f };
@@ -21,7 +21,6 @@ struct PassConstants
 	float		DeltaTime{ 0.0f };
 
 	XMFLOAT4	AmbientLight{ 0.0f, 0.0f, 0.0f, 1.0f };
-	PassLight	Lights[MaxLights]{};
 };
 
 struct FrameResource
@@ -53,7 +52,12 @@ struct FrameResource
 	};
 
 public:
-	FrameResource(ID3D12Device* device, UINT passCount);
+	FrameResource(ID3D12Device* device, UINT passCount)
+	{
+		ThrowIfFailed(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(CmdListAlloc.GetAddressOf())));
+
+		PassCB = std::make_unique<UploadBuffer<PassConstants>>(device, passCount, true);
+	}
 	FrameResource(const FrameResource&) = delete;
     FrameResource& operator=(const FrameResource&) = delete;
 	~FrameResource() = default;

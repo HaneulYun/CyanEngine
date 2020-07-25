@@ -2,6 +2,8 @@
 
 #include "ShadowMap.h"
 
+class LightData;
+
 class Graphics : public Singleton<Graphics>
 {
 public:
@@ -22,14 +24,17 @@ public:
 	ComPtr<IDXGISwapChain3> swapChain;
 	ComPtr<ID3D12Device> device;
 	ComPtr<ID3D12Resource> renderTargets[FrameCount];
+	ComPtr<ID3D12Resource> depthStencilBuffer;
 	ComPtr<ID3D12CommandAllocator> commandAllocator;
 	ComPtr<ID3D12CommandQueue> commandQueue;
 	
 	ComPtr<ID3D12RootSignature> rootSignature;
-	ComPtr<ID3D12DescriptorHeap> rtvHeap;
+	HeapManager heapManager;
+	//ComPtr<ID3D12DescriptorHeap> rtvHeap;
 	ComPtr<ID3D12DescriptorHeap> dsvHeap;
 	ComPtr<ID3D12DescriptorHeap> srvHeap;
 	ComPtr<ID3D12GraphicsCommandList> commandList;
+
 	UINT rtvDescriptorSize{ 0 };
 	UINT dsvDescriptorSize{ 0 };
 	union
@@ -50,24 +55,8 @@ private:
 	bool m_bMsaa4xEnable{ false };
 	UINT m_nMsaa4xQualityLevels{ 0 };
 
-	ID3D12Resource* m_pd3dDepthStencilBuffer{ nullptr };
-
-	Camera* m_pCamera{ nullptr };
-
 public:
 	bool isShadowDebug{ false };
-	bool isDeferredShader{ false };
-	/*shadow*/
-	std::unique_ptr<ShadowMap> shadowMap;
-	DirectX::BoundingSphere sceneBounds;
-	
-	float lightRotationAngle = 0.0f;
-	Vector3 baseLightDirections[3] = {
-		Vector3(0, -1, 0),
-		Vector3(-0.57735f, -0.57735f, 0.57735f),
-		Vector3(0.0f, -0.707f, -0.707f)
-	};
-	Vector3 rotatedLightDirections[3];
 
 public:
 	Graphics() {}
@@ -76,7 +65,7 @@ public:
 	void Initialize();
 
 	void PreRender();
-	void RenderShadowMap();
+	void RenderShadowMap(LightData* lightData);
 	void Render();
 	void RenderObjects(int layerIndex, bool isShadowMap = false);
 	void RenderUI();
@@ -87,8 +76,6 @@ public:
 	void InitDirect3D();
 	void InitDirect2D();
 	void LoadAssets();
-
-	void CreateDepthStencilView();
 
 	void ChangeSwapChainState();
 
@@ -102,7 +89,9 @@ public:
 	ComPtr<ID3D12Resource> lightDiffuse{ nullptr };
 	ComPtr<ID3D12Resource> lightSpecular{ nullptr };
 	void BuildResources();
-	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index) const;
-	CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index) const;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE GetRtv(int index) const;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetSrv(int index) const;
+	//CD3DX12_CPU_DESCRIPTOR_HANDLE GetRtv(int index) const;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetDsv(int index) const;
+
+	CD3DX12_GPU_DESCRIPTOR_HANDLE GetSrvGpu(int index) const;
 };

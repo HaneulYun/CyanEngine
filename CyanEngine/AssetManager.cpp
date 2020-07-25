@@ -3,7 +3,7 @@
 
 void AssetManager::Update()
 {
-	auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart());
+	auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE();
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -15,7 +15,7 @@ void AssetManager::Update()
 		if (texture->Resource)
 			continue;
 
-		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), texture->Index, Graphics::Instance()->srvDescriptorSize);
+		handle.InitOffsetted(Graphics::Instance()->GetSrv(20), texture->Index, Graphics::Instance()->srvDescriptorSize);
 		CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), texture->Filename.c_str(), texture->Resource, texture->UploadHeap);
 		srvDesc.Format = texture->Resource->GetDesc().Format;
 		srvDesc.Texture2D.MipLevels = texture->Resource->GetDesc().MipLevels;
@@ -33,7 +33,7 @@ void AssetManager::Update()
 			skyTex->Index = 19;
 		}
 
-		handle.InitOffsetted(Graphics::Instance()->srvHeap->GetCPUDescriptorHandleForHeapStart(), 19, Graphics::Instance()->srvDescriptorSize);
+		handle.InitOffsetted(Graphics::Instance()->GetSrv(10), 0, Graphics::Instance()->srvDescriptorSize);
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 		srvDesc.TextureCube.MostDetailedMip = 0;
 		srvDesc.TextureCube.MipLevels = skyTex->Resource->GetDesc().MipLevels;
