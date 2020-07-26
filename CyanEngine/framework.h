@@ -32,7 +32,7 @@
 
 #include <fbxsdk.h>
 
-#include <fmod.h>
+#include <fmod.hpp>
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -49,7 +49,7 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "libxml2-md.lib")
 #pragma comment(lib, "zlib-md.lib")
 
-//#pragma comment(lib, "fmodex_vc.lib")
+#pragma comment(lib, "fmod64_vc.lib")
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
