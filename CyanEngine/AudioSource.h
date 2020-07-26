@@ -5,6 +5,7 @@ class AudioSource : public MonoBehavior<AudioSource>
 private:
 
 public:
+	AudioClip* clip{ nullptr };
 	FMOD::Channel* channel{ nullptr };
 
 protected:
@@ -18,9 +19,6 @@ public:
 
 	void Start()
 	{
-	}
-
-	void Update()
-	{
+		AudioManager::Instance()->system->playSound(clip->sound, nullptr, 0, &channel);
 	}
 };

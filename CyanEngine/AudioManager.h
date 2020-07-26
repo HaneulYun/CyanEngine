@@ -3,6 +3,7 @@
 struct AudioClip
 {
 	std::string name;
+	std::string path;
 	FMOD::Sound* sound{ nullptr };
 };
 
@@ -13,11 +14,10 @@ struct AudioMixerGroup
 
 class AudioManager : public Singleton<AudioManager>
 {
+public:
 	FMOD::System* system{ nullptr };
 
 	FMOD::ChannelGroup* groupMaster{ nullptr };
-	std::map<std::string, AudioMixerGroup*> mixerGroups;
-	std::map<std::string, AudioClip*> clips;
 
 public:
 	AudioManager();
@@ -25,6 +25,6 @@ public:
 
 	void update();
 
-	void AddGroup(std::string name);
-	void AddSound(std::string name, std::string path);
+	void CreateGroup(AudioClip* outputAudioMixerGroup);
+	void CreateSound(AudioClip* clip);
 };

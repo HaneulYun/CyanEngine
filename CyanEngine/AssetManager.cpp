@@ -93,6 +93,19 @@ void AssetManager::AddPrefab(std::string name, std::unique_ptr<GameObject> prefa
 	AssetManager::Instance()->prefabs[name] = std::move(prefab);
 }
 
+void AssetManager::AddAudioClip(std::string name, std::string path)
+{
+	if (AssetManager::Instance()->audioClips.find(name) != AssetManager::Instance()->audioClips.end())
+		return;
+
+	auto clip = std::make_unique<AudioClip>();
+	clip->name = "testSound";
+	clip->path = "Assets\\FootstepSound\\Grass\\test.mp3";
+	AudioManager::Instance()->CreateSound(clip.get());
+
+	AssetManager::Instance()->audioClips[name] = std::move(clip);
+}
+
 void AssetManager::AddFbxForMesh(std::string name, std::string fileNmae)
 {
 	FbxModelData data;
@@ -126,6 +139,13 @@ Material* AssetManager::GetMaterial(std::string name)
 	if (auto iter = materials.find(name); iter == materials.end())
 		return nullptr;
 	return materials[name].get();
+}
+
+AudioClip* AssetManager::GetAudioClip(std::string name)
+{
+	if (auto iter = audioClips.find(name); iter == audioClips.end())
+		return nullptr;
+	return audioClips[name].get();
 }
 
 GameObject* AssetManager::GetPrefab(std::string name)

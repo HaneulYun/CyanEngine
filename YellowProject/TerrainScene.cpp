@@ -132,11 +132,14 @@ void TerrainScene::BuildObjects()
 
 	///*** Game Object ***///
 
+	ASSET AddAudioClip("testSound", "Assets\\FootstepSound\\Grass\\test.mp3");
+
 	GameObject* mainCamera = CreateEmpty();
 	{
 		mainCamera->transform->position = { 1024 * 0.5, 50, 1024 * 0.4 };
 		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
+		mainCamera->AddComponent<AudioSource>()->clip = ASSET AUDIO_CLIP("testSound");
 	}
 
 	auto directionalLight = CreateEmpty();
