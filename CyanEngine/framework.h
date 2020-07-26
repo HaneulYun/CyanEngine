@@ -134,6 +134,7 @@ using Microsoft::WRL::ComPtr;
 
 #include "AudioManager.h"
 #include "AudioSource.h"
+#include "AudioListener.h"
 
 #include "FbxLoader.h"
 

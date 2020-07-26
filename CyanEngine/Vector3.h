@@ -90,6 +90,7 @@ struct Vector3
 	union
 	{
 		XMFLOAT3 xmf3;
+		FMOD_VECTOR fmodVector;
 		struct
 		{
 			float x;

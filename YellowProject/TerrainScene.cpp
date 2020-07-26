@@ -134,12 +134,21 @@ void TerrainScene::BuildObjects()
 
 	ASSET AddAudioClip("testSound", "Assets\\FootstepSound\\Grass\\test.mp3");
 
-	GameObject* mainCamera = CreateEmpty();
+	auto soundBox = CreateEmpty();
+	{
+		soundBox->transform->position = { 512, 35, 1024 * 0.45 };
+		soundBox->transform->Scale({10, 10, 10});
+		soundBox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
+		soundBox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
+		soundBox->AddComponent<AudioSource>()->clip = ASSET AUDIO_CLIP("testSound");
+	}
+
+	auto mainCamera = CreateEmpty();
 	{
 		mainCamera->transform->position = { 1024 * 0.5, 50, 1024 * 0.4 };
 		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
-		mainCamera->AddComponent<AudioSource>()->clip = ASSET AUDIO_CLIP("testSound");
+		mainCamera->AddComponent<AudioListener>();
 	}
 
 	auto directionalLight = CreateEmpty();

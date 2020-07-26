@@ -7,6 +7,7 @@ AudioManager::AudioManager()
 {
 	System_Create(&system);
 	system->init(64, FMOD_INIT_NORMAL, NULL);
+	system->set3DSettings(1, 1, 1);
 
 	system->getMasterChannelGroup(&groupMaster);
 }
@@ -28,5 +29,7 @@ void AudioManager::CreateGroup(AudioClip* outputAudioMixerGroup)
 
 void AudioManager::CreateSound(AudioClip* clip)
 {
-	system->createSound(clip->path.c_str(), FMOD_DEFAULT, 0, &clip->sound);
+	FMOD_MODE mode{};
+	mode = FMOD_3D;
+	system->createSound(clip->path.c_str(), mode, 0, &clip->sound);
 }

@@ -273,6 +273,9 @@
     <ClInclude Include="AudioSource.h">
       <Filter>0_00_CyanEngine\30_Core\37_AudioComponent</Filter>
     </ClInclude>
+    <ClInclude Include="AudioListener.h">
+      <Filter>0_00_CyanEngine\30_Core\37_AudioComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">

@@ -89,6 +89,9 @@ void CyanFW::OnFrameAdvance()
 		//}
 	}
 
+	AudioManager::Instance()->system->update();
+
+
 	graphics->Render();
 
 	Input::Update();

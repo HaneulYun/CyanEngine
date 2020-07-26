@@ -19,6 +19,13 @@ public:
 
 	void Start()
 	{
-		AudioManager::Instance()->system->playSound(clip->sound, nullptr, 0, &channel);
+		clip->sound->set3DMinMaxDistance(0.5, 100);
+
+		AudioManager::Instance()->system->playSound(clip->sound, nullptr, false, &channel);
+
+		Matrix4x4 matrix = gameObject->GetMatrix();
+		FMOD_VECTOR pos = matrix.position.fmodVector;
+		FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
+		channel->set3DAttributes(&pos, &vel);
 	}
 };
