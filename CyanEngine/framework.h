@@ -49,12 +49,15 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "libxml2-md.lib")
 #pragma comment(lib, "zlib-md.lib")
 
+#pragma comment(lib, "fmodex_vc.lib")
+
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "dxgi.lib")
+
 
 #define FRAME_BUFFER_WIDTH 1600
 #define FRAME_BUFFER_HEIGHT 900
@@ -80,6 +83,7 @@ using Microsoft::WRL::ComPtr;
 
 #include "Singleton.h"
 
+#include "AudioManager.h"
 
 #include "Debug.h"
 #include "Time.h"
