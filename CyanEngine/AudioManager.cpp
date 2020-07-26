@@ -10,11 +10,11 @@ AudioManager::AudioManager()
 
 	system->getMasterChannelGroup(&groupMaster);
 	
-	//AddGroup("groupTest");
-	//AddSound("soundTest", "test.mp3");
-	//
-	//Channel* channel;
-	//system->playSound(sounds["soundTest"], groups["groupTest"], 0, &channel);
+	AddGroup("groupTest");
+	AddSound("soundTest", "Assets\\FootstepSound\\Grass\\test.mp3");
+	
+	Channel* channel;
+	system->playSound(clips["soundTest"]->sound, nullptr, 0, &channel);
 }
 
 AudioManager::~AudioManager()
@@ -29,10 +29,13 @@ void AudioManager::update()
 
 void AudioManager::AddGroup(std::string name)
 {
-	system->createChannelGroup(name.c_str(), &groups[name]);
+	system->createChannelGroup(name.c_str(), &mixerGroups[name]->group);
 }
 
 void AudioManager::AddSound(std::string name, std::string path)
 {
-	system->createSound(path.c_str(), FMOD_DEFAULT, 0, &sounds[name]);
+	if (clips[name])
+		return;
+	clips[name] = new AudioClip();
+	system->createSound(path.c_str(), FMOD_DEFAULT, 0, &clips[name]->sound);
 }

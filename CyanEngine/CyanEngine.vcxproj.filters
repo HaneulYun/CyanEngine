@@ -73,6 +73,9 @@
     <Filter Include="0_00_CyanEngine\60_Math">
       <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\30_Core\37_AudioComponent">
+      <UniqueIdentifier>{c6d8ce0e-052a-45ea-b371-85d4869eec02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -266,6 +269,9 @@
     </ClInclude>
     <ClInclude Include="AudioManager.h">
       <Filter>0_00_CyanEngine\50_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSource.h">
+      <Filter>0_00_CyanEngine\30_Core\37_AudioComponent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

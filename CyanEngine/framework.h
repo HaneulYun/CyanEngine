@@ -83,7 +83,6 @@ using Microsoft::WRL::ComPtr;
 
 #include "Singleton.h"
 
-#include "AudioManager.h"
 
 #include "Debug.h"
 #include "Time.h"
@@ -132,6 +131,9 @@ using Microsoft::WRL::ComPtr;
 #include "FrameResource.h"
 #include "ParticleBundle.h"
 #include "ParticleSystem.h"
+
+#include "AudioManager.h"
+#include "AudioSource.h"
 
 #include "FbxLoader.h"
 

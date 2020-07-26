@@ -176,6 +176,7 @@
     <ClInclude Include="AssetManager.h" />
     <ClInclude Include="AssetResource.h" />
     <ClInclude Include="AudioManager.h" />
+    <ClInclude Include="AudioSource.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
