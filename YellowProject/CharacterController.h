@@ -11,7 +11,7 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	float speed = 0.0f;
 	float hori_speed = 0.0f;
 
-	bool isPlayer{ false };
+	bool isPlayer{ true };
 
 private:
 	friend class GameObject;
@@ -24,7 +24,7 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
-		anim = gameObject->GetComponent<Animator>();
+		anim = gameObject->children[0]->GetComponent<Animator>();
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
@@ -109,8 +109,8 @@ public:
 		}
 
 		gameObject->transform->position += Vector3(hori_speed, 0, speed) * Time::deltaTime;
-		anim->SetFloat("Speed", speed);
-		anim->SetFloat("HoriSpeed", hori_speed);
+		anim->SetFloat("VelocityX", speed);
+		anim->SetFloat("VelocityY", hori_speed);
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.

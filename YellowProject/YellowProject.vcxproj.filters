@@ -108,6 +108,9 @@
     <ClInclude Include="BuildingTypeSelector.h">
       <Filter>Assets\Scripts\Build</Filter>
     </ClInclude>
+    <ClInclude Include="CharacterScene.h">
+      <Filter>Assets\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
@@ -123,6 +126,9 @@
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="ParticleScene.cpp">
+      <Filter>Assets\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
   </ItemGroup>

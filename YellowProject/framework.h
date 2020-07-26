@@ -13,3 +13,4 @@
 #include "MenuScene.h"
 #include "TerrainScene.h"
 #include "ParticleScene.h"
+#include "CharacterScene.h"
