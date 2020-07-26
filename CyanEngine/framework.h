@@ -32,6 +32,8 @@
 
 #include <fbxsdk.h>
 
+#include <fmod.h>
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
