@@ -77,6 +77,22 @@ void CharacterScene::BuildObjects()
 		soundBox->AddComponent<AudioSource>()->clip = ASSET AUDIO_CLIP("testSound");
 	}
 
+	float TerrainSize = 1024;
+	GameObject* terrain = CreateEmpty();
+	auto terrainData = terrain->AddComponent<Terrain>();
+	{
+		{
+			terrainData->terrainData.AlphamapTextureName = L"Texture\\f5o3_1024.raw";
+			terrainData->terrainData.heightmapHeight = TerrainSize;
+			terrainData->terrainData.heightmapWidth = TerrainSize;
+
+			terrainData->terrainData.size = { TerrainSize, 255, TerrainSize };
+
+			terrainData->Set();
+		}
+		terrain->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("ground"));
+	}
+
 	auto player = CreateEmpty();
 	{
 		player->transform->position = { 512, 35, 1024 * 0.45 };
@@ -92,7 +108,7 @@ void CharacterScene::BuildObjects()
 			anim->TimePos = 0;
 		}
 
-		player->AddComponent<CharacterController>();
+		player->AddComponent<CharacterController>()->terrainData = &terrainData->terrainData;
 		auto mainCamera = player->AddChild();
 		{
 			mainCamera->transform->position = { 0, 2, -3 };
@@ -128,23 +144,6 @@ void CharacterScene::BuildObjects()
 		for (auto& sm : mesh->DrawArgs)
 			renderer->materials.push_back(ASSET MATERIAL("none"));
 		ritem->layer = (int)RenderLayer::Sky;
-	}
-
-	float TerrainSize = 1024;
-
-	GameObject* terrain = CreateEmpty();
-	auto terrainData = terrain->AddComponent<Terrain>();
-	{
-		{
-			terrainData->terrainData.AlphamapTextureName = L"Texture\\f5o3_1024.raw";
-			terrainData->terrainData.heightmapHeight = TerrainSize;
-			terrainData->terrainData.heightmapWidth = TerrainSize;
-
-			terrainData->terrainData.size = { TerrainSize, 255, TerrainSize };
-
-			terrainData->Set();
-		}
-		terrain->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("ground"));
 	}
 
 	auto terrainBottom = CreateEmpty();
