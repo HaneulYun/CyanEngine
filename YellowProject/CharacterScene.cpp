@@ -31,7 +31,8 @@ void CharacterScene::BuildObjects()
 
 	//*** AudioClip ***//
 	{
-		ASSET AddAudioClip("testSound", "Assets\\FootstepSound\\Grass\\test.mp3");
+		ASSET AddAudioClip("bgm", "Assets\\FootstepSound\\Grass\\test.mp3");
+		ASSET AddAudioClip("footstep", "Assets\\FootstepSound\\Grass\\grass_1.WAV");
 	}
 
 	//*** Animation ***//
@@ -74,7 +75,9 @@ void CharacterScene::BuildObjects()
 		soundBox->transform->Scale({ 10, 10, 10 });
 		soundBox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
 		soundBox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
-		soundBox->AddComponent<AudioSource>()->clip = ASSET AUDIO_CLIP("testSound");
+		auto audioSource = soundBox->AddComponent<AudioSource>();
+		audioSource->clip = ASSET AUDIO_CLIP("footstep");
+		audioSource->loop = true;
 	}
 
 	float TerrainSize = 1024;
@@ -106,6 +109,10 @@ void CharacterScene::BuildObjects()
 			anim->controller = controller;
 			anim->state = &controller->states["Idle"];
 			anim->TimePos = 0;
+
+			auto audioSource = model->AddComponent<AudioSource>();
+			audioSource->clip = ASSET AUDIO_CLIP("footstep");
+			audioSource->loop = true;
 		}
 
 		player->AddComponent<CharacterController>()->terrainData = &terrainData->terrainData;
@@ -131,7 +138,7 @@ void CharacterScene::BuildObjects()
 	auto cubeObject = CreateEmpty();
 	{
 		cubeObject->transform->position = { 512, 50, 512 };
-		cubeObject->transform->Scale({ 400, 10, 400 });
+		cubeObject->transform->Scale({ 200, 1, 200 });
 		cubeObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
 		cubeObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}

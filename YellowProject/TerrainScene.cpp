@@ -164,7 +164,7 @@ void TerrainScene::BuildObjects()
 	auto cubeObject = CreateEmpty();
 	{
 		cubeObject->transform->position = { 512, 50, 512 };
-		cubeObject->transform->Scale({400, 10, 400});
+		cubeObject->transform->Scale({200, 1, 200});
 		cubeObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
 		cubeObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}

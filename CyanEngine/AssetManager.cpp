@@ -99,8 +99,8 @@ void AssetManager::AddAudioClip(std::string name, std::string path)
 		return;
 
 	auto clip = std::make_unique<AudioClip>();
-	clip->name = "testSound";
-	clip->path = "Assets\\FootstepSound\\Grass\\test.mp3";
+	clip->name = name;
+	clip->path = path;
 	AudioManager::Instance()->CreateSound(clip.get());
 
 	AssetManager::Instance()->audioClips[name] = std::move(clip);
