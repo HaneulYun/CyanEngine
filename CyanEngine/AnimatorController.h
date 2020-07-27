@@ -110,7 +110,7 @@ public:
 	float GetClipEndTime(const AnimatorControllerState* state) const { return state->motion->GetClipEndTime(); }
 
 	void GetFinalTransforms(const AnimatorControllerState* state, float timePos,
-		std::vector<PastState>& pastStates, std::vector<Matrix4x4>& finalTransforms) const;
+		std::vector<PastState>& pastStates, std::vector<Transform*>& finalTransforms) const;
 	AnimatorControllerState* Transition(AnimatorControllerState* state);
 
 	void AddState(std::string name, AnimationClip* clip)

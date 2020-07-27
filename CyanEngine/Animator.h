@@ -6,13 +6,13 @@ public:
 	AnimatorController* controller;
 
 public:
-	std::vector<Matrix4x4> FinalTransforms;
+	//std::vector<Matrix4x4> FinalTransforms;
 	AnimatorControllerState* state{ nullptr };
 	float TimePos = 0.0f;
 
 	std::vector<PastState> pastStates;
 
-	void UpdateSkinnedAnimation(float dt)
+	void UpdateSkinnedAnimation(float dt, std::vector<Transform*>& finalTransforms)
 	{
 		AnimatorControllerState* transitionState = controller->Transition(state);
 		
@@ -40,7 +40,7 @@ public:
 		}
 
 		TimePos = fmod(TimePos + dt, controller->GetClipEndTime(state));
-		controller->GetFinalTransforms(state, TimePos, pastStates, FinalTransforms);
+		controller->GetFinalTransforms(state, TimePos, pastStates, finalTransforms);
 	}
 	void SetFloat(std::string name, float value)
 	{
@@ -60,7 +60,7 @@ public:
 	{
 		controller->mBoneOffsets = gameObject->GetComponent<SkinnedMeshRenderer>()->mesh->BoneOffsets;
 		controller->mBoneHierarchy = gameObject->GetComponent<SkinnedMeshRenderer>()->mesh->ParentIndexer;
-		FinalTransforms.resize(controller->mBoneOffsets.size());
+		//FinalTransforms.resize(controller->mBoneOffsets.size());
 	}
 	void Update() {}
 };

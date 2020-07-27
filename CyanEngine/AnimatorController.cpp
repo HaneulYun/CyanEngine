@@ -58,7 +58,7 @@ float AnimationClip::GetClipEndTime() const
 }
 
 void AnimatorController::GetFinalTransforms(const AnimatorControllerState* state, float timePos,
-	std::vector<PastState>& pastStates, std::vector<Matrix4x4>& finalTransforms) const
+	std::vector<PastState>& pastStates, std::vector<Transform*>& finalTransforms) const
 {
 	UINT numBones = mBoneOffsets.size();
 	std::vector<Matrix4x4> toParentTransforms(numBones);
@@ -122,7 +122,7 @@ void AnimatorController::GetFinalTransforms(const AnimatorControllerState* state
 		Matrix4x4 offset = mBoneOffsets[i];
 		Matrix4x4 toRoot = toRootTransforms[i];
 		Matrix4x4 finalTransform = offset * toRoot;
-		finalTransforms[i] = finalTransform.Transpose();
+		finalTransforms[i]->localToWorldMatrix = finalTransform.Transpose();
 	}
 }
 

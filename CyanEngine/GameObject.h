@@ -88,6 +88,36 @@ public:
 	T* AddComponent();
 	template <typename T>
 	T* GetComponent();
+
+	GameObject* GetChildWithName(std::string name)
+	{
+		if (this->name == name)
+			return this;
+		else
+			for (auto child : children)
+				if (auto c = child->GetChildWithName(name); c)
+					return c;
+		return nullptr;
+	}
+	
+	GameObject* GetChildWithIndex(int& index)
+	{
+		if (!index)
+			return this;
+		else
+			for (auto child : children)
+				if (auto c = child->GetChildWithIndex(--index); c)
+					return c;
+		return nullptr;
+	}
+
+	int GetChildCount()
+	{
+		int count = 1;
+		for (auto child : children)
+			count += child->GetChildCount();
+		return count;
+	}
 };
 
 template<typename T>

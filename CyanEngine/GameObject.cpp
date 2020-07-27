@@ -81,13 +81,14 @@ void GameObject::Update()
 		// skinned data
 		if (GetComponent<Animator>())
 		{
+			auto skinnedMesh = GetComponent<SkinnedMeshRenderer>();
 			int baseindex = instanceIndex * GetComponent<Animator>()->controller->BoneCount();
 
-			GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);
-			for (int i = 0; i < GetComponent<Animator>()->FinalTransforms.size(); ++i)
+			GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime, skinnedMesh->bones);
+			for (int i = 0; i < skinnedMesh->bones.size(); ++i)
 			{
 				SkinnnedData skinnedConstants;
-				skinnedConstants.BoneTransforms = GetComponent<Animator>()->FinalTransforms[i];
+				skinnedConstants.BoneTransforms = skinnedMesh->bones[i]->localToWorldMatrix;
 				skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
 			}
 		}

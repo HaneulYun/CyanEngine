@@ -36,6 +36,8 @@ public:
 	std::vector<Matrix4x4> BoneOffsets;
 	std::vector<int> ParentIndexer;
 
+	GameObject* BoneObjects{ nullptr };
+
 	BoundingBox Bounds;
 
 public:

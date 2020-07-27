@@ -38,12 +38,12 @@ public:
 
 	GameObject* CreateEmpty();
 	GameObject* Duplicate(GameObject*);
-	GameObject* CreateEmptyPrefab();
-	GameObject* DuplicatePrefab(GameObject*);
+	static GameObject* CreateEmptyPrefab();
+	static GameObject* DuplicatePrefab(GameObject*);
 
 	GameObject* CreateUI();
 	GameObject* CreateImage();
-	GameObject* CreateImagePrefab();
+	static GameObject* CreateImagePrefab();
 
 	void PushDelete(GameObject*);
 	void Delete(GameObject*);
