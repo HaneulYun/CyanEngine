@@ -21,10 +21,10 @@ GameObject::GameObject(GameObject* original)
 
 void GameObject::Start()
 {
-	for (Component* component : components)
-		component->Start();
 	for (GameObject* child : children)
 		child->Start();
+	for (Component* component : components)
+		component->Start();
 }
 
 void GameObject::Update()
@@ -78,21 +78,6 @@ void GameObject::Update()
 				--NumFramesDirty;
 		}
 
-		// skinned data
-		if (GetComponent<Animator>())
-		{
-			auto skinnedMesh = GetComponent<SkinnedMeshRenderer>();
-			int baseindex = instanceIndex * GetComponent<Animator>()->controller->BoneCount();
-
-			GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime, skinnedMesh->bones);
-			for (int i = 0; i < skinnedMesh->bones.size(); ++i)
-			{
-				SkinnnedData skinnedConstants;
-				skinnedConstants.BoneTransforms = skinnedMesh->bones[i]->localToWorldMatrix;
-				skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
-			}
-		}
-
 		// material data
 		Renderer* renderer = GetComponent<Renderer>();
 		if (!renderer)
@@ -115,6 +100,25 @@ void GameObject::Update()
 			MatIndexData skinnedConstants;
 			skinnedConstants.MaterialIndex = terrain->terrainData.detailPrototype.material->MatCBIndex;
 			matIndexBuffer->CopyData(baseindex + 1, skinnedConstants);
+		}
+	}
+
+	// skinned data
+	if (auto animator = GetComponent<Animator>(); animator)
+	{
+		auto skinnedMesh = GetComponentInChildren<SkinnedMeshRenderer>();
+
+		auto objectsResource = skinnedMesh->gameObject->renderSet->GetResources();
+		auto instanceBuffer = objectsResource->InstanceBuffer.get();
+		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
+
+		int baseindex = skinnedMesh->gameObject->instanceIndex * instanceIndex * animator->controller->BoneCount();
+
+		for (int i = 0; i < skinnedMesh->bones.size(); ++i)
+		{
+			SkinnnedData skinnedConstants;
+			skinnedConstants.BoneTransforms = skinnedMesh->bones[i]->localToWorldMatrix;
+			skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
 		}
 	}
 }

@@ -88,6 +88,8 @@ public:
 	T* AddComponent();
 	template <typename T>
 	T* GetComponent();
+	template <typename T>
+	T* GetComponentInChildren();
 
 	GameObject* GetChildWithName(std::string name)
 	{
@@ -169,6 +171,14 @@ T* GameObject::GetComponent()
 				typeid(*component).name() == typeid(SphereCollider).name())
 				return dynamic_cast<T*>(component);
 		}
-	
+	return nullptr;
+}
+
+template<typename T>
+T* GameObject::GetComponentInChildren()
+{
+	for (auto child : children)
+		if (auto component = child->GetComponent<T>(); component)
+			return component;
 	return nullptr;
 }

@@ -20,7 +20,7 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 
 	bool isPlayer{ true };
 
-	TerrainData* terrainData{ nullptr };;
+	TerrainData* terrainData{ nullptr };
 
 private:
 	friend class GameObject;
