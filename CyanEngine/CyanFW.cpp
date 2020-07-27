@@ -19,6 +19,7 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	Time::Instance()->Reset();
 	Input::Instance();
 	Random::Instance()->Start();
+	AudioManager::Instance();
 
 	if (!graphics)
 		(graphics = Graphics::Instance())->Initialize();
@@ -87,6 +88,9 @@ void CyanFW::OnFrameAdvance()
 			--mat->NumFramesDirty;
 		//}
 	}
+
+	AudioManager::Instance()->system->update();
+
 
 	graphics->Render();
 

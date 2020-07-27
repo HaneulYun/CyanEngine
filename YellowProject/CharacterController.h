@@ -11,7 +11,16 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	float speed = 0.0f;
 	float hori_speed = 0.0f;
 
-	bool isPlayer{ false };
+	float mTheta = 0.0f * XM_PI;
+	float mPhi = 0.0f * XM_PI;
+	float mRadius = 5.0f;
+	Vector3 lookAtPos = { 0,0,0 };
+
+	Vector3 lastMousePos;
+
+	bool isPlayer{ true };
+
+	TerrainData* terrainData{ nullptr };;
 
 private:
 	friend class GameObject;
@@ -24,7 +33,7 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
-		anim = gameObject->GetComponent<Animator>();
+		anim = gameObject->children[0]->GetComponent<Animator>();
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
@@ -108,9 +117,26 @@ public:
 			}
 		}
 
-		gameObject->transform->position += Vector3(hori_speed, 0, speed) * Time::deltaTime;
-		anim->SetFloat("Speed", speed);
-		anim->SetFloat("HoriSpeed", hori_speed);
+		if (Input::GetMouseButtonDown(2))
+		{
+			lastMousePos = Input::mousePosition;
+		}
+		else if (Input::GetMouseButton(2))
+		{
+			Vector3 currMousePos = Input::mousePosition;
+			Vector3 delta = (currMousePos - lastMousePos) * 10 * (XM_PI / 180.0f);
+
+			gameObject->transform->Rotate({ 0, 1, 0 }, delta.x);
+
+			lastMousePos = currMousePos;
+		}
+
+		gameObject->transform->position += gameObject->transform->forward * speed * Time::deltaTime;
+		gameObject->transform->position += gameObject->transform->right * hori_speed * Time::deltaTime;
+		anim->SetFloat("VelocityX", speed);
+		anim->SetFloat("VelocityY", hori_speed);
+
+		gameObject->transform->position.y = terrainData->GetHeight(gameObject->transform->position.x, gameObject->transform->position.z);
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.

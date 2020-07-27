@@ -44,14 +44,9 @@ void MenuScene::BuildObjects()
 
 		auto terrainSceneButton = CreateImage();
 		{
-			auto rectTransform = terrainSceneButton->GetComponent<RectTransform>();
-			rectTransform->anchorMin = { 0.5, 0.5 };
-			rectTransform->anchorMax = { 0.5, 0.5 };
-			rectTransform->pivot = { 0.5, 0.5 };
-			rectTransform->posX = -10;
-			rectTransform->posY = -60;
-			rectTransform->width = 150;
-			rectTransform->height = 30;
+			auto rt = terrainSceneButton->GetComponent<RectTransform>();
+			rt->setAnchorAndPivot(0.5, 0.5);
+			rt->setPosAndSize(-10, 20, 150, 30);
 
 			terrainSceneButton->AddComponent<Button>()->AddEvent(
 				[](void*) {
@@ -72,16 +67,36 @@ void MenuScene::BuildObjects()
 			}
 		}
 
+		auto characterSceneButton = CreateImage();
+		{
+			auto rt = characterSceneButton->GetComponent<RectTransform>();
+			rt->setAnchorAndPivot(0.5, 0.5);
+			rt->setPosAndSize(-10, -60, 150, 30);
+
+			characterSceneButton->AddComponent<Button>()->AddEvent(
+				[](void*) {
+					SceneManager::LoadScene("CharacterScene");
+				});
+			{
+				auto textobject = characterSceneButton->AddChildUI();
+				auto rectTransform = textobject->GetComponent<RectTransform>();
+				rectTransform->anchorMin = { 0, 0 };
+				rectTransform->anchorMax = { 1, 1 };
+
+				Text* text = textobject->AddComponent<Text>();
+				text->text = L"Character Scene";
+				text->font = L"메이플스토리";
+				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+				textObjects.push_back(textobject);
+			}
+		}
+
 		auto particleSceneButton = CreateImage();
 		{
-			auto rectTransform = particleSceneButton->GetComponent<RectTransform>();
-			rectTransform->anchorMin = { 0.5, 0.5 };
-			rectTransform->anchorMax = { 0.5, 0.5 };
-			rectTransform->pivot = { 0.5, 0.5 };
-			rectTransform->posX = -10;
-			rectTransform->posY = -140;
-			rectTransform->width = 150;
-			rectTransform->height = 30;
+			auto rt = particleSceneButton->GetComponent<RectTransform>();
+			rt->setAnchorAndPivot(0.5, 0.5);
+			rt->setPosAndSize(-10, -140, 150, 30);
 
 			particleSceneButton->AddComponent<Button>()->AddEvent(
 				[](void*) {

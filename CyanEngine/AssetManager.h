@@ -9,6 +9,7 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
 	std::unordered_map<std::string, std::unique_ptr<Material>> materials;
 	std::unordered_map<std::string, std::unique_ptr<GameObject>> prefabs;
+	std::unordered_map<std::string, std::unique_ptr<AudioClip>> audioClips;
 
 public:
 	std::unordered_map<std::string, std::unique_ptr<AnimationClip>> animationClips;
@@ -23,17 +24,21 @@ public:
 		Vector4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f }, Vector3 fresnel = { 0.01f, 0.01f, 0.01f },
 		float roughness = 1.0f, Matrix4x4 matTransform = Matrix4x4::MatrixIdentity());
 	void AddPrefab(std::string name, std::unique_ptr<GameObject> prefab);
+	void AddAudioClip(std::string name, std::string path);
 	void AddFbxForMesh(std::string name, std::string fileNmae);
 	void AddFbxForAnimation(std::string name, std::string fileNmae);
 
 	Mesh* GetMesh(std::string name);
 	Texture* GetTexture(std::string name);
 	Material* GetMaterial(std::string name);
+	AudioClip* GetAudioClip(std::string name);
 	GameObject* GetPrefab(std::string name);
 };
 
 #define ASSET AssetManager::Instance()->
+
 #define MESH(name) GetMesh(name)
 #define TEXTURE(name) GetTexture(name)
 #define MATERIAL(name) GetMaterial(name)
+#define AUDIO_CLIP(name) GetAudioClip(name)
 #define PREFAB(name) GetPrefab(name)

@@ -32,6 +32,8 @@
 
 #include <fbxsdk.h>
 
+#include <fmod.hpp>
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
@@ -47,12 +49,15 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "libxml2-md.lib")
 #pragma comment(lib, "zlib-md.lib")
 
+#pragma comment(lib, "fmod64_vc.lib")
+
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "dxgi.lib")
+
 
 #define FRAME_BUFFER_WIDTH 1600
 #define FRAME_BUFFER_HEIGHT 900
@@ -126,6 +131,10 @@ using Microsoft::WRL::ComPtr;
 #include "FrameResource.h"
 #include "ParticleBundle.h"
 #include "ParticleSystem.h"
+
+#include "AudioManager.h"
+#include "AudioSource.h"
+#include "AudioListener.h"
 
 #include "FbxLoader.h"
 

@@ -108,6 +108,9 @@
     <ClInclude Include="BuildingTypeSelector.h">
       <Filter>Assets\Scripts\Build</Filter>
     </ClInclude>
+    <ClInclude Include="CharacterScene.h">
+      <Filter>Assets\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="YellowProject.cpp">
@@ -123,6 +126,9 @@
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="ParticleScene.cpp">
+      <Filter>Assets\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterScene.cpp">
       <Filter>Assets\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,14 +179,14 @@
     <FxCompile Include="Shaders\lightingUtil.hlsl">
       <Filter>Assets\Shaders\0_Common</Filter>
     </FxCompile>
-    <FxCompile Include="cbPass.hlsl">
-      <Filter>Assets\Shaders\0_Common</Filter>
-    </FxCompile>
-    <FxCompile Include="cbLight.hlsl">
-      <Filter>Assets\Shaders\0_Common</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\light.hlsl">
       <Filter>Assets\Shaders\3_Light</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\cbLight.hlsl">
+      <Filter>Assets\Shaders\0_Common</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\cbPass.hlsl">
+      <Filter>Assets\Shaders\0_Common</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

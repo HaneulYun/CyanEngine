@@ -31,9 +31,6 @@
     <Filter Include="0_00_CyanEngine\40_Interface">
       <UniqueIdentifier>{01839377-33fb-4f77-ac2e-7c2ac006ab2a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\50_Math">
-      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
-    </Filter>
     <Filter Include="0_00_CyanEngine\30_Core\31_GraphicsComponent">
       <UniqueIdentifier>{088748de-42c3-4051-9b78-2bb77a8e8345}</UniqueIdentifier>
     </Filter>
@@ -70,6 +67,15 @@
     <Filter Include="0_00_CyanEngine\20_Scene\24_LightResourceManager">
       <UniqueIdentifier>{c6298bf9-5b02-4b22-bc03-b32efc41c003}</UniqueIdentifier>
     </Filter>
+    <Filter Include="0_00_CyanEngine\50_Manager">
+      <UniqueIdentifier>{db32f83d-ac4a-465d-ab3f-105074641160}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\60_Math">
+      <UniqueIdentifier>{313f7dd9-1fd4-4eb5-8e59-978ecf9f1399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\30_Core\37_AudioComponent">
+      <UniqueIdentifier>{c6d8ce0e-052a-45ea-b371-85d4869eec02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -94,7 +100,7 @@
       <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClInclude>
     <ClInclude Include="Vector3.h">
-      <Filter>0_00_CyanEngine\50_Math</Filter>
+      <Filter>0_00_CyanEngine\60_Math</Filter>
     </ClInclude>
     <ClInclude Include="MonoBehavior.h">
       <Filter>0_00_CyanEngine\30_Core</Filter>
@@ -184,7 +190,7 @@
       <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClInclude>
     <ClInclude Include="Matrix4x4.h">
-      <Filter>0_00_CyanEngine\50_Math</Filter>
+      <Filter>0_00_CyanEngine\60_Math</Filter>
     </ClInclude>
     <ClInclude Include="AssetManager.h">
       <Filter>0_00_CyanEngine\10_Graphics\12_AssetResource</Filter>
@@ -261,6 +267,15 @@
     <ClInclude Include="HeapManager.h">
       <Filter>0_00_CyanEngine\10_Graphics\11_GraphicsCore</Filter>
     </ClInclude>
+    <ClInclude Include="AudioManager.h">
+      <Filter>0_00_CyanEngine\50_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioSource.h">
+      <Filter>0_00_CyanEngine\30_Core\37_AudioComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioListener.h">
+      <Filter>0_00_CyanEngine\30_Core\37_AudioComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -336,7 +351,7 @@
       <Filter>0_00_CyanEngine\20_Scene</Filter>
     </ClCompile>
     <ClCompile Include="Vector3.cpp">
-      <Filter>0_00_CyanEngine\50_Math</Filter>
+      <Filter>0_00_CyanEngine\60_Math</Filter>
     </ClCompile>
     <ClCompile Include="MeshFilter.cpp">
       <Filter>0_00_CyanEngine\30_Core\31_GraphicsComponent</Filter>
@@ -397,6 +412,9 @@
     </ClCompile>
     <ClCompile Include="HeapManager.cpp">
       <Filter>0_00_CyanEngine\10_Graphics\11_GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioManager.cpp">
+      <Filter>0_00_CyanEngine\50_Manager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
