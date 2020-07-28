@@ -58,10 +58,9 @@ float AnimationClip::GetClipEndTime() const
 }
 
 void AnimatorController::GetFinalTransforms(const AnimatorControllerState* state, float timePos,
-	std::vector<PastState>& pastStates, std::vector<Matrix4x4>& finalTransforms) const
+	std::vector<PastState>& pastStates, std::vector<Transform*>& finalTransforms) const
 {
 	UINT numBones = mBoneOffsets.size();
-	std::vector<Matrix4x4> toParentTransforms(numBones);
 
 	auto clip = state->motion;
 
@@ -103,26 +102,7 @@ void AnimatorController::GetFinalTransforms(const AnimatorControllerState* state
 		}
 
 		Vector4 zero{ 0, 0, 0, 1 };
-		toParentTransforms[i] = Matrix4x4::MatrixAffineTransformation(DesS, zero, DesR, DesT);
-	}
-
-	std::vector<Matrix4x4> toRootTransforms(numBones);
-	toRootTransforms[0] = toParentTransforms[0];
-	for (UINT i = 1; i < numBones; ++i)
-	{
-		int parentIndex = mBoneHierarchy[i];
-		Matrix4x4 parentToRoot = toRootTransforms[parentIndex];
-		Matrix4x4 toParent = toParentTransforms[i];
-		Matrix4x4 toRoot = toParent * parentToRoot;
-		toRootTransforms[i] = toRoot;
-	}
-
-	for (UINT i = 0; i < numBones; ++i)
-	{
-		Matrix4x4 offset = mBoneOffsets[i];
-		Matrix4x4 toRoot = toRootTransforms[i];
-		Matrix4x4 finalTransform = offset * toRoot;
-		finalTransforms[i] = finalTransform.Transpose();
+		finalTransforms[i]->localToWorldMatrix = Matrix4x4::MatrixAffineTransformation(DesS, zero, DesR, DesT);
 	}
 }
 

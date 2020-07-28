@@ -71,12 +71,12 @@ void CharacterScene::BuildObjects()
 
 	auto soundBox = CreateEmpty();
 	{
-		soundBox->transform->position = { 512, 35, 1024 * 0.45 };
+		soundBox->transform->position = { 512, 35, 512 };
 		soundBox->transform->Scale({ 10, 10, 10 });
 		soundBox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
 		soundBox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 		auto audioSource = soundBox->AddComponent<AudioSource>();
-		audioSource->clip = ASSET AUDIO_CLIP("footstep");
+		audioSource->clip = ASSET AUDIO_CLIP("bgm");
 		audioSource->loop = true;
 	}
 
@@ -99,23 +99,26 @@ void CharacterScene::BuildObjects()
 	auto player = CreateEmpty();
 	{
 		player->transform->position = { 512, 35, 1024 * 0.45 };
+
+		auto anim = player->AddComponent<Animator>();
+		anim->controller = controller;
+		anim->state = &controller->states["Idle"];
+		anim->TimePos = 0;
+
 		auto model = player->AddChild();
 		{
 			model->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 			model->AddComponent<SkinnedMeshRenderer>()->mesh = ASSET MESH("ApprenticeSK");
 			model->GetComponent<SkinnedMeshRenderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
-
-			auto anim = model->AddComponent<Animator>();
-			anim->controller = controller;
-			anim->state = &controller->states["Idle"];
-			anim->TimePos = 0;
-
-			auto audioSource = model->AddComponent<AudioSource>();
-			audioSource->clip = ASSET AUDIO_CLIP("footstep");
-			audioSource->loop = true;
 		}
+		auto audioSource = model->AddComponent<AudioSource>();
+		audioSource->clip = ASSET AUDIO_CLIP("footstep");
 
-		player->AddComponent<CharacterController>()->terrainData = &terrainData->terrainData;
+		auto controller = player->AddComponent<CharacterController>();
+		controller->terrainData = &terrainData->terrainData;
+		controller->audioSource = audioSource;
+
+
 		auto mainCamera = player->AddChild();
 		{
 			mainCamera->transform->position = { 0, 2, -3 };
@@ -135,13 +138,13 @@ void CharacterScene::BuildObjects()
 		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.05);
 	}
 
-	auto cubeObject = CreateEmpty();
-	{
-		cubeObject->transform->position = { 512, 50, 512 };
-		cubeObject->transform->Scale({ 200, 1, 200 });
-		cubeObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
-		cubeObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
-	}
+	//auto cubeObject = CreateEmpty();
+	//{
+	//	cubeObject->transform->position = { 512, 50, 512 };
+	//	cubeObject->transform->Scale({ 200, 1, 200 });
+	//	cubeObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
+	//	cubeObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
+	//}
 
 	{
 		auto ritem = CreateEmpty();

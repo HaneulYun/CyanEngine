@@ -5,6 +5,8 @@ class GameObject;
 class Object
 {
 public:
+	std::string name;
+
 	Object() {}
 	~Object() {}
 

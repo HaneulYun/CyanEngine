@@ -21,10 +21,10 @@ GameObject::GameObject(GameObject* original)
 
 void GameObject::Start()
 {
-	for (Component* component : components)
-		component->Start();
 	for (GameObject* child : children)
 		child->Start();
+	for (Component* component : components)
+		component->Start();
 }
 
 void GameObject::Update()
@@ -78,20 +78,6 @@ void GameObject::Update()
 				--NumFramesDirty;
 		}
 
-		// skinned data
-		if (GetComponent<Animator>())
-		{
-			int baseindex = instanceIndex * GetComponent<Animator>()->controller->BoneCount();
-
-			GetComponent<Animator>()->UpdateSkinnedAnimation(Time::deltaTime);
-			for (int i = 0; i < GetComponent<Animator>()->FinalTransforms.size(); ++i)
-			{
-				SkinnnedData skinnedConstants;
-				skinnedConstants.BoneTransforms = GetComponent<Animator>()->FinalTransforms[i];
-				skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
-			}
-		}
-
 		// material data
 		Renderer* renderer = GetComponent<Renderer>();
 		if (!renderer)
@@ -114,6 +100,25 @@ void GameObject::Update()
 			MatIndexData skinnedConstants;
 			skinnedConstants.MaterialIndex = terrain->terrainData.detailPrototype.material->MatCBIndex;
 			matIndexBuffer->CopyData(baseindex + 1, skinnedConstants);
+		}
+	}
+
+	// skinned data
+	if (auto animator = GetComponent<Animator>(); animator)
+	{
+		auto skinnedMesh = GetComponentInChildren<SkinnedMeshRenderer>();
+
+		auto objectsResource = skinnedMesh->gameObject->renderSet->GetResources();
+		auto instanceBuffer = objectsResource->InstanceBuffer.get();
+		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
+
+		int baseindex = skinnedMesh->gameObject->instanceIndex * instanceIndex * animator->controller->BoneCount();
+
+		for (int i = 0; i < skinnedMesh->bones.size(); ++i)
+		{
+			SkinnnedData skinnedConstants;
+			skinnedConstants.BoneTransforms = (animator->controller->mBoneOffsets[i] * skinnedMesh->bones[i]->gameObject->GetMatrix(skinnedMesh->rootBone)).Transpose();// localToWorldMatrix.Transpose();
+			skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
 		}
 	}
 }
@@ -154,10 +159,10 @@ void GameObject::OnCollisionExit(GameObject* other)
 		component->OnCollisionExit(other);
 }
 
-Matrix4x4 GameObject::GetMatrix()
+Matrix4x4 GameObject::GetMatrix(GameObject* local)
 {
-	if (parent)
-		return transform->localToWorldMatrix * parent->GetMatrix();
+	if (parent && this != local)
+		return transform->localToWorldMatrix * parent->GetMatrix(local);
 	return transform->localToWorldMatrix;
 }
 

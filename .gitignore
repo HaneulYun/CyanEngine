@@ -27,27 +27,6 @@ bld/
 [Oo]bj/
 [Ll]og/
 
-![Dd]ebug/libfbxsdk.dll
-![Dd]ebug/libfbxsdk.lib
-![Dd]ebug/libfbxsdk-md.lib
-![Dd]ebug/libxml2-md.lib
-![Dd]ebug/zlib-md.lib
-![Rr]elease/libfbxsdk.dll
-![Rr]elease/libfbxsdk.lib
-![Rr]elease/libfbxsdk-md.lib
-![Rr]elease/libxml2-md.lib
-![Rr]elease/zlib-md.lib
-!x64/[Dd]ebug/libfbxsdk.dll
-!x64/[Dd]ebug/libfbxsdk.lib
-!x64/[Dd]ebug/libfbxsdk-md.lib
-!x64/[Dd]ebug/libxml2-md.lib
-!x64/[Dd]ebug/zlib-md.lib
-!x64/[Rr]elease/libfbxsdk.dll
-!x64/[Rr]elease/libfbxsdk.lib
-!x64/[Rr]elease/libfbxsdk-md.lib
-!x64/[Rr]elease/libxml2-md.lib
-!x64/[Rr]elease/zlib-md.lib
-
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 # Uncomment if you have tasks that create the project's static files in wwwroot

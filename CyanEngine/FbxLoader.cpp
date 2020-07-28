@@ -97,7 +97,7 @@ void FbxModelData::LoadFbxHierarchy(FbxNode* node)
 	{
 		FbxNodeAttribute::EType attributeType = nodeAttribute->GetAttributeType();
 		if (attributeType == FbxNodeAttribute::eSkeleton)
-			LoadFbxHierarchyRecursive(node);
+			LoadFbxHierarchyRecursive(node, nullptr);
 		else if (attributeType == FbxNodeAttribute::eMesh)
 			LoadFbxMesh(node);
 		else if (attributeType == FbxNodeAttribute::eLODGroup)
@@ -115,7 +115,7 @@ void FbxModelData::LoadFbxHierarchy(FbxNode* node)
 	}
 }
 
-void FbxModelData::LoadFbxHierarchyRecursive(FbxNode* node, int parentIndex)
+void FbxModelData::LoadFbxHierarchyRecursive(FbxNode* node, GameObject* boneObject, int parentIndex)
 {
 	int boneIndex = skeletonIndexer.size();
 	FbxNodeAttribute* nodeAttribute = node->GetNodeAttribute();
@@ -128,9 +128,13 @@ void FbxModelData::LoadFbxHierarchyRecursive(FbxNode* node, int parentIndex)
 			skeletonIndexer[node->GetName()] = boneIndex;
 			nodes[boneIndex] = node;
 
+			if (!boneObject)
+				boneObject = rootBoneObject = Scene::CreateEmptyPrefab();
+			boneObject->name = node->GetName();
+
 			const int childCount = node->GetChildCount();
 			for (int childIndex = 0; childIndex < childCount; ++childIndex)
-				LoadFbxHierarchyRecursive(node->GetChild(childIndex), boneIndex);
+				LoadFbxHierarchyRecursive(node->GetChild(childIndex), boneObject->AddChild(), boneIndex);
 		}
 	}
 }
@@ -533,6 +537,8 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 		mesh->Bounds.Center = ((boundMax + boundMin) / 2).xmf3;
 		mesh->Bounds.Extents = ((boundMax - boundMin) / 2).xmf3;
+
+		mesh->BoneObjects = rootBoneObject;
 
 		ASSET AddMesh(name, std::move(mesh));
 	}

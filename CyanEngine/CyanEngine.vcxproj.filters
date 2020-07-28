@@ -416,5 +416,8 @@
     <ClCompile Include="AudioManager.cpp">
       <Filter>0_00_CyanEngine\50_Manager</Filter>
     </ClCompile>
+    <ClCompile Include="Animator.cpp">
+      <Filter>0_00_CyanEngine\30_Core\34_AniimationComponent</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

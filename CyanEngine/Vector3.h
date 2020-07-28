@@ -195,8 +195,8 @@ struct Vector3
 		return false;
 	}
 
-	Vector3 TransformCoord(const Matrix4x4& mtx);
-	Vector3 TransformNormal(const Matrix4x4& mtx);
+	Vector3 TransformCoord(const Matrix4x4& mtx) const;
+	Vector3 TransformNormal(const Matrix4x4& mtx) const;
 
 	static float DotProduct(const Vector3& v0, const Vector3& v1)
 	{
