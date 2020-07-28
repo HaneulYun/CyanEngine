@@ -112,7 +112,7 @@ void GameObject::Update()
 		auto instanceBuffer = objectsResource->InstanceBuffer.get();
 		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
 
-		int baseindex = skinnedMesh->gameObject->instanceIndex * instanceIndex * animator->controller->BoneCount();
+		int baseindex = skinnedMesh->gameObject->instanceIndex * animator->controller->BoneCount();
 
 		for (int i = 0; i < skinnedMesh->bones.size(); ++i)
 		{
