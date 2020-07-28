@@ -76,7 +76,7 @@ void CharacterScene::BuildObjects()
 		soundBox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
 		soundBox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 		auto audioSource = soundBox->AddComponent<AudioSource>();
-		audioSource->clip = ASSET AUDIO_CLIP("footstep");
+		audioSource->clip = ASSET AUDIO_CLIP("bgm");
 		audioSource->loop = true;
 	}
 
@@ -98,7 +98,7 @@ void CharacterScene::BuildObjects()
 
 	auto player = CreateEmpty();
 	{
-		player->transform->position = { 512, 35, 1024 * 0.45 };
+		player->transform->position = { 0, 0, 0 };// { 512, 35, 1024 * 0.45 };
 
 		auto anim = player->AddComponent<Animator>();
 		anim->controller = controller;
@@ -110,14 +110,15 @@ void CharacterScene::BuildObjects()
 			model->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 			model->AddComponent<SkinnedMeshRenderer>()->mesh = ASSET MESH("ApprenticeSK");
 			model->GetComponent<SkinnedMeshRenderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
-
-
-			auto audioSource = model->AddComponent<AudioSource>();
-			audioSource->clip = ASSET AUDIO_CLIP("footstep");
-			audioSource->loop = true;
 		}
+		auto audioSource = model->AddComponent<AudioSource>();
+		audioSource->clip = ASSET AUDIO_CLIP("footstep");
 
-		player->AddComponent<CharacterController>()->terrainData = &terrainData->terrainData;
+		auto controller = player->AddComponent<CharacterController>();
+		controller->terrainData = &terrainData->terrainData;
+		controller->audioSource = audioSource;
+
+
 		auto mainCamera = player->AddChild();
 		{
 			mainCamera->transform->position = { 0, 2, -3 };

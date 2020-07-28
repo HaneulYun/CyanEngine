@@ -117,7 +117,7 @@ void GameObject::Update()
 		for (int i = 0; i < skinnedMesh->bones.size(); ++i)
 		{
 			SkinnnedData skinnedConstants;
-			skinnedConstants.BoneTransforms = skinnedMesh->bones[i]->localToWorldMatrix;
+			skinnedConstants.BoneTransforms = skinnedMesh->bones[i]->localToWorldMatrix.Transpose();
 			skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
 		}
 	}
@@ -159,10 +159,10 @@ void GameObject::OnCollisionExit(GameObject* other)
 		component->OnCollisionExit(other);
 }
 
-Matrix4x4 GameObject::GetMatrix()
+Matrix4x4 GameObject::GetMatrix(GameObject* local)
 {
-	if (parent)
-		return transform->localToWorldMatrix * parent->GetMatrix();
+	if (parent && this != local)
+		return transform->localToWorldMatrix * parent->GetMatrix(local);
 	return transform->localToWorldMatrix;
 }
 

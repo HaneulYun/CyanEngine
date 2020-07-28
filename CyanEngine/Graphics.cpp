@@ -437,8 +437,8 @@ void Graphics::InitDirect3D()
 #if defined(_DEBUG)
 	ComPtr<ID3D12Debug> debug{ nullptr };
 	D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
-	if (debug)
-		debug->EnableDebugLayer();
+	//if (debug)
+	//	debug->EnableDebugLayer();
 
 	dxgiFactoryFlags != DXGI_CREATE_FACTORY_DEBUG;
 #endif

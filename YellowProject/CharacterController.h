@@ -22,6 +22,11 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 
 	TerrainData* terrainData{ nullptr };
 
+	AudioSource* audioSource{ nullptr };
+
+	GameObject* ball_l{ nullptr };
+	GameObject* root{ nullptr };
+
 private:
 	friend class GameObject;
 	friend class MonoBehavior<CharacterController>;
@@ -33,13 +38,21 @@ public:
 
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
-		anim = gameObject->children[0]->GetComponent<Animator>();
+		anim = gameObject->GetComponent<Animator>();
+		ball_l = gameObject->GetChildWithName("pelvis");
+		root = gameObject->GetChildWithName("root");
 	}
 
 	void Update(/*업데이트 코드를 작성하세요.*/)
 	{
 		if (isPlayer)
 		{
+			Vector3 position = ball_l->GetMatrix().position;
+			Debug::Log((std::to_string(position.x) + " " + std::to_string(position.y) + " " + std::to_string(position.z) + "\n").c_str());
+			if (Input::GetKeyDown(KeyCode::R))
+			{
+				audioSource->Play();
+			}
 			if (Input::GetKey(KeyCode::W))
 			{
 				if (speed < 4.0f)
@@ -136,7 +149,7 @@ public:
 		anim->SetFloat("VelocityX", speed);
 		anim->SetFloat("VelocityY", hori_speed);
 
-		gameObject->transform->position.y = terrainData->GetHeight(gameObject->transform->position.x, gameObject->transform->position.z);
+		//gameObject->transform->position.y = terrainData->GetHeight(gameObject->transform->position.x, gameObject->transform->position.z);
 	}
 
 	// 필요한 경우 함수를 선언 및 정의 하셔도 됩니다.

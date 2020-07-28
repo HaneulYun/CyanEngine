@@ -122,7 +122,7 @@ void AnimatorController::GetFinalTransforms(const AnimatorControllerState* state
 		Matrix4x4 offset = mBoneOffsets[i];
 		Matrix4x4 toRoot = toRootTransforms[i];
 		Matrix4x4 finalTransform = offset * toRoot;
-		finalTransforms[i]->localToWorldMatrix = finalTransform.Transpose();
+		finalTransforms[i]->localToWorldMatrix = finalTransform;
 	}
 }
 

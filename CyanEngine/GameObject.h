@@ -56,7 +56,7 @@ public:
 	void OnCollisionStay(GameObject* other);
 	void OnCollisionExit(GameObject* other);
 
-	Matrix4x4 GetMatrix();
+	Matrix4x4 GetMatrix(GameObject* local = nullptr);
 
 	void SetScene(Scene* scene);
 	void SetActive(bool state);
