@@ -117,7 +117,7 @@ void GameObject::Update()
 		for (int i = 0; i < skinnedMesh->bones.size(); ++i)
 		{
 			SkinnnedData skinnedConstants;
-			skinnedConstants.BoneTransforms = skinnedMesh->bones[i]->localToWorldMatrix.Transpose();
+			skinnedConstants.BoneTransforms = (animator->controller->mBoneOffsets[i] * skinnedMesh->bones[i]->gameObject->GetMatrix(skinnedMesh->rootBone)).Transpose();// localToWorldMatrix.Transpose();
 			skinnedBuffer->CopyData(baseindex + i, skinnedConstants);
 		}
 	}

@@ -12,4 +12,5 @@ void Animator::Update()
 	// skinned data
 	auto skinnedMesh = gameObject->GetComponentInChildren<SkinnedMeshRenderer>();
 	UpdateSkinnedAnimation(Time::deltaTime, skinnedMesh->bones);
+	//skinnedMesh->rootBone->RetuneTransform();
 }

@@ -39,7 +39,7 @@ public:
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
 		anim = gameObject->GetComponent<Animator>();
-		ball_l = gameObject->GetChildWithName("pelvis");
+		ball_l = gameObject->GetChildWithName("spine_01");
 		root = gameObject->GetChildWithName("root");
 	}
 
@@ -47,7 +47,7 @@ public:
 	{
 		if (isPlayer)
 		{
-			Vector3 position = ball_l->GetMatrix().position;
+			Vector3 position = ball_l->GetMatrix(root).position;
 			Debug::Log((std::to_string(position.x) + " " + std::to_string(position.y) + " " + std::to_string(position.z) + "\n").c_str());
 			if (Input::GetKeyDown(KeyCode::R))
 			{
