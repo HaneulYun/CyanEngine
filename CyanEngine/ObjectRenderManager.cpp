@@ -8,8 +8,9 @@ std::unique_ptr<ObjectsResource> RenderSets::MakeResource()
 	int objectCount = gameObjects.size();
 	int boneStride = 1;
 	int matIndexStride = 1;
-	if (gameObjects[0]->GetComponent<Animator>())
-		boneStride = gameObjects[0]->GetComponent<Animator>()->controller->BoneCount();
+	if (gameObjects[0]->parent)
+		if (auto animator = gameObjects[0]->parent->GetComponent<Animator>(); animator)
+			boneStride = animator->controller->BoneCount();
 	if (gameObjects[0]->GetComponent<Renderer>())
 		matIndexStride = gameObjects[0]->GetComponent<Renderer>()->materials.size();
 	else if (gameObjects[0]->GetComponent<SkinnedMeshRenderer>())
