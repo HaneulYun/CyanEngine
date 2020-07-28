@@ -25,7 +25,13 @@ public  /*이 영역에 public 변수를 선언하세요.*/:
 	AudioSource* audioSource{ nullptr };
 
 	GameObject* ball_l{ nullptr };
+	GameObject* ball_r{ nullptr };
 	GameObject* root{ nullptr };
+
+	enum FootState { OnGround, ToAir, OnAir, ToGround };
+
+	FootState leftFootState{ OnGround };
+	FootState rightFootState{ OnGround };
 
 private:
 	friend class GameObject;
@@ -39,7 +45,8 @@ public:
 	void Start(/*초기화 코드를 작성하세요.*/)
 	{
 		anim = gameObject->GetComponent<Animator>();
-		ball_l = gameObject->GetChildWithName("spine_01");
+		ball_l = gameObject->GetChildWithName("ball_l");
+		ball_r = gameObject->GetChildWithName("ball_r");
 		root = gameObject->GetChildWithName("root");
 	}
 
@@ -47,8 +54,43 @@ public:
 	{
 		if (isPlayer)
 		{
-			Vector3 position = ball_l->GetMatrix(root).position;
-			Debug::Log((std::to_string(position.x) + " " + std::to_string(position.y) + " " + std::to_string(position.z) + "\n").c_str());
+			Vector3 leftFootPosition = (ball_r->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
+			Vector3 rightFootPosition = (ball_l->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
+			
+			switch (leftFootState)
+			{
+			case CharacterController::OnGround:
+				if (leftFootPosition.y > 0.03) leftFootState = ToAir;
+				break;
+			case CharacterController::ToAir:
+				leftFootState = OnAir;
+				audioSource->Play();
+				break;
+			case CharacterController::OnAir:
+				if (leftFootPosition.y < 0.03) leftFootState = ToGround;
+				break;
+			case CharacterController::ToGround:
+				leftFootState = OnGround;
+				break;
+			}
+
+			switch (rightFootState)
+			{
+			case CharacterController::OnGround:
+				if (rightFootPosition.y > 0.03) rightFootState = ToAir;
+				break;
+			case CharacterController::ToAir:
+				rightFootState = OnAir;
+				audioSource->Play();
+				break;
+			case CharacterController::OnAir:
+				if (rightFootPosition.y < 0.03) rightFootState = ToGround;
+				break;
+			case CharacterController::ToGround:
+				rightFootState = OnGround;
+				break;
+			}
+			
 			if (Input::GetKeyDown(KeyCode::R))
 			{
 				audioSource->Play();
@@ -147,7 +189,7 @@ public:
 		gameObject->transform->position += gameObject->transform->forward * speed * Time::deltaTime;
 		gameObject->transform->position += gameObject->transform->right * hori_speed * Time::deltaTime;
 		anim->SetFloat("VelocityX", speed);
-		anim->SetFloat("VelocityY", hori_speed);
+		anim->SetFloat("VelocityZ", hori_speed);
 
 		//gameObject->transform->position.y = terrainData->GetHeight(gameObject->transform->position.x, gameObject->transform->position.z);
 	}

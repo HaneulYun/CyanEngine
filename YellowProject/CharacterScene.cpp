@@ -98,7 +98,7 @@ void CharacterScene::BuildObjects()
 
 	auto player = CreateEmpty();
 	{
-		player->transform->position = { 0, 0, 0 };// { 512, 35, 1024 * 0.45 };
+		player->transform->position = { 512, 35, 1024 * 0.45 };
 
 		auto anim = player->AddComponent<Animator>();
 		anim->controller = controller;
