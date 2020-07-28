@@ -49,7 +49,11 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "libxml2-md.lib")
 #pragma comment(lib, "zlib-md.lib")
 
+#ifdef _WIN64
 #pragma comment(lib, "fmod64_vc.lib")
+#else
+#pragma comment(lib, "fmod_vc.lib")
+#endif
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
