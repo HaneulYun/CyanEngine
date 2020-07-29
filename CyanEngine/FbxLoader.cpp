@@ -490,7 +490,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		const UINT vbByteSize = (UINT)vertices.size() * sizeof(FrameResource::SkinnedVertex);
 		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
-		std::string name = node->GetName();
+		//std::string name = node->GetName();
 		auto mesh = std::make_unique<Mesh>();
 		mesh->Name = name;
 
