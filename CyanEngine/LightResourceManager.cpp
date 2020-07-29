@@ -86,6 +86,7 @@ void LightResourceManager::Update()
 
 					mShadowPassCB.EyePosW = lightPosW;
 					mShadowPassCB.RenderTargetSize = Vector2((float)w, (float)h);
+					mShadowPassCB.RenderTargetSize = Vector2((float)CyanFW::Instance()->GetWidth(), (float)CyanFW::Instance()->GetHeight());
 					mShadowPassCB.InvRenderTargetSize = Vector2(1.0f / w, 1.0f / h);
 					mShadowPassCB.NearZ = targetPosC.z - 1000;
 					mShadowPassCB.FarZ = targetPosC.z + 1000;

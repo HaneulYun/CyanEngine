@@ -197,7 +197,7 @@ MRT_VSOutput PS(PSInput input)
 	float3 position = CalcWorldPos(input.TexC, gbd.LinearDepth);
 	if (Type == 2)
 	{
-		float2 uv = input.PosH.xy / float2(1280, 720) * float2(2, -2) - float2(1, -1);
+		float2 uv = input.PosH.xy / gRenderTargetSize * float2(2, -2) - float2(1, -1);
 		input.TexC = uv;
 		position = CalcWorldPos(input.TexC, gbd.LinearDepth);
 	}
