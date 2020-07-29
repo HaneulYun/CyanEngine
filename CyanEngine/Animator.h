@@ -7,14 +7,14 @@ public:
 
 public:
 	//std::vector<Matrix4x4> FinalTransforms;
-	AnimatorControllerState* state{ nullptr };
+	AnimatorController::State* state{ nullptr };
 	float TimePos = 0.0f;
 
-	std::vector<PastState> pastStates;
+	std::vector<AnimatorController::PastState> pastStates;
 
 	void UpdateSkinnedAnimation(float dt, std::vector<Transform*>& finalTransforms)
 	{
-		AnimatorControllerState* transitionState = controller->Transition(state);
+		AnimatorController::State* transitionState = controller->Transition(state);
 		
 		if (transitionState)
 		{

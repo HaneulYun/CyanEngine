@@ -57,7 +57,7 @@ float AnimationClip::GetClipEndTime() const
 	return t;
 }
 
-void AnimatorController::GetFinalTransforms(const AnimatorControllerState* state, float timePos,
+void AnimatorController::GetFinalTransforms(const AnimatorController::State* state, float timePos,
 	std::vector<PastState>& pastStates, std::vector<Transform*>& finalTransforms) const
 {
 	UINT numBones = mBoneOffsets.size();
@@ -106,7 +106,7 @@ void AnimatorController::GetFinalTransforms(const AnimatorControllerState* state
 	}
 }
 
-AnimatorControllerState* AnimatorController::Transition(AnimatorControllerState* state)
+AnimatorController::State* AnimatorController::Transition(AnimatorController::State* state)
 {
 	for (auto& transition : state->transitionns)
 	{
@@ -116,35 +116,35 @@ AnimatorControllerState* AnimatorController::Transition(AnimatorControllerState*
 			auto& parameter = parameters[condition.ParameterName];
 			switch (parameter.Type)
 			{
-			case AnimatorControllerParameterType::Float:
+			case Parameter::Type::Float:
 				switch (condition.operatorType)
 				{
-				case AnimatorControllerStateTransitionConditionOperatorType::Greater:
+				case OperatorType::Greater:
 					flag += !(parameter.Float > condition.Float);
 					break;
-				case AnimatorControllerStateTransitionConditionOperatorType::Less:
+				case OperatorType::Less:
 					flag += !(parameter.Float < condition.Float);
 					break;
 				}
 				break;
-			case AnimatorControllerParameterType::Int:
+			case Parameter::Type::Int:
 				switch (condition.operatorType)
 				{
-				case AnimatorControllerStateTransitionConditionOperatorType::Greater:
+				case OperatorType::Greater:
 					flag += !(parameter.Int > condition.Int);
 					break;
-				case AnimatorControllerStateTransitionConditionOperatorType::Less:
+				case OperatorType::Less:
 					flag += !(parameter.Int > condition.Int);
 					break;
-				case AnimatorControllerStateTransitionConditionOperatorType::Equals:
+				case OperatorType::Equals:
 					flag += !(parameter.Int > condition.Int);
 					break;
-				case AnimatorControllerStateTransitionConditionOperatorType::NotEqual:
+				case OperatorType::NotEqual:
 					flag += !(parameter.Int > condition.Int);
 					break;
 				}
 				break;
-			case AnimatorControllerParameterType::Bool:
+			case Parameter::Type::Bool:
 				flag += !(parameter.Bool == condition.Bool);
 				break;
 			}
