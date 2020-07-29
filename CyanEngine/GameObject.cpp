@@ -21,10 +21,10 @@ GameObject::GameObject(GameObject* original)
 
 void GameObject::Start()
 {
-	for (GameObject* child : children)
-		child->Start();
 	for (Component* component : components)
 		component->Start();
+	for (GameObject* child : children)
+		child->Start();
 }
 
 void GameObject::Update()
