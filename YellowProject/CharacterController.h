@@ -54,43 +54,43 @@ public:
 	{
 		if (isPlayer)
 		{
-			Vector3 leftFootPosition = (ball_r->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
-			Vector3 rightFootPosition = (ball_l->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
-			
-			switch (leftFootState)
-			{
-			case CharacterController::OnGround:
-				if (leftFootPosition.y > 0.03) leftFootState = ToAir;
-				break;
-			case CharacterController::ToAir:
-				leftFootState = OnAir;
-				audioSource->Play();
-				break;
-			case CharacterController::OnAir:
-				if (leftFootPosition.y < 0.03) leftFootState = ToGround;
-				break;
-			case CharacterController::ToGround:
-				leftFootState = OnGround;
-				break;
-			}
+			//Vector3 leftFootPosition = (ball_r->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
+			//Vector3 rightFootPosition = (ball_l->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
 
-			switch (rightFootState)
-			{
-			case CharacterController::OnGround:
-				if (rightFootPosition.y > 0.03) rightFootState = ToAir;
-				break;
-			case CharacterController::ToAir:
-				rightFootState = OnAir;
-				audioSource->Play();
-				break;
-			case CharacterController::OnAir:
-				if (rightFootPosition.y < 0.03) rightFootState = ToGround;
-				break;
-			case CharacterController::ToGround:
-				rightFootState = OnGround;
-				break;
-			}
-			
+			//switch (leftFootState)
+			//{
+			//case CharacterController::OnGround:
+			//	if (leftFootPosition.y > 0.03) leftFootState = ToAir;
+			//	break;
+			//case CharacterController::ToAir:
+			//	leftFootState = OnAir;
+			//	audioSource->Play();
+			//	break;
+			//case CharacterController::OnAir:
+			//	if (leftFootPosition.y < 0.03) leftFootState = ToGround;
+			//	break;
+			//case CharacterController::ToGround:
+			//	leftFootState = OnGround;
+			//	break;
+			//}
+			//
+			//switch (rightFootState)
+			//{
+			//case CharacterController::OnGround:
+			//	if (rightFootPosition.y > 0.03) rightFootState = ToAir;
+			//	break;
+			//case CharacterController::ToAir:
+			//	rightFootState = OnAir;
+			//	audioSource->Play();
+			//	break;
+			//case CharacterController::OnAir:
+			//	if (rightFootPosition.y < 0.03) rightFootState = ToGround;
+			//	break;
+			//case CharacterController::ToGround:
+			//	rightFootState = OnGround;
+			//	break;
+			//}
+
 			if (Input::GetKeyDown(KeyCode::R))
 			{
 				audioSource->Play();
@@ -170,27 +170,27 @@ public:
 						hori_speed = 0.0f;
 				}
 			}
-		}
 
-		if (Input::GetMouseButtonDown(2))
-		{
-			lastMousePos = Input::mousePosition;
-		}
-		else if (Input::GetMouseButton(2))
-		{
-			Vector3 currMousePos = Input::mousePosition;
-			Vector3 delta = (currMousePos - lastMousePos) * 10 * (XM_PI / 180.0f);
+			if (Input::GetMouseButtonDown(2))
+			{
+				lastMousePos = Input::mousePosition;
+			}
+			else if (Input::GetMouseButton(2))
+			{
+				Vector3 currMousePos = Input::mousePosition;
+				Vector3 delta = (currMousePos - lastMousePos) * 10 * (XM_PI / 180.0f);
 
-			gameObject->transform->Rotate({ 0, 1, 0 }, delta.x);
+				gameObject->transform->Rotate({ 0, 1, 0 }, delta.x);
 
-			lastMousePos = currMousePos;
+				lastMousePos = currMousePos;
+			}
 		}
 
 		gameObject->transform->position += gameObject->transform->forward * speed * Time::deltaTime;
 		gameObject->transform->position += gameObject->transform->right * hori_speed * Time::deltaTime;
-		anim->SetFloat("VelocityX", speed);
-		anim->SetFloat("VelocityZ", hori_speed);
 
+		anim->SetFloat("VelocityX", hori_speed);
+		anim->SetFloat("VelocityZ", speed);
 		//gameObject->transform->position.y = terrainData->GetHeight(gameObject->transform->position.x, gameObject->transform->position.z);
 	}
 

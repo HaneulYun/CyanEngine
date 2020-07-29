@@ -84,7 +84,7 @@ struct AnimatorControllerState
 	std::string Name;
 
 	AnimationClip* motion;
-	std::vector< AnimatorControllerStateTransition> transitionns;
+	std::vector<AnimatorControllerStateTransition> transitionns;
 };
 
 struct PastState

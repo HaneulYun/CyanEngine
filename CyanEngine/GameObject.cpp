@@ -66,8 +66,9 @@ void GameObject::Update()
 				renderer = GetComponent<SkinnedMeshRenderer>();
 			if (renderer)
 				objConstants.MaterialIndexStride = renderer->materials.size();
-			if (GetComponent<Animator>())
-				objConstants.BoneTransformStride = GetComponent<Animator>()->controller->BoneCount();
+
+			if (auto renderer = GetComponent<SkinnedMeshRenderer>(); renderer)
+				objConstants.BoneTransformStride = renderer->bones.size();
 
 			if (auto var = GetComponent<ParticleSystem>(); var)
 				objConstants.ObjPad0 = var->enabled;
@@ -109,7 +110,6 @@ void GameObject::Update()
 		auto skinnedMesh = GetComponentInChildren<SkinnedMeshRenderer>();
 
 		auto objectsResource = skinnedMesh->gameObject->renderSet->GetResources();
-		auto instanceBuffer = objectsResource->InstanceBuffer.get();
 		auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
 
 		int baseindex = skinnedMesh->gameObject->instanceIndex * animator->controller->BoneCount();

@@ -96,14 +96,31 @@ void CharacterScene::BuildObjects()
 		terrain->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("ground"));
 	}
 
-	auto player = CreateEmpty();
+	auto sim0 = CreateEmpty();
 	{
-		player->transform->position = { 512, 35, 1024 * 0.45 };
-
-		auto anim = player->AddComponent<Animator>();
+		sim0->transform->position = { 10, 0, 0 };
+	
+		auto model = sim0->AddChild();
+		{
+			model->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
+			model->AddComponent<SkinnedMeshRenderer>()->mesh = ASSET MESH("ApprenticeSK");
+			model->GetComponent<SkinnedMeshRenderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
+		}
+	
+		auto ccontroller = sim0->AddComponent<CharacterController>();
+		ccontroller->isPlayer = false;
+		ccontroller->terrainData = &terrainData->terrainData;
+	
+		auto anim = sim0->AddComponent<Animator>();
 		anim->controller = controller;
 		anim->state = &controller->states["Idle"];
 		anim->TimePos = 0;
+	}
+
+
+	auto player = CreateEmpty();
+	{
+		player->transform->position = { 0, 0, 10 };
 
 		auto model = player->AddChild();
 		{
@@ -114,10 +131,14 @@ void CharacterScene::BuildObjects()
 		auto audioSource = model->AddComponent<AudioSource>();
 		audioSource->clip = ASSET AUDIO_CLIP("footstep");
 
-		auto controller = player->AddComponent<CharacterController>();
-		controller->terrainData = &terrainData->terrainData;
-		controller->audioSource = audioSource;
+		auto ccontroller = player->AddComponent<CharacterController>();
+		ccontroller->terrainData = &terrainData->terrainData;
+		ccontroller->audioSource = audioSource;
 
+		auto anim = player->AddComponent<Animator>();
+		anim->controller = controller;
+		anim->state = &controller->states["Idle"];
+		anim->TimePos = 0.5;
 
 		auto mainCamera = player->AddChild();
 		{
@@ -127,6 +148,26 @@ void CharacterScene::BuildObjects()
 		}
 	}
 
+	auto sim = CreateEmpty();
+	{
+		sim->transform->position = { 0, 0, 0 };
+
+		auto model = sim->AddChild();
+		{
+			model->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
+			model->AddComponent<SkinnedMeshRenderer>()->mesh = ASSET MESH("ApprenticeSK");
+			model->GetComponent<SkinnedMeshRenderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
+		}
+
+		auto ccontroller = sim->AddComponent<CharacterController>();
+		ccontroller->isPlayer = false;
+		ccontroller->terrainData = &terrainData->terrainData;
+
+		auto anim = sim->AddComponent<Animator>();
+		anim->controller = controller;
+		anim->state = &controller->states["Idle"];
+		anim->TimePos = 1;
+	}
 
 	auto directionalLight = CreateEmpty();
 	{
@@ -137,14 +178,6 @@ void CharacterScene::BuildObjects()
 
 		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.05);
 	}
-
-	//auto cubeObject = CreateEmpty();
-	//{
-	//	cubeObject->transform->position = { 512, 50, 512 };
-	//	cubeObject->transform->Scale({ 200, 1, 200 });
-	//	cubeObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
-	//	cubeObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
-	//}
 
 	{
 		auto ritem = CreateEmpty();
