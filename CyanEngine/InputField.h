@@ -63,6 +63,12 @@ public:
 		return textComponent;
 	}
 
+	void setText(std::wstring str)
+	{
+		text = str;
+		textComponent->text = text;
+	}
+
 	void clear()
 	{
 		text.clear();
