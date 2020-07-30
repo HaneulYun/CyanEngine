@@ -19,6 +19,7 @@ struct Vector2
 			float x;
 			float y;
 		};
+		float v[2];
 	};
 
 	Vector2() = default;
@@ -66,6 +67,7 @@ struct Vector4
 			float b;
 			float a;
 		};
+		float v[4];
 	};
 
 	Vector4() = default;
@@ -103,6 +105,7 @@ struct Vector3
 			float g;
 			float b;
 		};
+		float v[3];
 	};
 
 	Vector3() = default;
