@@ -20,20 +20,17 @@ public:
 
 	void Update()
 	{
-		OnClick();
-	}
-
-	void OnClick()
-	{
-		if (gameObject->active && Input::GetMouseButtonUp(0))
-		{
-			Vector3 screen = Camera::main->ScreenToViewportPoint(Input::mousePosition);
-			if (!IsPointInRect(screen))
-				return;
-			Input::mouseUp[0] = false;
+		if (OnClick())
 			for (auto& e : events)
 				e.first(e.second);
-		}
+	}
+
+	bool OnClick()
+	{
+		if (gameObject->active && Input::GetMouseButtonUp(0))
+			if (IsPointInRect(Camera::main->ScreenToViewportPoint(Input::mousePosition)))
+				return true;
+		return false;
 	}
 
 	bool IsPointInRect(Vector3 position)

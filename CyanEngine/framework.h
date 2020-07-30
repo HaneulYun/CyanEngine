@@ -129,6 +129,7 @@ using Microsoft::WRL::ComPtr;
 #include "Image.h"
 #include "Text.h"
 #include "Button.h"
+#include "InputField.h"
 
 #include "Constant.h"
 

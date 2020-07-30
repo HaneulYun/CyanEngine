@@ -25,6 +25,6 @@ private:
 public:
 	~Text() {}
 
-	void Start() {}
+	void Start();
 	void Update() {}
 };

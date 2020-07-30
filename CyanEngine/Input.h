@@ -20,9 +20,8 @@ public:
 	static bool mouseDown[3];
 	static float mouseWheel;
 
-	static wchar_t buffer[2048];
-	static wchar_t cbuffer[10];
-	static int bufferLen;
+	static wchar_t buffer[8];
+	static wchar_t cbuffer[8];
 public:
 	Input();
 	~Input();
@@ -35,8 +34,6 @@ public:
 	static bool GetMouseButtonUp(int button);
 	static bool GetMouseButtonDown(int button);
 	static float GetMouseWheelDelta();
-
-	static void ClearBuffer();
 
 	static int ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 };

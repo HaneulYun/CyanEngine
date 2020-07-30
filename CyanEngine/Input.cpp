@@ -1,9 +1,8 @@
 #include "pch.h"
 #include "Input.h"
 
-wchar_t Input::buffer[2048];
-wchar_t Input::cbuffer[10];
-int Input::bufferLen;
+wchar_t Input::buffer[8];
+wchar_t Input::cbuffer[8];
 
 Vector3 Input::mousePosition;
 bool Input::keys[256];
@@ -31,6 +30,8 @@ void Input::Update()
 	for (auto& d : mouseUp)
 		d = false;
 	mouseWheel = 0.0f;
+
+	memset(buffer, 0, 8);
 }
 
 bool Input::GetKey(KeyCode key)
@@ -66,13 +67,6 @@ bool Input::GetMouseButtonDown(int button)
 float Input::GetMouseWheelDelta()
 {
 	return mouseWheel;
-}
-
-void Input::ClearBuffer()
-{
-	memset(buffer, 0, 256);
-	memset(cbuffer, 0, 10);
-	bufferLen = 0;
 }
 
 int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -145,9 +139,10 @@ int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LP
 			{
 				ImmGetCompositionString(himc, GCS_RESULTSTR, cbuffer, len);
 				cbuffer[len] = 0;
-				wcscpy(buffer + bufferLen, cbuffer);
-				bufferLen += wcslen(cbuffer);
-				memset(cbuffer, 0, 10);
+
+				wcscpy(buffer, cbuffer);
+				//bufferLen = wcslen(cbuffer);
+				memset(cbuffer, 0, 8);
 			}
 		}
 		else if (lParam & GCS_COMPSTR)
@@ -155,7 +150,6 @@ int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LP
 			len = ImmGetCompositionString(himc, GCS_COMPSTR, NULL, 0);
 			ImmGetCompositionString(himc, GCS_COMPSTR, cbuffer, len);
 			cbuffer[len] = 0;
-			wcscpy(buffer + bufferLen, cbuffer);
 		}
 
 		ImmReleaseContext(hWnd, himc);
@@ -163,19 +157,20 @@ int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LP
 	case WM_IME_CHAR:
 		return 0;
 	case WM_CHAR:
-		if (wParam == VK_BACK)
-		{
-			if (wcslen(buffer))
-			{
-				buffer[wcslen(buffer) - 1] = 0;
-				--bufferLen;
-			}
-		}
-		else if (wParam != 13)
-		{
-		buffer[wcslen(buffer)] = wParam;
-		++bufferLen;
-		}
+		//if (wParam == VK_BACK)
+		//{
+		//	if (wcslen(buffer))
+		//	{
+		//		buffer[wcslen(buffer) - 1] = 0;
+		//		--bufferLen;
+		//	}
+		//}
+		//else if (wParam != 13)
+		//{
+		//buffer[wcslen(buffer)] = wParam;
+		//++bufferLen;
+		//}
+		buffer[0] = wParam;
 		return 0;
 	}
 	return 1;

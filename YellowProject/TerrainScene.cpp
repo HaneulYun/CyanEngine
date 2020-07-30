@@ -276,7 +276,6 @@ void TerrainScene::BuildObjects()
 			text->text = L"Menu Scene";
 			text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 			text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-			textObjects.push_back(textobject);
 		}
 	}
 }

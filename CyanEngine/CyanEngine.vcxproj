@@ -200,6 +200,7 @@
     <ClInclude Include="HeapManager.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="InputField.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="LightResource.h" />
     <ClInclude Include="LightResourceManager.h" />
@@ -260,6 +261,7 @@
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="HeapManager.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="InputField.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LightResourceManager.cpp" />
     <ClCompile Include="MathHelper.cpp" />
@@ -289,6 +291,7 @@
     <ClCompile Include="SpatialPartitioningManager.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Vector3.cpp" />
   </ItemGroup>

@@ -10,4 +10,8 @@ public:
 	{
 		OutputDebugStringA(log);
 	}
+	static void Log(const wchar_t* log)
+	{
+		OutputDebugStringW(log);
+	}
 };
