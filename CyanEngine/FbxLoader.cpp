@@ -4,14 +4,23 @@
 Vector3 FbxModelData::scale = { 0.01, 0.01, 0.01 };
 
 template <typename T>
-void SetVector3ForDirect(Vector3& dest, T* src, int index)
+void SetVector3ForControlPoint(Vector3& dest, T* src, int index)
 {
-	dest.x = static_cast<float>(src->GetDirectArray().GetAt(index).mData[0]);
-	dest.y = static_cast<float>(src->GetDirectArray().GetAt(index).mData[1]);
-	dest.z = static_cast<float>(src->GetDirectArray().GetAt(index).mData[2]);
+	dest.x = static_cast<float>(src->GetControlPointAt(index).mData[0]);
+	dest.y = static_cast<float>(src->GetControlPointAt(index).mData[1]);
+	dest.z = static_cast<float>(src->GetControlPointAt(index).mData[2]);
 }
-template <typename T>
-void SetVector3ForIndexToDirect(Vector3& dest, T* src, int index)
+template <typename S, typename T>
+void SetVector3ForDirect(S& dest, T* src, int index)
+{
+	int cnt = _countof(dest.v);
+	for (int i = 0; i < cnt; ++i)
+		dest.v[i] = static_cast<float>(src->GetDirectArray().GetAt(index).mData[i]);
+	if(cnt == 2)
+		dest.y = static_cast<float>(1 - src->GetDirectArray().GetAt(index).mData[1]);
+}
+template <typename S, typename T>
+void SetVector3ForIndexToDirect(S& dest, T* src, int index)
 {
 	int eindex = src->GetIndexArray().GetAt(index);
 	SetVector3ForDirect(dest, src, eindex);
@@ -171,10 +180,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 	for (unsigned int i = 0; i < verticesCount; ++i)
 	{
 		FrameResource::SkinnedVertex vertex;
-		vertex.Pos.x = static_cast<float>(mesh->GetControlPointAt(i).mData[0]);
-		vertex.Pos.y = static_cast<float>(mesh->GetControlPointAt(i).mData[1]);
-		vertex.Pos.z = static_cast<float>(mesh->GetControlPointAt(i).mData[2]);
-
+		SetVector3ForControlPoint(vertex.Pos, mesh, i);
 		vertex.Pos *= scale;
 
 		if (vertex.Pos.x < boundMin.x) boundMin.x = vertex.Pos.x;
@@ -196,10 +202,12 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		for (unsigned int j = 0; j < 3; ++j)
 		{
 			int vertexIndex = mesh->GetPolygonVertex(i, j);
+			int indexCount = i * 3 + j;
+			int uvIndex = mesh->GetTextureUVIndex(i, j);
 			indices.emplace_back(vertexIndex);
 			FrameResource::SkinnedVertex vertex;
-			int k = mesh->GetElementNormalCount();
-			if (k > 0)
+
+			if (mesh->GetElementNormalCount())
 			{
 				const FbxGeometryElementNormal* vertexNormal = mesh->GetElementNormal(0);
 				switch (vertexNormal->GetMappingMode())
@@ -217,8 +225,6 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 					switch (vertexNormal->GetReferenceMode())
 					{
 					case FbxGeometryElement::eDirect:
-					{
-						int vertexCnt = i * 3 + j;
 						if (vertices[vertexIndex].Normal.x == 0.0f && vertices[vertexIndex].Normal.y == 0.0f && vertices[vertexIndex].Normal.z == 0.0f);
 						else if (vertex.Pos == Vector3{ 0.0f, 0.0f, 0.0f })
 						{
@@ -229,25 +235,15 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 						}
 						else
 							vertexIndex = vertices.size() - 1;
-						SetVector3ForDirect(vertices[vertexIndex].Normal, vertexNormal, vertexCnt);
-					}
-					break;
-			
+						SetVector3ForDirect(vertices[vertexIndex].Normal, vertexNormal, indexCount); break;
 					case FbxGeometryElement::eIndexToDirect:
-					{
-						int vertexCnt = i * 3 + j;
-						int index = vertexNormal->GetIndexArray().GetAt(vertexCnt);
-						vertices[vertexIndex].Normal.x = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
-						vertices[vertexIndex].Normal.y = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
-						vertices[vertexIndex].Normal.z = static_cast<float>(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
-					}
-					break;
+						SetVector3ForIndexToDirect(vertices[vertexIndex].Normal, vertexNormal, indexCount); break;
 					}
 					break;
 				}
 			}
-			k = mesh->GetElementTangentCount();
-			if (k > 0)
+
+			if (mesh->GetElementTangentCount())
 			{
 				const FbxGeometryElementTangent* vertexTangent = mesh->GetElementTangent(0);
 				switch (vertexTangent->GetMappingMode())
@@ -256,65 +252,35 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 					switch (vertexTangent->GetReferenceMode())
 					{
 					case FbxGeometryElement::eDirect:
-						vertices[vertexIndex].TangentU.x = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexIndex).mData[0]);
-						vertices[vertexIndex].TangentU.y = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexIndex).mData[1]);
-						vertices[vertexIndex].TangentU.z = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexIndex).mData[2]);
-						break;
+						SetVector3ForDirect(vertices[vertexIndex].TangentU, vertexTangent, vertexIndex); break;
 					case FbxGeometryElement::eIndexToDirect:
-						int index = vertexTangent->GetIndexArray().GetAt(vertexIndex);
-						vertices[vertexIndex].TangentU.x = static_cast<float>(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
-						vertices[vertexIndex].TangentU.y = static_cast<float>(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
-						vertices[vertexIndex].TangentU.z = static_cast<float>(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
-						break;
+						SetVector3ForIndexToDirect(vertices[vertexIndex].TangentU, vertexTangent, vertexIndex); break;
 					}
 					break;
 				case FbxGeometryElement::eByPolygonVertex:
 					switch (vertexTangent->GetReferenceMode())
 					{
 					case FbxGeometryElement::eDirect:
-					{
-						int vertexCnt = i * 3 + j;
-						if (vertices[vertexIndex].TangentU.x == 0.0f && vertices[vertexIndex].TangentU.y == 0.0f && vertices[vertexIndex].TangentU.z == 0.0f)
-						{
-							vertices[vertexIndex].TangentU.x = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexCnt).mData[0]);
-							vertices[vertexIndex].TangentU.y = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexCnt).mData[1]);
-							vertices[vertexIndex].TangentU.z = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexCnt).mData[2]);
-						}
+						if (vertices[vertexIndex].TangentU.x == 0.0f && vertices[vertexIndex].TangentU.y == 0.0f && vertices[vertexIndex].TangentU.z == 0.0f);
 						else if (vertex.Pos == Vector3{ 0.0f, 0.0f, 0.0f })
 						{
 							vertex = vertices[vertexIndex];
 							vertexIndex = vertices.size();
 							vertices.push_back(vertex);
-							vertices[vertexIndex].TangentU.x = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexCnt).mData[0]);
-							vertices[vertexIndex].TangentU.y = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexCnt).mData[1]);
-							vertices[vertexIndex].TangentU.z = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexCnt).mData[2]);
 							indices[indices.size() - 1] = vertexIndex;
 						}
 						else
-						{
 							vertexIndex = vertices.size() - 1;
-							vertices[vertexIndex].TangentU.x = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexCnt).mData[0]);
-							vertices[vertexIndex].TangentU.y = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexCnt).mData[1]);
-							vertices[vertexIndex].TangentU.z = static_cast<float>(vertexTangent->GetDirectArray().GetAt(vertexCnt).mData[2]);
-						}
-					}
-					break;
+						SetVector3ForDirect(vertices[vertexIndex].TangentU, vertexTangent, indexCount); break;
 					case FbxGeometryElement::eIndexToDirect:
-					{
-						int vertexCnt = i * 3 + j;
-						int index = vertexTangent->GetIndexArray().GetAt(vertexCnt);
-						vertices[vertexIndex].TangentU.x = static_cast<float>(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
-						vertices[vertexIndex].TangentU.y = static_cast<float>(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
-						vertices[vertexIndex].TangentU.z = static_cast<float>(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
-					}
-					break;
+						SetVector3ForIndexToDirect(vertices[vertexIndex].TangentU, vertexTangent, indexCount); break;
 					}
 					break;
 				}
 			
 			}
-			k = mesh->GetElementUVCount();
-			if (k > 0) {
+
+			if (mesh->GetElementUVCount()) {
 				const FbxGeometryElementUV* vertexUv = mesh->GetElementUV(0);
 				switch (vertexUv->GetMappingMode())
 				{
@@ -322,13 +288,9 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 					switch (vertexUv->GetReferenceMode())
 					{
 					case FbxGeometryElement::eDirect:
-						vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[0]);
-						vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(vertexIndex).mData[1]);
-						break;
+						SetVector3ForDirect(vertices[vertexIndex].TexC, vertexUv, vertexIndex); break;
 					case FbxGeometryElement::eIndexToDirect:
-						int index = vertexUv->GetIndexArray().GetAt(vertexIndex);
-						vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[0]);
-						vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(index).mData[1]);
+						SetVector3ForIndexToDirect(vertices[vertexIndex].TexC, vertexUv, vertexIndex); break;
 						break;
 					}
 					break;
@@ -337,30 +299,17 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 					{
 					case FbxGeometryElement::eDirect:
 					case FbxGeometryElement::eIndexToDirect:
-					{
-						int uvIndex = mesh->GetTextureUVIndex(i, j);
-						if (vertices[vertexIndex].TexC.x == 0.0f && vertices[vertexIndex].TexC.y == 0.0f)
-						{
-							vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[0]);
-							vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
-						}
+						if (vertices[vertexIndex].TexC.x == 0.0f && vertices[vertexIndex].TexC.y == 0.0f);
 						else if (vertex.Pos == Vector3{ 0.0f, 0.0f, 0.0f })
 						{
 							vertex = vertices[vertexIndex];
 							vertexIndex = vertices.size();
 							vertices.push_back(vertex);
-							vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[0]);
-							vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
 							indices[indices.size() - 1] = vertexIndex;
 						}
 						else
-						{
 							vertexIndex = vertices.size() - 1;
-							vertices[vertexIndex].TexC.x = static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[0]);
-							vertices[vertexIndex].TexC.y = 1.0f - static_cast<float>(vertexUv->GetDirectArray().GetAt(uvIndex).mData[1]);
-						}
-					}
-					break;
+						SetVector3ForDirect(vertices[vertexIndex].TexC, vertexUv, uvIndex); break;
 					}
 					break;
 				}
