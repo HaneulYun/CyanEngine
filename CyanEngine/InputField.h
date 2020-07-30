@@ -23,14 +23,7 @@ public:
 	void Start()
 	{
 		button = gameObject->AddComponent<Button>();
-
-		auto child = gameObject->AddChildUI();
-		auto rt = child->GetComponent<RectTransform>();
-		rt->anchorMin = { 0, 0 };
-		rt->anchorMax = { 1, 1 };
-
-		textComponent = child->AddComponent<Text>();
-		textComponent->text = L"Input here";
+		Text();
 	}
 	void Update()
 	{
@@ -46,14 +39,27 @@ public:
 			if (Input::buffer[0])
 			{
 				if (Input::buffer[0] == 13)
-				{
 					isFocused = false;
-				}
 				else
 				{
 					text += Input::buffer;
 					textComponent->text = text + Input::cbuffer;
 				}
 			}
+	}
+
+	Text* Text()
+	{
+		if (!textComponent)
+		{
+			auto child = gameObject->AddChildUI();
+			auto rt = child->GetComponent<RectTransform>();
+			rt->anchorMin = { 0, 0 };
+			rt->anchorMax = { 1, 1 };
+
+			textComponent = child->AddComponent<::Text>();
+			textComponent->text = L"Input here";
+		}
+		return textComponent;
 	}
 };
