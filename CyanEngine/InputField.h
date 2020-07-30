@@ -62,4 +62,15 @@ public:
 		}
 		return textComponent;
 	}
+
+	void clear()
+	{
+		text.clear();
+		textComponent->text = text;
+	}
+
+	void setFocus(bool isFocus)
+	{
+		isFocused = isFocus;
+	}
 };
