@@ -152,6 +152,8 @@ using Microsoft::WRL::ComPtr;
 
 #include "QuadNode.h"
 #include "QuadTree.h"
+#include "TagData.h"
+#include "Sector.h"
 #include "SpatialPartitioningManager.h"
 
 #include "AssetManager.h"

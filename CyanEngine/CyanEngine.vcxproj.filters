@@ -234,12 +234,6 @@
     <ClInclude Include="SpatialPartitioningManager.h">
       <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClInclude>
-    <ClInclude Include="QuadNode.h">
-      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
-    </ClInclude>
-    <ClInclude Include="QuadTree.h">
-      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
-    </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClInclude>
@@ -278,6 +272,18 @@
     </ClInclude>
     <ClInclude Include="InputField.h">
       <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
+    </ClInclude>
+    <ClInclude Include="Sector.h">
+      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadNode.h">
+      <Filter>Undetermined</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadTree.h">
+      <Filter>Undetermined</Filter>
+    </ClInclude>
+    <ClInclude Include="TagData.h">
+      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -386,12 +392,6 @@
     <ClCompile Include="SpatialPartitioningManager.cpp">
       <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClCompile>
-    <ClCompile Include="QuadNode.cpp">
-      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
-    </ClCompile>
-    <ClCompile Include="QuadTree.cpp">
-      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
-    </ClCompile>
     <ClCompile Include="Terrain.cpp">
       <Filter>0_00_CyanEngine\30_Core\36_TerrainComponent</Filter>
     </ClCompile>
@@ -427,6 +427,15 @@
     </ClCompile>
     <ClCompile Include="InputField.cpp">
       <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadNode.cpp">
+      <Filter>Undetermined</Filter>
+    </ClCompile>
+    <ClCompile Include="QuadTree.cpp">
+      <Filter>Undetermined</Filter>
+    </ClCompile>
+    <ClCompile Include="TagData.cpp">
+      <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
