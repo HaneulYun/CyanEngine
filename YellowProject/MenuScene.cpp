@@ -40,7 +40,30 @@ void MenuScene::BuildObjects()
 		text->color = { 1, 1, 1, 1 };
 		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-		textObjects.push_back(background);
+
+		//auto inputField = CreateImage();
+		//{
+		//	auto rt = inputField->GetComponent<RectTransform>();
+		//	rt->setAnchorAndPivot(0.5, 0.5);
+		//	rt->setPosAndSize(-10, 20, 150, 30);
+		//
+		//	inputField->AddComponent<Button>()->AddEvent(
+		//		[](void*) {
+		//			SceneManager::LoadScene("TerrainScene");
+		//		});
+		//	{
+		//		auto textobject = inputField->AddChildUI();
+		//		auto rectTransform = textobject->GetComponent<RectTransform>();
+		//		rectTransform->anchorMin = { 0, 0 };
+		//		rectTransform->anchorMax = { 1, 1 };
+		//
+		//		Text* text = textobject->AddComponent<Text>();
+		//		text->text = L"Terrain Scene";
+		//		text->font = L"메이플스토리";
+		//		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+		//		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+		//	}
+		//}
 
 		auto terrainSceneButton = CreateImage();
 		{
@@ -63,7 +86,6 @@ void MenuScene::BuildObjects()
 				text->font = L"메이플스토리";
 				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-				textObjects.push_back(textobject);
 			}
 		}
 
@@ -88,7 +110,6 @@ void MenuScene::BuildObjects()
 				text->font = L"메이플스토리";
 				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-				textObjects.push_back(textobject);
 			}
 		}
 
@@ -113,7 +134,6 @@ void MenuScene::BuildObjects()
 				text->font = L"메이플스토리";
 				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-				textObjects.push_back(textobject);
 			}
 		}
 	}

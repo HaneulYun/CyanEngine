@@ -101,7 +101,6 @@ public:
 		text->fontSize = 10;
 		text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
 		text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
-		Scene::scene->textObjects.push_back(child);
 
 		return child->AddComponent<Button>();
 	}

@@ -289,6 +289,7 @@
     <ClCompile Include="SpatialPartitioningManager.cpp" />
     <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="Vector3.cpp" />
   </ItemGroup>
