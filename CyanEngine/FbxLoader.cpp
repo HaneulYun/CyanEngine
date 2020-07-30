@@ -232,7 +232,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 						SetVector3ForDirect(vertices[vertexIndex].Normal, vertexNormal, vertexCnt);
 					}
 					break;
-
+			
 					case FbxGeometryElement::eIndexToDirect:
 					{
 						int vertexCnt = i * 3 + j;
@@ -311,7 +311,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 					}
 					break;
 				}
-
+			
 			}
 			k = mesh->GetElementUVCount();
 			if (k > 0) {
@@ -368,34 +368,34 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		}
 
 		// material
-		{
-			int t;
-			int index;
-			FbxSurfaceMaterial* mat;
-			std::string key;
-
-			const FbxGeometryElementMaterial* vertexMaterial = mesh->GetElementMaterial(0);
-			switch (vertexMaterial->GetMappingMode())
-			{
-			case FbxGeometryElement::eByPolygon:
-				switch (vertexMaterial->GetReferenceMode())
-				{
-				case FbxGeometryElement::eIndexToDirect:
-					vertexMaterial->GetDirectArray().GetCount();
-
-					index = vertexMaterial->GetIndexArray().GetAt(i);
-					mat = vertexMaterial->GetDirectArray().GetAt(index);
-					if (mat)
-						key = mat->GetName();
-					else
-						key = "unknown";
-					for (int j = 0; j < 3; ++j)
-						testSubset[key].push_back(i * 3 + j);
-					break;
-				}
-				break;
-			}
-		}
+		//{
+		//	int t;
+		//	int index;
+		//	FbxSurfaceMaterial* mat;
+		//	std::string key;
+		//
+		//	const FbxGeometryElementMaterial* vertexMaterial = mesh->GetElementMaterial(0);
+		//	switch (vertexMaterial->GetMappingMode())
+		//	{
+		//	case FbxGeometryElement::eByPolygon:
+		//		switch (vertexMaterial->GetReferenceMode())
+		//		{
+		//		case FbxGeometryElement::eIndexToDirect:
+		//			vertexMaterial->GetDirectArray().GetCount();
+		//
+		//			index = vertexMaterial->GetIndexArray().GetAt(i);
+		//			mat = vertexMaterial->GetDirectArray().GetAt(index);
+		//			if (mat)
+		//				key = mat->GetName();
+		//			else
+		//				key = "unknown";
+		//			for (int j = 0; j < 3; ++j)
+		//				testSubset[key].push_back(i * 3 + j);
+		//			break;
+		//		}
+		//		break;
+		//	}
+		//}
 	}
 
 	int k = 0;
@@ -404,6 +404,14 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		SubmeshGeometry s{};
 		s.StartIndexLocation = v.second.front();
 		s.IndexCount = v.second.back() - v.second.front();
+
+		submeshes.push_back(s);
+	}
+	if(!testSubset.size())
+	{
+		SubmeshGeometry s{};
+		s.StartIndexLocation = 0;
+		s.IndexCount = indices.size();
 
 		submeshes.push_back(s);
 	}
