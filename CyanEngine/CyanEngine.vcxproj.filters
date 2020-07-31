@@ -40,9 +40,6 @@
     <Filter Include="0_00_CyanEngine\30_Core\33_FixedComponent">
       <UniqueIdentifier>{1b9adc8f-b973-44a8-87ab-9e9e73313bec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="0_00_CyanEngine\30_Core\34_AniimationComponent">
-      <UniqueIdentifier>{773acaf6-0d09-4543-809a-68c742a682c8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Undetermined">
       <UniqueIdentifier>{2b4beec6-277a-418a-8eb6-1aebabd47f5d}</UniqueIdentifier>
     </Filter>
@@ -75,6 +72,9 @@
     </Filter>
     <Filter Include="0_00_CyanEngine\30_Core\37_AudioComponent">
       <UniqueIdentifier>{c6d8ce0e-052a-45ea-b371-85d4869eec02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="0_00_CyanEngine\30_Core\34_AnimationComponent">
+      <UniqueIdentifier>{773acaf6-0d09-4543-809a-68c742a682c8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -178,10 +178,10 @@
       <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
     </ClInclude>
     <ClInclude Include="Animator.h">
-      <Filter>0_00_CyanEngine\30_Core\34_AniimationComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\34_AnimationComponent</Filter>
     </ClInclude>
     <ClInclude Include="AnimatorController.h">
-      <Filter>0_00_CyanEngine\30_Core\34_AniimationComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\34_AnimationComponent</Filter>
     </ClInclude>
     <ClInclude Include="Button.h">
       <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
@@ -354,7 +354,7 @@
       <Filter>0_00_CyanEngine\80_Util</Filter>
     </ClCompile>
     <ClCompile Include="AnimatorController.cpp">
-      <Filter>0_00_CyanEngine\30_Core\34_AniimationComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\34_AnimationComponent</Filter>
     </ClCompile>
     <ClCompile Include="SceneManager.cpp">
       <Filter>0_00_CyanEngine\20_Scene</Filter>
@@ -420,7 +420,7 @@
       <Filter>0_00_CyanEngine\50_Manager</Filter>
     </ClCompile>
     <ClCompile Include="Animator.cpp">
-      <Filter>0_00_CyanEngine\30_Core\34_AniimationComponent</Filter>
+      <Filter>0_00_CyanEngine\30_Core\34_AnimationComponent</Filter>
     </ClCompile>
     <ClCompile Include="Text.cpp">
       <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
