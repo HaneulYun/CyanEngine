@@ -11,7 +11,7 @@ struct PassConstants
 	Matrix4x4	ViewProj;
 	Matrix4x4	InvViewProj;
 
-    Vector3		EyePosW { 0.0f, 0.0f, 0.0f };
+	Vector3		EyePosW{ 0.0f, 0.0f, 0.0f };
 	float		cbPerObjectPad1{ 0.0f };
 	Vector2		RenderTargetSize{ 0.0f, 0.0f };
 	Vector2		InvRenderTargetSize{ 0.0f, 0.0f };
@@ -40,6 +40,11 @@ struct FrameResource
 		Vector3 TangentU{};
 		Vector3 BoneWeights{};
 		BYTE BoneIndices[4]{};
+
+		bool operator<(const FrameResource::SkinnedVertex& rhs) const
+		{
+			return memcmp(this, &rhs, sizeof(FrameResource::SkinnedVertex)) < 0;
+		}
 	};
 	struct ParticleSpriteVertex
 	{
@@ -59,12 +64,12 @@ public:
 		PassCB = std::make_unique<UploadBuffer<PassConstants>>(device, passCount, true);
 	}
 	FrameResource(const FrameResource&) = delete;
-    FrameResource& operator=(const FrameResource&) = delete;
+	FrameResource& operator=(const FrameResource&) = delete;
 	~FrameResource() = default;
 
 	ComPtr<ID3D12CommandAllocator> CmdListAlloc{ nullptr };
 
 	std::unique_ptr<UploadBuffer<PassConstants>> PassCB{ nullptr };
 
-    UINT64 Fence = 0;
+	UINT64 Fence = 0;
 };

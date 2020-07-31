@@ -16,7 +16,7 @@ void SetVector3ForDirect(S& dest, T* src, int index)
 	int cnt = _countof(dest.v);
 	for (int i = 0; i < cnt; ++i)
 		dest.v[i] = static_cast<float>(src->GetDirectArray().GetAt(index).mData[i]);
-	if(cnt == 2)
+	if (cnt == 2)
 		dest.y = static_cast<float>(1 - src->GetDirectArray().GetAt(index).mData[1]);
 }
 template <typename S, typename T>
@@ -24,6 +24,33 @@ void SetVector3ForIndexToDirect(S& dest, T* src, int index)
 {
 	int eindex = src->GetIndexArray().GetAt(index);
 	SetVector3ForDirect(dest, src, eindex);
+}
+
+template <typename S, typename T>
+void SetVector3ForElement(S& dest, T* element, int vertexIndex, int indexCount, bool uv = false)
+{
+	switch (element->GetMappingMode())
+	{
+	case FbxGeometryElement::eByControlPoint:
+		switch (element->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+			SetVector3ForDirect(dest, element, vertexIndex); break;
+		case FbxGeometryElement::eIndexToDirect:
+			SetVector3ForIndexToDirect(dest, element, vertexIndex); break;
+		}
+		break;
+	case FbxGeometryElement::eByPolygonVertex:
+		switch (element->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+			SetVector3ForDirect(dest, element, indexCount); break;
+		case FbxGeometryElement::eIndexToDirect:
+			if (uv) SetVector3ForDirect(dest, element, indexCount);
+			else SetVector3ForIndexToDirect(dest, element, indexCount); break;
+		}
+		break;
+	}
 }
 
 void FbxModelData::LoadFbx(const char* path)
@@ -195,6 +222,9 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 	std::map<std::string, std::vector<int>> testSubset;
 
+	std::vector<bool> vertexChecker(vertices.size());
+	std::map<FrameResource::SkinnedVertex, int> vertexer;
+
 	int polygonCount = mesh->GetPolygonCount();
 	for (unsigned int i = 0; i < polygonCount; ++i)
 	{
@@ -204,116 +234,44 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 			int vertexIndex = mesh->GetPolygonVertex(i, j);
 			int indexCount = i * 3 + j;
 			int uvIndex = mesh->GetTextureUVIndex(i, j);
-			indices.emplace_back(vertexIndex);
-			FrameResource::SkinnedVertex vertex;
+
+			FrameResource::SkinnedVertex vertex = vertices[vertexIndex];
 
 			if (mesh->GetElementNormalCount())
 			{
 				const FbxGeometryElementNormal* vertexNormal = mesh->GetElementNormal(0);
-				switch (vertexNormal->GetMappingMode())
-				{
-				case FbxGeometryElement::eByControlPoint:
-					switch (vertexNormal->GetReferenceMode())
-					{
-					case FbxGeometryElement::eDirect:
-						SetVector3ForDirect(vertices[vertexIndex].Normal, vertexNormal, vertexIndex); break;
-					case FbxGeometryElement::eIndexToDirect:
-						SetVector3ForIndexToDirect(vertices[vertexIndex].Normal, vertexNormal, vertexIndex); break;
-					}
-					break;
-				case FbxGeometryElement::eByPolygonVertex:
-					switch (vertexNormal->GetReferenceMode())
-					{
-					case FbxGeometryElement::eDirect:
-						if (vertices[vertexIndex].Normal.x == 0.0f && vertices[vertexIndex].Normal.y == 0.0f && vertices[vertexIndex].Normal.z == 0.0f);
-						else if (vertex.Pos == Vector3{ 0.0f, 0.0f, 0.0f })
-						{
-							vertex = vertices[vertexIndex];
-							vertexIndex = vertices.size();
-							vertices.push_back(vertex);
-							indices.back() = vertexIndex;
-						}
-						else
-							vertexIndex = vertices.size() - 1;
-						SetVector3ForDirect(vertices[vertexIndex].Normal, vertexNormal, indexCount); break;
-					case FbxGeometryElement::eIndexToDirect:
-						SetVector3ForIndexToDirect(vertices[vertexIndex].Normal, vertexNormal, indexCount); break;
-					}
-					break;
-				}
+				SetVector3ForElement(vertex.Normal, vertexNormal, vertexIndex, indexCount);
 			}
 
 			if (mesh->GetElementTangentCount())
 			{
 				const FbxGeometryElementTangent* vertexTangent = mesh->GetElementTangent(0);
-				switch (vertexTangent->GetMappingMode())
-				{
-				case FbxGeometryElement::eByControlPoint:
-					switch (vertexTangent->GetReferenceMode())
-					{
-					case FbxGeometryElement::eDirect:
-						SetVector3ForDirect(vertices[vertexIndex].TangentU, vertexTangent, vertexIndex); break;
-					case FbxGeometryElement::eIndexToDirect:
-						SetVector3ForIndexToDirect(vertices[vertexIndex].TangentU, vertexTangent, vertexIndex); break;
-					}
-					break;
-				case FbxGeometryElement::eByPolygonVertex:
-					switch (vertexTangent->GetReferenceMode())
-					{
-					case FbxGeometryElement::eDirect:
-						if (vertices[vertexIndex].TangentU.x == 0.0f && vertices[vertexIndex].TangentU.y == 0.0f && vertices[vertexIndex].TangentU.z == 0.0f);
-						else if (vertex.Pos == Vector3{ 0.0f, 0.0f, 0.0f })
-						{
-							vertex = vertices[vertexIndex];
-							vertexIndex = vertices.size();
-							vertices.push_back(vertex);
-							indices[indices.size() - 1] = vertexIndex;
-						}
-						else
-							vertexIndex = vertices.size() - 1;
-						SetVector3ForDirect(vertices[vertexIndex].TangentU, vertexTangent, indexCount); break;
-					case FbxGeometryElement::eIndexToDirect:
-						SetVector3ForIndexToDirect(vertices[vertexIndex].TangentU, vertexTangent, indexCount); break;
-					}
-					break;
-				}
-			
+				SetVector3ForElement(vertex.TangentU, vertexTangent, vertexIndex, indexCount);
 			}
 
 			if (mesh->GetElementUVCount()) {
 				const FbxGeometryElementUV* vertexUv = mesh->GetElementUV(0);
-				switch (vertexUv->GetMappingMode())
-				{
-				case FbxGeometryElement::eByControlPoint:
-					switch (vertexUv->GetReferenceMode())
-					{
-					case FbxGeometryElement::eDirect:
-						SetVector3ForDirect(vertices[vertexIndex].TexC, vertexUv, vertexIndex); break;
-					case FbxGeometryElement::eIndexToDirect:
-						SetVector3ForIndexToDirect(vertices[vertexIndex].TexC, vertexUv, vertexIndex); break;
-						break;
-					}
-					break;
-				case FbxGeometryElement::eByPolygonVertex:
-					switch (vertexUv->GetReferenceMode())
-					{
-					case FbxGeometryElement::eDirect:
-					case FbxGeometryElement::eIndexToDirect:
-						if (vertices[vertexIndex].TexC.x == 0.0f && vertices[vertexIndex].TexC.y == 0.0f);
-						else if (vertex.Pos == Vector3{ 0.0f, 0.0f, 0.0f })
-						{
-							vertex = vertices[vertexIndex];
-							vertexIndex = vertices.size();
-							vertices.push_back(vertex);
-							indices[indices.size() - 1] = vertexIndex;
-						}
-						else
-							vertexIndex = vertices.size() - 1;
-						SetVector3ForDirect(vertices[vertexIndex].TexC, vertexUv, uvIndex); break;
-					}
-					break;
-				}
+				SetVector3ForElement(vertex.TexC, vertexUv, vertexIndex, uvIndex, true);
 			}
+
+			if (vertexChecker[vertexIndex])
+			{
+				if (vertexer.count(vertex) == 0)
+				{
+					vertexIndex = vertices.size();
+					vertices.push_back(vertex);
+					vertexer[vertex] = vertexIndex;
+				}
+				else
+					vertexIndex = vertexer[vertex];
+			}
+			else
+			{
+				vertices[vertexIndex] = vertex;
+				vertexer[vertex] = vertexIndex;
+				vertexChecker[vertexIndex] = true;
+			}
+			indices.push_back(vertexIndex);
 		}
 
 		// material
@@ -356,7 +314,7 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 		submeshes.push_back(s);
 	}
-	if(!testSubset.size())
+	if (!testSubset.size())
 	{
 		SubmeshGeometry s{};
 		s.StartIndexLocation = 0;
