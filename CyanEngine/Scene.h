@@ -1,5 +1,11 @@
 #pragma once
 
+class Environment
+{
+public:
+	Light* sunSources{ nullptr };
+};
+
 class Scene
 {
 public:
@@ -17,6 +23,8 @@ public:
 public:
 	FrameResourceManager frameResourceManager;
 	LightResourceManager lightResourceManager;
+
+	Environment environment;
 	
 
 public:

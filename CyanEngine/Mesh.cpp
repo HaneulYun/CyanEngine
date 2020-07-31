@@ -14,7 +14,7 @@ void Mesh::Create(GeometryType type)
 		case GeometryType::GeometryType_Cube:
 			box = geoGen.CreateBox(1.0f, 1.0f, 1.0f, 1); break;
 		case GeometryType::GeometryType_Sphere:
-			box = geoGen.CreateSphere(0.5f, 20, 20); break;
+			box = geoGen.CreateSphere(1.0f, 20, 20); break;
 		case GeometryType::GeometryType_Cylinder:
 			box = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20); break;
 		case GeometryType::GeometryType_Plane:

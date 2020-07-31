@@ -190,7 +190,16 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 		if (layerIndex == (int)RenderLayer::SkinnedOpaque)
 			commandList->SetPipelineState(pipelineStates["skinnedOpaque"].Get());
 		else if (layerIndex == (int)RenderLayer::Sky)
+		{
 			commandList->SetPipelineState(pipelineStates["sky"].Get());
+			if (Scene::scene->environment.sunSources)
+			{
+				auto light = Scene::scene->environment.sunSources;
+				Matrix4x4 worldMatrix = light->gameObject->GetMatrix();
+				PassLight l = PassLight{ light->get(worldMatrix.forward, worldMatrix.position) };
+				commandList->SetGraphicsRoot32BitConstants(8, 16, &l, 0);
+			}
+		}
 		else if (layerIndex == (int)RenderLayer::Grass)
 			commandList->SetPipelineState(pipelineStates["grass"].Get());
 		else if (layerIndex == (int)RenderLayer::BuildPreview)
@@ -830,7 +839,7 @@ void Graphics::LoadAssets()
 	device->CreateGraphicsPipelineState(&uiPsoDesc, IID_PPV_ARGS(&pipelineStates["ui"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC shadowPsoDesc = opaquePsoDesc;
-	shadowPsoDesc.RasterizerState.DepthBias = 10000;
+	shadowPsoDesc.RasterizerState.DepthBias = 100000;
 	shadowPsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
 	shadowPsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
 	shadowPsoDesc.pRootSignature = rootSignature.Get();

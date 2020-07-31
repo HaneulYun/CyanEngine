@@ -3,6 +3,7 @@
 
 wchar_t Input::buffer[8];
 wchar_t Input::cbuffer[8];
+bool Input::isModifiedCbuffer;
 
 Vector3 Input::mousePosition;
 bool Input::keys[256];
@@ -30,6 +31,7 @@ void Input::Update()
 	for (auto& d : mouseUp)
 		d = false;
 	mouseWheel = 0.0f;
+	isModifiedCbuffer = false;
 
 	memset(buffer, 0, 8);
 }
@@ -139,37 +141,30 @@ int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LP
 			{
 				ImmGetCompositionString(himc, GCS_RESULTSTR, cbuffer, len);
 				cbuffer[len] = 0;
-
+			
 				wcscpy(buffer, cbuffer);
-				//bufferLen = wcslen(cbuffer);
 				memset(cbuffer, 0, 8);
 			}
+			Debug::Log(std::to_string(100).c_str());
+			Debug::Log(" ");
 		}
 		else if (lParam & GCS_COMPSTR)
 		{
 			len = ImmGetCompositionString(himc, GCS_COMPSTR, NULL, 0);
 			ImmGetCompositionString(himc, GCS_COMPSTR, cbuffer, len);
 			cbuffer[len] = 0;
+
+			isModifiedCbuffer = true;
 		}
+
+		Debug::Log(std::to_string(len).c_str());
+		Debug::Log("\n");
 
 		ImmReleaseContext(hWnd, himc);
 		return 0;
 	case WM_IME_CHAR:
 		return 0;
 	case WM_CHAR:
-		//if (wParam == VK_BACK)
-		//{
-		//	if (wcslen(buffer))
-		//	{
-		//		buffer[wcslen(buffer) - 1] = 0;
-		//		--bufferLen;
-		//	}
-		//}
-		//else if (wParam != 13)
-		//{
-		//buffer[wcslen(buffer)] = wParam;
-		//++bufferLen;
-		//}
 		buffer[0] = wParam;
 		return 0;
 	}

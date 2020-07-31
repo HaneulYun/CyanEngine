@@ -5,7 +5,7 @@ class InputField : public MonoBehavior<InputField>
 public:
 	Button* button{ nullptr };
 	Text* textComponent{ nullptr };
-	
+
 
 	bool isFocused{ false };
 
@@ -35,17 +35,24 @@ public:
 				isFocused = false;
 		}
 
-		if(isFocused)
-			if (Input::buffer[0])
+		if (isFocused)
+		{
+			if (Input::buffer[0] || Input::isModifiedCbuffer)
 			{
 				if (Input::buffer[0] == 13)
-					isFocused = false;
-				else
 				{
-					text += Input::buffer;
-					textComponent->text = text + Input::cbuffer;
+					isFocused = false;
+					return;
 				}
+
+				if (Input::GetKeyDown(KeyCode::Backspace) && text.size())
+					text.erase(text.end() - 1);
+				else
+					text += Input::buffer;
+
+				textComponent->text = text + Input::cbuffer;
 			}
+		}
 	}
 
 	Text* Text()

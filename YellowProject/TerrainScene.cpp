@@ -160,6 +160,8 @@ void TerrainScene::BuildObjects()
 		light->shadowType = Light::Shadows;
 
 		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.05);
+
+		environment.sunSources = light;
 	}
 
 	auto cubeObject = CreateEmpty();
@@ -170,35 +172,13 @@ void TerrainScene::BuildObjects()
 		cubeObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}
 
-	//GameObject* pointLight0 = CreateEmpty();
-	//{
-	//	pointLight0->GetComponent<Transform>()->position = { 540, 27, 540 };
-	//	pointLight0->AddComponent<Light>()->Strength = { 1, 1, 1 };
-	//	pointLight0->GetComponent<Light>()->type = Light::Point;
-	//	pointLight0->GetComponent<Light>()->FalloffEnd = 10;
-	//}
-	//GameObject* spotLight = CreateEmpty();
-	//{
-	//	spotLight->GetComponent<Transform>()->position = { 570, 25, 540 };
-	//	spotLight->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
-	//	spotLight->AddComponent<Light>()->Strength = { 1, 1, 1 };
-	//	spotLight->GetComponent<Light>()->type = Light::Spot;
-	//	spotLight->GetComponent<Light>()->FalloffEnd = 30;
-	//}
-	//GameObject* spotLight1 = CreateEmpty();
-	//{
-	//	spotLight1->GetComponent<Transform>()->position = { 540, 23, 510 };
-	//	spotLight1->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, 90);
-	//	spotLight1->AddComponent<Light>()->Strength = { 1, 1, 1 };
-	//	spotLight1->GetComponent<Light>()->type = Light::Spot;
-	//	spotLight1->GetComponent<Light>()->FalloffEnd = 50;
-	//}
-
-	//GameObject* debug = CreateEmpty();
-	//{
-	//	debug->AddComponent<MeshFilter>()->mesh = ASSET MESH("Quad");
-	//	debug->layer = (int)RenderLayer::Debug;
-	//}
+	auto plane = CreateEmpty();
+	{
+		plane->transform->position = { 512, 1, 512 };
+		plane->transform->Scale({ 10240, 1, 10240 });
+		plane->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		plane->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
+	}
 
 	{
 		auto ritem = CreateEmpty();

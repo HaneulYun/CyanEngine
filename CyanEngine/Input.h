@@ -5,7 +5,7 @@ enum class KeyCode
 	Left = 0x25, Up, Right, Down,
 	Alpha0='0', Alpha1, Alpha2, Alpha3, Alpha4, Alpha5, Alpha6, Alpha7, Alpha8, Alpha9,
 	A='A', B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-	Shift=0x10, Return = 13, Period = '.'
+	Backspace = 8, Return = 13, Shift=16, Period = '.'
 };
 
 class Input : public Singleton<Input>
@@ -22,6 +22,7 @@ public:
 
 	static wchar_t buffer[8];
 	static wchar_t cbuffer[8];
+	static bool isModifiedCbuffer;
 public:
 	Input();
 	~Input();

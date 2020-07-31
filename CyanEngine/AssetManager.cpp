@@ -28,12 +28,12 @@ void AssetManager::Update()
 		auto skyTex = std::make_unique<Texture>();
 		{
 			skyTex->Name = "skyTex";
-			skyTex->Filename = L"Textures\\grasscube1024.dds";
+			skyTex->Filename = L"Textures\\Sky_Day_BlueSky_BC.dds";
 			CreateDDSTextureFromFile12(Graphics::Instance()->device.Get(), Graphics::Instance()->commandList.Get(), skyTex->Filename.c_str(), skyTex->Resource, skyTex->UploadHeap);
-			skyTex->Index = 19;
+			skyTex->Index = 0;
 		}
 
-		handle.InitOffsetted(Graphics::Instance()->GetSrv(10), 0, Graphics::Instance()->srvDescriptorSize);
+		handle.InitOffsetted(Graphics::Instance()->GetSrv(10), skyTex->Index, Graphics::Instance()->srvDescriptorSize);
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 		srvDesc.TextureCube.MostDetailedMip = 0;
 		srvDesc.TextureCube.MipLevels = skyTex->Resource->GetDesc().MipLevels;
