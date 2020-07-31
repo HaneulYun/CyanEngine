@@ -136,7 +136,7 @@ T* GameObject::AddComponent(T* _component)
 
 	if (typeid(Transform).name() == typeid(*_component).name())
 		transform = dynamic_cast<Transform*>(component);
-	if (typeid(RectTransform).name() == typeid(T).name())
+	if (typeid(RectTransform).name() == typeid(*_component).name())
 		transform = dynamic_cast<RectTransform*>(component);
 	if (typeid(MeshFilter).name() == typeid(*_component).name())
 		meshFilter = component;
