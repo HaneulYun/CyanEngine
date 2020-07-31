@@ -25,6 +25,8 @@ public:
 
 	void AddGameObject(GameObject* gameObject);
 
+	void DeleteGameObject(GameObject* gameObject);
+
 	bool Contain(int x, int y, GameObject* gameObject);
 
 };

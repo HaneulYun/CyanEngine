@@ -22,7 +22,7 @@ void SpatialPartitioningManager::Update()
 	}
 
 	// Collision Check
-	Collider *lhs_collider, *rhs_collider;
+	Collider* lhs_collider, * rhs_collider;
 	for (int x = 0; x < xSize; ++x)
 	{
 		for (int y = 0; y < ySize; ++y)
@@ -44,9 +44,7 @@ void SpatialPartitioningManager::Update()
 				{
 					for (auto& rightList : rightSector->list)
 					{
-						if (rightList.first < leftList.first)
-							continue;
-						if (tagData.GetTagCollision(rightList.first, rightList.first) == false)
+						if (tagData.GetTagCollision(leftList.first, rightList.first) == false)
 							continue;
 
 						for (auto& left : leftList.second)
@@ -85,26 +83,28 @@ void SpatialPartitioningManager::Update()
 			{
 				for (auto& gameObject : gameObjects.second)
 				{
-					for (auto& iter : gameObject->collisionType)
+					for (auto iter = gameObject->collisionType.begin(); iter != gameObject->collisionType.end();)
 					{
-						switch (iter.second)
+						switch (iter->second)
 						{
 						case CollisionType::eCollisionEnter:
-							gameObject->OnCollisionEnter(iter.first); break;
+							gameObject->OnCollisionEnter(iter->first); break;
 						case CollisionType::eCollisionStay:
-							gameObject->OnCollisionStay(iter.first); break;
+							gameObject->OnCollisionStay(iter->first); break;
 						case CollisionType::eCollisionExit:
-							gameObject->OnCollisionExit(iter.first); break;
+							gameObject->OnCollisionExit(iter->first); break;
 						case CollisionType::eTriggerEnter:
-							gameObject->OnTriggerEnter(iter.first); break;
+							gameObject->OnTriggerEnter(iter->first); break;
 						case CollisionType::eTriggerStay:
-							gameObject->OnTriggerStay(iter.first); break;
+							gameObject->OnTriggerStay(iter->first); break;
 						}
-						if (iter.second == CollisionType::eTriggerExit)
+						if (iter->second == CollisionType::eTriggerExit)
 						{
-							gameObject->OnTriggerExit(iter.first);
-							gameObject->collisionType.erase(iter.first);
+							gameObject->OnTriggerExit(iter->first);
+							iter = gameObject->collisionType.erase(iter);
 						}
+						else
+							++iter;
 					}
 				}
 			}
@@ -133,8 +133,17 @@ void SpatialPartitioningManager::AddGameObject(GameObject* gameObject)
 {
 	int x = (int)gameObject->transform->position.x / sectorWidth;
 	int y = (int)gameObject->transform->position.z / sectorHeight;
-	if (worldXMin > x || x > worldXMax || worldYMin > y || y > worldYMax) return;
+	if (0 > x || x > xSize || 0 > y || y > ySize) return;
 	sectorList[x][y].list[gameObject->tag].push_back(gameObject);
+}
+
+void SpatialPartitioningManager::DeleteGameObject(GameObject* gameObject)
+{
+	if (gameObject->GetComponent<BoxCollider>() == nullptr) return;
+	int x = (int)gameObject->transform->position.x / sectorWidth;
+	int y = (int)gameObject->transform->position.z / sectorHeight;
+
+	sectorList[x][y].list[gameObject->tag].erase(std::find(sectorList[x][y].list[gameObject->tag].begin(), sectorList[x][y].list[gameObject->tag].end(), gameObject));
 }
 
 bool SpatialPartitioningManager::Contain(int x, int y, GameObject* gameObject)

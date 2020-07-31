@@ -437,5 +437,8 @@
     <ClCompile Include="TagData.cpp">
       <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
