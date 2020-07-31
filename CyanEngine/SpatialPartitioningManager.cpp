@@ -14,13 +14,66 @@ void SpatialPartitioningManager::Update()
 				{
 					if (Contain(x, y, gameObject)) continue;
 
+					sector.second.erase(std::find(sector.second.begin(), sector.second.end(), gameObject));
+					AddGameObject(gameObject);
 				}
 			}
-
 		}
 	}
 
 	// Collision Check
+	Collider *lhs_collider, *rhs_collider;
+	for (int x = 0; x < xSize; ++x)
+	{
+		for (int y = 0; y < ySize; ++y)
+		{
+			std::vector<Sector*> rightSectorList;
+			rightSectorList.push_back(&sectorList[x][y]);
+			if (x > 0) rightSectorList.push_back(&sectorList[x - 1][y]);
+			if (x < xSize - 1) rightSectorList.push_back(&sectorList[x + 1][y]);
+			if (y > 0) rightSectorList.push_back(&sectorList[x][y - 1]);
+			if (y < ySize - 1) rightSectorList.push_back(&sectorList[x][y + 1]);
+
+			for (auto& leftList : sectorList[x][y].list)
+			{
+				for (auto& rightSector : rightSectorList)
+				{
+					for (auto& rightList : rightSector->list)
+					{
+						if (rightList.first < leftList.first)
+							continue;
+						if (tagData.GetTagCollision(rightList.first, rightList.first) == false)
+							continue;
+
+						for (auto& left : leftList.second)
+						{
+							for (auto& right : rightList.second)
+							{
+								if (left == right) continue;
+								lhs_collider = left->GetComponent<BoxCollider>();
+								rhs_collider = right->GetComponent<BoxCollider>();
+
+								auto iter = left->collisionType.find(right);
+
+								if (lhs_collider->Compare(rhs_collider))
+								{
+									if (iter == left->collisionType.end())
+										(left->collisionType)[right] = CollisionType::eTriggerEnter;
+									else if (iter->second == CollisionType::eTriggerEnter)
+										iter->second = CollisionType::eTriggerStay;
+								}
+								else if (iter != left->collisionType.end())
+									iter->second = CollisionType::eTriggerExit;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+
 	for (auto& sectorX : sectorList)
 	{
 		for (auto& sectorXY : sectorX)
@@ -60,16 +113,16 @@ void SpatialPartitioningManager::InitSector(float xMin, float xMax, float yMin, 
 
 void SpatialPartitioningManager::AddGameObject(GameObject* gameObject)
 {
-	int x = (int)gameObject->transform->position.x % sectorWidth;
-	int y = (int)gameObject->transform->position.y % sectorHeight;
-
+	int x = (int)gameObject->transform->position.x / sectorWidth;
+	int y = (int)gameObject->transform->position.z / sectorHeight;
+	if (worldXMin > x || x > worldXMax || worldYMin > y || y > worldYMax) return;
 	sectorList[x][y].list[gameObject->tag].push_back(gameObject);
 }
 
 bool SpatialPartitioningManager::Contain(int x, int y, GameObject* gameObject)
 {
-	if (sectorWidth * x <= gameObject->transform->position.x && gameObject->transform->position.x <= (sectorWidth + 1) * x)
-		if (sectorHeight * x <= gameObject->transform->position.y && gameObject->transform->position.y <= (sectorHeight + 1) * x)
+	if (sectorWidth * x <= gameObject->transform->position.x && gameObject->transform->position.x <= sectorWidth * (x + 1))
+		if (sectorHeight * y <= gameObject->transform->position.z && gameObject->transform->position.z <= sectorHeight * (y + 1))
 			return true;
 	return false;
 }

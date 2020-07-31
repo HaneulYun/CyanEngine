@@ -35,7 +35,7 @@ void Scene::Update()
 
 	objectRenderManager.Update();
 	lightResourceManager.Update();
-	//spatialPartitioningManager.Update();
+	spatialPartitioningManager.Update();
 
 	// fixed update
 	//Collider *lhs_collider, *rhs_collider;
