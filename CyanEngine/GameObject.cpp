@@ -167,7 +167,10 @@ void GameObject::OnCollisionExit(GameObject* other)
 void GameObject::OnDestroy()
 {
 	for (Component* component : components)
+	{
+		component->OnDestroy();
 		delete component;
+	}
 	components.clear();
 	for (GameObject* child : children)
 		delete child;
