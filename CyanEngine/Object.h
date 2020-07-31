@@ -8,7 +8,7 @@ public:
 	std::string name;
 
 	Object() {}
-	virtual ~Object() {}
+	~Object() { OnDestroy(); }
 
 	template <typename T>
 	T* Instantiate(T* original)
@@ -16,6 +16,8 @@ public:
 		T* instance = new T(original);
 		return instance;
 	}
+
+	virtual void OnDestroy() {}
 
 	GameObject* Instantiate(GameObject* original);
 	void Destroy(GameObject* obj);

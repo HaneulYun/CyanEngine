@@ -16,10 +16,6 @@ public:
 	GameObject* gameObject{ nullptr };
 
 public:
-	~Component() { OnDestroy(); }
-
-	//void UpdateComponent();
-
 	virtual void Start() {}
 	virtual void Update() {}
 
@@ -29,8 +25,6 @@ public:
 	virtual void OnCollisionEnter(GameObject* other) {}
 	virtual void OnCollisionStay(GameObject* other) {}
 	virtual void OnCollisionExit(GameObject* other) {}
-
-	virtual void OnDestroy() {}
 
 	virtual Component* Duplicate(Component* component) { return new Component(*component); }
 };
