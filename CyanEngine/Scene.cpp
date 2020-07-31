@@ -9,6 +9,7 @@ Scene::Scene()
 
 Scene::~Scene()
 {
+	ReleaseObjects();
 }
 
 void Scene::Start()

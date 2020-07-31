@@ -8,7 +8,7 @@ public:
 	std::string name;
 
 	Object() {}
-	~Object() {}
+	virtual ~Object() {}
 
 	template <typename T>
 	T* Instantiate(T* original)

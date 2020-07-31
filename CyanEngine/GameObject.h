@@ -45,7 +45,7 @@ private:
 public:
 	GameObject(bool isUI);
 	GameObject(GameObject*);
-	~GameObject() {}
+	~GameObject();
 
 	void Start();
 	void Update();
@@ -56,6 +56,8 @@ public:
 	void OnCollisionEnter(GameObject* other);
 	void OnCollisionStay(GameObject* other);
 	void OnCollisionExit(GameObject* other);
+
+	void OnDestroy();
 
 	Matrix4x4 GetMatrix(GameObject* local = nullptr);
 
@@ -134,6 +136,8 @@ T* GameObject::AddComponent(T* _component)
 
 	if (typeid(Transform).name() == typeid(*_component).name())
 		transform = dynamic_cast<Transform*>(component);
+	if (typeid(RectTransform).name() == typeid(T).name())
+		transform = dynamic_cast<RectTransform*>(component);
 	if (typeid(MeshFilter).name() == typeid(*_component).name())
 		meshFilter = component;
 	if (typeid(Renderer).name() == typeid(*_component).name())
@@ -152,6 +156,8 @@ T* GameObject::AddComponent()
 
 	if (typeid(Transform).name() == typeid(T).name())
 		transform = dynamic_cast<Transform*>(component);
+	if (typeid(RectTransform).name() == typeid(T).name())
+		transform = dynamic_cast<RectTransform*>(component);
 	if (typeid(MeshFilter).name() == typeid(T).name())
 		meshFilter = component;
 	if (typeid(Renderer).name() == typeid(T).name())

@@ -33,7 +33,7 @@ public:
 
 public:
 	Scene();
-	virtual ~Scene();
+	~Scene();
 
 	virtual void Start();
 	virtual void Update();

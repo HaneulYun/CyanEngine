@@ -5,7 +5,6 @@ class TerrainScene : public Scene
 {
 public:
 	TerrainScene() : Scene() {}
-	~TerrainScene() {}
 
 	virtual void BuildObjects();
 };

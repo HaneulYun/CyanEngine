@@ -19,6 +19,11 @@ GameObject::GameObject(GameObject* original)
 		AddComponent(component);
 }
 
+GameObject::~GameObject()
+{
+	OnDestroy();
+}
+
 void GameObject::Start()
 {
 	for (Component* component : components)
@@ -157,6 +162,16 @@ void GameObject::OnCollisionExit(GameObject* other)
 {
 	for (Component* component : components)
 		component->OnCollisionExit(other);
+}
+
+void GameObject::OnDestroy()
+{
+	for (Component* component : components)
+		delete component;
+	components.clear();
+	for (GameObject* child : children)
+		delete child;
+	children.clear();
 }
 
 Matrix4x4 GameObject::GetMatrix(GameObject* local)
