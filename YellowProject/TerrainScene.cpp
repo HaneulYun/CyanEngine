@@ -1,10 +1,17 @@
 #include "pch.h"
 #include "TerrainScene.h"
 
+#define TAG_DAFULT 0
+#define TAG_BUILDING 1
+
 BuildingBuilder* BuildingBuilder::buildingBuilder{ nullptr };
 
 void TerrainScene::BuildObjects()
 {
+	spatialPartitioningManager.tagData.AddTag("building");
+	spatialPartitioningManager.tagData.SetTagCollision(TAG_BUILDING, TAG_BUILDING, true);
+
+
 	///*** Asset ***///
 	//LoadTextureAsset();
 	//LoadMaterialAsset();
@@ -59,8 +66,8 @@ void TerrainScene::BuildObjects()
 		//ASSET AddFbxForMesh("SM_Well", "Assets\\AdvancedVillagePack\\Meshes\\SM_Well.FBX");
 		//ASSET AddFbxForMesh("SM_Well_Extra02", "Assets\\AdvancedVillagePack\\Meshes\\SM_Well_Extra02.FBX");
 		//ASSET AddFbxForMesh("SM_Well_Extra03", "Assets\\AdvancedVillagePack\\Meshes\\SM_Well_Extra03.FBX");
-		ASSET //AddFbxForMesh("SM_House_Var01", "Assets\\AdvancedVillagePack\\Meshes\\SM_House_Var01.FBX");
-		ASSET AddFbxForMesh("SM_House_Var01", "Assets\\AdvancedVillagePack\\Meshes\\Pillar.FBX");
+		ASSET AddFbxForMesh("SM_House_Var01", "Assets\\AdvancedVillagePack\\Meshes\\SM_House_Var01.FBX");
+		//ASSET AddFbxForMesh("SM_House_Var01", "Assets\\AdvancedVillagePack\\Meshes\\Pillar.FBX");
 		//ASSET AddFbxForMesh("SM_House_Var02", "Assets\\AdvancedVillagePack\\Meshes\\SM_House_Var02.FBX");
 		//ASSET AddFbxForMesh("SM_House_Var02_Extra", "Assets\\AdvancedVillagePack\\Meshes\\SM_House_Var02_Extra.FBX");
 		ASSET AddFbxForMesh("SM_Mushroom_Var01", "Assets\\AdvancedVillagePack\\Meshes\\SM_Mushroom_Var01.FBX");

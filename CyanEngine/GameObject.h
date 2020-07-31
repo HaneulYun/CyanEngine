@@ -28,6 +28,7 @@ public:
 	Component* meshFilter{ nullptr };
 	Component* renderer{ nullptr };
 
+	int tag{ 0 };
 	std::map<GameObject*, CollisionType> collisionType;
 
 public:

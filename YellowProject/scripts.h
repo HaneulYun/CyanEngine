@@ -5,6 +5,7 @@
 #include "CharacterController.h"
 #include "ParticleManager.h"
 
+#include "Building.h"
 #include "BuildingType.h"
 #include "BuilderData.h"
 #include "Builder.h"

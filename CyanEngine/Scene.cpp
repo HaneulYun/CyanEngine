@@ -13,6 +13,8 @@ Scene::~Scene()
 
 void Scene::Start()
 {
+	spatialPartitioningManager.InitSector();
+
 	BuildObjects();
 
 	AssetManager::Instance()->Update();
@@ -33,6 +35,7 @@ void Scene::Update()
 
 	objectRenderManager.Update();
 	lightResourceManager.Update();
+	spatialPartitioningManager.Update();
 
 	// fixed update
 	//Collider *lhs_collider, *rhs_collider;

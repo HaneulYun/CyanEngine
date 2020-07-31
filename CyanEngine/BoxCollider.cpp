@@ -1,6 +1,11 @@
 #include "pch.h"
 #include "BoxCollider.h"
 
+void BoxCollider::Start()
+{
+	gameObject->scene->spatialPartitioningManager.AddGameObject(gameObject);
+}
+
 bool BoxCollider::Compare(Collider* _other)
 {
 	boundingBox.Center = gameObject->transform->position.xmf3;
