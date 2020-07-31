@@ -33,6 +33,10 @@ void SpatialPartitioningManager::Update()
 			if (x < xSize - 1) rightSectorList.push_back(&sectorList[x + 1][y]);
 			if (y > 0) rightSectorList.push_back(&sectorList[x][y - 1]);
 			if (y < ySize - 1) rightSectorList.push_back(&sectorList[x][y + 1]);
+			if (x > 0 && y > 0) rightSectorList.push_back(&sectorList[x - 1][y - 1]);
+			if (x > 0 && y < ySize - 1) rightSectorList.push_back(&sectorList[x - 1][y + 1]);
+			if (x < xSize - 1 && y > 0) rightSectorList.push_back(&sectorList[x + 1][y - 1]);
+			if (x < xSize - 1 && y < ySize - 1) rightSectorList.push_back(&sectorList[x + 1][y + 1]);
 
 			for (auto& leftList : sectorList[x][y].list)
 			{
@@ -73,21 +77,35 @@ void SpatialPartitioningManager::Update()
 	}
 
 
-
 	for (auto& sectorX : sectorList)
 	{
 		for (auto& sectorXY : sectorX)
 		{
-			for (auto& left : sectorXY.list)
+			for (auto& gameObjects : sectorXY.list)
 			{
-				for (auto& right : sectorXY.list)
+				for (auto& gameObject : gameObjects.second)
 				{
-					if (right.first < left.first)
-						continue;
-					if (tagData.GetTagCollision(left.first, right.first) == false)
-						continue;
-
-
+					for (auto& iter : gameObject->collisionType)
+					{
+						switch (iter.second)
+						{
+						case CollisionType::eCollisionEnter:
+							gameObject->OnCollisionEnter(iter.first); break;
+						case CollisionType::eCollisionStay:
+							gameObject->OnCollisionStay(iter.first); break;
+						case CollisionType::eCollisionExit:
+							gameObject->OnCollisionExit(iter.first); break;
+						case CollisionType::eTriggerEnter:
+							gameObject->OnTriggerEnter(iter.first); break;
+						case CollisionType::eTriggerStay:
+							gameObject->OnTriggerStay(iter.first); break;
+						}
+						if (iter.second == CollisionType::eTriggerExit)
+						{
+							gameObject->OnTriggerExit(iter.first);
+							gameObject->collisionType.erase(iter.first);
+						}
+					}
 				}
 			}
 		}

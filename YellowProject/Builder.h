@@ -150,6 +150,7 @@ public:
 				}
 				prefab->GetComponent<BoxCollider>()->boundingBox = data.mesh->Bounds;
 			}
+			//prefab->AddComponent<Building>();
 			//prefab->tag = 1;
 		}
 	}

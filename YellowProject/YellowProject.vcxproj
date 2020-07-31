@@ -172,6 +172,7 @@
   <ItemGroup>
     <ClInclude Include="Builder.h" />
     <ClInclude Include="BuilderData.h" />
+    <ClInclude Include="Building.h" />
     <ClInclude Include="BuildingSelector.h" />
     <ClInclude Include="BuildingType.h" />
     <ClInclude Include="BuildingTypeSelector.h" />
