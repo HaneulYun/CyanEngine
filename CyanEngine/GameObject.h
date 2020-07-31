@@ -3,6 +3,8 @@
 class Scene;
 class RenderSets;
 
+class RectTransform;
+
 enum class CollisionType
 {
 	eCollisionEnter, eCollisionStay, eCollisionExit,

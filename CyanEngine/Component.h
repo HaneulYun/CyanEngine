@@ -16,10 +16,7 @@ public:
 	GameObject* gameObject{ nullptr };
 
 public:
-	virtual ~Component()
-	{
-		OnDestroy();
-	}
+	~Component() { OnDestroy(); }
 
 	//void UpdateComponent();
 
