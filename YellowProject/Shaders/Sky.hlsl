@@ -61,8 +61,8 @@ MRT_VSOutput PS(VertexOut pin)
 	float degreeFromSun = degrees(acos(dot(toLight, pin.NormalL)));
 
 
-	float innerDegrees[4] = { 3, 3, 2, 1 };
-	float outerDegrees[4] = { 7, 9, 7, 5 };
+	float innerDegrees[4] = { 5, 3, 2, 1 };
+	float outerDegrees[4] = { 7, 9, 5, 1 };
 	float3 innerColors[4] = { float3(1, 1, 1), float3(1, 1, 1), float3(0.949, 0.807, 0.105), float3(0.450, 0.007, 0.007) };
 	float3 outerColors[4] = { float3(1, 1, 1), float3(0.949, 0.807, 0.105), float3(0.949, 0.607, 0.188), float3(0.450, 0.007, 0.007) };
 
