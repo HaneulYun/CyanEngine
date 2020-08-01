@@ -17,4 +17,6 @@ public:
 	~SkinnedMeshRenderer() {}
 
 	void Start();
+
+	GameObject* Root();
 };

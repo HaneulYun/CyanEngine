@@ -13,6 +13,7 @@ GameObject::GameObject(bool isUI)
 
 GameObject::GameObject(GameObject* original)
 {
+	name = original->name;
 	for (GameObject* child : original->children)
 		AddChild(new GameObject(child));
 	for (Component* component : original->components)

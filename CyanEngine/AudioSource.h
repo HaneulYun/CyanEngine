@@ -9,6 +9,11 @@ public:
 	FMOD::Channel* channel{ nullptr };
 
 	bool playOnAwake{ true };
+
+	bool spatial{ false };
+	float minDistance{ 0 };
+	float maxDistance{ 100 };
+
 	bool loop{ false };
 
 protected:
@@ -22,9 +27,13 @@ public:
 
 	void Start()
 	{
-		clip->sound->setMode(FMOD_3D_LINEARSQUAREROLLOFF);
 		if(loop)
 			clip->sound->setMode(FMOD_LOOP_NORMAL);
+		if (spatial)
+		{
+			clip->sound->setMode(FMOD_3D_LINEARSQUAREROLLOFF);
+			clip->sound->setMode(FMOD_3D);
+		}
 		if(playOnAwake)
 			Play();
 	}
@@ -43,7 +52,7 @@ public:
 
 	void Play()
 	{
-		clip->sound->set3DMinMaxDistance(0, 100);
+		clip->sound->set3DMinMaxDistance(minDistance, maxDistance);
 
 		AudioManager::Instance()->system->playSound(clip->sound, nullptr, false, &channel);
 	}

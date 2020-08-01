@@ -148,7 +148,11 @@ void TerrainScene::BuildObjects()
 		soundBox->transform->Scale({10, 10, 10});
 		soundBox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
 		soundBox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
-		soundBox->AddComponent<AudioSource>()->clip = ASSET AUDIO_CLIP("testSound");
+
+		auto audioSource = soundBox->AddComponent<AudioSource>();
+		audioSource->clip = ASSET AUDIO_CLIP("testSound");
+		audioSource->loop = true;
+		audioSource->spatial = true;
 	}
 
 	auto mainCamera = CreateEmpty();

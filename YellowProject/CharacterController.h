@@ -54,42 +54,42 @@ public:
 	{
 		if (isPlayer)
 		{
-			//Vector3 leftFootPosition = (ball_r->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
-			//Vector3 rightFootPosition = (ball_l->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
+			Vector3 leftFootPosition = (ball_r->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
+			Vector3 rightFootPosition = (ball_l->GetMatrix(root) * Matrix4x4::RotationX(-3.141592 * 0.5)).position;
 
-			//switch (leftFootState)
-			//{
-			//case CharacterController::OnGround:
-			//	if (leftFootPosition.y > 0.03) leftFootState = ToAir;
-			//	break;
-			//case CharacterController::ToAir:
-			//	leftFootState = OnAir;
-			//	audioSource->Play();
-			//	break;
-			//case CharacterController::OnAir:
-			//	if (leftFootPosition.y < 0.03) leftFootState = ToGround;
-			//	break;
-			//case CharacterController::ToGround:
-			//	leftFootState = OnGround;
-			//	break;
-			//}
-			//
-			//switch (rightFootState)
-			//{
-			//case CharacterController::OnGround:
-			//	if (rightFootPosition.y > 0.03) rightFootState = ToAir;
-			//	break;
-			//case CharacterController::ToAir:
-			//	rightFootState = OnAir;
-			//	audioSource->Play();
-			//	break;
-			//case CharacterController::OnAir:
-			//	if (rightFootPosition.y < 0.03) rightFootState = ToGround;
-			//	break;
-			//case CharacterController::ToGround:
-			//	rightFootState = OnGround;
-			//	break;
-			//}
+			switch (leftFootState)
+			{
+			case CharacterController::OnGround:
+				if (leftFootPosition.y > 0.03) leftFootState = ToAir;
+				break;
+			case CharacterController::ToAir:
+				leftFootState = OnAir;
+				audioSource->Play();
+				break;
+			case CharacterController::OnAir:
+				if (leftFootPosition.y < 0.03) leftFootState = ToGround;
+				break;
+			case CharacterController::ToGround:
+				leftFootState = OnGround;
+				break;
+			}
+			
+			switch (rightFootState)
+			{
+			case CharacterController::OnGround:
+				if (rightFootPosition.y > 0.03) rightFootState = ToAir;
+				break;
+			case CharacterController::ToAir:
+				rightFootState = OnAir;
+				audioSource->Play();
+				break;
+			case CharacterController::OnAir:
+				if (rightFootPosition.y < 0.03) rightFootState = ToGround;
+				break;
+			case CharacterController::ToGround:
+				rightFootState = OnGround;
+				break;
+			}
 
 			if (Input::GetKeyDown(KeyCode::R))
 			{

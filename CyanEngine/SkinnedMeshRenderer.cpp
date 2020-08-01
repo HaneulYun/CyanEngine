@@ -4,14 +4,22 @@
 void SkinnedMeshRenderer::Start()
 {
 	gameObject->scene->objectRenderManager.AddGameObject(gameObject, (int)RenderLayer::SkinnedOpaque);
+	Root();
+}
 
-	auto boneTransform = Scene::scene->DuplicatePrefab(mesh->BoneObjects);
-	rootBone = gameObject->parent->AddChild(boneTransform);
-
-	int boneCount = rootBone->GetChildCount();
-	for (int i = 0; i < boneCount; ++i)
+GameObject* SkinnedMeshRenderer::Root()
+{
+	if (!rootBone)
 	{
-		int k = i;
-		bones.push_back(rootBone->GetChildWithIndex(k)->transform);
+		auto boneTransform = Scene::scene->DuplicatePrefab(mesh->BoneObjects);
+		rootBone = gameObject->parent->AddChild(boneTransform);
+
+		int boneCount = rootBone->GetChildCount();
+		for (int i = 0; i < boneCount; ++i)
+		{
+			int k = i;
+			bones.push_back(rootBone->GetChildWithIndex(k)->transform);
+		}
 	}
+	return rootBone;
 }

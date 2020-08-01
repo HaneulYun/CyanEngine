@@ -125,10 +125,13 @@ void CharacterScene::BuildObjects()
 		auto model = player->AddChild();
 		{
 			model->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
-			model->AddComponent<SkinnedMeshRenderer>()->mesh = ASSET MESH("ApprenticeSK");
-			model->GetComponent<SkinnedMeshRenderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
+			auto skinnedMeshRenderer = model->AddComponent<SkinnedMeshRenderer>();
+			skinnedMeshRenderer->mesh = ASSET MESH("ApprenticeSK");
+			skinnedMeshRenderer->materials.push_back(ASSET MATERIAL("PolyArt"));
+			skinnedMeshRenderer->Root();
 		}
 		auto audioSource = model->AddComponent<AudioSource>();
+		audioSource->spatial = true;
 		audioSource->clip = ASSET AUDIO_CLIP("footstep");
 
 		auto ccontroller = player->AddComponent<CharacterController>();

@@ -30,6 +30,6 @@ void AudioManager::CreateGroup(AudioClip* outputAudioMixerGroup)
 void AudioManager::CreateSound(AudioClip* clip)
 {
 	FMOD_MODE mode{};
-	mode = FMOD_3D;
+	mode = FMOD_2D;
 	system->createSound(clip->path.c_str(), mode, 0, &clip->sound);
 }
