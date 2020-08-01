@@ -14,7 +14,7 @@ void LightResourceManager::Update()
 
 			auto camera = Camera::main;
 
-			Vector3 lightDir = gameObject->GetMatrix().forward;
+			Vector3 lightDir = Vector3::Normalize(gameObject->GetMatrix().forward);
 			Vector3 targetPosC;
 			Vector3 lightPosW;
 
@@ -34,7 +34,7 @@ void LightResourceManager::Update()
 					}
 
 					Vector3 targetPos = camera->gameObject->GetMatrix().position;
-					Vector3 lightPos = targetPos - lightDir * 200;
+					Vector3 lightPos = targetPos - lightDir * range;
 					Vector3 lightUp{ 0.0f, 1.0f, 0.0f };
 
 					lightPosW = lightPos;
@@ -46,8 +46,8 @@ void LightResourceManager::Update()
 					float r = targetPosC.x + range;
 					float b = targetPosC.y - range;
 					float t = targetPosC.y + range;
-					float n = -1;
-					float f = 200 * 2 - 1;
+					float n = 0;
+					float f = range * 2;
 					Matrix4x4 lightProj = Matrix4x4::MatrixOrthographicOffCenterLH(l, r, b, t, n, f);
 
 					// Transform NDC space [-1,+1]^2 to texture space [0,1]^2

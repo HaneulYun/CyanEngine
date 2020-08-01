@@ -50,6 +50,8 @@ PSInput VS(VSInput vin, uint instanceID : SV_InstanceID)
 #endif
 	vout.PosW = mul(float4(vin.PosL, 1.0f), world).xyz;
 	vout.PosH = mul(float4(vout.PosW, 1.0f), gViewProj[gShadowMapIndex]);
+	if (vout.PosH.z < 0)
+		vout.PosH.z = 0;
 
 	return vout;
 }
