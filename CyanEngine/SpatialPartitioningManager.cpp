@@ -27,19 +27,19 @@ void SpatialPartitioningManager::Update()
 	{
 		for (int y = 0; y < ySize; ++y)
 		{
-			std::vector<Sector*> rightSectorList;
-			rightSectorList.push_back(&sectorList[x][y]);
-			if (x > 0) rightSectorList.push_back(&sectorList[x - 1][y]);
-			if (x < xSize - 1) rightSectorList.push_back(&sectorList[x + 1][y]);
-			if (y > 0) rightSectorList.push_back(&sectorList[x][y - 1]);
-			if (y < ySize - 1) rightSectorList.push_back(&sectorList[x][y + 1]);
-			if (x > 0 && y > 0) rightSectorList.push_back(&sectorList[x - 1][y - 1]);
-			if (x > 0 && y < ySize - 1) rightSectorList.push_back(&sectorList[x - 1][y + 1]);
-			if (x < xSize - 1 && y > 0) rightSectorList.push_back(&sectorList[x + 1][y - 1]);
-			if (x < xSize - 1 && y < ySize - 1) rightSectorList.push_back(&sectorList[x + 1][y + 1]);
-
 			for (auto& leftList : sectorList[x][y].list)
 			{
+				std::vector<Sector*> rightSectorList;
+				rightSectorList.push_back(&sectorList[x][y]);
+				if (x > 0) rightSectorList.push_back(&sectorList[x - 1][y]);
+				if (x < xSize - 1) rightSectorList.push_back(&sectorList[x + 1][y]);
+				if (y > 0) rightSectorList.push_back(&sectorList[x][y - 1]);
+				if (y < ySize - 1) rightSectorList.push_back(&sectorList[x][y + 1]);
+				if (x > 0 && y > 0) rightSectorList.push_back(&sectorList[x - 1][y - 1]);
+				if (x > 0 && y < ySize - 1) rightSectorList.push_back(&sectorList[x - 1][y + 1]);
+				if (x < xSize - 1 && y > 0) rightSectorList.push_back(&sectorList[x + 1][y - 1]);
+				if (x < xSize - 1 && y < ySize - 1) rightSectorList.push_back(&sectorList[x + 1][y + 1]);
+
 				for (auto& rightSector : rightSectorList)
 				{
 					for (auto& rightList : rightSector->list)
