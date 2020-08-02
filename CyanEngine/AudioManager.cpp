@@ -5,11 +5,11 @@ using namespace FMOD;
 
 AudioManager::AudioManager()
 {
-	//System_Create(&system);
-	//system->init(64, FMOD_INIT_NORMAL, NULL);
-	//system->set3DSettings(1, 1, 1);
-	//
-	//system->getMasterChannelGroup(&groupMaster);
+	System_Create(&system);
+	system->init(64, FMOD_INIT_NORMAL, NULL);
+	system->set3DSettings(1, 1, 1);
+	
+	system->getMasterChannelGroup(&groupMaster);
 }
 
 AudioManager::~AudioManager()
@@ -20,7 +20,7 @@ AudioManager::~AudioManager()
 
 void AudioManager::update()
 {
-	//system->update();
+	system->update();
 }
 
 void AudioManager::CreateGroup(AudioClip* outputAudioMixerGroup)
