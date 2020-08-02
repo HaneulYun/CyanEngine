@@ -446,21 +446,24 @@ void Graphics::InitDirect3D()
 #if defined(_DEBUG)
 	ComPtr<ID3D12Debug> debug{ nullptr };
 	D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
-	//if (debug)
-	//	debug->EnableDebugLayer();
+	if (debug)
+		debug->EnableDebugLayer();
+
+	debug.Reset();
+	debug.ReleaseAndGetAddressOf();
 
 	dxgiFactoryFlags != DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
 	ComPtr<IDXGIFactory4> factory{ nullptr };
 	CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory));
-
+	
 	ComPtr<IDXGIAdapter1> adapter{ nullptr };
 	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != factory->EnumAdapters1(i, &adapter); ++i)
 	{
 		DXGI_ADAPTER_DESC1 desc{};
 		adapter->GetDesc1(&desc);
-
+	
 		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
 			continue;
 		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device))))
@@ -471,24 +474,24 @@ void Graphics::InitDirect3D()
 		factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 		D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
 	}
-
+	
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-
+	
 	rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	cbvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
+	
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
 	msQualityLevels.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	msQualityLevels.SampleCount = 4;
 	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 	msQualityLevels.NumQualityLevels = 0;
-
+	
 	device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels, sizeof(msQualityLevels));
 	m_nMsaa4xQualityLevels = msQualityLevels.NumQualityLevels;
 	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
-
-
+	
+	
 	D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
 	commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -496,8 +499,8 @@ void Graphics::InitDirect3D()
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
 	commandList->Close();
-
-
+	
+	
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 	swapChainDesc.BufferCount = FrameCount;
 	swapChainDesc.Width = CyanFW::Instance()->GetWidth();
@@ -509,29 +512,29 @@ void Graphics::InitDirect3D()
 	factory->CreateSwapChainForHwnd(commandQueue.Get(), CyanApp::GetHwnd(), &swapChainDesc, nullptr, nullptr, (IDXGISwapChain1 * *)swapChain.GetAddressOf());
 	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
-
-
+	
+	
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = FrameCount + 4;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	//device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&rtvHeap));
 	heapManager.BuildRtvHeap(device.Get(), FrameCount + 4);
-
-
+	
+	
 	descriptorHeapDesc.NumDescriptors = 1+4;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
-
+	
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ heapManager.GetRtv(0) };
 	for (UINT i = 0; i < FrameCount; ++i)
 	{
 		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
 		device->CreateRenderTargetView(renderTargets[i].Get(), nullptr, rtvHandle);
-
+	
 		rtvHandle.Offset(1, rtvDescriptorSize);
 	}
-
+	
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	resourceDesc.Alignment = 0;
@@ -544,14 +547,14 @@ void Graphics::InitDirect3D()
 	resourceDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
+	
 	D3D12_CLEAR_VALUE d3dClearValue;
 	d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	d3dClearValue.DepthStencil.Depth = 1.0f;
 	d3dClearValue.DepthStencil.Stencil = 0;
 	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &resourceDesc,
 		D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, IID_PPV_ARGS(&depthStencilBuffer));
-
+	
 	device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, GetDsv(0));
 }
 

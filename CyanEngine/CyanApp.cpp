@@ -9,7 +9,7 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 	LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 	//cyanFW->ParseCommandLineArgs(argv, argc);
 	LocalFree(argv);
-
+	
 	WNDCLASSEX windowClass = { 0 };
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;
@@ -18,21 +18,21 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 	windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	windowClass.lpszClassName = L"CyanEngine";
 	RegisterClassEx(&windowClass);
-
+	
 	RECT windowRect = { 0, 0, static_cast<LONG>(cyanFW->GetWidth()), static_cast<LONG>(cyanFW->GetHeight()) };
 	DWORD dwStyle = WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
 	AdjustWindowRect(&windowRect, dwStyle, FALSE);
-
+	
 	hwnd = CreateWindow(windowClass.lpszClassName, cyanFW->GetTitle(), dwStyle, CW_USEDEFAULT, CW_USEDEFAULT,
 		windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, cyanFW);
-
+	
 	SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)cyanFW);
-
-	cyanFW->OnCreate(hInstance, hwnd);
 	
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
-
+	
+	cyanFW->OnCreate(hInstance, hwnd);
+	
 	MSG msg = {};
 	while (msg.message != WM_QUIT)
 	{
@@ -48,6 +48,8 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 			SetWindowText(hwnd, cyanFW->m_pszFrameRate);
 		}
 	}
+
+	delete cyanFW;
 
 	// Return this part of the WM_QUIT message to Windows.
 	return static_cast<char>(msg.wParam);

@@ -10,8 +10,6 @@ protected:
 	Singleton() {}
 	virtual ~Singleton()
 	{
-		if (instance)
-			delete instance;
 		instance = nullptr;
 	}
 

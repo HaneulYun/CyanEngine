@@ -3,5 +3,6 @@
 
 void Transform::OnDestroy()
 {
-	gameObject->scene->spatialPartitioningManager.DeleteGameObject(gameObject);
+	if (gameObject->scene)
+		gameObject->scene->spatialPartitioningManager.DeleteGameObject(gameObject);
 }

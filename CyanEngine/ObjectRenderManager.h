@@ -16,6 +16,7 @@ private:
 
 public:
 	void Update();
+	void Release();
 
 	void AddGameObject(GameObject* gameObject);
 	ObjectsResource* GetResources();
@@ -29,6 +30,7 @@ public:
 
 public:
 	void Update();
+	void Release();
 
 	void AddGameObject(GameObject* gameObject, int layer = 0);
 };

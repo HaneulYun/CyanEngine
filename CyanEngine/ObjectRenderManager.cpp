@@ -55,6 +55,15 @@ void RenderSets::Update()
 	}
 }
 
+void RenderSets::Release()
+{
+	objectsResources.clear();
+	isDirty = NUM_FRAME_RESOURCES;
+	activatedInstance = 0;
+
+	gameObjects.clear();
+}
+
 void RenderSets::AddGameObject(GameObject* gameObject)
 {
 	isDirty = NUM_FRAME_RESOURCES;
@@ -94,4 +103,14 @@ void ObjectRenderManager::AddGameObject(GameObject* gameObject, int layer)
 	gameObject->layer = layer;
 	renderObjectsLayer[layer][mesh].AddGameObject(gameObject);
 	int k = 0;
+}
+
+void ObjectRenderManager::Release()
+{
+	for (auto& RenderLayer : renderObjectsLayer)
+	{
+		for (auto& renderSets : RenderLayer)
+			renderSets.second.Release();
+		RenderLayer.clear();
+	}
 }

@@ -19,4 +19,5 @@ public:
 	void AddGameObject(GameObject* gameObject, int layer = 0);
 
 	void Update();
+	void Release();
 };

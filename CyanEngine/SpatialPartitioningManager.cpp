@@ -112,6 +112,11 @@ void SpatialPartitioningManager::Update()
 	}
 }
 
+void SpatialPartitioningManager::Release()
+{
+	sectorList.clear();
+}
+
 void SpatialPartitioningManager::InitSector(float xMin, float xMax, float yMin, float yMax, int width, int height)
 {
 	worldXMin = xMin;

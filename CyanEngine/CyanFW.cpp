@@ -12,6 +12,13 @@ CyanFW::CyanFW(UINT width, UINT height, std::wstring name)
 
 CyanFW::~CyanFW()
 {
+	delete assetManager;
+	delete sceneManager;
+	delete graphics;
+	delete AudioManager::Instance();
+	delete Random::Instance();
+	delete Input::Instance();
+	delete Time::Instance();
 }
 
 bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
@@ -20,7 +27,7 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	Input::Instance();
 	Random::Instance()->Start();
 	AudioManager::Instance();
-
+	
 	if (!graphics)
 		(graphics = Graphics::Instance())->Initialize();
 	if (!sceneManager)
@@ -34,6 +41,19 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 			resource->MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(Graphics::Instance()->device.Get(), 21, false);
 			assetManager->assetResource.push_back(std::move(resource));
 		}
+
+		Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
+		
+		ASSET AddMesh("Quad", Mesh::CreateQuad());
+		ASSET AddMesh("Cube", Mesh::CreateCube());
+		ASSET AddMesh("Image", Mesh::CreateQuad());
+		ASSET AddMesh("Plane", Mesh::CreatePlane());
+		ASSET AddMesh("Sphere", Mesh::CreateSphere());
+		ASSET AddMesh("Cylinder", Mesh::CreateCylinder());
+
+		Graphics::Instance()->commandList->Close();
+		ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
+		Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 	}
 
 	return true;
@@ -45,11 +65,15 @@ void CyanFW::OnFrameAdvance()
 
 	if (sceneManager->nextScene)
 	{
+		sceneManager->scene->ReleaseObjects();
+
 		sceneManager->nextScene->frameResourceManager.currFrameResourceIndex = sceneManager->scene->frameResourceManager.currFrameResourceIndex;
 		Scene::scene = sceneManager->scene = sceneManager->nextScene;
 		sceneManager->nextScene = nullptr;
 
 		Camera::main = Scene::scene->camera;
+
+		sceneManager->scene->isDirty = true;
 	}
 
 	if (sceneManager->scene->isDirty)

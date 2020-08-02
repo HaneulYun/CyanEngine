@@ -20,6 +20,7 @@ public:
 
 public:
 	void Update();
+	void Release();
 
 	void InitSector(float xMin = 0, float xMax = 1000, float yMin = 0, float yMax = 1000, int width = 20, int height = 20);
 

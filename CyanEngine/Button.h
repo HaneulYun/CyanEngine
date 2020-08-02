@@ -16,7 +16,6 @@ public:
 
 	void Start();
 	void Update();
-	void OnDestroy();
 
 	bool OnClick();
 

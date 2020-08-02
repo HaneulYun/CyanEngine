@@ -100,6 +100,16 @@ void LightResourceManager::Update()
 	}
 }
 
+void LightResourceManager::Release()
+{
+	for (auto& lights : lightObjects)
+	{
+		for (auto light : lights)
+			delete light;
+		lights.clear();
+	}
+}
+
 void LightResourceManager::AddGameObject(GameObject* gameObject, int layer)
 {
 	auto graphics = Graphics::Instance();

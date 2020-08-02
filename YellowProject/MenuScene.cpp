@@ -14,8 +14,6 @@ void MenuScene::BuildObjects()
 	ASSET AddMaterial("menuBackgroundMat", ASSET TEXTURE("menuBackgroundTex"), 0, { 0.8, 0.8, 0.8, 1 });
 
 	//*** Mesh ***//
-	ASSET AddMesh("Image", Mesh::CreateQuad());
-	ASSET AddMesh("Sphere", Mesh::CreateSphere());
 
 	///*** Game Object ***///
 

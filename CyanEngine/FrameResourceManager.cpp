@@ -40,3 +40,11 @@ void FrameResourceManager::Update()
 		currFrameResource->PassCB->CopyData(0, passConstants);
 	}
 }
+
+void FrameResourceManager::Release()
+{
+	frameResources.clear();
+
+	currFrameResource = 0;
+	currFrameResourceIndex = 0;
+}

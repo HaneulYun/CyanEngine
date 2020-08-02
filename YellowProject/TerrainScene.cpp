@@ -57,10 +57,6 @@ void TerrainScene::BuildObjects()
 
 	//*** Mesh ***//
 	{
-		ASSET AddMesh("Cube", Mesh::CreateCube());
-		ASSET AddMesh("Quad", Mesh::CreateQuad());
-		ASSET AddMesh("Cylinder", Mesh::CreateCylinder());
-		ASSET AddMesh("Plane", Mesh::CreatePlane());
 		ASSET AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 
 		//ASSET AddFbxForMesh("SM_Well", "Assets\\AdvancedVillagePack\\Meshes\\SM_Well.FBX");
@@ -111,13 +107,13 @@ void TerrainScene::BuildObjects()
 		prefab->AddComponent<MeshFilter>();
 		prefab->AddComponent<Renderer>();
 		prefab->AddComponent<BoxCollider>();
-
+	
 		ASSET AddPrefab("MRC", std::make_unique<GameObject>(prefab));
 	}
-
+	
 	{
 		auto prefab = CreateEmptyPrefab();
-
+	
 		{
 			auto child = prefab->AddChild();
 			child->transform->Rotate({ 1.0,0.0,0.0 }, -90.0f);
@@ -134,21 +130,21 @@ void TerrainScene::BuildObjects()
 			spotLight->GetComponent<Light>()->type = Light::Type::Point;
 			spotLight->GetComponent<Light>()->FalloffEnd = 5;
 		}
-
+	
 		ASSET AddPrefab("StreetLight", std::make_unique<GameObject>(prefab));
 	}
-
+	
 	///*** Game Object ***///
-
+	
 	ASSET AddAudioClip("testSound", "Assets\\FootstepSound\\Grass\\test.mp3");
-
+	
 	auto soundBox = CreateEmpty();
 	{
 		soundBox->transform->position = { 512, 35, 1024 * 0.45 };
 		soundBox->transform->Scale({10, 10, 10});
 		soundBox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
 		soundBox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
-
+	
 		auto audioSource = soundBox->AddComponent<AudioSource>();
 		audioSource->clip = ASSET AUDIO_CLIP("testSound");
 		audioSource->loop = true;
@@ -182,7 +178,7 @@ void TerrainScene::BuildObjects()
 		cubeObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
 		cubeObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}
-
+	
 	auto plane = CreateEmpty();
 	{
 		plane->transform->position = { 512, 1, 512 };
@@ -190,7 +186,7 @@ void TerrainScene::BuildObjects()
 		plane->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
 		plane->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}
-
+	
 	{
 		auto ritem = CreateEmpty();
 		ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
@@ -200,9 +196,9 @@ void TerrainScene::BuildObjects()
 			renderer->materials.push_back(ASSET MATERIAL("none"));
 		ritem->layer = (int)RenderLayer::Sky;
 	}
-
+	
 	float TerrainSize = 1024;
-
+	
 	GameObject* terrain = CreateEmpty();
 	auto terrainData = terrain->AddComponent<Terrain>();
 	{
@@ -210,14 +206,14 @@ void TerrainScene::BuildObjects()
 			terrainData->terrainData.AlphamapTextureName = L"Texture\\f5o3_1024.raw";
 			terrainData->terrainData.heightmapHeight = TerrainSize;
 			terrainData->terrainData.heightmapWidth = TerrainSize;
-
+	
 			terrainData->terrainData.size = { TerrainSize, 255, TerrainSize };
-
+	
 			terrainData->Set();
 		}
 		terrain->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("ground"));
 	}
-
+	
 	auto terrainBottom = CreateEmpty();
 	{
 		terrainBottom->transform->Scale({ 1024, 1, 1024 });
@@ -226,26 +222,26 @@ void TerrainScene::BuildObjects()
 		terrainBottom->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
 		terrainBottom->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}
-
-	auto object = CreateUI();
-	{
-		auto rt = object->GetComponent<RectTransform>();
-		rt->width = CyanFW::Instance()->GetWidth();
-		rt->height = CyanFW::Instance()->GetHeight();
-
-		auto buildingBuilder = object->AddComponent<BuildingBuilder>();
-		buildingBuilder->serializeBuildings();
-		buildingBuilder->terrain = terrainData;
-
-		auto buildingTypeSelector = object->AddComponent<BuildingTypeSelector>();
-		buildingTypeSelector->builder = buildingBuilder;
-
-		buildingTypeSelector->addBuildingType(BuildingBuilder::Landmark, L"랜드\n마크", -80, 0);
-		buildingTypeSelector->addBuildingType(BuildingBuilder::House, L"주거\n건물", -40, 0);
-		buildingTypeSelector->addBuildingType(BuildingBuilder::Theme, L"테마\n건물", 0, 0);
-		buildingTypeSelector->addBuildingType(BuildingBuilder::Landscape, L"조경", 40, 0);
-		buildingTypeSelector->addBuildingType(BuildingBuilder::Prop, L"소품", 80, 0);
-	}
+	
+	//auto object = CreateUI();
+	//{
+	//	auto rt = object->GetComponent<RectTransform>();
+	//	rt->width = CyanFW::Instance()->GetWidth();
+	//	rt->height = CyanFW::Instance()->GetHeight();
+	//
+	//	auto buildingBuilder = object->AddComponent<BuildingBuilder>();
+	//	buildingBuilder->serializeBuildings();
+	//	buildingBuilder->terrain = terrainData;
+	//
+	//	auto buildingTypeSelector = object->AddComponent<BuildingTypeSelector>();
+	//	buildingTypeSelector->builder = buildingBuilder;
+	//
+	//	buildingTypeSelector->addBuildingType(BuildingBuilder::Landmark, L"랜드\n마크", -80, 0);
+	//	buildingTypeSelector->addBuildingType(BuildingBuilder::House, L"주거\n건물", -40, 0);
+	//	buildingTypeSelector->addBuildingType(BuildingBuilder::Theme, L"테마\n건물", 0, 0);
+	//	buildingTypeSelector->addBuildingType(BuildingBuilder::Landscape, L"조경", 40, 0);
+	//	buildingTypeSelector->addBuildingType(BuildingBuilder::Prop, L"소품", 80, 0);
+	//}
 
 	auto menuSceneButton = CreateImage();
 	{

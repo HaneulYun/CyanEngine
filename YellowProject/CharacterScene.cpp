@@ -22,10 +22,6 @@ void CharacterScene::BuildObjects()
 
 	//*** Mesh ***//
 	{
-		ASSET AddMesh("Cube", Mesh::CreateCube());
-		ASSET AddMesh("Quad", Mesh::CreateQuad());
-		ASSET AddMesh("Cylinder", Mesh::CreateCylinder());
-		ASSET AddMesh("Plane", Mesh::CreatePlane());
 		ASSET AddFbxForAnimation("ApprenticeSK", "Models\\modelTest.fbx");
 	}
 

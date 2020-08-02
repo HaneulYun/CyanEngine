@@ -21,7 +21,7 @@ public:
         if(isConstantBuffer)
             mElementByteSize = ((sizeof(T)) + 255) & ~255;
 
-        device->CreateCommittedResource(
+        auto result = device->CreateCommittedResource(
             &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
             D3D12_HEAP_FLAG_NONE,
             &CD3DX12_RESOURCE_DESC::Buffer(mElementByteSize*elementCount),
