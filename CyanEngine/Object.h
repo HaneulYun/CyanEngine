@@ -8,7 +8,7 @@ public:
 	std::string name;
 
 	Object() {}
-	~Object() { OnDestroy(); }
+	~Object() {}
 
 	template <typename T>
 	T* Instantiate(T* original)

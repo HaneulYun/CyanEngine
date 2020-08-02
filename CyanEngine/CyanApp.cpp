@@ -30,24 +30,26 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 
 	cyanFW->OnCreate(hInstance, hwnd);
 	
-	ShowWindow(hwnd, nCmdShow);
-	UpdateWindow(hwnd);
-
+	//ShowWindow(hwnd, nCmdShow);
+	//UpdateWindow(hwnd);
+	
 	MSG msg = {};
-	while (msg.message != WM_QUIT)
-	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		else
-		{
-			cyanFW->OnFrameAdvance();
-			Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
-			SetWindowText(hwnd, cyanFW->m_pszFrameRate);
-		}
-	}
+	//while (msg.message != WM_QUIT)
+	//{
+	//	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	//	{
+	//		TranslateMessage(&msg);
+	//		DispatchMessage(&msg);
+	//	}
+	//	else
+	//	{
+	//		cyanFW->OnFrameAdvance();
+	//		Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
+	//		SetWindowText(hwnd, cyanFW->m_pszFrameRate);
+	//	}
+	//}
+
+	delete cyanFW;
 
 	// Return this part of the WM_QUIT message to Windows.
 	return static_cast<char>(msg.wParam);
