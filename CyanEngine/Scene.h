@@ -18,6 +18,7 @@ public:
 
 	std::queue<GameObject*> creationQueue;
 	std::priority_queue<GameObject*> deletionQueue;
+	std::vector<GameObject*> buttonObjects;
 	std::vector<GameObject*> textObjects;
 
 public:

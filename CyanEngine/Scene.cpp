@@ -87,9 +87,12 @@ void Scene::Update()
 	//}
 
 	// input process
-	//for (GameObject* gameObject : gameObjects)
-	//	if (auto button = gameObject->GetComponent<Button>(); button)
-	//		button->OnClick();
+	for (GameObject* gameObject : buttonObjects)
+		if (auto button = gameObject->GetComponent<Button>(); button)
+		{
+			if (!gameObject->active) continue;
+			button->OnClick();
+		}
 
 	// update
 	for (GameObject* gameObject : gameObjects)

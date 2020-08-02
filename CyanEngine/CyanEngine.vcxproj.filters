@@ -440,5 +440,8 @@
     <ClCompile Include="Transform.cpp">
       <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
     </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

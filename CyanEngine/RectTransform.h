@@ -31,6 +31,7 @@ public:
 
 	void Start()
 	{
+		Update();
 	}
 
 	void Update()
@@ -81,6 +82,7 @@ public:
 		anchorMin = { x, y };
 		anchorMax = { x, y };
 		pivot = { x, y };
+		Update();
 	}
 	void setPosAndSize(float x, float y, float w, float h)
 	{
@@ -88,6 +90,7 @@ public:
 		posY = y;
 		width = w;
 		height = h;
+		Update();
 	}
 
 	static Matrix4x4 Transform(Matrix4x4 mtx)
