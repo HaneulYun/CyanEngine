@@ -108,6 +108,8 @@ void AssetManager::AddAudioClip(std::string name, std::string path)
 
 void AssetManager::AddFbxForMesh(std::string name, std::string fileNmae)
 {
+	if (auto iter = meshes.find(name); iter == meshes.end())
+		return;
 	FbxModelData data;
 	data.SetName(name);
 	data.LoadFbx(fileNmae.c_str());
@@ -115,6 +117,8 @@ void AssetManager::AddFbxForMesh(std::string name, std::string fileNmae)
 
 void AssetManager::AddFbxForAnimation(std::string name, std::string fileNmae)
 {
+	if (auto iter = animationClips.find(name); iter == animationClips.end())
+		return;
 	FbxModelData data;
 	data.SetName(name);
 	data.LoadFbx(fileNmae.c_str());

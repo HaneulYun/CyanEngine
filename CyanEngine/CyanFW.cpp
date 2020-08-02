@@ -41,6 +41,19 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 			resource->MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(Graphics::Instance()->device.Get(), 21, false);
 			assetManager->assetResource.push_back(std::move(resource));
 		}
+
+		Graphics::Instance()->commandList->Reset(Graphics::Instance()->commandAllocator.Get(), nullptr);
+		
+		ASSET AddMesh("Quad", Mesh::CreateQuad());
+		ASSET AddMesh("Cube", Mesh::CreateCube());
+		ASSET AddMesh("Image", Mesh::CreateQuad());
+		ASSET AddMesh("Plane", Mesh::CreatePlane());
+		ASSET AddMesh("Sphere", Mesh::CreateSphere());
+		ASSET AddMesh("Cylinder", Mesh::CreateCylinder());
+
+		Graphics::Instance()->commandList->Close();
+		ID3D12CommandList* cmdsLists[] = { Graphics::Instance()->commandList.Get() };
+		Graphics::Instance()->commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 	}
 
 	return true;
