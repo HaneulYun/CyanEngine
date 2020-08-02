@@ -76,6 +76,9 @@
     <Filter Include="0_00_CyanEngine\30_Core\34_AnimationComponent">
       <UniqueIdentifier>{773acaf6-0d09-4543-809a-68c742a682c8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AzureTester">
+      <UniqueIdentifier>{34db3972-5142-41d5-9140-bdd4603bc3a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene.h">
@@ -285,6 +288,9 @@
     <ClInclude Include="TagData.h">
       <Filter>0_00_CyanEngine\20_Scene\23_SpatialPartitioning</Filter>
     </ClInclude>
+    <ClInclude Include="MenuScene.h">
+      <Filter>AzureTester</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">
@@ -439,6 +445,12 @@
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>0_00_CyanEngine\30_Core\33_FixedComponent</Filter>
+    </ClCompile>
+    <ClCompile Include="AzureTester.cpp">
+      <Filter>AzureTester</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuScene.cpp">
+      <Filter>AzureTester</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

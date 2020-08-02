@@ -12,30 +12,36 @@ CyanFW::CyanFW(UINT width, UINT height, std::wstring name)
 
 CyanFW::~CyanFW()
 {
+	delete assetManager;
 	delete sceneManager;
+	delete graphics;
+	delete AudioManager::Instance();
+	delete Random::Instance();
+	delete Input::Instance();
+	delete Time::Instance();
 }
 
 bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 {
-	//Time::Instance()->Reset();
-	//Input::Instance();
-	//Random::Instance()->Start();
-	//AudioManager::Instance();
-	//
-	//if (!graphics)
-	//	(graphics = Graphics::Instance())->Initialize();
+	Time::Instance()->Reset();
+	Input::Instance();
+	Random::Instance()->Start();
+	AudioManager::Instance();
+	
+	if (!graphics)
+		(graphics = Graphics::Instance())->Initialize();
 	if (!sceneManager)
 		sceneManager = SceneManager::Instance();
-	//if (!assetManager)
-	//{
-	//	assetManager = AssetManager::Instance();
-	//	for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
-	//	{
-	//		auto resource = std::make_unique<AssetResource>();
-	//		resource->MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(Graphics::Instance()->device.Get(), 21, false);
-	//		assetManager->assetResource.push_back(std::move(resource));
-	//	}
-	//}
+	if (!assetManager)
+	{
+		assetManager = AssetManager::Instance();
+		for (int i = 0; i < NUM_FRAME_RESOURCES; ++i)
+		{
+			auto resource = std::make_unique<AssetResource>();
+			resource->MaterialBuffer = std::make_unique<UploadBuffer<MaterialData>>(Graphics::Instance()->device.Get(), 21, false);
+			assetManager->assetResource.push_back(std::move(resource));
+		}
+	}
 
 	return true;
 }
@@ -53,6 +59,8 @@ void CyanFW::OnFrameAdvance()
 		sceneManager->nextScene = nullptr;
 
 		Camera::main = Scene::scene->camera;
+
+		sceneManager->scene->isDirty = true;
 	}
 
 	if (sceneManager->scene->isDirty)

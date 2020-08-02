@@ -8,4 +8,5 @@ struct FrameResourceManager
 	int currFrameResourceIndex{ 0 };
 
 	void Update();
+	void Release();
 };

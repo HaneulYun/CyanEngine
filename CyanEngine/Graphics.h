@@ -60,7 +60,7 @@ public:
 
 public:
 	Graphics() {}
-	virtual ~Graphics() {}
+	~Graphics() {}
 
 	void Initialize();
 

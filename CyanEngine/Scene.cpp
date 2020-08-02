@@ -109,9 +109,22 @@ void Scene::BuildObjects()
 
 void Scene::ReleaseObjects()
 {
+	camera = nullptr;
+
+	textObjects.clear();
+	while (deletionQueue.size())
+		deletionQueue.pop();
+	while (creationQueue.size())
+		creationQueue.pop();
+
 	for (GameObject* object : gameObjects)
 		delete object;
 	gameObjects.clear();
+
+	objectRenderManager.Release();
+	spatialPartitioningManager.Release();
+	frameResourceManager.Release();
+	lightResourceManager.Release();
 }
 
 
