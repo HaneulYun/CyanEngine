@@ -10,7 +10,9 @@ void Light::Start()
 
 void Light::OnDestroy()
 {
-	auto lightObjects = gameObject->scene->lightResourceManager.lightObjects[type];
+	if (!gameObject->scene)
+		return;
+	auto& lightObjects = gameObject->scene->lightResourceManager.lightObjects[type];
 
 	if (auto iter = std::find(lightObjects.begin(), lightObjects.end(), lightData); iter != lightObjects.end())
 		lightObjects.erase(iter);
