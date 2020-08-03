@@ -613,7 +613,7 @@ void Graphics::LoadAssets()
 	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 1, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable2;
-	texTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 16, 1, 2, 0);
+	texTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 256-20, 1, 2, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable3;
 	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 4, 0, 3, 0);
@@ -922,7 +922,7 @@ void Graphics::LoadAssets()
 
 
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
-	descriptorHeapDesc.NumDescriptors = 40;
+	descriptorHeapDesc.NumDescriptors = 256;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&srvHeap));
