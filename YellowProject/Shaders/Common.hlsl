@@ -42,7 +42,7 @@ TextureCube gCubeMap : register(t0, space1);
 Texture2D gBufferMap[7] : register(t1, space1);
 Texture2D gShadowMap[4] : register(t0, space3);
 
-Texture2D gDiffuseMap[256-20] : register(t1, space2);
+Texture2D gDiffuseMap[256-20] : register(t0, space4);
 
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
