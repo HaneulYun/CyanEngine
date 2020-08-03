@@ -116,6 +116,7 @@ void LightResourceManager::AddGameObject(GameObject* gameObject, int layer)
 
 	LightData* lightData = new LightData();
 	lightData->gameObject = gameObject;
+	gameObject->GetComponent<Light>()->lightData = lightData;
 
 	if (!lightData->shadowMap.size())
 	{

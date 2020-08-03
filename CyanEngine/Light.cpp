@@ -7,3 +7,11 @@ void Light::Start()
 	gameObject->scene->objectRenderManager.AddGameObject(gameObject, gameObject->layer);
 	gameObject->scene->lightResourceManager.AddGameObject(gameObject, type);
 }
+
+void Light::OnDestroy()
+{
+	auto lightObjects = gameObject->scene->lightResourceManager.lightObjects[type];
+
+	if (auto iter = std::find(lightObjects.begin(), lightObjects.end(), lightData); iter != lightObjects.end())
+		lightObjects.erase(iter);
+}

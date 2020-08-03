@@ -16,9 +16,9 @@ void DetailPrototype::Set(TerrainData* terrainData)
 		};
 
 		std::vector<TreeSpriteVertex> vertices;
-		float sizex = 0.25, sizey = 0.25;
+		float sizex = 0.5, sizey = 0.5;
 		const int width = terrainData->heightmapWidth - 1, length = terrainData->heightmapHeight - 1;
-		float stride = 0.5f;
+		float stride = 0.3f;
 		vertices.reserve(width * length);
 		for (float i = 0; i < width; i += stride)
 		{
@@ -31,6 +31,8 @@ void DetailPrototype::Set(TerrainData* terrainData)
 				//if (h > 30.0f)
 				//	v.Size = XMFLOAT2(sizex / (h - 30.0f), sizey / (h - 30.0f));
 				//else
+				if (h == 0)
+					continue;
 				v.Size = XMFLOAT2(sizex, sizey);
 				v.Pos = XMFLOAT3(i, (terrainData->GetHeight(i, j) + sizey / 2) * (terrainData->size.y / 255.0f), j);;
 				v.look = XMFLOAT3(MathHelper::RandF(-1.0f, 1.0f), 0.0f, MathHelper::RandF(-1.0f, 1.0f));

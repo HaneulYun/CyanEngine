@@ -12,6 +12,8 @@ struct PassLight
 	int pad[3]{ 0 };
 };
 
+class LightData;
+
 class Light : public MonoBehavior<Light>
 {
 public:
@@ -20,6 +22,8 @@ public:
 
 	enum ShadowType { NoShadows, Shadows };// HardShadows, SoftShadows};
 	ShadowType shadowType{ NoShadows };
+
+	LightData* lightData{ nullptr };
 
 	Vector3 Strength{ 0.5f, 0.5f, 0.5f };
 	float FalloffStart{ 1.0f };
@@ -38,6 +42,7 @@ public:
 	~Light() {}
 
 	void Start();
+	void OnDestroy();
 
 	PassLight get(Vector3 look, Vector3 position) const
 	{
