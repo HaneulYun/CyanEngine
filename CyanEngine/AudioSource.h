@@ -50,10 +50,25 @@ public:
 		}
 	}
 
+	void OnDestroy()
+	{
+		Pause(true);
+	}
+
 	void Play()
 	{
 		clip->sound->set3DMinMaxDistance(minDistance, maxDistance);
 
 		AudioManager::Instance()->system->playSound(clip->sound, nullptr, false, &channel);
+	}
+
+	void Pause(bool flag)
+	{
+		channel->setPaused(flag);
+	}
+
+	void SetVolume(float value)
+	{
+		channel->setVolume(value);
 	}
 };

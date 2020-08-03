@@ -149,6 +149,7 @@ void TerrainScene::BuildObjects()
 		audioSource->clip = ASSET AUDIO_CLIP("testSound");
 		audioSource->loop = true;
 		audioSource->spatial = true;
+		audioSource->SetVolume(0.2);
 	}
 
 	auto mainCamera = CreateEmpty();

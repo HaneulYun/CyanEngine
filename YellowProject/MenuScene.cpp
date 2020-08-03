@@ -13,7 +13,8 @@ void MenuScene::BuildObjects()
 	ASSET AddMaterial("gray", ASSET TEXTURE("none"), 0, { 0.5, 0.5, 0.5, 0.5 });
 	ASSET AddMaterial("menuBackgroundMat", ASSET TEXTURE("menuBackgroundTex"), 0, { 0.8, 0.8, 0.8, 1 });
 
-	//*** Mesh ***//
+	////*** AudioClip ***//
+	ASSET AddAudioClip("testSound", "Assets\\FootstepSound\\Grass\\test.mp3");
 
 	///*** Game Object ***///
 
@@ -21,6 +22,13 @@ void MenuScene::BuildObjects()
 	{
 		camera = camera->main = mainCamera->AddComponent<Camera>();
 		mainCamera->AddComponent<CameraController>();
+	}
+
+	auto soundBox = CreateEmpty();
+	{
+		auto audioSource = soundBox->AddComponent<AudioSource>();
+		audioSource->clip = ASSET AUDIO_CLIP("testSound");
+		audioSource->loop = true;
 	}
 
 	auto background = CreateImage();
