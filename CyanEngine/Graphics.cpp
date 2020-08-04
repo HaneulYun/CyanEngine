@@ -827,6 +827,18 @@ void Graphics::LoadAssets()
 	skyPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
 	device->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&pipelineStates["sky"]));
 
+	D3D12_RENDER_TARGET_BLEND_DESC blendDesc{};
+	blendDesc.BlendEnable = true;
+	blendDesc.LogicOpEnable = false;
+	blendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC uiPsoDesc = opaquePsoDesc;
 	uiPsoDesc.VS = CD3DX12_SHADER_BYTECODE(uiVS.Get());
 	uiPsoDesc.PS = CD3DX12_SHADER_BYTECODE(uiPS.Get());
@@ -839,6 +851,8 @@ void Graphics::LoadAssets()
 	uiPsoDesc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 	uiPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 	uiPsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+	uiPsoDesc.DepthStencilState.DepthEnable = false;
+	uiPsoDesc.BlendState.RenderTarget[0] = blendDesc;
 	device->CreateGraphicsPipelineState(&uiPsoDesc, IID_PPV_ARGS(&pipelineStates["ui"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC shadowPsoDesc = opaquePsoDesc;
@@ -866,17 +880,6 @@ void Graphics::LoadAssets()
 	particlePsoDesc.PS = CD3DX12_SHADER_BYTECODE(particlePS.Get());
 	particlePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	particlePsoDesc.DepthStencilState.DepthEnable = false;
-	D3D12_RENDER_TARGET_BLEND_DESC blendDesc{};
-	blendDesc.BlendEnable = true;
-	blendDesc.LogicOpEnable = false;
-	blendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
-	blendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	particlePsoDesc.BlendState.RenderTarget[0] = blendDesc;
 	device->CreateGraphicsPipelineState(&particlePsoDesc, IID_PPV_ARGS(&pipelineStates["particle"]));
 
