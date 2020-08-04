@@ -66,7 +66,7 @@ void AssetManager::AddTexture(std::string name, std::wstring fileName)
 	AssetManager::Instance()->textures[texture->Name] = std::move(texture);
 }
 
-void AssetManager::AddMaterial(std::string name, Texture* diffuse, Texture* normal,
+void AssetManager::AddMaterial(std::string name, Texture* diffuse, Texture* normal, Texture* emissive, Texture* mask,
 	Vector4 albedo, Vector3 fresnel, float roughness, Matrix4x4 matTransform)
 {	
 	static int index{ 0 };
@@ -78,6 +78,8 @@ void AssetManager::AddMaterial(std::string name, Texture* diffuse, Texture* norm
 	material->MatCBIndex = index++;
 	material->DiffuseSrvHeapIndex = diffuse ? diffuse->Index : -1;
 	material->NormalSrvHeapIndex = normal ? normal->Index : -1;
+	material->EmissiveSrvHeapIndex = emissive ? emissive->Index : -1;
+	material->MaskSrvHeapIndex = mask ? mask->Index : -1;
 	material->DiffuseAlbedo = albedo;
 	material->FresnelR0 = fresnel;
 	material->Roughness = roughness;

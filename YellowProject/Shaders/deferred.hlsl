@@ -67,5 +67,5 @@ float4 PS(PSInput input) : SV_TARGET
 
 	float3 ambient = gAmbientLight * gbd.Color;
 
-	return float4(gbd.Color * (gAmbientLight + LDiffuse + Specular), 1);
+	return float4(gbd.Color * (gAmbientLight + LDiffuse + Specular + gBufferMap[2].Load(location).a), 1);
 }

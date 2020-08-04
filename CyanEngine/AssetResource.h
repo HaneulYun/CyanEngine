@@ -10,8 +10,8 @@ struct MaterialData
 
 	UINT DiffuseMapIndex{};
 	UINT NormalMapIndex{};
-	UINT MaterialPad1{};
-	UINT MaterialPad2{};
+	UINT EmissiveMapIndex{};
+	UINT MaskMapIndex{};
 };
 
 struct AssetResource

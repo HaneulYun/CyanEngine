@@ -21,6 +21,7 @@ public:
 	void AddMesh(std::string name, std::unique_ptr<Mesh> mesh);
 	void AddTexture(std::string name, std::wstring fileName);
 	void AddMaterial(std::string name, Texture* diffuse = nullptr, Texture* noromal = nullptr,
+		Texture* emissive = nullptr, Texture* mask = nullptr,
 		Vector4 albedo = { 1.0f, 1.0f, 1.0f, 1.0f }, Vector3 fresnel = { 0.01f, 0.01f, 0.01f },
 		float roughness = 1.0f, Matrix4x4 matTransform = Matrix4x4::MatrixIdentity());
 	void AddPrefab(std::string name, std::unique_ptr<GameObject> prefab);
