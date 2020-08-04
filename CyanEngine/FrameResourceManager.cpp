@@ -15,7 +15,7 @@ void FrameResourceManager::Update()
 		Vector3 pos = matrix.position;
 		Vector3 lookAt = vLookAt;;
 		Vector3 up{ 0, 1, 0 };
-		Matrix4x4 view = Matrix4x4::MatrixLookAtLH(pos, lookAt, up);
+		Matrix4x4 view = Scene::scene->camera->view = Matrix4x4::MatrixLookAtLH(pos, lookAt, up);
 		Matrix4x4 proj = Scene::scene->camera->projection;
 		Matrix4x4 ViewProj = view * proj;
 

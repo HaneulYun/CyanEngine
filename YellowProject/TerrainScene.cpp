@@ -189,13 +189,11 @@ void TerrainScene::BuildObjects()
 	}
 	
 	{
-		auto ritem = CreateEmpty();
-		ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
-		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = ASSET MESH("Sphere");
-		auto renderer = ritem->AddComponent<Renderer>();
-		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("none"));
-		ritem->layer = (int)RenderLayer::Sky;
+		auto skybox = CreateEmpty();
+		skybox->transform->Scale({ 5000.0f, 5000.0f, 5000.0f });
+		skybox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Sphere");
+		skybox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
+		skybox->layer = (int)RenderLayer::Sky;
 	}
 	
 	float TerrainSize = 1024;
@@ -224,25 +222,25 @@ void TerrainScene::BuildObjects()
 		terrainBottom->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}
 	
-	//auto object = CreateUI();
-	//{
-	//	auto rt = object->GetComponent<RectTransform>();
-	//	rt->width = CyanFW::Instance()->GetWidth();
-	//	rt->height = CyanFW::Instance()->GetHeight();
-	//
-	//	auto buildingBuilder = object->AddComponent<BuildingBuilder>();
-	//	buildingBuilder->serializeBuildings();
-	//	buildingBuilder->terrain = terrainData;
-	//
-	//	auto buildingTypeSelector = object->AddComponent<BuildingTypeSelector>();
-	//	buildingTypeSelector->builder = buildingBuilder;
-	//
-	//	buildingTypeSelector->addBuildingType(BuildingBuilder::Landmark, L"랜드\n마크", -80, 0);
-	//	buildingTypeSelector->addBuildingType(BuildingBuilder::House, L"주거\n건물", -40, 0);
-	//	buildingTypeSelector->addBuildingType(BuildingBuilder::Theme, L"테마\n건물", 0, 0);
-	//	buildingTypeSelector->addBuildingType(BuildingBuilder::Landscape, L"조경", 40, 0);
-	//	buildingTypeSelector->addBuildingType(BuildingBuilder::Prop, L"소품", 80, 0);
-	//}
+	auto object = CreateUI();
+	{
+		auto rt = object->GetComponent<RectTransform>();
+		rt->width = CyanFW::Instance()->GetWidth();
+		rt->height = CyanFW::Instance()->GetHeight();
+	
+		auto buildingBuilder = object->AddComponent<BuildingBuilder>();
+		buildingBuilder->serializeBuildings();
+		buildingBuilder->terrain = terrainData;
+	
+		auto buildingTypeSelector = object->AddComponent<BuildingTypeSelector>();
+		buildingTypeSelector->builder = buildingBuilder;
+	
+		buildingTypeSelector->addBuildingType(BuildingBuilder::Landmark, L"랜드\n마크", -80, 0);
+		buildingTypeSelector->addBuildingType(BuildingBuilder::House, L"주거\n건물", -40, 0);
+		buildingTypeSelector->addBuildingType(BuildingBuilder::Theme, L"테마\n건물", 0, 0);
+		buildingTypeSelector->addBuildingType(BuildingBuilder::Landscape, L"조경", 40, 0);
+		buildingTypeSelector->addBuildingType(BuildingBuilder::Prop, L"소품", 80, 0);
+	}
 
 	auto menuSceneButton = CreateImage();
 	{

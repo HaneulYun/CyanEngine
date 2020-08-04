@@ -377,6 +377,22 @@ void Graphics::RenderUI()
 		RectTransform* rect = gameObject->GetComponent<RectTransform>();
 		Matrix4x4 mat = RectTransform::Transform(gameObject->GetMatrix());
 
+		if (auto rt = gameObject->GetComponent<RectTransform>(); rt)
+			if (rt->renderMode)
+			{
+				auto v = Vector3(0).TransformCoord(gameObject->parent->GetMatrix()* Camera::main->view * Camera::main->projection);
+				RectTransform r;
+				r.width = rect->width;
+				r.height = rect->height;
+				r.setAnchorAndPivot((v.x + 1) / 2, (v.y + 1) / 2);
+				r.Update();
+				rect->UpdateTransform(r.width, r.height);
+
+				mat = RectTransform::Transform(gameObject->GetMatrix(gameObject) * r.localToWorldMatrix);
+				//mat = RectTransform::Transform(gameObject->GetMatrix(gameObject));
+			}
+
+
 		Vector3 leftTop{ mat._41, mat._22 + mat._42, 0 };
 		Vector3 rightBottom{ mat._11 + mat._41, mat._42, 0 };
 
@@ -384,6 +400,7 @@ void Graphics::RenderUI()
 		rt.top = (leftTop.y / -2.0f + 0.5f) * height;
 		rt.right = (rightBottom.x / 2.0f + 0.5f) * width;
 		rt.bottom = (rightBottom.y / -2.0f + 0.5f) * height;
+
 
 		if (textComponent->gameObject->active)
 			deviceContext->DrawText(textComponent->text.c_str(), textComponent->text.length(), textFormats[textComponent->formatIndex].Get(), &rt, textBrushes[textComponent->brushIndex].Get());

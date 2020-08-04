@@ -20,8 +20,12 @@ public:
 	Vector2 anchorMax{ 0.5f, 0.5f };
 	Vector2 pivot{ 0.5f, 0.5f };
 
+	enum RenderMode { ScreenSpace, WorldSpace };
+	int renderMode{ ScreenSpace };
+
 private:
 	friend class GameObject;
+	friend class Graphics;
 	friend class MonoBehavior<RectTransform, Transform>;
 	RectTransform() = default;
 	RectTransform(RectTransform&) = default;
@@ -38,7 +42,7 @@ public:
 	{
 		float parentWidth = CyanFW::Instance()->GetWidth();
 		float parentHeight = CyanFW::Instance()->GetHeight();
-		if (gameObject->parent)
+		if (gameObject && gameObject->parent)
 		{
 			auto parentRectTransform = gameObject->parent->GetComponent<RectTransform>();
 			if (parentRectTransform)
@@ -47,7 +51,11 @@ public:
 				parentHeight = parentRectTransform->height;
 			}
 		}
+		UpdateTransform(parentWidth, parentHeight);
+	}
 
+	void UpdateTransform(float parentWidth, float parentHeight)
+	{
 		float offsetX{ 0 };
 		if (!IsEqual(anchorMin.x, anchorMax.x))
 		{

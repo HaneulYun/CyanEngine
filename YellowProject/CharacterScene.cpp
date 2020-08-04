@@ -94,7 +94,7 @@ void CharacterScene::BuildObjects()
 
 	auto sim0 = CreateEmpty();
 	{
-		sim0->transform->position = { 10, 0, 0 };
+		sim0->transform->position = { 0, 0, 0 };
 	
 		auto model = sim0->AddChild();
 		{
@@ -111,12 +111,26 @@ void CharacterScene::BuildObjects()
 		anim->controller = controller;
 		anim->state = &controller->states["Idle"];
 		anim->TimePos = 0;
-	}
 
+		auto uiPos = sim0->AddChild();
+		{
+			uiPos->transform->position = { 0, 1.8, 0 };
+			auto uiBox = uiPos->AddChildUI();
+			{
+				auto rt = uiBox->GetComponent<RectTransform>();
+				rt->renderMode = RectTransform::WorldSpace;
+
+				auto text = uiBox->AddComponent<Text>();
+				text->text = L"Zenny";
+				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			}
+		}
+	}
 
 	auto player = CreateEmpty();
 	{
-		player->transform->position = { 0, 0, 10 };
+		player->transform->position = { 0, 0, -2 };
 
 		auto model = player->AddChild();
 		{
@@ -145,27 +159,57 @@ void CharacterScene::BuildObjects()
 			camera = camera->main = mainCamera->AddComponent<Camera>();
 			mainCamera->AddComponent<AudioListener>();
 		}
+
+		auto uiPos = player->AddChild();
+		{
+			uiPos->transform->position = { 0, 1.8, 0 };
+			auto uiBox = uiPos->AddChildUI();
+			{
+				auto rt = uiBox->GetComponent<RectTransform>();
+				rt->renderMode = RectTransform::WorldSpace;
+
+				auto text = uiBox->AddComponent<Text>();
+				text->text = L"NiL";
+				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			}
+		}
 	}
 
 	auto sim = CreateEmpty();
 	{
-		sim->transform->position = { 0, 0, 0 };
-
+		sim->transform->position = { 2, 0, 0 };
+	
 		auto model = sim->AddChild();
 		{
 			model->GetComponent<Transform>()->Rotate({ 1, 0, 0 }, -90);
 			model->AddComponent<SkinnedMeshRenderer>()->mesh = ASSET MESH("ApprenticeSK");
 			model->GetComponent<SkinnedMeshRenderer>()->materials.push_back(ASSET MATERIAL("PolyArt"));
 		}
-
+	
 		auto ccontroller = sim->AddComponent<CharacterController>();
 		ccontroller->isPlayer = false;
 		ccontroller->terrainData = &terrainData->terrainData;
-
+	
 		auto anim = sim->AddComponent<Animator>();
 		anim->controller = controller;
 		anim->state = &controller->states["Idle"];
 		anim->TimePos = 1;
+
+		auto uiPos = sim->AddChild();
+		{
+			uiPos->transform->position = { 0, 1.8, 0 };
+			auto uiBox = uiPos->AddChildUI();
+			{
+				auto rt = uiBox->GetComponent<RectTransform>();
+				rt->renderMode = RectTransform::WorldSpace;
+
+				auto text = uiBox->AddComponent<Text>();
+				text->text = L"Yenny";
+				text->textAlignment = DWRITE_TEXT_ALIGNMENT_CENTER;
+				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
+			}
+		}
 	}
 
 	auto directionalLight = CreateEmpty();
@@ -176,16 +220,16 @@ void CharacterScene::BuildObjects()
 		light->shadowType = Light::Shadows;
 
 		directionalLight->AddComponent<RotatingBehavior>()->setAxisAndSpeed({ 0, 1, 0 }, 360 * 0.05);
+
+		environment.sunSources = light;
 	}
 
 	{
-		auto ritem = CreateEmpty();
-		ritem->GetComponent<Transform>()->Scale({ 5000.0f, 5000.0f, 5000.0f });
-		auto mesh = ritem->AddComponent<MeshFilter>()->mesh = ASSET MESH("Sphere");
-		auto renderer = ritem->AddComponent<Renderer>();
-		for (auto& sm : mesh->DrawArgs)
-			renderer->materials.push_back(ASSET MATERIAL("none"));
-		ritem->layer = (int)RenderLayer::Sky;
+		auto skybox = CreateEmpty();
+		skybox->transform->Scale({ 5000.0f, 5000.0f, 5000.0f });
+		skybox->AddComponent<MeshFilter>()->mesh = ASSET MESH("Sphere");
+		skybox->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
+		skybox->layer = (int)RenderLayer::Sky;
 	}
 
 	auto terrainBottom = CreateEmpty();
