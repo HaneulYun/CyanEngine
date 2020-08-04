@@ -18,8 +18,8 @@ struct MaterialData
 	float4x4 MatTransform;
 	uint	 DiffuseMapIndex;
 	uint	 NormalMapIndex;
+	uint	 MaskMapIndex;
 	uint	 MatPad1;
-	uint	 MatPad2;
 };
 
 struct MatIndexData

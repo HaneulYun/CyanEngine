@@ -106,6 +106,7 @@ void CyanFW::OnFrameAdvance()
 			matData.MatTransform = matTransform.Transpose();
 			matData.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
 			matData.NormalMapIndex = mat->NormalSrvHeapIndex;
+			matData.MaskMapIndex = mat->MaskSrvHeapIndex;
 
 			currMaterialBuffer->CopyData(mat->MatCBIndex, matData);
 
