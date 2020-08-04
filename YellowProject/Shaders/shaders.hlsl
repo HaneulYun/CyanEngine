@@ -87,6 +87,7 @@ MRT_VSOutput PS(PSInput input)
 	float roughness = matData.Roughness;
 	uint diffuseTexIndex = matData.DiffuseMapIndex;
 	uint normalTexIndex = matData.NormalMapIndex;
+	uint emissiveTexIndex = matData.EmissiveMapIndex;
 	uint maskTexIndex = matData.MaskMapIndex;
 
 	if (maskTexIndex != -1)
@@ -108,7 +109,7 @@ MRT_VSOutput PS(PSInput input)
 	MRT_VSOutput result;
 	result.Diffuse = diffuseAlbedo;
 	result.Diffuse.w = length(gEyePosW - input.PosW);
-	result.Normal = float4(input.NormalW, 1);
+	result.Normal = float4(input.NormalW, 0);
 
 	if (normalTexIndex != -1)
 	{
@@ -121,7 +122,13 @@ MRT_VSOutput PS(PSInput input)
 
 		float3x3 TBN = float3x3(T, B, N);
 
-		result.Normal = float4(mul(normalT, TBN), 1);
+		result.Normal = float4(mul(normalT, TBN), 0);
+	}
+
+	if (emissiveTexIndex != -1)
+	{
+		float3 texEmissive = gDiffuseMap[emissiveTexIndex].Sample(gsamAnisotropicWrap, input.TexC);
+		result.Normal.a = texEmissive.r;
 	}
 
 	return result;

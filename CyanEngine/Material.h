@@ -7,6 +7,7 @@ struct Material
 	int MatCBIndex = -1;
 	int DiffuseSrvHeapIndex = -1;
 	int NormalSrvHeapIndex = -1;
+	int EmissiveSrvHeapIndex = -1;
 	int MaskSrvHeapIndex = -1;
 
 	int NumFramesDirty = NUM_FRAME_RESOURCES;
