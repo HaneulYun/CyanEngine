@@ -39,6 +39,7 @@ public:
 	GameObject* BoneObjects{ nullptr };
 
 	BoundingBox Bounds;
+	BoundingBox BoundsLimited;
 
 public:
 	Mesh() = default;

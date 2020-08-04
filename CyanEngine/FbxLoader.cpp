@@ -200,6 +200,8 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 	Vector3 boundMin{ FLT_MAX };
 	Vector3 boundMax{ FLT_MIN };
+	Vector3 boundMinLimited{ FLT_MAX };
+	Vector3 boundMaxLimited{ FLT_MIN };
 
 	FbxMesh* mesh = node->GetMesh();
 
@@ -216,6 +218,15 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 		if (vertex.Pos.x > boundMax.x) boundMax.x = vertex.Pos.x;
 		if (vertex.Pos.y > boundMax.y) boundMax.y = vertex.Pos.y;
 		if (vertex.Pos.z > boundMax.z) boundMax.z = vertex.Pos.z;
+		if (vertex.Pos.z < 1.5)
+		{
+			if (vertex.Pos.x < boundMinLimited.x) boundMinLimited.x = vertex.Pos.x;
+			if (vertex.Pos.y < boundMinLimited.y) boundMinLimited.y = vertex.Pos.y;
+			if (vertex.Pos.z < boundMinLimited.z) boundMinLimited.z = vertex.Pos.z;
+			if (vertex.Pos.x > boundMaxLimited.x) boundMaxLimited.x = vertex.Pos.x;
+			if (vertex.Pos.y > boundMaxLimited.y) boundMaxLimited.y = vertex.Pos.y;
+			if (vertex.Pos.z > boundMaxLimited.z) boundMaxLimited.z = vertex.Pos.z;
+		}
 
 		vertices.push_back(vertex);
 	}
@@ -447,6 +458,8 @@ void FbxModelData::LoadFbxMesh(FbxNode* node)
 
 		mesh->Bounds.Center = ((boundMax + boundMin) / 2).xmf3;
 		mesh->Bounds.Extents = ((boundMax - boundMin) / 2).xmf3;
+		mesh->BoundsLimited.Center = ((boundMaxLimited + boundMinLimited) / 2).xmf3;
+		mesh->BoundsLimited.Extents = ((boundMaxLimited - boundMinLimited) / 2).xmf3;
 
 		mesh->BoneObjects = rootBoneObject;
 
