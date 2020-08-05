@@ -25,12 +25,12 @@ void FrameResourceManager::Update()
 		passConstants.Proj = proj.Transpose();
 		passConstants.InvProj = proj.Inverse().Transpose();
 		passConstants.ViewProj = ViewProj.Transpose();
-
+		
 		float mSunTheta = 1.25f * XM_PI;
 		float mSunPhi = XM_PIDIV4;
 
 		passConstants.EyePosW = pos;
-		passConstants.AmbientLight = { 0.15f, 0.15f, 0.15f, 1.0f };
+		passConstants.AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
 
 		passConstants.RenderTargetSize.x = CyanFW::Instance()->GetWidth();
 		passConstants.RenderTargetSize.y = CyanFW::Instance()->GetHeight();
