@@ -543,14 +543,7 @@ void Graphics::InitDirect3D()
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
 	
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ heapManager.GetRtv(0) };
-	for (UINT i = 0; i < FrameCount; ++i)
-	{
-		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
-		device->CreateRenderTargetView(renderTargets[i].Get(), nullptr, rtvHandle);
-	
-		rtvHandle.Offset(1, rtvDescriptorSize);
-	}
+	CreateRenderTargetView();
 	
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -970,14 +963,29 @@ void Graphics::ChangeSwapChainState()
 	dxgiTargetParameters.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChain->ResizeTarget(&dxgiTargetParameters);
 
-	for (int i = 0; i < FrameCount; i++);
-	//	if (m_ppd3dSwapChainBackBuffers[i])
-	//		m_ppd3dSwapChainBackBuffers[i]->Release();
+	for (int i = 0; i < FrameCount; i++)
+		if (renderTargets[i])
+			renderTargets[i]->Release();
+
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	swapChain->GetDesc(&dxgiSwapChainDesc);
 	swapChain->ResizeBuffers(FrameCount, CyanFW::Instance()->GetWidth(), CyanFW::Instance()->GetHeight(), dxgiSwapChainDesc.BufferDesc.Format, dxgiSwapChainDesc.Flags);
 
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
+
+	CreateRenderTargetView();
+}
+
+void Graphics::CreateRenderTargetView()
+{
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle{ heapManager.GetRtv(0) };
+	for (UINT i = 0; i < FrameCount; ++i)
+	{
+		swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTargets[i]));
+		device->CreateRenderTargetView(renderTargets[i].Get(), nullptr, rtvHandle);
+
+		rtvHandle.Offset(1, rtvDescriptorSize);
+	}
 }
 
 void Graphics::WaitForPreviousFrame()
