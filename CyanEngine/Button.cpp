@@ -10,6 +10,14 @@ void Button::Update()
 {
 }
 
+void Button::OnDestroy()
+{
+	auto iter = find(Scene::scene->buttonObjects.begin(), Scene::scene->buttonObjects.end(), gameObject);
+
+	if (iter != Scene::scene->buttonObjects.end())
+		Scene::scene->buttonObjects.erase(iter);
+}
+
 bool Button::OnClick()
 {
 	if (gameObject->active && Input::GetMouseButtonUp(0))

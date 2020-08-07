@@ -26,5 +26,6 @@ public:
 	~Text() {}
 
 	void Start();
-	void Update() {}\
+	void Update() {};
+	void OnDestroy();
 };
