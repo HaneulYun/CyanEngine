@@ -604,7 +604,7 @@ void Graphics::InitDirect2D()
 	{
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
 		device11On12->CreateWrappedResource(renderTargets[i].Get(), &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, IID_PPV_ARGS(&wrappedBackBuffers[i]));
-
+		
 		ComPtr<IDXGISurface> surface;
 		wrappedBackBuffers[i].As(&surface);
 		deviceContext->CreateBitmapFromDxgiSurface(surface.Get(), &bitmapProperties, &renderTargets2d[i]);
@@ -963,9 +963,39 @@ void Graphics::ChangeSwapChainState()
 	dxgiTargetParameters.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChain->ResizeTarget(&dxgiTargetParameters);
 
+	{
+		textFormats.clear();
+		textBrushes.clear();
+		//int va = textFormat.Reset();				//	0	1
+		//int v9 = textBrush.Reset();				//	0	1
+		int v8 = writeFactory.Reset();				//	1	3
+
+		int v5 = renderTargets2d[1].Reset();		//	0	1
+		int v4 = renderTargets2d[0].Reset();		//	0	1
+		int v7 = deviceContext.Reset();			//	0	1
+		int v6 = d2dDevice.Reset();				//	0	9
+
+		int v3 = d11DeviceContext.Reset();			//	0	6
+		int v2 = wrappedBackBuffers[1].Reset();	//	0	3
+		int v1 = wrappedBackBuffers[0].Reset();	//	0	3
+		int v0 = device11On12.Reset();				//	0	98
+
+		int k = 0;
+	}
+
+	for (GameObject* gameObject : Scene::scene->textObjects)
+	{
+		Text* textComponent = gameObject->GetComponent<Text>();
+		if (textComponent)
+		{
+			textComponent->formatIndex = -1;
+			textComponent->brushIndex = -1;
+		}
+	}
+
 	for (int i = 0; i < FrameCount; i++)
 		if (renderTargets[i])
-			renderTargets[i]->Release();
+			renderTargets[i].Reset();
 
 	DXGI_SWAP_CHAIN_DESC dxgiSwapChainDesc;
 	swapChain->GetDesc(&dxgiSwapChainDesc);
@@ -974,6 +1004,7 @@ void Graphics::ChangeSwapChainState()
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
 
 	CreateRenderTargetView();
+	InitDirect2D();
 }
 
 void Graphics::CreateRenderTargetView()
