@@ -298,7 +298,6 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 	}
 }
 
-
 void Graphics::RenderUI()
 {
 	UINT width = CyanFW::Instance()->GetWidth();
@@ -545,27 +544,27 @@ void Graphics::InitDirect3D()
 	
 	CreateRenderTargetView();
 	
-	D3D12_RESOURCE_DESC resourceDesc{};
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	resourceDesc.Alignment = 0;
-	resourceDesc.Width = CyanFW::Instance()->GetWidth();
-	resourceDesc.Height = CyanFW::Instance()->GetHeight();;
-	resourceDesc.DepthOrArraySize = 1;
-	resourceDesc.MipLevels = 1;
-	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	resourceDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
-	resourceDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
-	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+	//D3D12_RESOURCE_DESC resourceDesc{};
+	//resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	//resourceDesc.Alignment = 0;
+	//resourceDesc.Width = CyanFW::Instance()->GetWidth();
+	//resourceDesc.Height = CyanFW::Instance()->GetHeight();;
+	//resourceDesc.DepthOrArraySize = 1;
+	//resourceDesc.MipLevels = 1;
+	//resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	//resourceDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
+	//resourceDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
+	//resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	//resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 	
-	D3D12_CLEAR_VALUE d3dClearValue;
-	d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	d3dClearValue.DepthStencil.Depth = 1.0f;
-	d3dClearValue.DepthStencil.Stencil = 0;
-	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &resourceDesc,
-		D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, IID_PPV_ARGS(&depthStencilBuffer));
-	
-	device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, GetDsv(0));
+	//D3D12_CLEAR_VALUE d3dClearValue;
+	//d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	//d3dClearValue.DepthStencil.Depth = 1.0f;
+	//d3dClearValue.DepthStencil.Stencil = 0;
+	//device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &resourceDesc,
+	//	D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, IID_PPV_ARGS(&depthStencilBuffer));
+	//
+	//device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, GetDsv(0));
 }
 
 void Graphics::InitDirect2D()
@@ -951,7 +950,29 @@ void Graphics::ChangeSwapChainState()
 
 	BOOL bFullScreenState = FALSE;
 	swapChain->GetFullscreenState(&bFullScreenState, NULL);
-	swapChain->SetFullscreenState(!bFullScreenState, NULL);
+
+	bFullScreenState = !bFullScreenState;
+	swapChain->SetFullscreenState(bFullScreenState, NULL);
+
+	int w, h;
+	if (bFullScreenState)
+	{
+		//DXGI_SWAP_CHAIN_DESC1 desc;
+		//swapChain->GetDesc1(&desc);
+		//int w = desc.Width;
+		//int h = desc.Height;
+		w = 1920;
+		h = 1080;
+	}
+	else
+	{
+		w = CyanFW::Instance()->window.x;
+		h = CyanFW::Instance()->window.y;
+	}
+	
+	CyanFW::Instance()->SetWidth(w);
+	CyanFW::Instance()->SetHeight(h);
+	BuildResources();
 
 	DXGI_MODE_DESC dxgiTargetParameters;
 	dxgiTargetParameters.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -966,21 +987,17 @@ void Graphics::ChangeSwapChainState()
 	{
 		textFormats.clear();
 		textBrushes.clear();
-		//int va = textFormat.Reset();				//	0	1
-		//int v9 = textBrush.Reset();				//	0	1
-		int v8 = writeFactory.Reset();				//	1	3
+		writeFactory.Reset();
 
-		int v5 = renderTargets2d[1].Reset();		//	0	1
-		int v4 = renderTargets2d[0].Reset();		//	0	1
-		int v7 = deviceContext.Reset();			//	0	1
-		int v6 = d2dDevice.Reset();				//	0	9
+		renderTargets2d[1].Reset();
+		renderTargets2d[0].Reset();
+		deviceContext.Reset();
+		d2dDevice.Reset();
 
-		int v3 = d11DeviceContext.Reset();			//	0	6
-		int v2 = wrappedBackBuffers[1].Reset();	//	0	3
-		int v1 = wrappedBackBuffers[0].Reset();	//	0	3
-		int v0 = device11On12.Reset();				//	0	98
-
-		int k = 0;
+		d11DeviceContext.Reset();
+		wrappedBackBuffers[1].Reset();
+		wrappedBackBuffers[0].Reset();
+		device11On12.Reset();
 	}
 
 	for (GameObject* gameObject : Scene::scene->textObjects)
@@ -1038,6 +1055,28 @@ void Graphics::WaitForPreviousFrame()
 
 void Graphics::BuildResources()
 {
+	D3D12_RESOURCE_DESC resourceDesc{};
+	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resourceDesc.Alignment = 0;
+	resourceDesc.Width = CyanFW::Instance()->GetWidth();
+	resourceDesc.Height = CyanFW::Instance()->GetHeight();;
+	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.MipLevels = 1;
+	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	resourceDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
+	resourceDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
+	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+	D3D12_CLEAR_VALUE d3dClearValue;
+	d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	d3dClearValue.DepthStencil.Depth = 1.0f;
+	d3dClearValue.DepthStencil.Stencil = 0;
+	device->CreateCommittedResource(&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &resourceDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE, &d3dClearValue, IID_PPV_ARGS(&depthStencilBuffer));
+
+	device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, GetDsv(0));
+
 	static const DXGI_FORMAT NormalMapFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 	D3D12_RESOURCE_DESC texDesc;

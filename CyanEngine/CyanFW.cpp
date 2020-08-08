@@ -7,6 +7,7 @@ CyanFW::CyanFW(UINT width, UINT height, std::wstring name)
 	instance = this;
 	_tcscpy_s(m_pszFrameRate, _T("CyanEngine ("));
 
+	window = { float(width), float(height) };
 	aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 }
 
