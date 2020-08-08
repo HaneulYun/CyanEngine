@@ -14,6 +14,9 @@ private:
 	std::wstring title;
 
 public:
+	Vector2 window;
+
+public:
 	Graphics* graphics{ nullptr };
 	SceneManager* sceneManager{ nullptr };
 	AssetManager* assetManager{ nullptr };
@@ -31,6 +34,8 @@ public:
 
 	UINT GetWidth() const { return width; }
 	UINT GetHeight() const { return height; }
+	void SetWidth(UINT width) { this->width = width; }
+	void SetHeight(UINT height) { this->height = height; }
 	float GetAspectRatio() const { return aspectRatio; }
 	const WCHAR* GetTitle() const { return title.c_str(); }
 };

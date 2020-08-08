@@ -79,6 +79,8 @@ public:
 
 	void ChangeSwapChainState();
 
+	void CreateRenderTargetView();
+
 	void WaitForPreviousFrame();
 	void FlushCommandQueue();
 
