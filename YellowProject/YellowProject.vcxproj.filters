@@ -191,5 +191,8 @@
     <FxCompile Include="Shaders\cbPass.hlsl">
       <Filter>Assets\Shaders\0_Common</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\modelOnUI.hlsl">
+      <Filter>Assets\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

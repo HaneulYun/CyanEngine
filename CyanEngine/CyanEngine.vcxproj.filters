@@ -291,6 +291,9 @@
     <ClInclude Include="MenuScene.h">
       <Filter>AzureTester</Filter>
     </ClInclude>
+    <ClInclude Include="OnUI.h">
+      <Filter>0_00_CyanEngine\30_Core\32_UIComponent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene.cpp">

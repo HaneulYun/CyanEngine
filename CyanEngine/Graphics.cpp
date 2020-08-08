@@ -173,6 +173,19 @@ void Graphics::Render()
 	for (auto layer : { RenderLayer::UI })
 		RenderObjects((int)layer);
 
+	{
+		D3D12_VIEWPORT viewport{
+			100, 300,
+			150, 150,
+			0.0f, 1.0f
+		};
+		commandList->RSSetViewports(1, &viewport);
+	}
+
+	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
+	for (auto layer : { RenderLayer::OnUI })
+		RenderObjects((int)layer);
+
 	PostRender();
 }
 
@@ -204,6 +217,11 @@ void Graphics::RenderObjects(int layerIndex, bool isShadowMap)
 			commandList->SetPipelineState(pipelineStates["grass"].Get());
 		else if (layerIndex == (int)RenderLayer::BuildPreview)
 			commandList->SetPipelineState(pipelineStates["buildPreview"].Get());
+		else if (layerIndex == (int)RenderLayer::OnUI)
+		{
+			commandList->OMSetStencilRef(1);
+			commandList->SetPipelineState(pipelineStates["onUI"].Get());
+		}
 		else if (layerIndex == (int)RenderLayer::UI)
 		{
 			commandList->OMSetStencilRef(1);
@@ -718,6 +736,9 @@ void Graphics::LoadAssets()
 	ComPtr<ID3DBlob> deferredVS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "VS", "vs_5_1");
 	ComPtr<ID3DBlob> deferredPS = d3dUtil::CompileShader(L"shaders\\deferred.hlsl", nullptr, "PS", "ps_5_1");
 
+	ComPtr<ID3DBlob> onUIVS = d3dUtil::CompileShader(L"shaders\\modelOnUI.hlsl", nullptr, "VS", "vs_5_1");
+	ComPtr<ID3DBlob> onUIPS = d3dUtil::CompileShader(L"shaders\\modelOnUI.hlsl", nullptr, "PS", "ps_5_1");
+
 
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[]
 	{
@@ -752,6 +773,18 @@ void Graphics::LoadAssets()
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 
+	D3D12_RENDER_TARGET_BLEND_DESC blendDesc{};
+	blendDesc.BlendEnable = true;
+	blendDesc.LogicOpEnable = false;
+	blendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	blendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	blendDesc.BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc{};
 	opaquePsoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
 	opaquePsoDesc.pRootSignature = rootSignature.Get();
@@ -773,6 +806,11 @@ void Graphics::LoadAssets()
 	skinnedPsoDesc.InputLayout = { inputElementDescs_skinned, _countof(inputElementDescs_skinned) };
 	skinnedPsoDesc.VS = CD3DX12_SHADER_BYTECODE(skinnedVS.Get());
 	device->CreateGraphicsPipelineState(&skinnedPsoDesc, IID_PPV_ARGS(&pipelineStates["skinnedOpaque"]));
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC onUIPsoDesc = opaquePsoDesc;
+	onUIPsoDesc.VS = CD3DX12_SHADER_BYTECODE(onUIVS.Get());
+	onUIPsoDesc.PS = CD3DX12_SHADER_BYTECODE(onUIPS.Get());
+	device->CreateGraphicsPipelineState(&onUIPsoDesc, IID_PPV_ARGS(&pipelineStates["onUI"]));
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC debugPsoDesc = opaquePsoDesc;
 	debugPsoDesc.VS = CD3DX12_SHADER_BYTECODE(debugVS.Get());
@@ -835,18 +873,6 @@ void Graphics::LoadAssets()
 	skyPsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL;
 	skyPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
 	device->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&pipelineStates["sky"]));
-
-	D3D12_RENDER_TARGET_BLEND_DESC blendDesc{};
-	blendDesc.BlendEnable = true;
-	blendDesc.LogicOpEnable = false;
-	blendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-	blendDesc.BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-	blendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
-	blendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-	blendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
-	blendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC uiPsoDesc = opaquePsoDesc;
 	uiPsoDesc.VS = CD3DX12_SHADER_BYTECODE(uiVS.Get());

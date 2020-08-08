@@ -213,6 +213,7 @@
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="OnUI.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Sector.h" />
     <ClInclude Include="TagData.h" />

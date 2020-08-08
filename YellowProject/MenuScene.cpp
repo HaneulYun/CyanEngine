@@ -13,6 +13,12 @@ void MenuScene::BuildObjects()
 	ASSET AddMaterial("gray", ASSET TEXTURE("none"), 0, 0, 0, { 0.5, 0.5, 0.5, 0.5 });
 	ASSET AddMaterial("menuBackgroundMat", ASSET TEXTURE("menuBackgroundTex"), 0, 0, 0, { 0.8, 0.8, 0.8, 1 });
 
+	ASSET AddTexture("house01_D", L"Assets\\AdvancedVillagePack\\Textures\\T_Pack_04_D.dds");
+	ASSET AddTexture("house01_N", L"Assets\\AdvancedVillagePack\\Textures\\T_Pack_04_N.dds");
+	ASSET AddTexture("house01_E", L"Assets\\AdvancedVillagePack\\Textures\\T_Pack_04_E.dds");
+	ASSET AddFbxForMesh("SM_House_Var01", "Assets\\AdvancedVillagePack\\Meshes\\SM_House_Var01.FBX");
+	ASSET AddMaterial("house01", ASSET TEXTURE("house01_D"), ASSET TEXTURE("house01_N"), ASSET TEXTURE("house01_E"), 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
+
 	////*** AudioClip ***//
 	ASSET AddAudioClip("testSound", "Assets\\FootstepSound\\Grass\\test.mp3");
 
@@ -60,7 +66,7 @@ void MenuScene::BuildObjects()
 		{
 			auto rt = terrainSceneButton->GetComponent<RectTransform>();
 			rt->setAnchorAndPivot(0.5, 0.5);
-			rt->setPosAndSize(-10, 20, 150, 30);
+			rt->setPosAndSize(0, 20, 150, 30);
 
 			terrainSceneButton->AddComponent<Button>()->AddEvent(
 				[](void*) {
@@ -84,7 +90,7 @@ void MenuScene::BuildObjects()
 		{
 			auto rt = characterSceneButton->GetComponent<RectTransform>();
 			rt->setAnchorAndPivot(0.5, 0.5);
-			rt->setPosAndSize(-10, -60, 150, 30);
+			rt->setPosAndSize(0, -60, 150, 30);
 
 			characterSceneButton->AddComponent<Button>()->AddEvent(
 				[](void*) {
@@ -108,7 +114,7 @@ void MenuScene::BuildObjects()
 		{
 			auto rt = particleSceneButton->GetComponent<RectTransform>();
 			rt->setAnchorAndPivot(0.5, 0.5);
-			rt->setPosAndSize(-10, -140, 150, 30);
+			rt->setPosAndSize(0, -140, 150, 30);
 
 			particleSceneButton->AddComponent<Button>()->AddEvent(
 				[](void*) {
@@ -127,5 +133,36 @@ void MenuScene::BuildObjects()
 				text->paragraphAlignment = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 			}
 		}
+	}
+
+	auto testImage = CreateImage();
+	{
+		auto rt = testImage->GetComponent<RectTransform>();
+		rt->setAnchorAndPivot(0, 1);
+		rt->setPosAndSize(100, -300, 150, 150);
+	}
+
+	auto modelViewCameraObject = CreateEmpty();
+	auto modelViewCamera = modelViewCameraObject->AddComponent<Camera>();
+
+	auto gameObject = CreateEmpty();
+	{
+		Matrix4x4 projection = Matrix4x4::MatrixOrthographicOffCenterLH(-5, 5, -5, 5, -10, 10);
+
+		Vector3 pos = Vector3(1, 1, -1).Normalize();
+		Vector3 lookAt = Vector3(0);
+		Vector3 up{ 0, 1, 0 };
+		Matrix4x4 view = modelViewCamera->view = Matrix4x4::MatrixLookAtLH(pos, lookAt, up);
+
+		gameObject->transform->Scale({ 1, 1, 1 });
+		gameObject->transform->Rotate({ 1, 0, 0 }, -90);
+		gameObject->transform->position = { 0, -2.5, 0 };
+		gameObject->transform->localToWorldMatrix = gameObject->transform->localToWorldMatrix * view * projection;
+
+		auto onUI = gameObject->AddComponent<OnUI>();
+		gameObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("SM_House_Var01");
+		gameObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("house01"));
+		gameObject->AddComponent<Image>();
+		gameObject->layer = (int)RenderLayer::OnUI;
 	}
 }

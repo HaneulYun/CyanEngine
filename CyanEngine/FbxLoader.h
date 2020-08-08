@@ -8,6 +8,7 @@ enum class RenderLayer : int
 	Grass,
 	BuildPreview,
 	UI,
+	OnUI,
 	Sky,
 	Particle,
 	Light,

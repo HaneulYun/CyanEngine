@@ -43,6 +43,7 @@ void TerrainScene::BuildObjects()
 	//*** Material ***//
 	{
 		ASSET AddMaterial("none",		ASSET TEXTURE("none"));
+		ASSET AddMaterial("gray",		ASSET TEXTURE("none"), 0, 0, 0, { 0.5, 0.5, 0.5, 0.5 });
 		ASSET AddMaterial("PolyArt",	ASSET TEXTURE("polyArtTex"), 0, 0, 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.01f, 0.01f, 0.01f }, 0.9f);
 		ASSET AddMaterial("bricksMat",	ASSET TEXTURE("bricksTex"), 0, 0, 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.02f, 0.02f, 0.02f }, 0.1f);
 		ASSET AddMaterial("stoneMat",	ASSET TEXTURE("none"), 0, 0, 0, { 0.0f, 0.0f, 0.1f, 1.0f }, { 0.98f, 0.97f, 0.95f }, 0.1f);
@@ -66,7 +67,7 @@ void TerrainScene::BuildObjects()
 		//ASSET AddFbxForMesh("SM_Well_Extra02", "Assets\\AdvancedVillagePack\\Meshes\\SM_Well_Extra02.FBX");
 		//ASSET AddFbxForMesh("SM_Well_Extra03", "Assets\\AdvancedVillagePack\\Meshes\\SM_Well_Extra03.FBX");
 		ASSET AddFbxForMesh("SM_House_Var01", "Assets\\AdvancedVillagePack\\Meshes\\SM_House_Var01.FBX");
-		//ASSET AddFbxForMesh("SM_House_Var01", "Assets\\AdvancedVillagePack\\Meshes\\Pillar.FBX");
+		ASSET AddFbxForMesh("SM_House_Var01", "Assets\\AdvancedVillagePack\\Meshes\\Pillar.FBX");
 		//ASSET AddFbxForMesh("SM_House_Var02", "Assets\\AdvancedVillagePack\\Meshes\\SM_House_Var02.FBX");
 		//ASSET AddFbxForMesh("SM_House_Var02_Extra", "Assets\\AdvancedVillagePack\\Meshes\\SM_House_Var02_Extra.FBX");
 		//ASSET AddFbxForMesh("SM_Mushroom_Var01", "Assets\\AdvancedVillagePack\\Meshes\\SM_Mushroom_Var01.FBX");
