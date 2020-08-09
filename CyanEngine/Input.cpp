@@ -145,8 +145,6 @@ int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LP
 				wcscpy(buffer, cbuffer);
 				memset(cbuffer, 0, 8);
 			}
-			Debug::Log(std::to_string(100).c_str());
-			Debug::Log(" ");
 		}
 		else if (lParam & GCS_COMPSTR)
 		{
@@ -156,16 +154,12 @@ int Input::ProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LP
 
 			isModifiedCbuffer = true;
 		}
-
-		Debug::Log(std::to_string(len).c_str());
-		Debug::Log("\n");
-
 		ImmReleaseContext(hWnd, himc);
 		return 0;
 	case WM_IME_CHAR:
 		return 0;
 	case WM_CHAR:
-		buffer[0] = wParam;
+		buffer[wcslen(buffer)] = wParam;
 		return 0;
 	}
 	return 1;

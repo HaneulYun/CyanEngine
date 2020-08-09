@@ -60,7 +60,7 @@ public:
 
 public:
 	Graphics() {}
-	~Graphics() {}
+	~Graphics() { Destroy(); }
 
 	void Initialize();
 

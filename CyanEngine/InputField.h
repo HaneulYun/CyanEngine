@@ -39,7 +39,8 @@ public:
 		{
 			if (Input::buffer[0] || Input::isModifiedCbuffer)
 			{
-				if (Input::buffer[0] == 13)
+				int len = wcslen(Input::buffer);
+				if (len && Input::buffer[len-1] == 13)
 				{
 					isFocused = false;
 					return;
