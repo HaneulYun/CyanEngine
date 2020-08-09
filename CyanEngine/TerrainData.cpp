@@ -59,9 +59,9 @@ float TerrainData::GetHeight(float fx, float fz)
 	float fxPercent = fx - x;
 	float fzPercent = fz - z;
 	float fBottomLeft = (float)bytes[x + (z * heightmapWidth)];
-	float fBottomRight = (float)bytes[(x + 1) + (z * heightmapWidth)];
-	float fTopLeft = (float)bytes[x + ((z + 1) * heightmapWidth)];
-	float fTopRight = (float)bytes[(x + 1) + ((z + 1) * heightmapWidth)];
+	float fBottomRight = (float)bytes[(fx >= heightmapWidth - 1 ? x : x + 1) + (z * heightmapWidth)];
+	float fTopLeft = (float)bytes[x + ((fz >= heightmapHeight - 1 ? z : z + 1) * heightmapWidth)];
+	float fTopRight = (float)bytes[(fx >= heightmapWidth - 1 ? x : x + 1) + ((fz >= heightmapHeight - 1 ? z : z + 1) * heightmapWidth)];
 
 	bool bRightToLeft = ((z % 2) != 0);
 	if (bRightToLeft)
@@ -82,6 +82,43 @@ float TerrainData::GetHeight(float fx, float fz)
 	float fTopHeight = fTopLeft * (1 - fxPercent) + fTopRight * fxPercent;
 	float fBottomHeight = fBottomLeft * (1 - fxPercent) + fBottomRight * fxPercent;
 	float fHeight = fBottomHeight * (1 - fzPercent) + fTopHeight * fzPercent;
+
+	return(fHeight);
+}
+
+Vector3 TerrainData::GetNormal(float fx, float fz)
+{
+	if ((fx < 0.0f) || (fz < 0.0f) || (fx >= heightmapWidth) || (fz >= heightmapHeight))
+		return(0.0f);
+
+	int x = (int)fx;
+	int z = (int)fz;
+	float fxPercent = fx - x;
+	float fzPercent = fz - z;
+	Vector3 fBottomLeft = GetHeightMapNormal(x, z);// (float)bytes[x + (z * heightmapWidth)];
+	Vector3 fBottomRight = GetHeightMapNormal(x + 1, z);//(float)bytes[(x + 1) + (z * heightmapWidth)];
+	Vector3 fTopLeft = GetHeightMapNormal(x, z + 1);//(float)bytes[x + ((z + 1) * heightmapWidth)];
+	Vector3 fTopRight = GetHeightMapNormal(x + 1, z + 1);//(float)bytes[(x + 1) + ((z + 1) * heightmapWidth)];
+
+	bool bRightToLeft = ((z % 2) != 0);
+	if (bRightToLeft)
+	{
+		if (fzPercent >= fxPercent)
+			fBottomRight = fBottomLeft + (fTopRight - fTopLeft);
+		else
+			fTopLeft = fTopRight + (fBottomLeft - fBottomRight);
+	}
+	else
+	{
+		if (fzPercent < (1.0f - fxPercent))
+			fTopRight = fTopLeft + (fBottomRight - fBottomLeft);
+		else
+			fBottomLeft = fTopLeft + (fBottomRight - fTopRight);
+	}
+
+	Vector3 fTopHeight = fTopLeft * (1 - fxPercent) + fTopRight * fxPercent;
+	Vector3 fBottomHeight = fBottomLeft * (1 - fxPercent) + fBottomRight * fxPercent;
+	Vector3 fHeight = fBottomHeight * (1 - fzPercent) + fTopHeight * fzPercent;
 
 	return(fHeight);
 }

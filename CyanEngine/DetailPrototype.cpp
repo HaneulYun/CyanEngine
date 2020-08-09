@@ -18,14 +18,21 @@ void DetailPrototype::Set(TerrainData* terrainData)
 		std::vector<TreeSpriteVertex> vertices;
 		float sizex = 0.5, sizey = 0.5;
 		const int width = terrainData->heightmapWidth - 1, length = terrainData->heightmapHeight - 1;
-		float stride = 0.3f;
+		float stride = 0.2f;
 		vertices.reserve(width * length);
 		for (float i = 0; i < width; i += stride)
 		{
 			for (float j = 0; j < length; j += stride)
 			{
+				float noisex, noisey;
+				noisex = Random::Range(-1.5f, 1.5f);
+				noisey = Random::Range(-1.5f, 1.5f);
+
+				float x = i + noisex;
+				float y = j + noisey;
+
 				TreeSpriteVertex v;
-				float h = terrainData->GetHeight(i, j) * (terrainData->size.y / 255.0f);
+				float h = terrainData->GetHeight(x, y) * (terrainData->size.y / 255.0f);
 				//if (h > 33.0f)
 				//	continue;
 				//if (h > 30.0f)
@@ -34,9 +41,9 @@ void DetailPrototype::Set(TerrainData* terrainData)
 				if (h == 0)
 					continue;
 				v.Size = XMFLOAT2(sizex, sizey);
-				v.Pos = XMFLOAT3(i, (terrainData->GetHeight(i, j) + sizey / 2) * (terrainData->size.y / 255.0f), j);;
+				v.Pos = XMFLOAT3(x, (terrainData->GetHeight(x, y) + sizey / 2) * (terrainData->size.y / 255.0f), y);;
 				v.look = XMFLOAT3(MathHelper::RandF(-1.0f, 1.0f), 0.0f, MathHelper::RandF(-1.0f, 1.0f));
-				v.normal = terrainData->GetHeightMapNormal(i, j).xmf3;
+				v.normal = terrainData->GetNormal(x, y).xmf3;
 				vertices.push_back(v);
 			}
 		}

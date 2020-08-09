@@ -23,6 +23,7 @@ public:
 	void Load();
 	
 	float GetHeight(float x, float z);
+	Vector3 GetNormal(float x, float z);
 	Vector3 GetHeightMapNormal(int x, int z);
 
 	float* GetHeightMapPixels() { return(bytes); }
