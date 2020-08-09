@@ -8,36 +8,39 @@ void BoxCollider::Start()
 
 bool BoxCollider::Compare(Collider* _other)
 {
-	boundingBox.Center = gameObject->transform->position.xmf3;
+	auto mtx = gameObject->GetMatrix();
+	BoundingBox bx{ (center.TransformCoord(mtx)).xmf3, extents.xmf3 };
+
 	BoundingOrientedBox obbBox{};
 	if (obb)
 	{
-		obbBox.Center = boundingBox.Center;
-		obbBox.Extents = boundingBox.Extents;
+		obbBox.Center = bx.Center;
+		obbBox.Extents = bx.Extents;
 		obbBox.Orientation = gameObject->transform->localToWorldMatrix.QuaternionRotationMatrix().xmf4;
 	}
 	if (typeid(*_other).name() == typeid(BoxCollider).name())
 	{
 		BoxCollider* other = dynamic_cast<BoxCollider*>(_other);
-		other->boundingBox.Center = other->gameObject->transform->position.xmf3;
+		auto omtx = other->gameObject->GetMatrix();
+		BoundingBox obx{ (other->center.TransformCoord(omtx)).xmf3, other->extents.xmf3 };
 
 		BoundingOrientedBox obbOtherBox{};
 		if (other->obb)
 		{
-			obbOtherBox.Center = other->boundingBox.Center;
-			obbOtherBox.Extents = other->boundingBox.Extents;
+			obbOtherBox.Center = obx.Center;
+			obbOtherBox.Extents = obx.Extents;
 			obbOtherBox.Orientation = other->gameObject->transform->localToWorldMatrix.QuaternionRotationMatrix().xmf4;
 		}
 
 		if (obb)
 		{
-			if(other->obb)
+			if (other->obb)
 				return obbBox.Intersects(obbOtherBox);
-			return obbBox.Intersects(other->boundingBox);
+			return obbBox.Intersects(obx);
 		}
 		if (other->obb)
-			return boundingBox.Intersects(obbOtherBox);
-		return boundingBox.Intersects(other->boundingBox);
+			return bx.Intersects(obbOtherBox);
+		return bx.Intersects(obx);
 	}
 	else if (typeid(*_other).name() == typeid(SphereCollider).name())
 	{

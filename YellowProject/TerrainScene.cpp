@@ -220,9 +220,8 @@ void TerrainScene::BuildObjects()
 	auto terrainBottom = CreateEmpty();
 	{
 		terrainBottom->transform->Scale({ 1024, 1, 1024 });
-		terrainBottom->transform->Rotate({ 0, 0, 1 }, 180);
-		terrainBottom->transform->position = { 512, 0, 512 };
-		terrainBottom->AddComponent<MeshFilter>()->mesh = ASSET MESH("Plane");
+		terrainBottom->transform->position = { 512, -0.5, 512 };
+		terrainBottom->AddComponent<MeshFilter>()->mesh = ASSET MESH("Cube");
 		terrainBottom->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("none"));
 	}
 	
