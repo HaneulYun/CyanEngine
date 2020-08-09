@@ -104,7 +104,7 @@ void Graphics::Render()
 	commandList->OMSetRenderTargets(_countof(mrt), mrt, FALSE, &dsvHandle);
 	for (auto layer : {
 		RenderLayer::Opaque, RenderLayer::SkinnedOpaque, RenderLayer::Grass,
-		RenderLayer::BuildPreview, RenderLayer::Particle, })
+		RenderLayer::BuildPreview })
 		RenderObjects((int)layer);
 
 
@@ -163,6 +163,10 @@ void Graphics::Render()
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	commandList->DrawInstanced(4, 1, 0, 0);
 
+	commandList->OMSetRenderTargets(1, &heapManager.GetRtv(frameIndex), FALSE, &dsvHandle);
+	for (auto layer : { RenderLayer::Particle })
+		RenderObjects((int)layer);
+
 	if (isShadowDebug)
 	{
 		commandList->SetPipelineState(pipelineStates["debug"].Get());
@@ -170,6 +174,7 @@ void Graphics::Render()
 		commandList->DrawInstanced(4, 10, 0, 0);
 	}
 
+	commandList->OMSetRenderTargets(1, &heapManager.GetRtv(frameIndex), FALSE, nullptr);
 	for (auto layer : { RenderLayer::UI })
 		RenderObjects((int)layer);
 
