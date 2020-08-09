@@ -25,6 +25,8 @@ public:
 	virtual void OnCollisionEnter(GameObject* other) {}
 	virtual void OnCollisionStay(GameObject* other) {}
 	virtual void OnCollisionExit(GameObject* other) {}
+	virtual void OnEnable() {}
+	virtual void OnDisable() {}
 
 	virtual Component* Duplicate(Component* component) { return new Component(*component); }
 };

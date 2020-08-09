@@ -3,8 +3,8 @@
 class OnUI : public MonoBehavior<OnUI>
 {
 public:
-	Vector2 leftBottom{};
-	Vector2 rightTop{};
+	Vector2 leftTop{};
+	Vector2 rightBottom{};
 
 private:
 	friend class GameObject;

@@ -3,7 +3,7 @@
 
 GameObject::GameObject(bool isUI)
 {
-	if(isUI)
+	if (isUI)
 		transform = new RectTransform();
 	else
 		transform = new Transform();
@@ -38,7 +38,7 @@ void GameObject::Update()
 	if (!active)
 		return;
 	for (Component* component : components)
-		if(component->enabled)
+		if (component->enabled)
 			component->Update();
 	for (GameObject* child : children)
 		child->Update();
@@ -198,6 +198,13 @@ void GameObject::SetActive(bool state)
 		if (renderSet)
 			renderSet->isDirty = NUM_FRAME_RESOURCES;
 	active = state;
+
+	if (active)
+		for (Component* component : components)
+			component->OnEnable();
+	else
+		for (Component* component : components)
+			component->OnDisable();
 	for (GameObject* child : children)
 		child->SetActive(state);
 }

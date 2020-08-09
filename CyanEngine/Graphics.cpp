@@ -154,7 +154,7 @@ void Graphics::Render()
 	commandList->SetGraphicsRootConstantBufferView(4, passCB->GetGPUVirtualAddress());
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-	
+
 	const float clearColor[]{ 0.1921569, 0.3019608, 0.4745098, 1.0f };
 	commandList->ClearRenderTargetView(heapManager.GetRtv(frameIndex), clearColor, 0, nullptr);
 	commandList->OMSetRenderTargets(1, &heapManager.GetRtv(frameIndex), FALSE, nullptr);
@@ -173,18 +173,53 @@ void Graphics::Render()
 	for (auto layer : { RenderLayer::UI })
 		RenderObjects((int)layer);
 
+	commandList->OMSetRenderTargets(1, &heapManager.GetRtv(frameIndex), FALSE, &dsvHandle);
 	{
-		D3D12_VIEWPORT viewport{
-			100, 300,
-			150, 150,
-			0.0f, 1.0f
-		};
-		commandList->RSSetViewports(1, &viewport);
-	}
+		commandList->SetPipelineState(pipelineStates["onUI"].Get());
 
-	commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
-	for (auto layer : { RenderLayer::OnUI })
-		RenderObjects((int)layer);
+		for (auto& renderSets : Scene::scene->objectRenderManager.renderObjectsLayer[(int)RenderLayer::OnUI])
+		{
+			auto mesh = renderSets.first;
+			auto& objects = renderSets.second.gameObjects;
+			if (!mesh || !objects.size())
+				continue;
+
+			auto onUI = objects[0]->GetComponent<OnUI>();
+			if (!onUI)
+				continue;
+
+			commandList->ClearDepthStencilView(dsvHandle, clearFlags, 1.0f, 0, 0, nullptr);
+			D3D12_VIEWPORT viewport{
+			onUI->leftTop.x, onUI->leftTop.y,
+			onUI->rightBottom.x, onUI->rightBottom.y,
+			0.0f, 1.0f
+			};
+			commandList->RSSetViewports(1, &viewport);
+
+			auto objectsResource = renderSets.second.GetResources();
+			auto instanceBuffer = objectsResource->InstanceBuffer.get();
+			auto skinnedBuffer = objectsResource->SkinnedBuffer.get();
+			auto matIndexBuffer = objectsResource->MatIndexBuffer.get();
+
+			commandList->SetGraphicsRootShaderResourceView(0, instanceBuffer->Resource()->GetGPUVirtualAddress());
+			commandList->SetGraphicsRootShaderResourceView(2, skinnedBuffer->Resource()->GetGPUVirtualAddress());
+
+			commandList->IASetPrimitiveTopology(mesh->PrimitiveType);
+			commandList->IASetVertexBuffers(0, 1, &mesh->VertexBufferView());
+			if (mesh->IndexBufferByteSize)
+				commandList->IASetIndexBuffer(&mesh->IndexBufferView());
+
+			int i = 0;
+			for (auto& submesh : mesh->DrawArgs)
+			{
+				commandList->SetGraphicsRootShaderResourceView(1, matIndexBuffer->Resource()->GetGPUVirtualAddress() + sizeof(MatIndexData) * i++);
+				if (mesh->IndexBufferByteSize)
+					commandList->DrawIndexedInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, submesh.second.BaseVertexLocation, 0);
+				else
+					commandList->DrawInstanced(submesh.second.IndexCount, objects.size(), submesh.second.StartIndexLocation, 0);
+			}
+		}
+	}
 
 	PostRender();
 }
@@ -397,7 +432,7 @@ void Graphics::RenderUI()
 		if (auto rt = gameObject->GetComponent<RectTransform>(); rt)
 			if (rt->renderMode)
 			{
-				auto v = Vector3(0).TransformCoord(gameObject->parent->GetMatrix()* Camera::main->view * Camera::main->projection);
+				auto v = Vector3(0).TransformCoord(gameObject->parent->GetMatrix() * Camera::main->view * Camera::main->projection);
 				RectTransform r;
 				r.width = rect->width;
 				r.height = rect->height;
@@ -491,13 +526,13 @@ void Graphics::InitDirect3D()
 
 	ComPtr<IDXGIFactory4> factory{ nullptr };
 	CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory));
-	
+
 	ComPtr<IDXGIAdapter1> adapter{ nullptr };
 	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != factory->EnumAdapters1(i, &adapter); ++i)
 	{
 		DXGI_ADAPTER_DESC1 desc{};
 		adapter->GetDesc1(&desc);
-	
+
 		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
 			continue;
 		if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device))))
@@ -508,24 +543,24 @@ void Graphics::InitDirect3D()
 		factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 		D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device));
 	}
-	
+
 	device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-	
+
 	rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	cbvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	
+
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
 	msQualityLevels.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	msQualityLevels.SampleCount = 4;
 	msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 	msQualityLevels.NumQualityLevels = 0;
-	
+
 	device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels, sizeof(msQualityLevels));
 	m_nMsaa4xQualityLevels = msQualityLevels.NumQualityLevels;
 	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
-	
-	
+
+
 	D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
 	commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	commandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -533,8 +568,8 @@ void Graphics::InitDirect3D()
 	device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
 	device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
 	commandList->Close();
-	
-	
+
+
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
 	swapChainDesc.BufferCount = FrameCount;
 	swapChainDesc.Width = CyanFW::Instance()->GetWidth();
@@ -543,25 +578,25 @@ void Graphics::InitDirect3D()
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.SampleDesc.Count = 1;
-	factory->CreateSwapChainForHwnd(commandQueue.Get(), CyanApp::GetHwnd(), &swapChainDesc, nullptr, nullptr, (IDXGISwapChain1 * *)swapChain.GetAddressOf());
+	factory->CreateSwapChainForHwnd(commandQueue.Get(), CyanApp::GetHwnd(), &swapChainDesc, nullptr, nullptr, (IDXGISwapChain1**)swapChain.GetAddressOf());
 	factory->MakeWindowAssociation(CyanApp::GetHwnd(), DXGI_MWA_NO_ALT_ENTER);
 	frameIndex = swapChain->GetCurrentBackBufferIndex();
-	
-	
+
+
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.NumDescriptors = FrameCount + 4;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	descriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	//device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&rtvHeap));
 	heapManager.BuildRtvHeap(device.Get(), FrameCount + 4);
-	
-	
-	descriptorHeapDesc.NumDescriptors = 1+4;
+
+
+	descriptorHeapDesc.NumDescriptors = 1 + 4;
 	descriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&dsvHeap));
-	
+
 	CreateRenderTargetView();
-	
+
 	//D3D12_RESOURCE_DESC resourceDesc{};
 	//resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	//resourceDesc.Alignment = 0;
@@ -574,7 +609,7 @@ void Graphics::InitDirect3D()
 	//resourceDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	//resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	//resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-	
+
 	//D3D12_CLEAR_VALUE d3dClearValue;
 	//d3dClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	//d3dClearValue.DepthStencil.Depth = 1.0f;
@@ -594,7 +629,7 @@ void Graphics::InitDirect2D()
 	D2D1_FACTORY_OPTIONS d2dFactoryOptions = {};
 
 	ComPtr<ID3D11Device> d3d11Device;
-	D3D11On12CreateDevice(device.Get(), d3d11DeviceFlags, nullptr, 0, reinterpret_cast<IUnknown * *>(commandQueue.GetAddressOf()),
+	D3D11On12CreateDevice(device.Get(), d3d11DeviceFlags, nullptr, 0, reinterpret_cast<IUnknown**>(commandQueue.GetAddressOf()),
 		1, 0, &d3d11Device, &d11DeviceContext, nullptr);
 	d3d11Device.As(&device11On12);
 
@@ -621,7 +656,7 @@ void Graphics::InitDirect2D()
 	{
 		D3D11_RESOURCE_FLAGS d3d11Flags = { D3D11_BIND_RENDER_TARGET };
 		device11On12->CreateWrappedResource(renderTargets[i].Get(), &d3d11Flags, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, IID_PPV_ARGS(&wrappedBackBuffers[i]));
-		
+
 		ComPtr<IDXGISurface> surface;
 		wrappedBackBuffers[i].As(&surface);
 		deviceContext->CreateBitmapFromDxgiSurface(surface.Get(), &bitmapProperties, &renderTargets2d[i]);
@@ -873,7 +908,7 @@ void Graphics::LoadAssets()
 	skyPsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NOT_EQUAL;
 	skyPsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
 	device->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&pipelineStates["sky"]));
-	
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC uiPsoDesc = opaquePsoDesc;
 	uiPsoDesc.VS = CD3DX12_SHADER_BYTECODE(uiVS.Get());
 	uiPsoDesc.PS = CD3DX12_SHADER_BYTECODE(uiPS.Get());
@@ -995,7 +1030,7 @@ void Graphics::ChangeSwapChainState()
 		w = CyanFW::Instance()->window.x;
 		h = CyanFW::Instance()->window.y;
 	}
-	
+
 	CyanFW::Instance()->SetWidth(w);
 	CyanFW::Instance()->SetHeight(h);
 	BuildResources();

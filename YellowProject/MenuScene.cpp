@@ -159,10 +159,15 @@ void MenuScene::BuildObjects()
 		gameObject->transform->position = { 0, -2.5, 0 };
 		gameObject->transform->localToWorldMatrix = gameObject->transform->localToWorldMatrix * view * projection;
 
-		auto onUI = gameObject->AddComponent<OnUI>();
 		gameObject->AddComponent<MeshFilter>()->mesh = ASSET MESH("SM_House_Var01");
 		gameObject->AddComponent<Renderer>()->materials.push_back(ASSET MATERIAL("house01"));
 		gameObject->AddComponent<Image>();
 		gameObject->layer = (int)RenderLayer::OnUI;
+
+		auto onUI = gameObject->AddComponent<OnUI>();
+		onUI->leftTop.x = 100;
+		onUI->leftTop.y = 300;
+		onUI->rightBottom.x = 150;
+		onUI->rightBottom.y = 150;
 	}
 }
