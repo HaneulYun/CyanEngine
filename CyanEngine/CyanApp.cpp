@@ -44,8 +44,8 @@ int CyanApp::Run(CyanFW* cyanFW, HINSTANCE hInstance, int nCmdShow)
 		else
 		{
 			cyanFW->OnFrameAdvance();
-			Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
-			SetWindowText(hwnd, cyanFW->m_pszFrameRate);
+			//Time::Instance()->GetFrameRate(cyanFW->m_pszFrameRate + 12, 37);
+			//SetWindowText(hwnd, cyanFW->m_pszFrameRate);
 		}
 	}
 
