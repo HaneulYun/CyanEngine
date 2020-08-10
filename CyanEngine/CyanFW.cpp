@@ -62,7 +62,7 @@ bool CyanFW::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 
 void CyanFW::OnFrameAdvance()
 {
-	Time::Instance()->Tick();
+	Time::Instance()->Tick(60);
 
 	if (sceneManager->nextScene)
 	{
